@@ -186,3 +186,19 @@ Object.assign(I18N.nl, {
   rx_budget: v => `Budget tot ${v}`, rx_pmin: 'Zonder minimumprijs', rx_towns: x => `Ook buiten ${x}`, rx_cat: x => `Ook andere types dan ${x.toLowerCase()}`,
   rx_beds: n => `${n}+ slaapkamers`, rx_baths: 'Minder badkamers', rx_pool_any: 'Gemeenschappelijk zwembad mag ook', rx_pool: 'Zonder zwembad', rx_newbuild: 'Bestaand én nieuwbouw', rx_sea: km => `Tot ${km} km van zee`, rx_reduced: 'Niet alleen afgeprijsd',
 });
+
+// koopgids op de woningpagina
+Object.assign(I18N.en, {
+  qa_guide: 'Buying guide', guide_h: 'Free buying guide', guide_p: 'Everything about buying a home in Spain, in plain language. We email it to you.',
+  guide_items: ['Every step from reservation to the keys', 'Taxes and our one all-in fee', 'NIE, power of attorney and mortgage', 'Checks we do before you sign'],
+  guide_btn: 'Send me the buying guide', guide_sal: 'Salutation', guide_sal_opts: ['Mr', 'Mrs', 'Ms', '–'], guide_send: 'Request the guide',
+  guide_err: 'Please fill in your first name, last name and a valid email address.', guide_ok: n => `Thank you, ${n}. The buying guide is on its way to your inbox.`,
+  guide_msg: 'Buying guide requested from the property page.',
+});
+Object.assign(I18N.nl, {
+  qa_guide: 'Koopgids', guide_h: 'Gratis koopgids', guide_p: 'Alles over een woning kopen in Spanje, in gewone taal. We mailen hem je toe.',
+  guide_items: ['Elke stap van reservering tot sleutels', 'Belastingen en ons ene all-in tarief', 'NIE, volmacht en hypotheek', 'De controles die we doen voordat je tekent'],
+  guide_btn: 'Stuur mij de koopgids', guide_sal: 'Aanhef', guide_sal_opts: ['Dhr.', 'Mevr.', '–'], guide_send: 'Vraag de koopgids aan',
+  guide_err: 'Vul je voornaam, achternaam en een geldig e-mailadres in.', guide_ok: n => `Dank je, ${n}. De koopgids komt naar je inbox.`,
+  guide_msg: 'Koopgids aangevraagd via de woningpagina.',
+});

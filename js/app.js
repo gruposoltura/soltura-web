@@ -83,6 +83,7 @@ const ICON = {
   check: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
   phone: '<svg viewBox="0 0 24 24"><path d="M6.6 3.5h3l1.5 4-2 1.3a11 11 0 0 0 6.1 6.1l1.3-2 4 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/></svg>',
   mail: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></svg>',
+  book: '<svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M8 7.5h8M8 11h6"/></svg>',
   g: '<svg viewBox="0 0 24 24" class="g-logo"><path fill="#4285F4" stroke="none" d="M22.6 12.3c0-.8-.1-1.5-.2-2.3H12v4.3h5.9a5 5 0 0 1-2.2 3.3v2.8h3.6c2.1-1.9 3.3-4.8 3.3-8.1z"/><path fill="#34A853" stroke="none" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.8c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.9A11 11 0 0 0 12 23z"/><path fill="#FBBC05" stroke="none" d="M5.8 14.1a6.6 6.6 0 0 1 0-4.2V7H2.1a11 11 0 0 0 0 9.9z"/><path fill="#EA4335" stroke="none" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 7l3.7 2.9C6.7 7.3 9.1 5.4 12 5.4z"/></svg>',
   play: '<svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg>',
 };
@@ -762,6 +763,7 @@ async function openSheet(ref) {
           <button type="button" data-go="mortBox">${ICON.calc}<span>${t('qa_mort')}</span></button>
           <button type="button" data-go="gal">${ICON.cam}<span id="qaPhotos">${t('qa_photos', (p.media_ids || []).length || 1)}</span></button>
           <button type="button" data-go="viewBtn">${ICON.cal}<span>${t('qa_view')}</span></button>
+          <button type="button" data-go="guideBox">${ICON.book}<span>${t('qa_guide')}</span></button>
         </div>
         <div class="keyfacts" id="keyfacts"></div>
         <div id="marketBox"></div>
@@ -785,6 +787,7 @@ async function openSheet(ref) {
           <button class="btn primary" type="button" id="viewBtn">${t('viewing_btn')}</button>
           <form class="form" id="viewForm" hidden style="margin-top:12px">${contactFields('viewing', p)}</form>
         </div>
+        ${guideHtml(p)}
         <div id="costBox"></div>
         <div class="box social-box" id="socialBox"></div>
       </aside>
@@ -811,6 +814,39 @@ async function openSheet(ref) {
     $('#keyfacts').insertAdjacentHTML('afterbegin', `<div><b>${km(geo.beach_road_km || geo.beach_km)}</b><span>${t('sh_sea')} · ${geo.beach_drive_min} min</span></div><div><b>${km(geo.alc_km * 1.25)}</b><span>${t('sh_airport')} ALC · ${geo.alc_drive_min} min</span></div>`);
   }
   if (full) fillDetail(full);
+}
+// ---------- koopgids aanvragen (aanhef, voornaam, achternaam, e-mail) ----------
+function guideHtml(p) {
+  return `<div class="box guide-box" id="guideBox">
+    <div class="gb-head"><span class="gb-ic">${ICON.book}</span><div><h3>${t('guide_h')}</h3><p>${t('guide_p')}</p></div></div>
+    <ul class="gb-list">${t('guide_items').map(x => `<li>${x}</li>`).join('')}</ul>
+    <button class="btn lemon" type="button" id="guideBtn">${t('guide_btn')}</button>
+    <form class="form rich gb-form" id="guideForm" hidden novalidate>
+      <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="row2"><label><span>${t('nl_first')} *</span><input name="first" autocomplete="given-name" required></label><label><span>${t('nl_last')} *</span><input name="last" autocomplete="family-name" required></label></div>
+      <label><span>${t('form_email')} *</span><input name="email" type="email" autocomplete="email" required></label>
+      <button class="btn primary" type="submit">${t('guide_send')}</button>
+      <p class="ok" aria-live="polite"></p>
+      <p class="form-note">${t('form_privacy')} <a href="#/privacy">${t('privacy')}</a></p>
+    </form></div>`;
+}
+function bindGuide(p) {
+  const btn = $('#guideBtn'), form = $('#guideForm'); if (!form) return;
+  btn.addEventListener('click', () => { form.hidden = false; btn.hidden = true; $('input[name=first]', form).focus(); track('guide_open', p.wp_id); });
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const d = Object.fromEntries(new FormData(form)), out = $('.ok', form);
+    const first = (d.first || '').trim(), last = (d.last || '').trim(), email = (d.email || '').trim();
+    out.style.color = 'var(--salina)';
+    if (!first || !last || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { out.textContent = t('guide_err'); return; }
+    $('button[type=submit]', form).disabled = true;
+    const r = await fn('web-contact', { kind: 'guide', lang: S.lang, name: `${first} ${last}`, email,
+      message: `${t('guide_msg')}\n${t('nl_first')}: ${first}\n${t('nl_last')}: ${last}\n${t('sh_ref')} ${p.reference}`,
+      wp_id: p.wp_id, reference: p.reference, website: d.website, vid: S.vid }).catch(() => ({ ok: false }));
+    $('button[type=submit]', form).disabled = false;
+    if (r.ok) { track('guide_request', p.wp_id); form.innerHTML = `<p class="gb-done">${ICON.check}<span>${t('guide_ok', first)}</span></p>`; }
+    else { out.textContent = t('form_err'); }
+  });
 }
 // ---------- hypotheekcalculator (annuïteit) ----------
 function mortgageHtml(p) {
@@ -884,6 +920,7 @@ function bindSheet(p, waHref) {
   });
   $('#viewBtn').addEventListener('click', () => { const f = $('#viewForm'); f.hidden = !f.hidden; if (!f.hidden) { $('input[name=name]', f).focus(); track('contact_open', p.wp_id); } });
   bindForm($('#viewForm'), p);
+  bindGuide(p);
   bindMortgage(p);
   renderSocialSheet(p);
   $$('.quick-acts [data-go]', inner).forEach(b => b.addEventListener('click', () => {
@@ -892,7 +929,8 @@ function bindSheet(p, waHref) {
     el.scrollIntoView({ behavior: 'smooth', block: id === 'gal' ? 'start' : 'center' });
     if (id === 'chatBox') setTimeout(() => $('#chatIn').focus({ preventScroll: true }), 500);
     if (id === 'viewBtn') setTimeout(() => { $('#viewForm').hidden = false; }, 400);
-    if (id === 'mortBox' || id === 'chatBox') { el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1400); }
+    if (id === 'guideBox') setTimeout(() => { const f = $('#guideForm'); if (f) { f.hidden = false; $('#guideBtn').hidden = true; } }, 400);
+    if (id === 'mortBox' || id === 'chatBox' || id === 'guideBox') { el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1400); }
   }));
   // chat
   const hist = [];
