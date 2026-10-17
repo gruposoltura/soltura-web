@@ -35,6 +35,7 @@ const S = {
   favs: new Set(ls.get('favs', [])),
   viewed: ls.get('viewed', []), // [wp_id] newest first
   media: new Map(),
+  cfg: { itp_resale_pct: 9, iva_newbuild_pct: 10, ajd_newbuild_pct: 1.5, buyer_all_in_eur: 0 },
   vid: ls.get('vid', null) || rid(), sid: rid(),
   lastRoute: '#/', openSince: 0, openId: null,
 };
@@ -646,16 +647,23 @@ function fillDetail(d) {
   (d.features || '').split(',').map(s => s.trim()).filter(Boolean).forEach(s => feats.push(cap(s)));
   (d.terraces || '').split(',').map(s => s.trim()).filter(Boolean).forEach(s => feats.push(cap(s) + (S.lang === 'nl' ? ' terras' : ' terrace')));
   if (feats.length) $('#featBox').innerHTML = `<div class="feat" style="margin:20px 0"><h3>${t('feat_h')}</h3><ul>${[...new Set(feats)].map(f => `<li>${esc(f)}</li>`).join('')}</ul></div>`;
-  // costs
+  // costs: belastingtarieven uit web_config; wij werken met één vast all-in tarief, geen losse rekeningen
   if (d.price) {
-    const rows = [[t('costs_price'), d.price]];
-    const tax = d.is_newbuild ? Math.round(d.price * .115) : Math.round(d.price * .10);
-    rows.push([d.is_newbuild ? t('costs_tax_new') : t('costs_tax_resale'), tax]);
-    if (d.fee_notary) rows.push([t('costs_notary'), d.fee_notary]);
-    if (d.fee_registry) rows.push([t('costs_registry'), d.fee_registry]);
-    if (d.fee_legal) rows.push([t('costs_legal'), d.fee_legal]);
+    const c = S.cfg;
+    const rate = d.is_newbuild ? c.iva_newbuild_pct + c.ajd_newbuild_pct : c.itp_resale_pct;
+    const tax = Math.round(d.price * rate / 100);
+    const pct = v => String(v).replace('.', S.lang === 'nl' ? ',' : '.');
+    const taxLbl = d.is_newbuild ? t('costs_tax_new', pct(c.iva_newbuild_pct), pct(c.ajd_newbuild_pct)) : t('costs_tax_resale', pct(c.itp_resale_pct));
+    const rows = [[t('costs_price'), d.price], [taxLbl, tax]];
+    const allIn = c.buyer_all_in_eur > 0 ? c.buyer_all_in_eur : null;
+    if (allIn) rows.push([t('costs_allin'), allIn]);
     const total = rows.reduce((s, r) => s + Number(r[1] || 0), 0);
-    $('#costBox').innerHTML = `<div class="costs"><h3>${t('costs_h')}</h3><table>${rows.map(r => `<tr><td>${r[0]}</td><td>${eur(r[1])}</td></tr>`).join('')}<tr class="total"><td>${t('costs_total')}</td><td>${eur(total)}</td></tr></table><p class="note">${t('costs_note')}</p></div>`;
+    const ala = [[t('costs_notary'), d.fee_notary], [t('costs_registry'), d.fee_registry], [t('costs_legal'), d.fee_legal]].filter(r => r[1]);
+    $('#costBox').innerHTML = `<div class="costs"><h3>${t('costs_h')}</h3><table>${rows.map(r => `<tr><td>${r[0]}</td><td>${eur(r[1])}</td></tr>`).join('')}
+      <tr class="total"><td>${allIn ? t('costs_total') : t('costs_total_ex')}</td><td>${eur(total)}</td></tr></table>
+      <div class="allin"><b>${t('allin_h')}</b><p>${t('allin_p')}</p>
+      ${ala.length ? `<p class="alacarte">${t('alacarte_lbl')} ${ala.map(r => `${r[0]} ${eur(r[1])}`).join(', ')}.</p>` : ''}</div>
+      <p class="note">${t('costs_note')}</p></div>`;
   }
 }
 function gallery(urls) {
@@ -858,6 +866,7 @@ async function boot() {
   const qp = new URLSearchParams(location.search);
   if (qp.get('lang') === 'nl' || qp.get('lang') === 'en') { S.lang = qp.get('lang'); applyLang(); }
   route();
+  api('web_config?select=key,value').then(rows => rows.forEach(r => { S.cfg[r.key] = Number(r.value); })).catch(() => {});
   try {
     S.all = await api(`web_properties?select=${LIST_COLS}`);
   } catch (e) {

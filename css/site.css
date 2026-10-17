@@ -252,6 +252,10 @@ button,input,select,textarea{font:inherit;color:inherit}
 .costs td{padding:6px 0;border-bottom:1px solid var(--salt)}
 .costs td:last-child{text-align:right;font-weight:600}
 .costs tr.total td{border-bottom:0;font-size:17px;padding-top:10px}
+.costs .allin{margin:14px 0 0;padding:14px 16px;border-radius:12px;background:var(--lemon-soft);border-left:4px solid var(--sea)}
+.costs .allin b{display:block;color:var(--sea);margin-bottom:4px}
+.costs .allin p{margin:0;font-size:15px}
+.costs .allin .alacarte{margin-top:8px;color:var(--muted);font-size:13.5px}
 .costs .note{color:var(--muted);font-size:13px;margin:10px 0 0}
 .side{display:flex;flex-direction:column;gap:16px}
 .side .box{border:1px solid var(--mist);border-radius:14px;padding:18px}
