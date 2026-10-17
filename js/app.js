@@ -68,6 +68,7 @@ const ICON = {
   share: '<svg viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5M5 14v5h14v-5"/></svg>',
   info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>',
   wa: '<svg viewBox="0 0 24 24"><path d="M4 20l1.3-4.3A8 8 0 1 1 8.6 19z"/></svg>',
+  pool: '<svg viewBox="0 0 24 24"><path d="M8 15V5a2 2 0 0 1 4 0M14 15V5a2 2 0 0 1 4 0M8 8h6M8 12h6M2 18c1.5 0 1.5-1 3-1s1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1 1.5 1 3 1"/></svg>',
   play: '<svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg>',
 };
 
@@ -185,6 +186,8 @@ function specs(p) {
   if (p.bathrooms) s.push(`<span title="${t('baths')}">${ICON.bath}${p.bathrooms}</span>`);
   if (p.build_area) s.push(`<span title="${t('built')}">${ICON.area}${num(p.build_area)} m²</span>`);
   if (p.plot_area) s.push(`<span title="${t('plot')}">${num(p.plot_area)} m² ${S.lang === 'nl' ? 'perceel' : 'plot'}</span>`);
+  if (p.pool_private) s.push(`<span class="pool own" title="${t('pool_private')}">${ICON.pool}${t('pool_short_private')}</span>`);
+  else if (p.pool_communal) s.push(`<span class="pool shared" title="${t('pool_communal')}">${ICON.pool}${t('pool_short_communal')}</span>`);
   return `<div class="specs">${s.join('')}</div>`;
 }
 function card(p, opts = {}) {
@@ -196,6 +199,7 @@ function card(p, opts = {}) {
       <div class="badges">${badges(p)}</div>
       <button class="heart" type="button" aria-pressed="${fav}" aria-label="${S.lang === 'nl' ? 'Bewaren' : 'Save'}" data-fav="${p.wp_id}">${ICON.heart}</button>
       ${n > 1 ? `<div class="dots">${'<i></i>'.repeat(n)}</div>` : ''}
+      <span class="ref-tag">${esc(p.reference)}</span>
     </div>
     <div class="meta">${priceHtml(p)}<h3>${esc(title(p))}</h3>${specs(p)}</div>
   </a>`;
@@ -501,7 +505,7 @@ async function openSheet(ref) {
       <button class="icon-btn" type="button" data-step="1" aria-label="${t('next_home')}">${ICON.r}</button>
     </div>
     <div class="gal" id="gal"><div class="gal-track" id="galTrack">${p.image ? `<img src="${esc(p.image)}" alt="">` : ''}</div>
-      <button class="nav-g prev" type="button" aria-label="Previous photo">${ICON.l}</button><button class="nav-g next" type="button" aria-label="Next photo">${ICON.r}</button><span class="count" id="galCount"></span></div>
+      <button class="nav-g prev" type="button" aria-label="Previous photo">${ICON.l}</button><button class="nav-g next" type="button" aria-label="Next photo">${ICON.r}</button><span class="count" id="galCount"></span><span class="ref-tag gal-ref">${esc(p.reference)}</span></div>
     <div class="thumbs" id="thumbs"></div>
     <div class="sh-body">
       <div>
@@ -714,7 +718,7 @@ function openReel(startIdx) {
   const list = (S.order.length ? S.order : computeOrder()).filter(p => p.image).slice(0, 120);
   const reel = $('#reel');
   reel.innerHTML = `<button class="reel-close" type="button" aria-label="${t('close')}">${ICON.x}</button><span class="reel-hint">${S.lang === 'nl' ? 'Veeg omhoog voor de volgende woning' : 'Swipe up for the next home'}</span>` +
-    list.map((p, i) => `<section class="reel-item" data-id="${p.wp_id}"><img src="${esc(p.image)}" alt="${esc(title(p))}" loading="${i < 2 ? 'eager' : 'lazy'}">
+    list.map((p, i) => `<section class="reel-item" data-id="${p.wp_id}"><img src="${esc(p.image)}" alt="${esc(title(p))}" loading="${i < 2 ? 'eager' : 'lazy'}"><span class="ref-tag reel-ref">${esc(p.reference)}</span>
       <div class="reel-cap"><div class="t"><div class="badges" style="display:flex;gap:6px;margin-bottom:6px">${badges(p)}</div>${priceHtml(p)}<h3>${esc(title(p))}</h3>${specs(p)}</div>
       <div class="reel-side"><button type="button" data-fav="${p.wp_id}" aria-pressed="${S.favs.has(p.wp_id)}" aria-label="Save">${ICON.heart}</button>
       <button type="button" data-open="${esc(p.reference)}" aria-label="Details">${ICON.info}</button>
