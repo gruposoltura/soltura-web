@@ -264,6 +264,20 @@ function video(src, poster) {
   return `<video autoplay muted loop playsinline preload="metadata" ${poster ? `poster="${esc(poster)}"` : ''} aria-hidden="true"><source src="${src}" type="video/mp4"></video>`;
 }
 
+// ---------- live teller: telt snel op naar het aantal woningen van vandaag ----------
+function countUp() {
+  const el = $('#liveCount b'); if (!el) return;
+  const target = S.all.length; el.dataset.n = target;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = num(target); return; }
+  const dur = 1400, t0 = performance.now();
+  const tick = now => {
+    const k = Math.min(1, (now - t0) / dur);
+    el.textContent = num(Math.round(target * (1 - Math.pow(1 - k, 3))));
+    if (k < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
 // ---------- HOME ----------
 function renderHome() {
   const main = $('#main');
@@ -272,7 +286,7 @@ function renderHome() {
   main.innerHTML = `
   <section class="hero">
     ${video(VIDEO.coast, heroPoster)}
-    <div class="live-count"><b>${n || '…'}</b> ${t('live')}</div>
+    <a class="live-count" href="#bar" id="liveCount"><b data-n="${n}">${n ? 0 : '…'}</b> ${t('live')}</a>
     <div class="hero-body">
       <h1>${t('hero_title')}</h1>
       <p class="sub">${t('hero_sub')}</p>
@@ -288,6 +302,8 @@ function renderHome() {
   <section class="feed" id="feed" aria-live="polite"></section>
   <div class="loadmore"><button class="btn ghost" id="moreBtn" type="button">${t('more')}</button></div>
   <div id="sentinel"></div>`;
+  $('#liveCount').addEventListener('click', e => { e.preventDefault(); $('#bar').scrollIntoView({ behavior: 'smooth' }); });
+  if (n) countUp();
   $('#askForm').addEventListener('submit', e => { e.preventDefault(); aiSearch($('#askInput').value); });
   $$('.chip').forEach(c => c.addEventListener('click', () => { $('#askInput').value = c.textContent; aiSearch(c.textContent); }));
   $('#moreBtn').addEventListener('click', () => { S.shown += PAGE; renderFeed(true); });
@@ -753,6 +769,15 @@ $$('.lang button').forEach(b => b.addEventListener('click', () => {
 }));
 $('#menuBtn').addEventListener('click', () => { const o = $('#nav').classList.toggle('open'); $('#menuBtn').setAttribute('aria-expanded', o); });
 $('#waFloat').addEventListener('click', () => track('whatsapp'));
+$$('.top [data-track]').forEach(a => a.addEventListener('click', () => track(a.dataset.track, null, null, { from: 'header' })));
+// header: hoogte doorgeven aan de sticky filterbalk en compact maken bij scrollen
+(() => {
+  const top = $('#top');
+  const setH = () => document.documentElement.style.setProperty('--top-h', top.offsetHeight + 'px');
+  if ('ResizeObserver' in window) new ResizeObserver(setH).observe(top); else setH();
+  let compact = false;
+  addEventListener('scroll', () => { const c = scrollY > 40; if (c !== compact) { compact = c; top.classList.toggle('compact', c); } }, { passive: true });
+})();
 
 // ---------- boot ----------
 async function boot() {
@@ -769,7 +794,7 @@ async function boot() {
   S.all.forEach(p => { S.byRef.set(String(p.reference).toUpperCase(), p); S.byId.set(p.wp_id, p); });
   // keep only favourites/viewed that still exist
   S.favs = new Set([...S.favs].filter(id => S.byId.has(id))); ls.set('favs', [...S.favs]); favCount();
-  if (currentPage === 'home') { const lc = $('.live-count b'); if (lc) lc.textContent = S.all.length; renderBar(); renderFeed(); }
+  if (currentPage === 'home') { countUp(); renderBar(); renderFeed(); }
   else renderPage(S.lastRoute);
   const m = location.hash.match(/^#\/home\/(.+)$/);
   if (m) openSheet(decodeURIComponent(m[1]));

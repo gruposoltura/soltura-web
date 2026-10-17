@@ -1,7 +1,7 @@
 // Grupo Soltura website POC — interface texts (EN / NL)
 window.I18N = {
   en: {
-    nav_homes: 'Homes', nav_buy: 'Buying', nav_sell: 'Selling', nav_move: 'Move to Spain', nav_team: 'Team', nav_news: 'News', nav_contact: 'Contact',
+    call_us: 'Call us', nav_homes: 'Homes', nav_buy: 'Buying', nav_sell: 'Selling', nav_move: 'Move to Spain', nav_team: 'Team', nav_news: 'News', nav_contact: 'Contact',
     claim: 'Local experts since 2002, always one step ahead.',
     foot_reg: 'Grupo Soltura S.L. · RAICV 5781 · API 992 Alicante · GIPE 3.473 · AIPP member.',
     privacy: 'Privacy policy',
@@ -61,7 +61,7 @@ window.I18N = {
     home_rail: 'Homes you may like', see_all: 'See all homes',
   },
   nl: {
-    nav_homes: 'Woningen', nav_buy: 'Kopen', nav_sell: 'Verkopen', nav_move: 'Emigreren', nav_team: 'Team', nav_news: 'Nieuws', nav_contact: 'Contact',
+    call_us: 'Bel ons', nav_homes: 'Woningen', nav_buy: 'Kopen', nav_sell: 'Verkopen', nav_move: 'Emigreren', nav_team: 'Team', nav_news: 'Nieuws', nav_contact: 'Contact',
     claim: 'Lokale experts sinds 2002, altijd een stap vooruit.',
     foot_reg: 'Grupo Soltura S.L. · RAICV 5781 · API 992 Alicante · GIPE 3.473 · lid AIPP.',
     privacy: 'Privacybeleid',

@@ -19,23 +19,27 @@
 
 <header class="top" id="top">
   <a class="logo" href="#/" aria-label="Grupo Soltura home">
-    <img src="https://gruposoltura.com/wp-content/uploads/2020/06/Soltura-logo-345x120-1.png" alt="Grupo Soltura" width="138" height="48">
+    <img src="https://gruposoltura.com/wp-content/uploads/2020/06/Soltura-logo-345x120-1.png" alt="Soltura Real Estate" width="345" height="120">
   </a>
-  <nav class="nav" id="nav" aria-label="Main">
-    <a href="#/" data-route="home" data-t="nav_homes">Homes</a>
-    <a href="#/buy" data-route="buy" data-t="nav_buy">Buying</a>
-    <a href="#/sell" data-route="sell" data-t="nav_sell">Selling</a>
-    <a href="#/move" data-route="move" data-t="nav_move">Move to Spain</a>
-    <a href="#/team" data-route="team" data-t="nav_team">Team</a>
-    <a href="#/news" data-route="news" data-t="nav_news">News</a>
-    <a href="#/contact" data-route="contact" data-t="nav_contact">Contact</a>
-  </nav>
-  <div class="top-actions">
-    <a class="fav-link" href="#/favorites" aria-label="Saved homes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.8 3.6 4.5 7 4.5c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3.4 0 5.6 3.3 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg><span id="favCount">0</span></a>
-    <div class="lang" role="group" aria-label="Language">
-      <button type="button" data-lang="en">EN</button><button type="button" data-lang="nl">NL</button>
+  <div class="top-right">
+    <div class="top-util">
+      <a class="tel" href="tel:+34966792113" data-track="call"><span class="tel-lbl" data-t="call_us">Call us</span> +34 966 792 113</a>
+      <a class="wa-top" href="https://wa.me/34664414515" target="_blank" rel="noopener" data-track="whatsapp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2s.8 2.3.9 2.5c.1.2 1.6 2.5 4 3.5 1.5.6 2.1.7 2.8.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.5-.4z"/></svg><span>WhatsApp</span></a>
+      <a class="fav-link" href="#/favorites" aria-label="Saved homes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.8 3.6 4.5 7 4.5c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3.4 0 5.6 3.3 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg><span id="favCount">0</span></a>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="en" aria-label="English"><svg viewBox="0 0 60 30" aria-hidden="true"><clipPath id="ukc"><path d="M0 0v30h60V0z"/></clipPath><clipPath id="ukt"><path d="M30 15h30v15zv15H0zH0V0zV0h30z"/></clipPath><g clip-path="url(#ukc)"><path d="M0 0v30h60V0z" fill="#012169"/><path d="M0 0l60 30m0-30L0 30" stroke="#fff" stroke-width="6"/><path d="M0 0l60 30m0-30L0 30" clip-path="url(#ukt)" stroke="#C8102E" stroke-width="4"/><path d="M30 0v30M0 15h60" stroke="#fff" stroke-width="10"/><path d="M30 0v30M0 15h60" stroke="#C8102E" stroke-width="6"/></g></svg></button><button type="button" data-lang="nl" aria-label="Nederlands"><svg viewBox="0 0 9 6" aria-hidden="true"><path fill="#21468B" d="M0 0h9v6H0z"/><path fill="#fff" d="M0 0h9v4H0z"/><path fill="#AE1C28" d="M0 0h9v2H0z"/></svg></button>
+      </div>
+      <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="nav" aria-label="Menu"><span></span><span></span></button>
     </div>
-    <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="nav" aria-label="Menu"><span></span><span></span></button>
+    <nav class="nav" id="nav" aria-label="Main">
+      <a href="#/" data-route="home" data-t="nav_homes">Homes</a>
+      <a href="#/buy" data-route="buy" data-t="nav_buy">Buying</a>
+      <a href="#/sell" data-route="sell" data-t="nav_sell">Selling</a>
+      <a href="#/move" data-route="move" data-t="nav_move">Move to Spain</a>
+      <a href="#/team" data-route="team" data-t="nav_team">Team</a>
+      <a href="#/news" data-route="news" data-t="nav_news">News</a>
+      <a href="#/contact" data-route="contact" data-t="nav_contact">Contact</a>
+    </nav>
   </div>
 </header>
 
