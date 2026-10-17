@@ -1227,7 +1227,7 @@ async function pageNews() {
   const fmt = d => new Date(d).toLocaleDateString(S.lang === 'nl' ? 'nl-NL' : 'en-GB', { day: 'numeric', month: 'long' });
   const label = src => ({ idealista: t('news_market'), 'vegabajadigital.com': t('news_region'), 'Spanje Vandaag': t('news_spain') }[src] || src);
   // koppen in de taal van de site (vertaald door web-news-images); het artikel zelf staat in de brontaal
-  const head = r => S.lang === 'nl' ? r.title : (r.title_en || r.title); // koppen in news_posts zijn al Nederlands
+  const head = r => (S.lang === 'nl' ? r.title_nl : r.title_en) || r.title; // NL: altijd informeel (je/jij)
   let src = 'all', shown = 17;
   const draw = () => {
     const list = rows.filter(r => !NEWS_SRC[src] || r.source === NEWS_SRC[src]);

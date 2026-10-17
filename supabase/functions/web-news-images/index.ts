@@ -37,7 +37,7 @@ async function apiKey() {
   return data?.secret_value as string;
 }
 async function translate(items: { id: number; title: string }[]) {
-  const system = `You translate news headlines for the website of Grupo Soltura, a real estate agency on the Costa Blanca. For each headline return the language of the original (ISO code: es, nl, en, ...) and a natural, concise headline in British English and in Dutch (informal, natural Dutch, no literal translation). Keep names, places and numbers exact; write amounts as in the original. If the original is already in that language, return it unchanged. Answer ONLY with a JSON array: [{"id":number,"lang":"es","en":"...","nl":"..."}].`;
+  const system = `You translate news headlines for the website of Grupo Soltura, a real estate agency on the Costa Blanca. For each headline return the language of the original (ISO code: es, nl, en, ...) and a natural, concise headline in British English and in Dutch (informal, natural Dutch, no literal translation). Keep names, places and numbers exact; write amounts as in the original. If the original is already in that language, return it unchanged, except: Dutch must always address the reader informally (je/jij/jouw), never formally (u/uw), so rewrite any 'u'/'uw' to 'je'/'jouw'. Answer ONLY with a JSON array: [{"id":number,"lang":"es","en":"...","nl":"..."}].`;
   const r = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST', headers: { 'x-api-key': await apiKey(), 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
     body: JSON.stringify({ model: MODEL, max_tokens: 6000, system, messages: [{ role: 'user', content: JSON.stringify(items) }] }),
