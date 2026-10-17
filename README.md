@@ -16,7 +16,7 @@ Statische site voor GitHub Pages. Geen build-stap: `index.html`, `css/site.css` 
 | `web_properties` (view) | Live aanbod, alleen veilige velden (geen eigenaar, huisnummer, sleutels, interne notities). Coördinaten afgerond op ~100 m. |
 | `web_media_cache` | WP-attachment-id → foto-URL voor galerijen. Gevuld voor alle live woningen (15.329 foto's, 17-10-2026); nieuwe woningen worden bij openen aangevuld via edge function `web-media-sync`. |
 | `web_reviews` / `web_reviews_summary` (views) | Laatste Google-reviews (≥4 sterren, zonder naam reviewer) + score/aantal. Getoond in de feed, boven de footer, als badge in de hero en op de woningpagina. |
-| `web_news` (view) | Nieuwskoppen uit `news_posts`. |
+| `web_news` (view) | Nieuwskoppen uit `news_posts` + thumbnail uit `web_news_media` (og:image, opgehaald door edge function `web-news-images`; de nieuwspagina roept die aan zodra er berichten zonder foto zijn). |
 | `web_events` | Anonieme interactie-events (insert-only). `web_engagement_daily` telt woningen per sessie. |
 | `web_assistant_log` | Vragen aan de assistent (IP alleen gehasht). |
 | `web_contact_requests` | Contact/bezichtiging/waardebepaling. |
