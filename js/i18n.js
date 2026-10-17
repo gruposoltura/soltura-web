@@ -58,6 +58,12 @@ window.I18N = {
     news_h: 'News from Spain and the area', news_p: 'What is happening in the property market and in daily life on the Costa Blanca.',
     contact_h: 'Talk to us', contact_p: 'WhatsApp is fastest. You can also call, mail or visit the office in Formentera del Segura.',
     office: 'Office', hours: 'Monday to Friday 10:00 – 17:00, Saturday by appointment',
+    nl_h1: 'Never miss', nl_h2: 'what matters.',
+    nl_lead: 'Pick what you want to hear about and we keep you up to date. Choose one or more, then leave your details.',
+    nl_opts: [['Market Report', 'Prices & market trends'], ['My Properties', 'Matched to your search'], ['Price Reductions', 'The latest price drops'], ['Local News', 'News from your area']],
+    nl_first: 'First name', nl_last: 'Surname', nl_btn: 'Subscribe',
+    nl_note: 'You can unsubscribe at any time via the link in every email.',
+    nl_err_pick: 'Tick at least one interest.', nl_ok: 'Thank you, you are subscribed. Check your inbox for a confirmation.',
     home_rail: 'Homes you may like', see_all: 'See all homes',
   },
   nl: {
@@ -116,6 +122,12 @@ window.I18N = {
     news_h: 'Nieuws uit Spanje en de regio', news_p: 'Wat er speelt op de woningmarkt en in het dagelijks leven aan de Costa Blanca.',
     contact_h: 'Neem contact op', contact_p: 'WhatsApp is het snelst. Je kunt ook bellen, mailen of langskomen op kantoor in Formentera del Segura.',
     office: 'Kantoor', hours: 'Maandag t/m vrijdag 10:00 – 17:00, zaterdag op afspraak',
+    nl_h1: 'Mis niets van', nl_h2: 'wat ertoe doet.',
+    nl_lead: 'Kies waarover je op de hoogte wilt blijven. Eén of meer, en laat daarna je gegevens achter.',
+    nl_opts: [['Marktrapport', 'Prijzen & markttrends'], ['Mijn woningen', 'Passend bij jouw zoekopdracht'], ['Prijsverlagingen', 'De nieuwste prijsdalingen'], ['Lokaal nieuws', 'Nieuws uit jouw regio']],
+    nl_first: 'Voornaam', nl_last: 'Achternaam', nl_btn: 'Inschrijven',
+    nl_note: 'Je kunt je altijd afmelden via de link in elke e-mail.',
+    nl_err_pick: 'Vink minstens één onderwerp aan.', nl_ok: 'Dank je, je bent ingeschreven.',
     home_rail: 'Woningen die je misschien mooi vindt', see_all: 'Alle woningen bekijken',
   }
 };

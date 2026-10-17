@@ -278,6 +278,72 @@ function countUp() {
   requestAnimationFrame(tick);
 }
 
+// ---------- nieuwsbrief: blok in de feed + slide-in bij naar beneden scrollen ----------
+const NL_TYPES = ['market_report', 'monthly_matches', 'price_reduced', 'weekly_news'];
+function newsletterHtml(variant) {
+  const opts = t('nl_opts');
+  return `<div class="newsletter ${variant}" data-newsletter>
+    ${variant === 'pop' ? `<button class="nl-close" type="button" aria-label="${t('close')}">${ICON.x}</button>` : ''}
+    <h2>${t('nl_h1')} <span>${t('nl_h2')}</span></h2>
+    <p class="nl-lead">${t('nl_lead')}</p>
+    <form class="nl-form" novalidate>
+      <div class="nl-opts">${NL_TYPES.map((k, i) => `<label class="nl-opt"><input type="checkbox" name="interests" value="${k}"><span><b>${opts[i][0]}</b><small>${opts[i][1]}</small></span></label>`).join('')}</div>
+      <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="nl-fields">
+        <label><span>${t('nl_first')}</span><input name="first" autocomplete="given-name"></label>
+        <label><span>${t('nl_last')}</span><input name="last" autocomplete="family-name"></label>
+        <label class="nl-mail"><span>${t('form_email')} *</span><input name="email" type="email" autocomplete="email" required></label>
+        <button class="btn lemon nl-btn" type="submit">${t('nl_btn')}</button>
+      </div>
+      <p class="nl-note">${t('nl_note')}</p>
+      <p class="nl-msg" aria-live="polite"></p>
+    </form>
+  </div>`;
+}
+function bindNewsletters(root = document) {
+  $$('[data-newsletter]', root).forEach(box => {
+    if (box.dataset.bound) return; box.dataset.bound = '1';
+    const form = $('.nl-form', box), msg = $('.nl-msg', box);
+    const close = $('.nl-close', box);
+    if (close) close.onclick = () => { hidePop(); ls.set('nl_dismissed', Date.now()); track('newsletter_dismiss'); };
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const interests = fd.getAll('interests');
+      const email = (fd.get('email') || '').trim();
+      msg.className = 'nl-msg err';
+      if (!interests.length) { msg.textContent = t('nl_err_pick'); return; }
+      if (!/\S+@\S+\.\S+/.test(email)) { msg.textContent = t('form_err'); return; }
+      $('.nl-btn', form).disabled = true;
+      const r = await fn('web-contact', { kind: 'newsletter', lang: S.lang, name: `${fd.get('first') || ''} ${fd.get('last') || ''}`.trim(), email, interests, website: fd.get('website'), vid: S.vid }).catch(() => ({ ok: false }));
+      $('.nl-btn', form).disabled = false;
+      if (r.ok) {
+        ls.set('nl_done', Date.now()); track('newsletter_signup', null, interests.length, { interests });
+        $$('[data-newsletter]').forEach(b => { $('.nl-form', b).innerHTML = `<p class="nl-msg ok">${t('nl_ok')}</p>`; });
+        setTimeout(hidePop, 2500);
+      } else msg.textContent = t('form_err');
+    });
+  });
+}
+let popShown = false;
+function maybePop() {
+  if (popShown || ls.get('nl_done', 0) || Date.now() - ls.get('nl_dismissed', 0) < 7 * 864e5) return;
+  if (!$('#sheet').hidden || !$('#reel').hidden) return;
+  const depth = (scrollY + innerHeight) / document.documentElement.scrollHeight;
+  if (currentPage === 'home' ? (S.rendered >= 18 && depth > .45) : depth > .7) {
+    popShown = true;
+    const pop = document.createElement('div');
+    pop.className = 'nl-pop'; pop.id = 'nlPop'; pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', t('nl_h1') + ' ' + t('nl_h2'));
+    pop.innerHTML = newsletterHtml('pop');
+    document.body.appendChild(pop);
+    requestAnimationFrame(() => pop.classList.add('in'));
+    bindNewsletters(pop);
+    track('newsletter_pop');
+  }
+}
+function hidePop() { const p = $('#nlPop'); if (p) { p.classList.remove('in'); setTimeout(() => p.remove(), 400); } }
+addEventListener('scroll', () => { if (!popShown) maybePop(); }, { passive: true });
+
 // ---------- HOME ----------
 function renderHome() {
   const main = $('#main');
@@ -369,6 +435,7 @@ function renderFeed(append = false) {
     html += moment(pos + 1);
   });
   if (append) { feed.insertAdjacentHTML('beforeend', html); } else { feed.innerHTML = html; }
+  bindNewsletters(feed);
   $('#moreBtn').hidden = S.shown >= list.length;
   observeCards(feed);
 }
@@ -385,6 +452,7 @@ function moment(pos) {
   }
   if (pos === 15) return `<div class="story">${video(VIDEO.village)}<div><h2>${t('story_move_h')}</h2><p>${t('story_move_p')}</p><a class="btn lemon" href="#/move">${t('story_move_btn')}</a></div></div>`;
   if (pos === 24) return rail(t('m_value_h'), t('m_value_p'), pick((a, b) => a.market_deviation_pct - b.market_deviation_pct, p => belowMkt(p) > 0));
+  if (pos === 30 && !ls.get('nl_done', 0)) return `<div class="moment">${newsletterHtml('inline')}</div>`;
   if (pos === 36 && S.viewed.length >= 3) return rail(t('m_recent_h'), '', S.viewed.slice(0, 12).map(id => S.byId.get(id)).filter(Boolean));
   if (pos === 48) return `<div class="story">${video(VIDEO.villa)}<div><h2>${t('story_sell_h')}</h2><p>${t('story_sell_p')}</p><a class="btn lemon" href="#/sell">${t('story_sell_btn')}</a></div></div>`;
   return '';
@@ -697,7 +765,8 @@ function pageTeam() {
     <a class="btn wa" style="padding:9px 16px;font-size:15px" target="_blank" rel="noopener" href="https://wa.me/${a.tel.replace('+', '')}">WhatsApp</a></div>`; }).join('')}</div>${homesRail()}`;
 }
 async function pageNews() {
-  $('#main').innerHTML = `<div class="page-head"><h1>${t('news_h')}</h1><p>${t('news_p')}</p></div><ul class="news" id="newsList"><li class="skeleton" style="height:60px"></li></ul>${homesRail()}`;
+  $('#main').innerHTML = `<div class="page-head"><h1>${t('news_h')}</h1><p>${t('news_p')}</p></div><ul class="news" id="newsList"><li class="skeleton" style="height:60px"></li></ul><section class="section">${newsletterHtml('inline')}</section>${homesRail()}`;
+  bindNewsletters($('#main'));
   const rows = await api('web_news?select=title,url,posted_at,source&order=posted_at.desc&limit=40').catch(() => []);
   const fmt = d => new Date(d).toLocaleDateString(S.lang === 'nl' ? 'nl-NL' : 'en-GB', { day: 'numeric', month: 'long' });
   $('#newsList').innerHTML = rows.map(r => `<li><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.title)}</a><small>${esc(r.source)}, ${fmt(r.posted_at)}</small></li>`).join('') || '<li>—</li>';
@@ -745,7 +814,7 @@ function renderPage(h) {
     case 'move': main.innerHTML = pageMove(); break;
     case 'team': main.innerHTML = pageTeam(); break;
     case 'news': pageNews(); break;
-    case 'contact': main.innerHTML = pageContact(); bindForm($('#contactForm')); break;
+    case 'contact': main.innerHTML = pageContact() + `<section class="section">${newsletterHtml('inline')}</section>`; bindForm($('#contactForm')); bindNewsletters(main); break;
     case 'favorites': main.innerHTML = pageFavs(); break;
     default: currentPage = 'home'; renderHome();
   }
