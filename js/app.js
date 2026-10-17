@@ -36,10 +36,11 @@ const S = {
   viewed: ls.get('viewed', []), // [wp_id] newest first
   media: new Map(),
   cfg: { itp_resale_pct: 9, iva_newbuild_pct: 10, ajd_newbuild_pct: 1.5, buyer_all_in_eur: 0 },
-  vid: ls.get('vid', null) || rid(), sid: rid(),
+  // bezoekerscode alleen in de browser bewaren na toestemming; zonder toestemming tellen we anoniem per sessie (in geheugen)
+  vid: ls.get('consent', null) === 'yes' ? (ls.get('vid', null) || rid()) : null, sid: rid(),
   lastRoute: '#/', openSince: 0, openId: null,
 };
-ls.set('vid', S.vid);
+if (S.vid) ls.set('vid', S.vid); else { try { localStorage.removeItem('gs_vid'); } catch {} }
 function blankFilters() { return { towns: [], categories: [], price_min: null, price_max: null, beds_min: null, baths_min: null, pool: null, newbuild: null, max_sea_km: null, reduced_only: false }; }
 function rid() { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
 
@@ -79,6 +80,10 @@ const ICON = {
   ig: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>',
   fb: '<svg viewBox="0 0 24 24"><path d="M14 8.5V7c0-.8.5-1.2 1.2-1.2H17V2.5h-2.6C11.6 2.5 10.6 4.4 10.6 7v1.5H8V12h2.6v9.5H14V12h2.7l.4-3.5z" fill="currentColor" stroke="none"/></svg>',
   fs: '<svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>',
+  check: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  phone: '<svg viewBox="0 0 24 24"><path d="M6.6 3.5h3l1.5 4-2 1.3a11 11 0 0 0 6.1 6.1l1.3-2 4 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/></svg>',
+  mail: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></svg>',
+  g: '<svg viewBox="0 0 24 24" class="g-logo"><path fill="#4285F4" stroke="none" d="M22.6 12.3c0-.8-.1-1.5-.2-2.3H12v4.3h5.9a5 5 0 0 1-2.2 3.3v2.8h3.6c2.1-1.9 3.3-4.8 3.3-8.1z"/><path fill="#34A853" stroke="none" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.8c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.9A11 11 0 0 0 12 23z"/><path fill="#FBBC05" stroke="none" d="M5.8 14.1a6.6 6.6 0 0 1 0-4.2V7H2.1a11 11 0 0 0 0 9.9z"/><path fill="#EA4335" stroke="none" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 7l3.7 2.9C6.7 7.3 9.1 5.4 12 5.4z"/></svg>',
   play: '<svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg>',
 };
 
@@ -360,6 +365,80 @@ async function renderSocialSheet(p) {
     ${followBtns(stats, true)}`;
 }
 
+// ---------- Google reviews: laatste drie + score (view web_reviews / web_reviews_summary) ----------
+const RV = {
+  all: id => `https://search.google.com/local/reviews?placeid=${encodeURIComponent(id || 'ChIJWa-hMmmvYw0R4qKf5TapVp4')}`,
+  write: id => `https://search.google.com/local/writereview?placeid=${encodeURIComponent(id || 'ChIJWa-hMmmvYw0R4qKf5TapVp4')}`,
+};
+let rvData = null;
+function loadReviews() {
+  if (!rvData) rvData = Promise.all([
+    api('web_reviews?select=stars,language,published_at,text,answered&order=published_at.desc&limit=12').catch(() => []),
+    api('web_reviews_summary?select=*').then(r => r[0] || null).catch(() => null),
+  ]).then(([rows, sum]) => ({ rows, sum }));
+  return rvData;
+}
+const fmtScore = v => String(Number(v).toFixed(1)).replace('.', S.lang === 'nl' ? ',' : '.');
+function ago(d) {
+  const days = Math.round((Date.now() - new Date(d)) / 864e5);
+  const rtf = new Intl.RelativeTimeFormat(S.lang === 'nl' ? 'nl' : 'en', { numeric: 'auto' });
+  if (days < 7) return rtf.format(-days, 'day');
+  if (days < 45) return rtf.format(-Math.round(days / 7), 'week');
+  if (days < 365) return rtf.format(-Math.round(days / 30), 'month');
+  return rtf.format(-Math.round(days / 365), 'year');
+}
+async function fillReviews(el) {
+  if (!el || el.dataset.done) return; el.dataset.done = '1';
+  const { rows, sum } = await loadReviews();
+  if (!rows.length || !sum) { el.hidden = true; return; }
+  el.hidden = false;
+  const stars = n => `<span class="stars" aria-label="${n}/5">${'★'.repeat(n)}${'<i>★</i>'.repeat(5 - n)}</span>`;
+  el.innerHTML = `<div class="rv-wrap">
+    <div class="rv-head">
+      <div><p class="rv-kicker">${ICON.g}<span>Google reviews</span></p><h2>${t('rv_h')}</h2><p class="lead">${t('rv_p')}</p></div>
+      <a class="rv-score" href="${RV.all(sum.place_id)}" target="_blank" rel="noopener" data-social="reviews"><b>${fmtScore(sum.score)}</b><span class="stars big">★★★★★</span><small>${t('rv_count', sum.count)}</small></a>
+    </div>
+    <div class="rv-grid">${rows.slice(0, 3).map(r => `<figure class="rv">
+      <div class="rv-top">${stars(r.stars)}<time datetime="${esc(r.published_at)}">${ago(r.published_at)}</time></div>
+      <blockquote>${esc(r.text)}</blockquote>
+      <figcaption>${ICON.g}<span>${t('rv_on_google')}${r.answered ? ` · ${t('rv_answered')}` : ''}</span></figcaption></figure>`).join('')}</div>
+    <div class="rv-acts"><a class="btn ghost" href="${RV.all(sum.place_id)}" target="_blank" rel="noopener" data-social="reviews">${t('rv_all', sum.count)}</a><a class="btn primary" href="${RV.write(sum.place_id)}" target="_blank" rel="noopener" data-social="review_write">${t('rv_write')}</a></div>
+  </div>`;
+  $$('.rv blockquote', el).forEach(q => { if (q.scrollHeight > q.clientHeight + 4) { q.classList.add('clamped'); q.addEventListener('click', () => q.classList.toggle('open')); } });
+}
+
+// ---------- vaste onderkant op elke pagina: reviews, nieuwsbrief, socials, footer ----------
+function renderFooterStack() {
+  const rv = $('#reviewsBand'); rv.dataset.done = ''; rv.innerHTML = '';
+  const nl = $('#nlBand');
+  nl.hidden = !!ls.get('nl_done', 0);
+  nl.innerHTML = nl.hidden ? '' : `<div class="nl-band-in">${newsletterHtml('inline')}</div>`;
+  bindNewsletters(nl);
+  const sb = $('#socialBand'); sb.dataset.done = ''; sb.innerHTML = '';
+  // op de woningenpagina staan de reviews al in de feed
+  rv.hidden = currentPage === 'home';
+  const lazy = (el, fnc) => { if ('IntersectionObserver' in window) { const o = new IntersectionObserver(es => { if (es[0].isIntersecting) { o.disconnect(); fnc(el); } }, { rootMargin: '600px' }); o.observe(el); } else fnc(el); };
+  if (!rv.hidden) lazy(rv, fillReviews);
+  lazy(sb, renderSocialBand);
+}
+
+// ---------- cookiekeuze: statistieken met bezoekerscode alleen na toestemming ----------
+function consentBar(force) {
+  if (!force && ls.get('consent', null)) return;
+  let bar = $('#consent');
+  if (!bar) { bar = document.createElement('div'); bar.id = 'consent'; bar.className = 'consent'; bar.setAttribute('role', 'dialog'); bar.setAttribute('aria-label', t('cc_h')); document.body.appendChild(bar); }
+  bar.innerHTML = `<p><b>${t('cc_h')}</b> ${t('cc_p')} <a href="#/privacy">${t('privacy')}</a></p><div><button class="btn ghost" type="button" data-cc="no">${t('cc_no')}</button><button class="btn primary" type="button" data-cc="yes">${t('cc_yes')}</button></div>`;
+  $$('[data-cc]', bar).forEach(b => b.addEventListener('click', () => {
+    const yes = b.dataset.cc === 'yes';
+    ls.set('consent', yes ? 'yes' : 'no');
+    if (yes) { S.vid = ls.get('vid', null) || rid(); ls.set('vid', S.vid); } else { S.vid = null; try { localStorage.removeItem('gs_vid'); } catch {} }
+    track('consent', null, yes ? 1 : 0);
+    bar.classList.remove('in'); setTimeout(() => bar.remove(), 300);
+  }));
+  requestAnimationFrame(() => bar.classList.add('in'));
+}
+addEventListener('click', e => { if (e.target.closest('[data-cookie-settings]')) { e.preventDefault(); consentBar(true); } });
+
 // ---------- live teller: telt snel op naar het aantal woningen van vandaag ----------
 function countUp() {
   const el = $('#liveCount b'); if (!el) return;
@@ -426,7 +505,7 @@ function maybePop() {
   if (popShown || ls.get('nl_done', 0) || Date.now() - ls.get('nl_dismissed', 0) < 7 * 864e5) return;
   if (!$('#sheet').hidden || !$('#reel').hidden) return;
   const depth = (scrollY + innerHeight) / document.documentElement.scrollHeight;
-  if (currentPage === 'home' ? (S.rendered >= 18 && depth > .45) : depth > .7) {
+  if (currentPage === 'home' && S.rendered >= 18 && depth > .45) {
     popShown = true;
     const pop = document.createElement('div');
     pop.className = 'nl-pop'; pop.id = 'nlPop'; pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', t('nl_h1') + ' ' + t('nl_h2'));
@@ -452,13 +531,13 @@ function renderHome() {
     <div class="hero-body">
       <h1>${t('hero_title')}</h1>
       <p class="sub">${t('hero_sub')}</p>
-      <div class="ai-badge"><i></i>${ICON.spark}<span>${t('ai_badge')}</span></div>
+      <div class="hero-badges"><div class="ai-badge"><i></i>${ICON.spark}<span>${t('ai_badge')}</span></div><a class="rv-pill" id="rvPill" hidden target="_blank" rel="noopener" data-social="reviews_hero"></a></div>
       <form class="ask" id="askForm" role="search">
         <input id="askInput" type="search" autocomplete="off" placeholder="${esc(t('ask_ph'))}" aria-label="${esc(t('ask_ph'))}">
         <button type="submit" id="askBtn">${t('ask_btn')}</button>
       </form>
       <div class="chips">${t('chips').map(c => `<button type="button" class="chip">${esc(c)}</button>`).join('')}</div>
-      <p class="ai-reply" id="aiReply" aria-live="polite"></p>
+      <div class="ai-bubble" id="aiReply" aria-live="polite" hidden></div>
     </div>
   </section>
   <div class="bar" id="bar"></div>
@@ -475,6 +554,7 @@ function renderHome() {
   typePlaceholder($('#askInput'), t('ask_examples'));
   $('#liveCount').addEventListener('click', e => { e.preventDefault(); $('#bar').scrollIntoView({ behavior: 'smooth' }); });
   if (n) countUp();
+  loadReviews().then(({ sum }) => { const a = $('#rvPill'); if (a && sum) { a.href = RV.all(sum.place_id); a.innerHTML = `${ICON.g}<b>${fmtScore(sum.score)}</b><span class="stars">★★★★★</span><small>${t('rv_count', sum.count)}</small>`; a.hidden = false; } });
   $('#askForm').addEventListener('submit', e => { e.preventDefault(); aiSearch($('#askInput').value); });
   $$('.chip').forEach(c => c.addEventListener('click', () => { $('#askInput').value = c.textContent; aiSearch(c.textContent); }));
   $$('#hints [data-hint]').forEach(b => b.addEventListener('click', () => {
@@ -529,12 +609,19 @@ function renderBar() {
 }
 
 function renderFeed(append = false) {
+  setTimeout(() => $$('[data-reviews]:not([data-done])').forEach(fillReviews), 0);
   const feed = $('#feed'); if (!feed) return;
   if (!S.all.length) { feed.innerHTML = Array.from({ length: 6 }, () => '<div><div class="ph skeleton" style="aspect-ratio:4/3;border-radius:14px"></div></div>').join(''); return; }
   const list = append ? S.order : computeOrder();
   $('#resultN').textContent = t('results', list.length);
   if (!list.length) {
-    feed.innerHTML = `<div class="empty" style="grid-column:1/-1"><h2>${S.lang === 'nl' ? 'Niets gevonden met deze wensen' : 'Nothing matches all of these wishes'}</h2><p>${S.lang === 'nl' ? 'Haal een filter weg, of stuur ons je wensen: veel woningen komen eerst naar onze eigen zoekers.' : 'Remove a filter, or send us your wishes: many homes reach our own searchers first.'}</p><p><a class="btn primary" href="#/contact">${t('nav_contact')}</a></p></div>`;
+    // filters via de balk: geen lege pagina maar een ballon met concrete aanpassingen
+    S.sugg = relaxations();
+    feed.innerHTML = `<div class="ai-bubble in warn feed-bubble" style="grid-column:1/-1"><span class="ab-av">S</span><div class="ab-body">
+      <div class="ab-none"><b>${t('none_h')}</b> ${t('none_bar')}</div>
+      ${S.sugg.length ? `<div class="ab-sugg">${S.sugg.map((x, i) => `<button type="button" data-sug="${i}">${esc(x.label)} <small>${x.n}</small></button>`).join('')}</div>` : ''}
+      <p class="ab-tip">${t('none_contact')} <a href="#/contact">${t('nav_contact')}</a></p></div></div>`;
+    bindSugg(feed);
     $('#moreBtn').hidden = true; return;
   }
   const start = append ? S.rendered : 0;
@@ -564,7 +651,7 @@ function moment(pos) {
   }
   if (pos === 15) return `<div class="story">${video(VIDEO.village)}<div><h2>${t('story_move_h')}</h2><p>${t('story_move_p')}</p><a class="btn lemon" href="#/move">${t('story_move_btn')}</a></div></div>`;
   if (pos === 24) return rail(t('m_value_h'), t('m_value_p'), pick((a, b) => a.market_deviation_pct - b.market_deviation_pct, p => belowMkt(p) > 0));
-  if (pos === 30 && !ls.get('nl_done', 0)) return `<div class="moment">${newsletterHtml('inline')}</div>`;
+  if (pos === 30) return `<div class="moment rv-moment" data-reviews></div>`;
   if (pos === 36 && S.viewed.length >= 3) return rail(t('m_recent_h'), '', S.viewed.slice(0, 12).map(id => S.byId.get(id)).filter(Boolean));
   if (pos === 48) return `<div class="story">${video(VIDEO.villa)}<div><h2>${t('story_sell_h')}</h2><p>${t('story_sell_p')}</p><a class="btn lemon" href="#/sell">${t('story_sell_btn')}</a></div></div>`;
   return '';
@@ -573,7 +660,8 @@ function moment(pos) {
 async function aiSearch(q) {
   q = (q || '').trim(); if (!q) return;
   const btn = $('#askBtn'), out = $('#aiReply');
-  btn.disabled = true; btn.textContent = t('asking'); out.textContent = '';
+  btn.disabled = true; btn.textContent = t('asking');
+  out.hidden = false; out.className = 'ai-bubble'; out.innerHTML = `<span class="ab-av">S</span><div class="ab-body"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
   track('search', null, null, { q: q.slice(0, 200) });
   const r = await fn('web-assistant', { mode: 'search', lang: S.lang, query: q }).catch(() => ({}));
   btn.disabled = false; btn.textContent = t('ask_btn');
@@ -585,9 +673,58 @@ async function aiSearch(q) {
     if (r.filters.reduced_only) S.sort = 'reduced';
     S.type = 'all'; S.shown = PAGE;
   }
-  out.textContent = r.reply || '';
+  // nooit een lege pagina: zonder treffers versoepelen we zelf en stellen we concrete aanpassingen voor
+  let note = '';
+  if (r.filters && !S.all.some(p => match(p))) {
+    const sug = relaxations();
+    if (sug.length) {
+      S.f = sug[0].f; S.type = sug[0].type; S.shown = PAGE;
+      note = `<div class="ab-none"><b>${t('none_h')}</b> ${t('none_applied', sug[0].label, sug[0].n)}</div>
+        ${sug.length > 1 ? `<p class="ab-try">${t('none_try')}</p><div class="ab-sugg">${sug.slice(1).map((x, i) => `<button type="button" data-sug="${i + 1}">${esc(x.label)} <small>${x.n}</small></button>`).join('')}</div>` : ''}
+        <p class="ab-tip">${t('none_tip')}</p>`;
+      S.sugg = sug;
+      track('search_relaxed', null, sug[0].n, { q: q.slice(0, 120) });
+    }
+  }
+  if (!r.filters && !r.reply) note = `<div class="ab-none"><b>${t('ai_fail_h')}</b> ${t('ai_fail_p')}</div><p class="ab-tip">${t('none_tip')}</p>`;
+  out.className = 'ai-bubble in' + (note ? ' warn' : '');
+  out.innerHTML = `<span class="ab-av">S</span><div class="ab-body">${r.reply ? `<p class="ab-reply">${esc(r.reply)}</p>` : ''}${note}</div>`;
+  bindSugg(out);
   renderBar(); renderFeed();
-  $('#bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (!note) setTimeout(() => $('#bar').scrollIntoView({ behavior: 'smooth', block: 'start' }), 1600);
+}
+// alternatieven bij nul treffers: telkens één wens versoepelen en tellen wat er dan wél is
+function relaxations() {
+  const base = S.f, type = S.type, nl = S.lang === 'nl';
+  const cnt = (f, ty = type) => S.all.filter(p => match(p, f, ty)).length;
+  const out = [];
+  const add = (label, f, ty = type) => { const n = cnt(f, ty); if (n > 0) out.push({ label, f, type: ty, n }); };
+  const w = o => Object.assign({}, base, o);
+  if (base.price_max) {
+    const prices = S.all.filter(p => match(p, w({ price_max: null }))).map(p => p.price).filter(Boolean).sort((a, b) => a - b);
+    if (prices.length) { const v = Math.ceil(prices[Math.min(4, prices.length - 1)] / 5000) * 5000; add(t('rx_budget', eur(v)), w({ price_max: v })); }
+  }
+  if (base.price_min) add(t('rx_pmin'), w({ price_min: null }));
+  if (base.towns.length) add(t('rx_towns', base.towns.join(', ')), w({ towns: [] }));
+  if (base.categories.length) add(t('rx_cat', base.categories.map(catName).join(', ')), w({ categories: [] }));
+  if (base.beds_min > 1) add(t('rx_beds', base.beds_min - 1), w({ beds_min: base.beds_min - 1 }));
+  if (base.baths_min) add(t('rx_baths'), w({ baths_min: null }));
+  if (base.pool === 'private') add(t('rx_pool_any'), w({ pool: 'any' }));
+  else if (base.pool) add(t('rx_pool'), w({ pool: null }));
+  if (base.newbuild != null) add(t('rx_newbuild'), w({ newbuild: null }));
+  if (type !== 'all') add(t('rx_newbuild'), base, 'all');
+  if (base.max_sea_km) add(t('rx_sea', base.max_sea_km * 2), w({ max_sea_km: base.max_sea_km * 2 }));
+  if (base.reduced_only) add(t('rx_reduced'), w({ reduced_only: false }));
+  // budget eerst als dat het probleem is (meest gevraagd), daarna wat het meeste oplevert
+  return out.sort((a, b) => (b.f.price_max !== base.price_max && b.f.price_max ? 1 : 0) - (a.f.price_max !== base.price_max && a.f.price_max ? 1 : 0) || b.n - a.n).slice(0, 4);
+}
+function bindSugg(root) {
+  $$('[data-sug]', root).forEach(b => b.addEventListener('click', () => {
+    const x = S.sugg[+b.dataset.sug]; if (!x) return;
+    S.f = x.f; S.type = x.type; S.shown = PAGE; track('search_suggestion', null, x.n);
+    $$('[data-sug]', root).forEach(o => o.classList.toggle('on', o === b));
+    renderBar(); renderFeed(); $('#bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }));
 }
 
 // ---------- PROPERTY SHEET ----------
@@ -642,6 +779,7 @@ async function openSheet(ref) {
         </div>
         <div class="box">
           <div class="agent"><div class="av">${ag.short[0]}</div><div><b>${esc(ag.name)}</b><span>${t('agent_role')}</span></div></div>
+          <a class="rv-mini" id="rvMini" hidden target="_blank" rel="noopener" data-social="reviews_sheet"></a>
           <a class="btn wa" href="${waHref}" target="_blank" rel="noopener" data-track="whatsapp">${t('wa_btn')}</a>
           <a class="btn ghost" href="tel:${ag.tel}" data-track="call">${t('call_btn')} ${ag.tel.replace(/(\+34)(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4')}</a>
           <button class="btn primary" type="button" id="viewBtn">${t('viewing_btn')}</button>
@@ -656,6 +794,7 @@ async function openSheet(ref) {
     <div class="sh-next"><button class="btn ghost" type="button" data-step="-1">← ${t('prev_home')}</button><button class="btn primary" type="button" data-step="1">${t('next_home')} →</button></div>`;
   inner.scrollTop = 0;
   bindSheet(p, waHref);
+  loadReviews().then(({ rows, sum }) => { const a = $('#rvMini'); if (!a || !sum || S.openId !== p.wp_id) return; const q = rows.find(r => r.text.length < 160) || rows[0]; a.href = RV.all(sum.place_id); a.innerHTML = `<span class="rv-mini-top">${ICON.g}<b>${fmtScore(sum.score)}</b><span class="stars">★★★★★</span><small>${t('rv_count', sum.count)}</small></span>${q ? `<q>${esc(q.text.length > 150 ? q.text.slice(0, 147) + '…' : q.text)}</q>` : ''}`; a.hidden = false; });
   fillFacts(p);
   renderMore(p);
   // details + gallery in parallel
@@ -722,12 +861,14 @@ function bindForm(form, p) {
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(form));
+    const extra = $$('[data-x]', form).map(i => i.value.trim() ? `${i.dataset.x}: ${i.value.trim()}` : '').filter(Boolean);
+    if (extra.length) d.message = extra.join('\n') + (d.message ? '\n\n' + d.message : '');
     const out = $('.ok', form);
     if (!/\S+@\S+\.\S+/.test(d.email || '') && (d.phone || '').length < 6) { out.style.color = 'var(--salina)'; out.textContent = t('form_err'); return; }
     $('button[type=submit]', form).disabled = true;
     const r = await fn('web-contact', { ...d, lang: S.lang, wp_id: p?.wp_id, reference: p?.reference, vid: S.vid }).catch(() => ({ ok: false }));
     out.style.color = ''; out.textContent = r.ok ? t('form_ok') : t('form_err');
-    if (r.ok) { track('contact_sent', p?.wp_id || null, null, { kind: d.kind }); $$('input,textarea', form).forEach(i => i.type !== 'hidden' && (i.value = '')); }
+    if (r.ok) { track('contact_sent', p?.wp_id || null, null, { kind: d.kind }); $$('input,textarea', form).forEach(i => i.type !== 'hidden' && !i.dataset.keep && (i.value = '')); }
     $('button[type=submit]', form).disabled = false;
   });
 }
@@ -964,54 +1105,127 @@ function openReel(startIdx) {
 }
 function closeReel() { $('#reel').hidden = true; $('#reel').innerHTML = ''; document.body.style.overflow = ''; }
 
-// ---------- CONTENT PAGES ----------
-function homesRail() {
+// ---------- CONTENT PAGES (teksten in js/pages.js) ----------
+const P = k => (PAGES[S.lang] || PAGES.en)[k];
+function homesRail(h) {
   const pr = prefs();
   const items = S.all.filter(p => p.image && !p.under_offer).sort((a, b) => score(b, pr) - score(a, pr)).slice(0, 12);
-  return `<section class="section"><h2>${t('home_rail')}</h2><div class="rail">${items.map(p => card(p)).join('')}</div><p><a class="btn ghost" href="#/">${t('see_all')}</a></p></section>`;
+  if (!items.length) return '';
+  return `<section class="section"><h2>${h || t('home_rail')}</h2><div class="rail">${items.map(p => card(p)).join('')}</div><p><a class="btn ghost" href="#/">${t('see_all')}</a></p></section>`;
+}
+const timeline = steps => `<ol class="tl">${steps.map(([h, p], i) => `<li><span class="tl-n">${i + 1}</span><div><h3>${h}</h3><p>${p}</p></div></li>`).join('')}</ol>`;
+// formulier: velden met data-x komen als regels bovenaan het bericht (web-contact kent alleen naam/mail/telefoon/bericht)
+function richForm(id, kind, extra, msg) {
+  return `<form class="form rich" id="${id}">
+    <input type="hidden" name="kind" value="${kind}"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <div class="row2"><label><span>${t('form_name')}</span><input name="name" autocomplete="name"></label><label><span>${t('form_phone')}</span><input name="phone" type="tel" autocomplete="tel"></label></div>
+    <label><span>${t('form_email')}</span><input name="email" type="email" autocomplete="email"></label>
+    ${extra.length ? `<div class="row2">${extra.map(x => `<label><span>${x.label}</span>${x.opts
+      ? `<select data-x="${esc(x.label)}"><option value="">–</option>${x.opts.map(o => `<option>${esc(o)}</option>`).join('')}</select>`
+      : `<input data-x="${esc(x.label)}"${x.ph ? ` placeholder="${esc(x.ph)}"` : ''}>`}</label>`).join('')}</div>` : ''}
+    <label><span>${t('form_msg')}</span><textarea name="message" rows="4"${msg ? ` data-keep="1"` : ''}>${msg ? esc(msg) : ''}</textarea></label>
+    <button class="btn primary" type="submit">${t('form_send')}</button><p class="ok" aria-live="polite"></p>
+    <p class="form-note">${t('form_privacy')} <a href="#/privacy">${t('privacy')}</a></p></form>`;
 }
 function pageBuy() {
-  return `<div class="page-head"><h1>${t('buy_h')}</h1><p>${t('buy_p')}</p></div>
-    <div class="prose"><ol class="steps">${t('buy_steps').map(([h, p]) => `<li><b>${h}</b><br>${p}</li>`).join('')}</ol><p>${t('buy_fees')}</p>
-    <p><a class="btn primary" href="#/contact">${t('nav_contact')}</a></p></div>${homesRail()}`;
+  const c = P('buy');
+  return `<section class="page-hero short">${video(VIDEO.coast)}<div><p class="kicker">${t('nav_buy')}</p><h1>${c.h}</h1><p>${c.lead}</p><p class="hero-acts"><a class="btn lemon" href="#/">${t('see_all')}</a><a class="btn wa" href="https://wa.me/34664414515" target="_blank" rel="noopener" data-track="whatsapp">WhatsApp</a></p></div></section>
+    <div class="pg">
+      <p class="pg-intro">${c.intro}</p>
+      <h2 class="pg-h">${c.steps_h}</h2>${timeline(c.steps)}
+      <div class="pg-2">
+        <div class="box costs-card"><h2>${c.costs_h}</h2><ul class="ticks">${c.costs.map(x => `<li>${x}</li>`).join('')}</ul>
+          <div class="allin-note">${c.costs_note}</div><a class="btn primary" href="#buyForm" data-scroll>${c.cta}</a></div>
+        <div>${mortgageHtml(null)}<div class="box fin-card"><h3>${c.fin_h}</h3><p>${c.fin_p}</p></div></div>
+      </div>
+      <h2 class="pg-h">${c.services_h}</h2><ul class="svc">${c.services.map(x => `<li>${ICON.check}<span>${x}</span></li>`).join('')}</ul>
+    </div>
+    ${homesRail()}
+    <section class="pg form-band"><div><h2>${c.cta}</h2><p>${c.costs_note}</p></div>
+      ${richForm('buyForm', 'costs', [{ label: t('f_budget'), ph: '€' }, { label: t('f_when'), opts: t('f_when_opts') }], t('f_buy_msg'))}</section>`;
 }
 function pageSell() {
-  return `<section class="page-hero">${video(VIDEO.villa)}<div><h1>${t('sell_h')}</h1><p>${t('sell_p')}</p></div></section>
-    <div class="split"><div class="prose" style="padding:0">${t('sell_points').map(([h, p]) => `<h2>${h}</h2><p>${p}</p>`).join('')}</div>
-    <div class="box" style="background:#fff;border:1px solid var(--mist);border-radius:16px;padding:22px"><h2 style="font:400 26px var(--serif);margin:0 0 12px">${t('sell_form_h')}</h2>
-    <form class="form" id="sellForm">${contactFields('valuation')}</form></div></div>`;
+  const c = P('sell');
+  return `<section class="page-hero">${video(VIDEO.villa)}<div><p class="kicker">${t('nav_sell')}</p><h1>${c.h}</h1><p>${c.lead}</p><p class="hero-acts"><a class="btn lemon" href="#sellForm" data-scroll>${c.form_h}</a></p></div></section>
+    <div class="pg">
+      <div class="feats">${c.feats.map(([h, p]) => `<div class="feat"><h3>${h}</h3><p>${p}</p></div>`).join('')}</div>
+      <div class="pg-2 tight">
+        <div><h2 class="pg-h">${c.steps_h}</h2>${timeline(c.steps)}</div>
+        <div class="box form-card" id="sellBox"><h2>${c.form_h}</h2><p>${c.form_p}</p>
+          ${richForm('sellForm', 'valuation', [{ label: t('f_town'), ph: 'Rojales, Ciudad Quesada…' }, { label: t('f_type'), opts: t('f_type_opts') }], '')}</div>
+      </div>
+      <div class="cta-band"><p>${c.legal}</p><a class="btn ghost" href="#/contact">${t('nav_contact')}</a></div>
+    </div>`;
 }
 function pageMove() {
-  return `<section class="page-hero">${video(VIDEO.village)}<div><h1>${t('move_h')}</h1><p>${t('move_p')}</p></div></section>
-    <div class="prose">${t('move_body').map(([h, p]) => `<h2>${h}</h2><p>${p}</p>`).join('')}<p><a class="btn primary" href="#/contact">${t('nav_contact')}</a></p></div>${homesRail()}`;
+  const c = P('move');
+  return `<section class="page-hero">${video(VIDEO.village)}<div><p class="kicker">${t('nav_move')}</p><h1>${c.h}</h1><p>${c.lead}</p></div></section>
+    <div class="pg">
+      <div class="stages">${c.stages.map(([h, p], i) => `<div class="stage"><span>${i + 1}</span><h3>${h}</h3><p>${p}</p></div>`).join('')}</div>
+      <div class="acc">${c.topics.map(([h, p], i) => `<details${i === 0 ? ' open' : ''}><summary>${h}</summary><p>${p}</p></details>`).join('')}</div>
+      <p class="disclaimer">${c.disclaimer}</p>
+    </div>
+    ${homesRail()}
+    <section class="pg form-band"><div><h2>${c.form_h}</h2><p>${c.form_p}</p></div>
+      ${richForm('moveForm', 'move', [{ label: t('f_when'), opts: t('f_when_opts') }, { label: t('f_budget'), ph: '€' }, { label: t('f_household'), ph: t('f_household_ph') }, { label: t('f_area'), ph: t('f_area_ph') }], '')}</section>`;
 }
-function pageTeam() {
-  return `<div class="page-head"><h1>${t('team_h')}</h1><p>${t('team_p')}</p></div>
-    <div class="team">${[2, 3, 4, 6].map(id => { const a = AGENTS[id]; return `<div class="member"><div class="av">${a.short[0]}</div><h3>${a.name}</h3><p>${a.role[S.lang]}</p>
-    <a class="btn wa" style="padding:9px 16px;font-size:15px" target="_blank" rel="noopener" href="https://wa.me/${a.tel.replace('+', '')}">WhatsApp</a></div>`; }).join('')}</div>${homesRail()}`;
-}
+const NEWS_SRC = { all: null, market: 'idealista', region: 'vegabajadigital.com', spain: 'Spanje Vandaag' };
 async function pageNews() {
-  $('#main').innerHTML = `<div class="page-head"><h1>${t('news_h')}</h1><p>${t('news_p')}</p></div><ul class="news" id="newsList"><li class="skeleton" style="height:60px"></li></ul><section class="section">${newsletterHtml('inline')}</section>${homesRail()}`;
-  bindNewsletters($('#main'));
-  const rows = await api('web_news?select=title,url,posted_at,source&order=posted_at.desc&limit=40').catch(() => []);
+  $('#main').innerHTML = `<div class="page-head"><p class="kicker">${t('nav_news')}</p><h1>${t('news_h')}</h1><p>${t('news_p')}</p></div>
+    <div class="news-filter" role="group">${Object.keys(NEWS_SRC).map((k, i) => `<button type="button" data-src="${k}" aria-pressed="${i === 0}">${t('news_' + k)}</button>`).join('')}</div>
+    <div class="news-grid" id="newsList">${'<div class="skeleton" style="height:150px;border-radius:14px"></div>'.repeat(6)}</div>
+    <div class="loadmore"><button class="btn ghost" id="newsMore" type="button" hidden>${t('news_more')}</button></div>${homesRail()}`;
+  observeCards($('#main'));
+  const rows = await api('web_news?select=title,url,posted_at,source&order=posted_at.desc&limit=200').catch(() => []);
   const fmt = d => new Date(d).toLocaleDateString(S.lang === 'nl' ? 'nl-NL' : 'en-GB', { day: 'numeric', month: 'long' });
-  $('#newsList').innerHTML = rows.map(r => `<li><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.title)}</a><small>${esc(r.source)}, ${fmt(r.posted_at)}</small></li>`).join('') || '<li>—</li>';
+  const label = src => ({ idealista: t('news_market'), 'vegabajadigital.com': t('news_region'), 'Spanje Vandaag': t('news_spain') }[src] || src);
+  let src = 'all', shown = 17;
+  const draw = () => {
+    const list = rows.filter(r => !NEWS_SRC[src] || r.source === NEWS_SRC[src]);
+    $('#newsList').innerHTML = list.slice(0, shown).map((r, i) => `<a class="news-card${i === 0 ? ' lead' : ''}" href="${esc(r.url)}" target="_blank" rel="noopener" data-src="${esc(r.source)}">
+      <span class="nc-tag">${esc(label(r.source))}</span><h3>${esc(r.title)}</h3><small>${esc(r.source)} · ${fmt(r.posted_at)}</small></a>`).join('') || `<p>${t('news_none')}</p>`;
+    $('#newsMore').hidden = list.length <= shown;
+  };
+  draw();
+  $$('.news-filter button').forEach(b => b.addEventListener('click', () => { src = b.dataset.src; shown = 17; $$('.news-filter button').forEach(x => x.setAttribute('aria-pressed', x === b)); draw(); track('news_filter', null, null, { src }); }));
+  $('#newsMore').addEventListener('click', () => { shown += 16; draw(); });
+  $('#newsList').addEventListener('click', e => { const a = e.target.closest('a'); if (a) track('news_click', null, null, { src: a.dataset.src }); });
 }
 function pageContact() {
-  return `<div class="page-head"><h1>${t('contact_h')}</h1><p>${t('contact_p')}</p></div>
-  <div class="split"><div>
-    <p><a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/34664414515">WhatsApp</a> &nbsp; <a class="btn ghost" href="tel:+34966792113">+34 966 792 113</a></p>
-    <h2 style="font:400 26px var(--serif);margin:28px 0 6px">${t('office')}</h2>
-    <p>Grupo Soltura Real Estate<br>Avda. de la Constitución s/n<br>03179 Formentera del Segura, Alicante</p>
-    <div class="team" style="padding:10px 0">${[2, 3, 4, 6].map(id => { const a = AGENTS[id]; return `<div class="member" style="padding:14px"><h3 style="font-size:17px">${a.name}</h3><p style="margin:2px 0 8px;font-size:14px">${a.role[S.lang]}</p><a target="_blank" rel="noopener" href="https://wa.me/${a.tel.replace('+', '')}">WhatsApp</a></div>`; }).join('')}</div>
-  </div>
-  <div class="box" style="background:#fff;border:1px solid var(--mist);border-radius:16px;padding:22px"><form class="form" id="contactForm">${contactFields('contact')}</form></div></div>`;
+  const fmtTel = tel => tel.replace(/(\+34)(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4');
+  return `<div class="page-head"><p class="kicker">${t('nav_contact')}</p><h1>${t('contact_h')}</h1><p>${t('contact_p')}</p></div>
+  <div class="pg contact-grid">
+    <div>
+      <div class="ways">
+        <a class="way wa" href="https://wa.me/34664414515" target="_blank" rel="noopener" data-track="whatsapp">${ICON.wa}<b>WhatsApp</b><span>${t('c_wa')}</span></a>
+        <a class="way" href="tel:+34966792113" data-track="call">${ICON.phone}<b>+34 966 792 113</b><span>${t('c_call')}</span></a>
+        <a class="way" href="mailto:info@gruposoltura.com">${ICON.mail}<b>info@gruposoltura.com</b><span>${t('c_mail')}</span></a>
+      </div>
+      <div class="box office"><h2>${t('office')}</h2><p>Grupo Soltura Real Estate<br>Avda. de la Constitución s/n<br>03179 Formentera del Segura, Alicante</p><p class="muted">${t('hours')}</p>
+        <a class="btn ghost" href="https://www.google.com/maps/search/?api=1&query=Grupo%20Soltura%20Formentera%20del%20Segura" target="_blank" rel="noopener">${t('c_route')}</a></div>
+      <h2 class="pg-h">${t('c_team')}</h2>
+      <div class="team-cards">${[2, 3, 4, 6].map(id => { const a = AGENTS[id]; return `<div class="tm"><div class="av">${a.short[0]}</div><div><b>${a.name}</b><span>${a.role[S.lang]}</span>
+        <p><a href="https://wa.me/${a.tel.replace('+', '')}" target="_blank" rel="noopener" data-track="whatsapp">WhatsApp</a> · <a href="tel:${a.tel}" data-track="call">${fmtTel(a.tel)}</a></p></div></div>`; }).join('')}</div>
+    </div>
+    <div class="box form-card sticky"><h2>${t('c_form_h')}</h2>${richForm('contactForm', 'contact', [{ label: t('f_topic'), opts: t('f_topic_opts') }, { label: t('f_lang'), opts: ['English', 'Nederlands', 'Deutsch', 'Français', 'Español'] }], '')}</div>
+  </div>`;
+}
+function pagePrivacy() {
+  const c = P('privacy');
+  return `<div class="page-head"><p class="kicker">Grupo Soltura SL</p><h1>${c.h}</h1><p class="muted">${c.updated}</p></div>
+    <div class="pg privacy">
+      <nav class="toc">${c.sections.map(([h], i) => `<a href="#pv${i}" data-scroll>${h}</a>`).join('')}</nav>
+      <div class="pv-body">${c.sections.map(([h, p], i) => `<section id="pv${i}"><h2>${h}</h2><p>${p}</p></section>`).join('')}
+        <p><button class="btn ghost" type="button" data-cookie-settings>${c.change}</button></p></div>
+    </div>`;
 }
 function pageFavs() {
   const items = [...S.favs].map(id => S.byId.get(id)).filter(Boolean);
   if (!items.length) return `<div class="empty"><h2>${t('fav_h')}</h2><p>${t('fav_empty')}</p><p><a class="btn primary" href="#/">${t('see_all')}</a></p></div>`;
   return `<div class="page-head"><h1>${t('fav_h')}</h1></div><section class="feed">${items.map(p => card(p)).join('')}</section>${homesRail()}`;
 }
+// ankerlinks binnen een pagina (hash-router gebruikt # voor routes)
+addEventListener('click', e => { const a = e.target.closest('a[data-scroll]'); if (!a) return; e.preventDefault(); const el = document.getElementById(a.getAttribute('href').slice(1)); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
 
 // ---------- router ----------
 let currentPage = null;
@@ -1035,19 +1249,23 @@ function renderPage(h) {
   const main = $('#main');
   window.scrollTo(0, 0);
   switch (key) {
-    case 'buy': main.innerHTML = pageBuy(); break;
+    case 'buy': main.innerHTML = pageBuy(); bindMortgage(null); bindForm($('#buyForm')); break;
     case 'sell': main.innerHTML = pageSell(); bindForm($('#sellForm')); break;
-    case 'move': main.innerHTML = pageMove(); break;
-    case 'team': main.innerHTML = pageTeam(); break;
+    case 'move': main.innerHTML = pageMove(); bindForm($('#moveForm')); break;
     case 'news': pageNews(); break;
-    case 'contact': main.innerHTML = pageContact() + `<section class="section">${newsletterHtml('inline')}</section>`; bindForm($('#contactForm')); bindNewsletters(main); break;
+    case 'contact': main.innerHTML = pageContact(); bindForm($('#contactForm')); break;
+    case 'privacy': main.innerHTML = pagePrivacy(); break;
     case 'favorites': main.innerHTML = pageFavs(); break;
+    case 'team': location.replace('#/contact'); return;
     default: currentPage = 'home'; renderHome();
   }
   observeCards(main);
-  const sb = $('#socialBand'); if (sb) { sb.dataset.done = ''; sb.innerHTML = ''; }
-  if ('IntersectionObserver' in window) { const o = new IntersectionObserver(es => { if (es[0].isIntersecting) { o.disconnect(); renderSocialBand(); } }, { rootMargin: '600px' }); o.observe($('#socialBand')); } else renderSocialBand();
-  document.title = key === 'home' ? 'Grupo Soltura · ' + t('hero_title') : `${t('nav_' + ({ buy: 'buy', sell: 'sell', move: 'move', team: 'team', news: 'news', contact: 'contact' }[key] || 'homes'))} · Grupo Soltura`;
+  $$('[data-track]', main).forEach(a => a.addEventListener('click', () => track(a.dataset.track, null, null, { from: key })));
+  renderFooterStack();
+  if (key !== 'home') hidePop();
+  const names = { buy: 'nav_buy', sell: 'nav_sell', move: 'nav_move', news: 'nav_news', contact: 'nav_contact', favorites: 'fav_h', privacy: 'privacy' };
+  document.title = key === 'home' || !names[key] ? 'Grupo Soltura · ' + t('hero_title') : `${t(names[key])} · Grupo Soltura`;
+  track('page', null, null, { p: key });
 }
 window.addEventListener('hashchange', route);
 
@@ -1078,7 +1296,7 @@ $$('.top [data-track]').forEach(a => a.addEventListener('click', () => track(a.d
 
 // ---------- boot ----------
 async function boot() {
-  applyLang(); favCount();
+  applyLang(); favCount(); consentBar();
   const qp = new URLSearchParams(location.search);
   if (qp.get('lang') === 'nl' || qp.get('lang') === 'en') { S.lang = qp.get('lang'); applyLang(); }
   route();

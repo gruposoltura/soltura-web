@@ -1,6 +1,6 @@
 # Grupo Soltura — nieuwe website (proof of concept)
 
-Statische site voor GitHub Pages. Geen build-stap: `index.html`, `css/site.css`, `js/i18n.js`, `js/app.js`.
+Statische site voor GitHub Pages. Geen build-stap: `index.html`, `css/site.css` + `css/fonts.css` (lettertypen zelf gehost in `fonts/`), `js/i18n.js`, `js/pages.js` (teksten Kopen/Verkopen/Emigreren/Privacy, NL+EN), `js/app.js`.
 
 ## Uitgangspunten
 - **De woning is de hoofdzaak.** Hero is kort; het aanbod staat direct eronder. Een woning opent als sheet over de lijst (geen pagina-wissel), met vorige/volgende, vergelijkbare woningen en "meer in deze plaats" — zo blijft de bezoeker bladeren.
@@ -15,6 +15,7 @@ Statische site voor GitHub Pages. Geen build-stap: `index.html`, `css/site.css`,
 |---|---|
 | `web_properties` (view) | Live aanbod, alleen veilige velden (geen eigenaar, huisnummer, sleutels, interne notities). Coördinaten afgerond op ~100 m. |
 | `web_media_cache` | WP-attachment-id → foto-URL voor galerijen. Gevuld voor alle live woningen (15.329 foto's, 17-10-2026); nieuwe woningen worden bij openen aangevuld via edge function `web-media-sync`. |
+| `web_reviews` / `web_reviews_summary` (views) | Laatste Google-reviews (≥4 sterren, zonder naam reviewer) + score/aantal. Getoond in de feed, boven de footer, als badge in de hero en op de woningpagina. |
 | `web_news` (view) | Nieuwskoppen uit `news_posts`. |
 | `web_events` | Anonieme interactie-events (insert-only). `web_engagement_daily` telt woningen per sessie. |
 | `web_assistant_log` | Vragen aan de assistent (IP alleen gehasht). |
@@ -25,7 +26,14 @@ Edge functions (bron van `web-assistant` in `supabase/functions/`): `web-assista
 
 Instelbare waarden (belastingtarieven, hypotheekrente, all-in tarief): tabel `web_config`.
 
+## Pagina's
+Woningen, Kopen, Verkopen, Emigreren, Nieuws, Contact, Privacy (`#/privacy`). Team is opgegaan in Contact (`#/team` stuurt door). Onderaan elke pagina: Google-reviews, nieuwsbrief, socials, footer.
+
+## Privacy / cookiekeuze
+Zonder toestemming worden bezoeken anoniem per sessie geteld (niets opgeslagen op het apparaat). Met toestemming bewaart de browser een willekeurige bezoekerscode (`gs_vid`). Geen Google Analytics, geen advertentiecookies, geen Google Fonts.
+
 ## Bekende punten
+- Privacytekst is een concept en moet juridisch worden nagelezen; e-mailadres info@gruposoltura.com aangenomen.
 - `property_distance_sea` staat bijna overal op 7000 (CPR-standaardwaarde) en wordt als onbekend behandeld.
 - Marktvergelijking (`property_price_m2`) is gebaseerd op bestaande bouw; voor nieuwbouw wordt hij niet getoond.
 - `web_properties` telt 507 woningen, de huidige site 448: verschil uitzoeken vóór migratie.
