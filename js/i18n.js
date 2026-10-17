@@ -65,6 +65,8 @@ window.I18N = {
     nl_first: 'First name', nl_last: 'Surname', nl_btn: 'Subscribe',
     nl_note: 'You can unsubscribe at any time via the link in every email.',
     nl_err_pick: 'Tick at least one interest.', nl_ok: 'Thank you, you are subscribed. Check your inbox for a confirmation.',
+    mort_h: 'Mortgage calculator', mort_amount: 'Loan amount', mort_of_price: 'of price', mort_term: 'Term', mort_years: 'years', mort_rate: 'Interest rate (fixed)', mort_monthly: 'Monthly payment', mort_interest: 'Total interest', mort_total: 'Total repaid',
+    mort_note: r => `Annuity calculation. ${r}% is the average Spanish mortgage rate (Banco de España, August 2026). Non-residents usually borrow up to 60-70% of the value, sometimes at a slightly higher rate. We arrange your mortgage with a Spanish bank.`,
     home_rail: 'Homes you may like', see_all: 'See all homes',
   },
   nl: {
@@ -130,6 +132,8 @@ window.I18N = {
     nl_first: 'Voornaam', nl_last: 'Achternaam', nl_btn: 'Inschrijven',
     nl_note: 'Je kunt je altijd afmelden via de link in elke e-mail.',
     nl_err_pick: 'Vink minstens één onderwerp aan.', nl_ok: 'Dank je, je bent ingeschreven.',
+    mort_h: 'Hypotheekcalculator', mort_amount: 'Hoofdsom', mort_of_price: 'van de prijs', mort_term: 'Looptijd', mort_years: 'jaar', mort_rate: 'Rente (vast)', mort_monthly: 'Maandlast', mort_interest: 'Totale rente', mort_total: 'Totaal terugbetaald',
+    mort_note: r => `Annuïteitenberekening. ${r}% is de gemiddelde Spaanse hypotheekrente (Banco de España, augustus 2026). Niet-residenten lenen meestal tot 60-70% van de waarde, soms tegen een iets hogere rente. Wij regelen je hypotheek bij een Spaanse bank.`,
     home_rail: 'Woningen die je misschien mooi vindt', see_all: 'Alle woningen bekijken',
   }
 };

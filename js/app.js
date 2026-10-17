@@ -517,7 +517,7 @@ async function openSheet(ref) {
         <div id="marketBox"></div>
         <div class="desc" id="desc"><p class="skeleton" style="height:8em;border-radius:8px"></p></div>
         <div id="featBox"></div>
-        <div id="costBox"></div>
+        ${mortgageHtml(p)}
       </div>
       <aside class="side">
         <div class="box chat" id="chatBox">
@@ -534,6 +534,7 @@ async function openSheet(ref) {
           <button class="btn primary" type="button" id="viewBtn">${t('viewing_btn')}</button>
           <form class="form" id="viewForm" hidden style="margin-top:12px">${contactFields('viewing', p)}</form>
         </div>
+        <div id="costBox"></div>
       </aside>
     </div>
     <button class="chat-fab" type="button" id="chatFab">${t('ask_fab')}</button>
@@ -553,9 +554,44 @@ async function openSheet(ref) {
   gallery(urls);
   if (geo && geo.beach_km != null) {
     const km = v => String(Math.round(v)).replace('.', ',') + ' km';
-    $('#keyfacts').insertAdjacentHTML('afterbegin', `<div><b>${km(geo.beach_road_km || geo.beach_km)} · ${geo.beach_drive_min} min</b><span>${t('sh_sea')}</span></div><div><b>${km(geo.alc_km * 1.25)} · ${geo.alc_drive_min} min</b><span>${t('sh_airport')} ALC</span></div>`);
+    $('#keyfacts').insertAdjacentHTML('afterbegin', `<div><b>${km(geo.beach_road_km || geo.beach_km)}</b><span>${t('sh_sea')} · ${geo.beach_drive_min} min</span></div><div><b>${km(geo.alc_km * 1.25)}</b><span>${t('sh_airport')} ALC · ${geo.alc_drive_min} min</span></div>`);
   }
   if (full) fillDetail(full);
+}
+// ---------- hypotheekcalculator (annuïteit) ----------
+function mortgageHtml(p) {
+  const rate = S.cfg.mortgage_rate_pct || 3.13;
+  return `<div class="box mort" id="mortBox"><h3>${t('mort_h')}</h3>
+    <label class="mrow"><span>${t('mort_amount')}</span><span class="eurin"><b>€</b><input id="mAmt" inputmode="numeric" value="${num(250000)}" aria-label="${t('mort_amount')}"></span></label>
+    ${p && p.price ? `<div class="mquick"><button type="button" data-ltv="60">60% ${t('mort_of_price')}</button><button type="button" data-ltv="70">70%</button><button type="button" data-ltv="80">80%</button></div>` : ''}
+    <label class="mrow"><span>${t('mort_term')}</span><b id="mTermV">25 ${t('mort_years')}</b></label>
+    <input type="range" id="mTerm" min="5" max="30" step="1" value="25" aria-label="${t('mort_term')}">
+    <label class="mrow"><span>${t('mort_rate')}</span><span class="pctin"><input id="mRate" inputmode="decimal" value="${String(rate).replace('.', S.lang === 'nl' ? ',' : '.')}" aria-label="${t('mort_rate')}"><b>%</b></span></label>
+    <div class="mout"><span>${t('mort_monthly')}</span><strong id="mPay">–</strong></div>
+    <div class="mmeta"><span>${t('mort_interest')} <b id="mInt">–</b></span><span>${t('mort_total')} <b id="mTot">–</b></span></div>
+    <p class="mnote">${t('mort_note', String(rate).replace('.', S.lang === 'nl' ? ',' : '.'))}</p></div>`;
+}
+function bindMortgage(p) {
+  const box = $('#mortBox'); if (!box) return;
+  const parseAmt = v => Number(String(v).replace(/[^0-9]/g, '')) || 0;
+  const parseRate = v => Number(String(v).replace(/[^0-9,\.]/g, '').replace(',', '.')) || 0;
+  const calc = () => {
+    const P = parseAmt($('#mAmt').value), n = Number($('#mTerm').value) * 12, r = parseRate($('#mRate').value) / 100 / 12;
+    $('#mTermV').textContent = `${$('#mTerm').value} ${t('mort_years')}`;
+    if (!P || !n) return;
+    const m = r ? P * r / (1 - Math.pow(1 + r, -n)) : P / n;
+    $('#mPay').textContent = eur(Math.round(m));
+    $('#mInt').textContent = eur(Math.round(m * n - P));
+    $('#mTot').textContent = eur(Math.round(m * n));
+  };
+  let tracked = false;
+  const onInput = () => { calc(); if (!tracked) { tracked = true; track('mortgage', p && p.wp_id); } };
+  $('#mAmt').addEventListener('input', onInput);
+  $('#mAmt').addEventListener('blur', () => { $('#mAmt').value = num(parseAmt($('#mAmt').value)); });
+  $('#mTerm').addEventListener('input', onInput);
+  $('#mRate').addEventListener('input', onInput);
+  $$('[data-ltv]', box).forEach(b => b.addEventListener('click', () => { $('#mAmt').value = num(Math.round(p.price * b.dataset.ltv / 100 / 1000) * 1000); onInput(); }));
+  calc();
 }
 function contactFields(kind, p) {
   return `<input type="hidden" name="kind" value="${kind}">
@@ -591,6 +627,7 @@ function bindSheet(p, waHref) {
   });
   $('#viewBtn').addEventListener('click', () => { const f = $('#viewForm'); f.hidden = !f.hidden; if (!f.hidden) { $('input[name=name]', f).focus(); track('contact_open', p.wp_id); } });
   bindForm($('#viewForm'), p);
+  bindMortgage(p);
   // chat
   const hist = [];
   const log = $('#chatLog');
