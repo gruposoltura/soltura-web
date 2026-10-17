@@ -1175,6 +1175,9 @@ function pageMove() {
     <section class="pg form-band"><div><h2>${c.form_h}</h2><p>${c.form_p}</p></div>
       ${richForm('moveForm', 'move', [{ label: t('f_when'), opts: t('f_when_opts') }, { label: t('f_budget'), ph: '€' }, { label: t('f_household'), ph: t('f_household_ph') }, { label: t('f_area'), ph: t('f_area_ph') }], '')}</section>`;
 }
+const LANG_NAME = { es: { en: 'Spanish', nl: 'Spaans' }, nl: { en: 'Dutch', nl: 'Nederlands' }, en: { en: 'English', nl: 'Engels' }, de: { en: 'German', nl: 'Duits' }, fr: { en: 'French', nl: 'Frans' }, ca: { en: 'Valencian', nl: 'Valenciaans' } };
+// taal van het artikel zelf (de koppen in news_posts zijn al naar het Nederlands herschreven)
+const artLang = r => ({ idealista: 'es', 'vegabajadigital.com': 'es', 'Spanje Vandaag': 'nl' }[r.source]);
 const NEWS_SRC = { all: null, market: 'idealista', region: 'vegabajadigital.com', spain: 'Spanje Vandaag' };
 async function pageNews() {
   $('#main').innerHTML = `<div class="page-head"><p class="kicker">${t('nav_news')}</p><h1>${t('news_h')}</h1><p>${t('news_p')}</p></div>
@@ -1182,9 +1185,11 @@ async function pageNews() {
     <div class="news-grid" id="newsList">${'<div class="skeleton" style="height:150px;border-radius:14px"></div>'.repeat(6)}</div>
     <div class="loadmore"><button class="btn ghost" id="newsMore" type="button" hidden>${t('news_more')}</button></div>${homesRail()}`;
   observeCards($('#main'));
-  const rows = await api('web_news?select=title,url,posted_at,source,image&order=posted_at.desc&limit=200').catch(() => []);
+  const rows = await api('web_news?select=title,title_en,title_nl,lang,url,posted_at,source,image&order=posted_at.desc&limit=200').catch(() => []);
   const fmt = d => new Date(d).toLocaleDateString(S.lang === 'nl' ? 'nl-NL' : 'en-GB', { day: 'numeric', month: 'long' });
   const label = src => ({ idealista: t('news_market'), 'vegabajadigital.com': t('news_region'), 'Spanje Vandaag': t('news_spain') }[src] || src);
+  // koppen in de taal van de site (vertaald door web-news-images); het artikel zelf staat in de brontaal
+  const head = r => (S.lang === 'nl' ? r.title_nl : r.title_en) || r.title;
   let src = 'all', shown = 17;
   const draw = () => {
     const list = rows.filter(r => !NEWS_SRC[src] || r.source === NEWS_SRC[src]);
@@ -1192,12 +1197,12 @@ async function pageNews() {
     const li = list.findIndex(r => r.image); if (li > 0 && li < 4) list.unshift(list.splice(li, 1)[0]);
     $('#newsList').innerHTML = list.slice(0, shown).map((r, i) => `<a class="news-card${i === 0 ? ' lead' : ''}${r.image ? ' has-img' : ''}" href="${esc(r.url)}" target="_blank" rel="noopener" data-src="${esc(r.source)}">
       ${r.image ? `<span class="nc-img"><img src="${esc(r.image)}" alt="" loading="${i < 5 ? 'eager' : 'lazy'}" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add('nc-ph');this.remove();"></span>` : (i ? `<span class="nc-img nc-ph"></span>` : '')}
-      <span class="nc-txt"><span class="nc-tag">${esc(label(r.source))}</span><h3>${esc(r.title)}</h3><small>${esc(r.source)} · ${fmt(r.posted_at)}</small></span></a>`).join('') || `<p>${t('news_none')}</p>`;
+      <span class="nc-txt"><span class="nc-tag">${esc(label(r.source))}</span><h3>${esc(head(r))}</h3><small>${esc(r.source)} · ${fmt(r.posted_at)}${artLang(r) && artLang(r) !== S.lang ? ` · <span class="nc-lang">${t('news_in', LANG_NAME[artLang(r)][S.lang])}</span>` : ''}</small></span></a>`).join('') || `<p>${t('news_none')}</p>`;
     $('#newsMore').hidden = list.length <= shown;
   };
   draw();
   // nieuwe berichten zonder foto: thumbnails laten ophalen voor de volgende bezoeker
-  if (rows.some(r => !r.image) && !sessionStorage.getItem('gs_newsimg')) { try { sessionStorage.setItem('gs_newsimg', '1'); } catch {} fn('web-news-images', {}).catch(() => {}); }
+  if (rows.some(r => !r.image || !r.title_en) && !sessionStorage.getItem('gs_newsimg')) { try { sessionStorage.setItem('gs_newsimg', '1'); } catch {} fn('web-news-images', {}).catch(() => {}); }
   $$('.news-filter button').forEach(b => b.addEventListener('click', () => { src = b.dataset.src; shown = 17; $$('.news-filter button').forEach(x => x.setAttribute('aria-pressed', x === b)); draw(); track('news_filter', null, null, { src }); }));
   $('#newsMore').addEventListener('click', () => { shown += 16; draw(); });
   $('#newsList').addEventListener('click', e => { const a = e.target.closest('a'); if (a) track('news_click', null, null, { src: a.dataset.src }); });

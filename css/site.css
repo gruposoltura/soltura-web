@@ -730,3 +730,4 @@ button,input,select,textarea{font:inherit;color:inherit}
 @media (max-width:760px){.news-card.lead.has-img{grid-template-columns:1fr}.news-card.lead .nc-img{min-height:0;aspect-ratio:16/9}.news-card.lead .nc-txt{padding:20px}}
 .nc-ph{background:var(--sun);position:relative}
 .nc-ph::after{content:"";position:absolute;inset:0;background:url("https://gruposoltura.com/wp-content/uploads/2020/06/cropped-favicon512-270x270.png") center/64px no-repeat;opacity:.9;filter:brightness(0) invert(1)}
+.nc-lang{color:var(--sea);font-weight:600}.news-card.lead .nc-lang{color:var(--lemon)}

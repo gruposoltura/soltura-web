@@ -152,7 +152,7 @@ Object.assign(I18N.en, {
   f_town: 'Town or area', f_type: 'Type of home', f_type_opts: ['Villa', 'Detached house', 'Quad house', 'Bungalow', 'Townhouse', 'Apartment', 'Penthouse', 'Plot / other'],
   f_household: 'Who is moving', f_household_ph: 'e.g. couple, family with 2 children', f_area: 'Preferred area', f_area_ph: 'e.g. near the coast, a village',
   f_topic: 'Subject', f_topic_opts: ['Buying a home', 'Selling my home', 'Moving to Spain', 'Legal services', 'Something else'], f_lang: 'Preferred language',
-  news_all: 'All', news_market: 'Property market', news_region: 'Vega Baja', news_spain: 'Spain', news_none: 'No news in this category yet.', news_more: 'More news', move_plan_btn: 'Get my step-by-step plan',
+  news_all: 'All', news_market: 'Property market', news_region: 'Vega Baja', news_spain: 'Spain', news_none: 'No news in this category yet.', news_more: 'More news', news_in: l => `article in ${l}`, move_plan_btn: 'Get my step-by-step plan',
   c_wa: 'Fastest: usually an answer within the hour', c_call: 'Monday to Friday, during office hours', c_mail: 'We reply within one working day', c_route: 'Plan your route', c_team: 'Talk to one of us directly', c_form_h: 'Send us a message',
 });
 Object.assign(I18N.nl, {
@@ -165,7 +165,7 @@ Object.assign(I18N.nl, {
   f_town: 'Plaats of gebied', f_type: 'Soort woning', f_type_opts: ['Villa', 'Vrijstaand huis', 'Hoekwoning (quad)', 'Bungalow', 'Rijtjeshuis', 'Appartement', 'Penthouse', 'Bouwgrond / anders'],
   f_household: 'Wie verhuist er', f_household_ph: 'bijv. stel, gezin met 2 kinderen', f_area: 'Voorkeursgebied', f_area_ph: 'bijv. dicht bij de kust, een dorp',
   f_topic: 'Onderwerp', f_topic_opts: ['Een woning kopen', 'Mijn woning verkopen', 'Emigreren naar Spanje', 'Juridische diensten', 'Iets anders'], f_lang: 'Voorkeurstaal',
-  news_all: 'Alles', news_market: 'Woningmarkt', news_region: 'Vega Baja', news_spain: 'Spanje', news_none: 'Nog geen nieuws in deze categorie.', news_more: 'Meer nieuws', move_plan_btn: 'Vraag mijn stappenplan aan',
+  news_all: 'Alles', news_market: 'Woningmarkt', news_region: 'Vega Baja', news_spain: 'Spanje', news_none: 'Nog geen nieuws in deze categorie.', news_more: 'Meer nieuws', news_in: l => `artikel in het ${l}`, move_plan_btn: 'Vraag mijn stappenplan aan',
   c_wa: 'Het snelst: meestal binnen het uur antwoord', c_call: 'Maandag t/m vrijdag, tijdens kantooruren', c_mail: 'We antwoorden binnen één werkdag', c_route: 'Plan je route', c_team: 'Spreek direct een van ons', c_form_h: 'Stuur ons een bericht',
 });
 Object.assign(I18N.en, {
