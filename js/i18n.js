@@ -72,6 +72,9 @@ window.I18N = {
     hint_search: 'Search in your own words', hint_hover: 'Move over a photo to browse it', hint_tap: 'Tap a home for all photos', hint_ask: 'Ask us anything about a home', hint_reel: 'Swipe full screen', hint_fav: 'Save your favourites',
     qa_ask: 'Ask us', qa_mort: 'Calculate mortgage', qa_photos: n => `${n} photo${n === 1 ? '' : 's'}`, qa_view: 'Plan a viewing',
     mort_hint: 'Slide or type, your monthly payment updates instantly.',
+    followers: 'followers', social_h: 'Follow our homes every day', social_p: 'New listings, price drops, reels and life on the Costa Blanca, first on our Instagram and Facebook.',
+    social_sheet_h: 'Share & follow', social_onpost: 'We posted this home', share_fb: 'Share on Facebook', share_wa: 'Send via WhatsApp',
+    social_follow_p: 'Homes like this one appear on our socials first.',
     home_rail: 'Homes you may like', see_all: 'See all homes',
   },
   nl: {
@@ -144,6 +147,9 @@ window.I18N = {
     hint_search: 'Zoek in je eigen woorden', hint_hover: "Beweeg over een foto om te bladeren", hint_tap: "Tik op een woning voor alle foto's", hint_ask: 'Stel ons elke vraag over een woning', hint_reel: 'Schermvullend swipen', hint_fav: 'Bewaar je favorieten',
     qa_ask: 'Vraag het ons', qa_mort: 'Bereken hypotheek', qa_photos: n => `${n} foto${n === 1 ? '' : "'s"}`, qa_view: 'Plan bezichtiging',
     mort_hint: 'Schuif of typ, je maandlast verandert direct mee.',
+    followers: 'volgers', social_h: 'Volg ons aanbod elke dag', social_p: 'Nieuwe woningen, prijsverlagingen, reels en het leven aan de Costa Blanca: als eerste op onze Instagram en Facebook.',
+    social_sheet_h: 'Delen & volgen', social_onpost: 'We hebben deze woning gepost', share_fb: 'Deel op Facebook', share_wa: 'Stuur via WhatsApp',
+    social_follow_p: 'Woningen zoals deze staan als eerste op onze socials.',
     home_rail: 'Woningen die je misschien mooi vindt', see_all: 'Alle woningen bekijken',
   }
 };

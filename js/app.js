@@ -76,6 +76,8 @@ const ICON = {
   cal: '<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>',
   hand: '<svg viewBox="0 0 24 24"><path d="M9 11V5a1.5 1.5 0 0 1 3 0v5M12 10V4a1.5 1.5 0 0 1 3 0v6M15 10V6a1.5 1.5 0 0 1 3 0v8a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-3l-2.5-4a1.5 1.5 0 0 1 2.5-1.6L9 13"/></svg>',
   spark: '<svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>',
+  ig: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>',
+  fb: '<svg viewBox="0 0 24 24"><path d="M14 8.5V7c0-.8.5-1.2 1.2-1.2H17V2.5h-2.6C11.6 2.5 10.6 4.4 10.6 7v1.5H8V12h2.6v9.5H14V12h2.7l.4-3.5z" fill="currentColor" stroke="none"/></svg>',
   play: '<svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg>',
 };
 
@@ -298,6 +300,63 @@ function typePlaceholder(input, examples) {
     typeTimer = setTimeout(step, wait);
   };
   typeTimer = setTimeout(step, 900);
+}
+
+// ---------- socials: band boven de footer + blok op de woningpagina ----------
+const SOCIAL = { ig: 'https://www.instagram.com/gruposoltura/', fb: 'https://www.facebook.com/gruposoltura/' };
+let socialData = null;
+async function loadSocial() {
+  if (socialData) return socialData;
+  const [feed, stats] = await Promise.all([
+    api('web_social_feed?select=*').catch(() => []),
+    api('web_social_stats?select=*').then(r => r[0] || {}).catch(() => ({})),
+  ]);
+  socialData = { feed, stats };
+  return socialData;
+}
+function followBtns(st, compact) {
+  return `<div class="follow-btns${compact ? ' compact' : ''}">
+    <a class="follow ig" href="${SOCIAL.ig}" target="_blank" rel="noopener" data-social="ig">${ICON.ig}<span><b>Instagram</b>${st.ig_followers ? `<small>${num(st.ig_followers)} ${t('followers')}</small>` : ''}</span></a>
+    <a class="follow fb" href="${SOCIAL.fb}" target="_blank" rel="noopener" data-social="fb">${ICON.fb}<span><b>Facebook</b>${st.fb_followers ? `<small>${num(st.fb_followers)} ${t('followers')}</small>` : ''}</span></a>
+  </div>`;
+}
+async function renderSocialBand() {
+  const el = $('#socialBand'); if (!el || el.dataset.done) return;
+  el.dataset.done = '1';
+  const { feed, stats } = await loadSocial();
+  const tiles = feed.slice(0, 10).map(f => {
+    const href = f.fb_url || (f.on_instagram ? SOCIAL.ig : SOCIAL.fb);
+    const media = f.video_url
+      ? `<video muted loop playsinline preload="none" ${f.image ? `poster="${esc(f.image)}"` : ''} data-src="${esc(f.video_url)}"></video><span class="tile-play">${ICON.play}</span>`
+      : `<img src="${esc(f.image)}" alt="" loading="lazy">`;
+    return `<a class="tile" href="${esc(href)}" target="_blank" rel="noopener" data-social="post">${media}<span class="tile-ov"><span class="tile-ic">${f.on_instagram ? ICON.ig : ICON.fb}</span><span class="tile-cap">${esc(f.caption)}</span></span></a>`;
+  }).join('');
+  el.innerHTML = `<div class="sb-head"><div><h2>${t('social_h')}</h2><p>${t('social_p')}</p></div>${followBtns(stats)}</div>
+    ${tiles ? `<div class="sb-strip">${tiles}</div>` : ''}`;
+  // reels spelen af zodra ze in beeld zijn (zonder geluid)
+  if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const io = new IntersectionObserver(es => es.forEach(en => {
+      const v = en.target;
+      if (en.isIntersecting) { if (!v.src) v.src = v.dataset.src; v.play().catch(() => {}); } else v.pause();
+    }), { threshold: .6 });
+    $$('video[data-src]', el).forEach(v => io.observe(v));
+  }
+}
+addEventListener('click', e => { const a = e.target.closest('[data-social]'); if (a) track('social', S.openId, null, { k: a.dataset.social }); });
+async function renderSocialSheet(p) {
+  const box = $('#socialBox'); if (!box) return;
+  const { feed, stats } = await loadSocial();
+  if (S.openId !== p.wp_id) return;
+  const post = feed.find(f => f.wp_id === p.wp_id || (f.reference && f.reference === p.reference));
+  const url = location.origin + location.pathname + '#/home/' + encodeURIComponent(p.reference);
+  box.innerHTML = `<h3>${t('social_sheet_h')}</h3>
+    ${post ? `<a class="sp-post" href="${esc(post.fb_url || SOCIAL.ig)}" target="_blank" rel="noopener" data-social="post">${post.image ? `<img src="${esc(post.image)}" alt="" loading="lazy">` : ''}<span><b>${t('social_onpost')}</b><small>${esc(post.caption.slice(0, 90))}…</small></span></a>` : ''}
+    <div class="share-row">
+      <a class="share fb" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}" target="_blank" rel="noopener" data-social="share_fb">${ICON.fb}<span>${t('share_fb')}</span></a>
+      <a class="share wa" href="https://wa.me/?text=${encodeURIComponent(title(p) + ' ' + url)}" target="_blank" rel="noopener" data-social="share_wa">${ICON.wa}<span>${t('share_wa')}</span></a>
+    </div>
+    <p class="sp-follow">${t('social_follow_p')}</p>
+    ${followBtns(stats, true)}`;
 }
 
 // ---------- live teller: telt snel op naar het aantal woningen van vandaag ----------
@@ -588,6 +647,7 @@ async function openSheet(ref) {
           <form class="form" id="viewForm" hidden style="margin-top:12px">${contactFields('viewing', p)}</form>
         </div>
         <div id="costBox"></div>
+        <div class="box social-box" id="socialBox"></div>
       </aside>
     </div>
     <button class="chat-fab" type="button" id="chatFab">${t('ask_fab')}</button>
@@ -683,6 +743,7 @@ function bindSheet(p, waHref) {
   $('#viewBtn').addEventListener('click', () => { const f = $('#viewForm'); f.hidden = !f.hidden; if (!f.hidden) { $('input[name=name]', f).focus(); track('contact_open', p.wp_id); } });
   bindForm($('#viewForm'), p);
   bindMortgage(p);
+  renderSocialSheet(p);
   $$('.quick-acts [data-go]', inner).forEach(b => b.addEventListener('click', () => {
     const id = b.dataset.go, el = $('#' + id); if (!el) return;
     track('quick_action', p.wp_id, null, { id });
@@ -943,6 +1004,8 @@ function renderPage(h) {
     default: currentPage = 'home'; renderHome();
   }
   observeCards(main);
+  const sb = $('#socialBand'); if (sb) { sb.dataset.done = ''; sb.innerHTML = ''; }
+  if ('IntersectionObserver' in window) { const o = new IntersectionObserver(es => { if (es[0].isIntersecting) { o.disconnect(); renderSocialBand(); } }, { rootMargin: '600px' }); o.observe($('#socialBand')); } else renderSocialBand();
   document.title = key === 'home' ? 'Grupo Soltura · ' + t('hero_title') : `${t('nav_' + ({ buy: 'buy', sell: 'sell', move: 'move', team: 'team', news: 'news', contact: 'contact' }[key] || 'homes'))} · Grupo Soltura`;
 }
 window.addEventListener('hashchange', route);
