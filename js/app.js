@@ -543,9 +543,17 @@ async function openSheet(ref) {
   fillFacts(p);
   renderMore(p);
   // details + gallery in parallel
-  const [full, urls] = await Promise.all([api(`web_properties?select=*&wp_id=eq.${p.wp_id}`).then(r => r[0]).catch(() => null), mediaFor(p)]);
+  const [full, urls, geo] = await Promise.all([
+    api(`web_properties?select=*&wp_id=eq.${p.wp_id}`).then(r => r[0]).catch(() => null),
+    mediaFor(p),
+    api(`web_property_geo?select=*&wp_id=eq.${p.wp_id}`).then(r => r[0]).catch(() => null),
+  ]);
   if (S.openId !== p.wp_id) return;
   gallery(urls);
+  if (geo && geo.beach_km != null) {
+    const km = v => String(Math.round(v)).replace('.', ',') + ' km';
+    $('#keyfacts').insertAdjacentHTML('afterbegin', `<div><b>${km(geo.beach_road_km || geo.beach_km)} · ${geo.beach_drive_min} min</b><span>${t('sh_sea')}</span></div><div><b>${km(geo.alc_km * 1.25)} · ${geo.alc_drive_min} min</b><span>${t('sh_airport')} ALC</span></div>`);
+  }
   if (full) fillDetail(full);
 }
 function contactFields(kind, p) {
@@ -616,7 +624,7 @@ function fillDetail(d) {
   const kf = $('#keyfacts');
   const extra = [];
   const add = (v, l) => v != null && v !== '' && extra.push(`<div><b>${esc(v)}</b><span>${l}</span></div>`);
-  add(dist(d.dist_shops_m), t('sh_shops')); add(dist(d.dist_airport_m), t('sh_airport'));
+  add(dist(d.dist_shops_m), t('sh_shops'));
   add(d.year_built, t('sh_year')); add(d.energy_label && d.energy_label !== 'R' ? d.energy_label : null, t('sh_energy'));
   add(d.orientation && cap(d.orientation), t('sh_orient'));
   kf.insertAdjacentHTML('beforeend', extra.join(''));
