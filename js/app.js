@@ -840,7 +840,7 @@ function bindGuide(p) {
     out.style.color = 'var(--salina)';
     if (!first || !last || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { out.textContent = t('guide_err'); return; }
     $('button[type=submit]', form).disabled = true;
-    const r = await fn('web-contact', { kind: 'guide', lang: S.lang, name: `${first} ${last}`, email,
+    const r = await fn('web-contact', { kind: 'guide', lang: S.lang, name: `${first} ${last}`, first, last, email,
       message: `${t('guide_msg')}\n${t('nl_first')}: ${first}\n${t('nl_last')}: ${last}\n${t('sh_ref')} ${p.reference}`,
       wp_id: p.wp_id, reference: p.reference, website: d.website, vid: S.vid }).catch(() => ({ ok: false }));
     $('button[type=submit]', form).disabled = false;
