@@ -1209,7 +1209,8 @@ async function pageNews() {
 }
 // ---------- kantoorkaart (OpenStreetMap via Leaflet, alleen geladen op de contactpagina) ----------
 const OFFICE_LL = [38.0871507, -0.7407113];
-const OFFICE_IMG = 'https://res.cloudinary.com/dxmx3a2ea/image/upload/c_fill,w_1600,h_760,g_auto,q_auto,f_auto/20261001_141100_fxh9ri';
+// vergaderzaal, trap weggehaald (Higgsfield), als JPEG in Storage web-media
+const OFFICE_IMG = MEDIA + 'contact-office.jpg';
 let leafletP = null;
 function loadLeaflet() {
   if (window.L) return Promise.resolve();
