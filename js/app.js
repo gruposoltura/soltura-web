@@ -520,6 +520,13 @@ async function openSheet(ref) {
         <div id="costBox"></div>
       </div>
       <aside class="side">
+        <div class="box chat" id="chatBox">
+          <div class="chat-head"><div class="chat-av">S</div><div><h3>${t('ask_h')}</h3><p>${t('ask_sub')}</p></div></div>
+          <div class="log" id="chatLog"><div class="msg a intro">${t('ask_intro')}</div></div>
+          <div class="sugg" id="chatSugg">${t('ask_start').map(s => `<button type="button">${esc(s)}</button>`).join('')}</div>
+          <form id="chatForm"><input id="chatIn" autocomplete="off" placeholder="${esc(t('ask_ph2'))}" aria-label="${esc(t('ask_ph2'))}"><button type="submit">${t('send')}</button></form>
+          <p class="chat-hint">${t('ask_hint')}</p>
+        </div>
         <div class="box">
           <div class="agent"><div class="av">${ag.short[0]}</div><div><b>${esc(ag.name)}</b><span>${t('agent_role')}</span></div></div>
           <a class="btn wa" href="${waHref}" target="_blank" rel="noopener" data-track="whatsapp">${t('wa_btn')}</a>
@@ -527,15 +534,9 @@ async function openSheet(ref) {
           <button class="btn primary" type="button" id="viewBtn">${t('viewing_btn')}</button>
           <form class="form" id="viewForm" hidden style="margin-top:12px">${contactFields('viewing', p)}</form>
         </div>
-        <div class="box chat">
-          <h3>${t('ask_h')}</h3>
-          <div class="log" id="chatLog"></div>
-          <div class="sugg" id="chatSugg">${t('ask_start').map(s => `<button type="button">${esc(s)}</button>`).join('')}</div>
-          <form id="chatForm"><input id="chatIn" autocomplete="off" placeholder="${esc(t('ask_ph2'))}" aria-label="${esc(t('ask_ph2'))}"><button type="submit">${t('send')}</button></form>
-          <p style="margin:0;color:var(--muted);font-size:13px">${t('ask_hint')}</p>
-        </div>
       </aside>
     </div>
+    <button class="chat-fab" type="button" id="chatFab">${t('ask_fab')}</button>
     <div class="sh-more" id="shMore"></div>
     <div class="sh-next"><button class="btn ghost" type="button" data-step="-1">← ${t('prev_home')}</button><button class="btn primary" type="button" data-step="1">${t('next_home')} →</button></div>`;
   inner.scrollTop = 0;
@@ -609,6 +610,8 @@ function bindSheet(p, waHref) {
     $('#chatSugg').innerHTML = (r.suggestions || []).slice(0, 3).map(s => `<button type="button">${esc(s)}</button>`).join('');
   };
   $('#chatSugg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) ask(b.textContent); });
+  if ('IntersectionObserver' in window) new IntersectionObserver(es => { $('#chatFab').hidden = es[0].isIntersecting; }, { root: $('#sheetInner'), threshold: .3 }).observe($('#chatBox'));
+  $('#chatFab').addEventListener('click', () => { $('#chatBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => $('#chatIn').focus({ preventScroll: true }), 400); track('assistant_fab', p.wp_id); });
   $('#chatForm').addEventListener('submit', e => { e.preventDefault(); const v = $('#chatIn').value; $('#chatIn').value = ''; ask(v); });
 }
 function fillFacts(p) {
