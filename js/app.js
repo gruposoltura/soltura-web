@@ -1207,9 +1207,37 @@ async function pageNews() {
   $('#newsMore').addEventListener('click', () => { shown += 16; draw(); });
   $('#newsList').addEventListener('click', e => { const a = e.target.closest('a'); if (a) track('news_click', null, null, { src: a.dataset.src }); });
 }
+// ---------- kantoorkaart (OpenStreetMap via Leaflet, alleen geladen op de contactpagina) ----------
+const OFFICE_LL = [38.0871507, -0.7407113];
+const OFFICE_IMG = 'https://res.cloudinary.com/dxmx3a2ea/image/upload/c_fill,w_1600,h_760,g_auto,q_auto,f_auto/20261001_141100_fxh9ri';
+let leafletP = null;
+function loadLeaflet() {
+  if (window.L) return Promise.resolve();
+  if (!leafletP) leafletP = new Promise((ok, no) => {
+    const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css'; document.head.appendChild(css);
+    const js = document.createElement('script'); js.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js'; js.onload = ok; js.onerror = no; document.head.appendChild(js);
+  });
+  return leafletP;
+}
+async function initMap() {
+  const el = $('#mapEl'); if (!el) return;
+  try { await loadLeaflet(); } catch { el.innerHTML = `<a class="map-load" href="https://www.openstreetmap.org/?mlat=${OFFICE_LL[0]}&mlon=${OFFICE_LL[1]}#map=17/${OFFICE_LL[0]}/${OFFICE_LL[1]}" target="_blank" rel="noopener">OpenStreetMap</a>`; return; }
+  if (!document.body.contains(el)) return;
+  el.innerHTML = '';
+  const map = L.map(el, { scrollWheelZoom: false, zoomControl: true, attributionControl: true }).setView([OFFICE_LL[0] + 0.0012, OFFICE_LL[1]], 16);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }).addTo(map);
+  const pin = L.divIcon({ className: 'soltura-pin', iconSize: [64, 84], iconAnchor: [32, 80], popupAnchor: [0, -76],
+    html: `<span class="sp-pulse"></span><svg viewBox="0 0 64 84" aria-hidden="true"><path d="M32 82C32 82 6 52 6 31a26 26 0 0 1 52 0c0 21-26 51-26 51z" fill="#C63232" stroke="#fff" stroke-width="3"/><circle cx="32" cy="30" r="17" fill="#fff"/><circle cx="32" cy="22" r="6.5" fill="#FBCC10"/><path d="M20 39l12-11 12 11v3H20z" fill="#C63232"/></svg>` });
+  L.marker(OFFICE_LL, { icon: pin, title: 'Grupo Soltura Real Estate' }).addTo(map)
+    .bindPopup(`<b>Grupo Soltura Real Estate</b><br>Avda. de la Constitución s/n<br>03179 Formentera del Segura<br><a href="https://www.google.com/maps/dir/?api=1&destination=${OFFICE_LL.join(',')}" target="_blank" rel="noopener">${t('c_route')} →</a>`).openPopup();
+  // scrollen over de pagina blijft scrollen; na een klik op de kaart mag je zoomen
+  map.on('click', () => map.scrollWheelZoom.enable());
+  map.on('mouseout', () => map.scrollWheelZoom.disable());
+}
 function pageContact() {
   const fmtTel = tel => tel.replace(/(\+34)(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4');
-  return `<div class="page-head"><p class="kicker">${t('nav_contact')}</p><h1>${t('contact_h')}</h1><p>${t('contact_p')}</p></div>
+  return `<section class="page-hero contact-hero"><img src="${OFFICE_IMG}" alt="${esc(t('c_office_alt'))}" fetchpriority="high"><div><p class="kicker">${t('nav_contact')}</p><h1>${t('contact_h')}</h1><p>${t('contact_p')}</p>
+    <p class="hero-acts"><a class="btn wa" href="https://wa.me/34664414515" target="_blank" rel="noopener" data-track="whatsapp">${ICON.wa}WhatsApp</a><a class="btn lemon" href="#officeMap" data-scroll>${t('c_find')}</a></p></div></section>
   <div class="pg contact-grid">
     <div>
       <div class="ways">
@@ -1217,8 +1245,11 @@ function pageContact() {
         <a class="way" href="tel:+34966792113" data-track="call">${ICON.phone}<b>+34 966 792 113</b><span>${t('c_call')}</span></a>
         <a class="way" href="mailto:info@gruposoltura.com">${ICON.mail}<b>info@gruposoltura.com</b><span>${t('c_mail')}</span></a>
       </div>
-      <div class="box office"><h2>${t('office')}</h2><p>Grupo Soltura Real Estate<br>Avda. de la Constitución s/n<br>03179 Formentera del Segura, Alicante</p><p class="muted">${t('hours')}</p>
-        <a class="btn ghost" href="https://www.google.com/maps/search/?api=1&query=Grupo%20Soltura%20Formentera%20del%20Segura" target="_blank" rel="noopener">${t('c_route')}</a></div>
+      <div class="map-card" id="officeMap">
+        <div class="map" id="mapEl" role="region" aria-label="${esc(t('c_map'))}"><div class="map-load">${t('c_map')}</div></div>
+        <div class="map-info"><h2>${t('office')}</h2><p>Grupo Soltura Real Estate<br>Avda. de la Constitución s/n<br>03179 Formentera del Segura, Alicante</p><p class="muted">${t('hours')}</p>
+          <p class="map-acts"><a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=${OFFICE_LL.join(',')}" target="_blank" rel="noopener" data-track="route">${t('c_route')}</a><a class="btn ghost" href="https://www.openstreetmap.org/?mlat=${OFFICE_LL[0]}&mlon=${OFFICE_LL[1]}#map=17/${OFFICE_LL[0]}/${OFFICE_LL[1]}" target="_blank" rel="noopener">OpenStreetMap</a></p></div>
+      </div>
       <h2 class="pg-h">${t('c_team')}</h2>
       <div class="team-cards">${[2, 3, 4, 6].map(id => { const a = AGENTS[id]; return `<div class="tm"><div class="av">${a.short[0]}</div><div><b>${a.name}</b><span>${a.role[S.lang]}</span>
         <p><a href="https://wa.me/${a.tel.replace('+', '')}" target="_blank" rel="noopener" data-track="whatsapp">WhatsApp</a> · <a href="tel:${a.tel}" data-track="call">${fmtTel(a.tel)}</a></p></div></div>`; }).join('')}</div>
@@ -1269,7 +1300,7 @@ function renderPage(h) {
     case 'sell': main.innerHTML = pageSell(); bindForm($('#sellForm')); break;
     case 'move': main.innerHTML = pageMove(); bindForm($('#moveForm')); break;
     case 'news': pageNews(); break;
-    case 'contact': main.innerHTML = pageContact(); bindForm($('#contactForm')); break;
+    case 'contact': main.innerHTML = pageContact(); bindForm($('#contactForm')); if ('IntersectionObserver' in window) { const o = new IntersectionObserver(es => { if (es[0].isIntersecting) { o.disconnect(); initMap(); } }, { rootMargin: '300px' }); o.observe($('#mapEl')); } else initMap(); break;
     case 'privacy': main.innerHTML = pagePrivacy(); break;
     case 'favorites': main.innerHTML = pageFavs(); break;
     case 'team': location.replace('#/contact'); return;
