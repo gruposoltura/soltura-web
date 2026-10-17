@@ -753,3 +753,13 @@ button,input,select,textarea{font:inherit;color:inherit}
 @media (prefers-reduced-motion:reduce){.soltura-pin svg,.soltura-pin .sp-pulse{animation:none}}
 .leaflet-popup-content{font:500 14px/1.5 var(--sans)}
 .leaflet-popup-content a{color:var(--sea);font-weight:700}
+
+/* ===== mobiel: niets mag breder worden dan het scherm ===== */
+html,body{overflow-x:clip}
+.feed > *,.moment,.rail,.rv-grid,.pg-2 > *,.buy-grid > *,.contact-grid > *,.form-band > *,.split > *{min-width:0}
+.rv-moment .rv-grid{max-width:100%}
+@media (max-width:900px){.fin-row{grid-template-columns:1fr}}
+@media (max-width:420px){.nl-opts{grid-template-columns:1fr}.nl-fields{grid-template-columns:1fr}.nl-opt{min-width:0}}
+.consent{width:auto}
+.consent .btn{flex:1 1 auto;justify-content:center}
+img,video,svg{max-width:100%}

@@ -1344,9 +1344,12 @@ $$('.top [data-track]').forEach(a => a.addEventListener('click', () => track(a.d
 
 // ---------- boot ----------
 async function boot() {
-  applyLang(); favCount(); consentBar();
+  applyLang(); favCount();
   const qp = new URLSearchParams(location.search);
   if (qp.get('lang') === 'nl' || qp.get('lang') === 'en') { S.lang = qp.get('lang'); applyLang(); }
+  consentBar();
+  // installeerbaar als app (PWA): service worker voor snelle herstart en een offline-melding
+  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
   route();
   api('web_config?select=key,value').then(rows => rows.forEach(r => { S.cfg[r.key] = Number(r.value); })).catch(() => {});
   try {
