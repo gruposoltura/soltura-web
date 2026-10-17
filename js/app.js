@@ -236,6 +236,11 @@ async function mediaFor(p) {
       const rows = await api(`web_media_cache?select=media_id,url&media_id=in.(${ids.join(',')})`);
       const m = new Map(rows.map(r => [Number(r.media_id), r.url]));
       urls = ids.map(i => m.get(i)).filter(Boolean);
+      // nieuwe woning: foto's nog niet in de cache -> eenmalig ophalen
+      if (rows.length < ids.length) {
+        const r = await fetch(FN + 'web-media-sync?wp_id=' + p.wp_id, { headers: { apikey: KEY } }).then(x => x.json()).catch(() => null);
+        if (r && Array.isArray(r.images) && r.images.length > urls.length) urls = r.images;
+      }
     } catch {}
   }
   if (!urls.length && p.image) urls = [p.image];
