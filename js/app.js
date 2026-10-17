@@ -1132,12 +1132,12 @@ function pageBuy() {
   return `<section class="page-hero short">${video(VIDEO.coast)}<div><p class="kicker">${t('nav_buy')}</p><h1>${c.h}</h1><p>${c.lead}</p><p class="hero-acts"><a class="btn lemon" href="#/">${t('see_all')}</a><a class="btn wa" href="https://wa.me/34664414515" target="_blank" rel="noopener" data-track="whatsapp">WhatsApp</a></p></div></section>
     <div class="pg">
       <p class="pg-intro">${c.intro}</p>
-      <h2 class="pg-h">${c.steps_h}</h2>${timeline(c.steps)}
-      <div class="pg-2">
-        <div class="box costs-card"><h2>${c.costs_h}</h2><ul class="ticks">${c.costs.map(x => `<li>${x}</li>`).join('')}</ul>
-          <div class="allin-note">${c.costs_note}</div><a class="btn primary" href="#buyForm" data-scroll>${c.cta}</a></div>
-        <div>${mortgageHtml(null)}<div class="box fin-card"><h3>${c.fin_h}</h3><p>${c.fin_p}</p></div></div>
+      <div class="buy-grid">
+        <div><h2 class="pg-h">${c.steps_h}</h2>${timeline(c.steps)}</div>
+        <aside class="box costs-card"><h2>${c.costs_h}</h2><ul class="ticks">${c.costs.map(x => `<li>${x}</li>`).join('')}</ul>
+          <div class="allin-note">${c.costs_note}</div><a class="btn primary" href="#buyForm" data-scroll>${c.cta}</a></aside>
       </div>
+      <div class="pg-2 fin-row">${mortgageHtml(null)}<div class="box fin-card"><h3>${c.fin_h}</h3><p>${c.fin_p}</p><a class="btn ghost" href="#buyForm" data-scroll>${c.cta}</a></div></div>
       <h2 class="pg-h">${c.services_h}</h2><ul class="svc">${c.services.map(x => `<li>${ICON.check}<span>${x}</span></li>`).join('')}</ul>
     </div>
     ${homesRail()}
@@ -1162,8 +1162,14 @@ function pageMove() {
   return `<section class="page-hero">${video(VIDEO.village)}<div><p class="kicker">${t('nav_move')}</p><h1>${c.h}</h1><p>${c.lead}</p></div></section>
     <div class="pg">
       <div class="stages">${c.stages.map(([h, p], i) => `<div class="stage"><span>${i + 1}</span><h3>${h}</h3><p>${p}</p></div>`).join('')}</div>
-      <div class="acc">${c.topics.map(([h, p], i) => `<details${i === 0 ? ' open' : ''}><summary>${h}</summary><p>${p}</p></details>`).join('')}</div>
-      <p class="disclaimer">${c.disclaimer}</p>
+      <div class="buy-grid move-grid">
+        <div class="acc">${c.topics.map(([h, p], i) => `<details${i === 0 ? ' open' : ''}><summary>${h}</summary><p>${p}</p></details>`).join('')}
+          <p class="disclaimer">${c.disclaimer}</p></div>
+        <aside class="box side-cta"><h2>${c.form_h}</h2><p>${c.form_p}</p>
+          <ul class="ticks">${c.topics.map(([h]) => `<li>${h.split(':')[0]}</li>`).join('')}</ul>
+          <a class="btn lemon" href="#moveForm" data-scroll>${t('move_plan_btn')}</a>
+          <a class="btn wa" href="https://wa.me/34664414515" target="_blank" rel="noopener" data-track="whatsapp">WhatsApp</a></aside>
+      </div>
     </div>
     ${homesRail()}
     <section class="pg form-band"><div><h2>${c.form_h}</h2><p>${c.form_p}</p></div>

@@ -508,7 +508,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .page-hero.short{min-height:40vh}
 .hero-acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px!important}
 .page-head .muted,.muted{color:var(--muted)}
-.pg{padding:30px var(--gutter) 40px;max-width:1240px}
+.pg{padding:30px var(--gutter) 40px;max-width:1480px}
 .pg .box{background:#fff;border:1px solid var(--mist);border-radius:16px;padding:22px}
 .pg .box h2{font:400 clamp(24px,2.4vw,30px)/1.15 var(--serif);margin:0 0 12px}
 .pg .box h3{margin:0 0 8px;font-size:18px}
@@ -683,3 +683,36 @@ button,input,select,textarea{font:inherit;color:inherit}
 .ab-tip a{color:var(--sea);font-weight:700}
 .feed-bubble{max-width:none;box-shadow:0 10px 26px rgba(198,50,50,.1)}
 @media (max-width:640px){.ai-bubble{padding:12px 14px 12px 10px}.ab-reply{font-size:16.5px}}
+
+/* ===== Kopen: stappen + kosten naast elkaar ===== */
+.buy-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,1fr);gap:36px;align-items:start}
+.buy-grid .costs-card{position:sticky;top:calc(var(--top-h,90px) + 20px);margin-top:42px}
+@media (max-width:900px){.buy-grid{grid-template-columns:1fr}.buy-grid .costs-card{position:static;margin-top:0}}
+.fin-row{grid-template-columns:1.1fr 1fr;margin-top:36px}
+.fin-row .mort{margin:0}
+.fin-card{background:var(--sea-deep)!important;border:0!important;color:#fff;display:flex;flex-direction:column;gap:14px;align-self:stretch;justify-content:center}
+.fin-card h3{color:var(--lemon);font:500 24px/1.2 var(--serif)!important}
+.fin-card p{color:#DCE3E6!important}
+.fin-card .btn{align-self:flex-start}
+
+/* ===== formulieren: duidelijk contrast met de pagina ===== */
+.form-band{background:var(--sea-deep)!important;color:#fff;border-top:4px solid transparent;border-image:var(--sun) 1}
+.form-band h2{color:#fff}
+.form-band > div p{color:#D3DBDF}
+.form-band .form,.form-card{background:#FFF8E8!important;border:1.5px solid #F0DDA8!important;border-top:5px solid var(--sea)!important;box-shadow:0 18px 40px rgba(30,40,45,.18)}
+.form-band .form{border-radius:18px}
+.form.rich input,.form.rich select,.form.rich textarea{background:#fff;border:1.5px solid #E6D6AE;border-radius:10px;transition:border-color .15s,box-shadow .15s}
+.form.rich input::placeholder,.form.rich textarea::placeholder{color:#A99F8A}
+.form.rich input:focus,.form.rich select:focus,.form.rich textarea:focus{outline:0;border-color:var(--sea);box-shadow:0 0 0 3px rgba(198,50,50,.15)}
+.form.rich label{color:var(--ink)}
+.form-band .form-note,.form-card .form-note{color:var(--ink-2)}
+
+.move-grid{margin-top:6px}
+.move-grid .acc{max-width:none}
+.side-cta{position:sticky;top:calc(var(--top-h,90px) + 20px);background:var(--sea-deep)!important;border:0!important;color:#fff;display:flex;flex-direction:column;gap:12px}
+.side-cta h2{color:#fff}
+.side-cta p{margin:0;color:#D3DBDF;line-height:1.5}
+.side-cta .ticks{margin:4px 0 6px}
+.side-cta .ticks li{color:#fff;font-weight:600}
+.side-cta .btn{justify-content:center}
+@media (max-width:900px){.side-cta{position:static}}
