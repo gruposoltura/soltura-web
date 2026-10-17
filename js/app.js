@@ -1182,17 +1182,22 @@ async function pageNews() {
     <div class="news-grid" id="newsList">${'<div class="skeleton" style="height:150px;border-radius:14px"></div>'.repeat(6)}</div>
     <div class="loadmore"><button class="btn ghost" id="newsMore" type="button" hidden>${t('news_more')}</button></div>${homesRail()}`;
   observeCards($('#main'));
-  const rows = await api('web_news?select=title,url,posted_at,source&order=posted_at.desc&limit=200').catch(() => []);
+  const rows = await api('web_news?select=title,url,posted_at,source,image&order=posted_at.desc&limit=200').catch(() => []);
   const fmt = d => new Date(d).toLocaleDateString(S.lang === 'nl' ? 'nl-NL' : 'en-GB', { day: 'numeric', month: 'long' });
   const label = src => ({ idealista: t('news_market'), 'vegabajadigital.com': t('news_region'), 'Spanje Vandaag': t('news_spain') }[src] || src);
   let src = 'all', shown = 17;
   const draw = () => {
     const list = rows.filter(r => !NEWS_SRC[src] || r.source === NEWS_SRC[src]);
-    $('#newsList').innerHTML = list.slice(0, shown).map((r, i) => `<a class="news-card${i === 0 ? ' lead' : ''}" href="${esc(r.url)}" target="_blank" rel="noopener" data-src="${esc(r.source)}">
-      <span class="nc-tag">${esc(label(r.source))}</span><h3>${esc(r.title)}</h3><small>${esc(r.source)} · ${fmt(r.posted_at)}</small></a>`).join('') || `<p>${t('news_none')}</p>`;
+    // het meest recente bericht mét foto als groot openingsbericht
+    const li = list.findIndex(r => r.image); if (li > 0 && li < 4) list.unshift(list.splice(li, 1)[0]);
+    $('#newsList').innerHTML = list.slice(0, shown).map((r, i) => `<a class="news-card${i === 0 ? ' lead' : ''}${r.image ? ' has-img' : ''}" href="${esc(r.url)}" target="_blank" rel="noopener" data-src="${esc(r.source)}">
+      ${r.image ? `<span class="nc-img"><img src="${esc(r.image)}" alt="" loading="${i < 5 ? 'eager' : 'lazy'}" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add('nc-ph');this.remove();"></span>` : (i ? `<span class="nc-img nc-ph"></span>` : '')}
+      <span class="nc-txt"><span class="nc-tag">${esc(label(r.source))}</span><h3>${esc(r.title)}</h3><small>${esc(r.source)} · ${fmt(r.posted_at)}</small></span></a>`).join('') || `<p>${t('news_none')}</p>`;
     $('#newsMore').hidden = list.length <= shown;
   };
   draw();
+  // nieuwe berichten zonder foto: thumbnails laten ophalen voor de volgende bezoeker
+  if (rows.some(r => !r.image) && !sessionStorage.getItem('gs_newsimg')) { try { sessionStorage.setItem('gs_newsimg', '1'); } catch {} fn('web-news-images', {}).catch(() => {}); }
   $$('.news-filter button').forEach(b => b.addEventListener('click', () => { src = b.dataset.src; shown = 17; $$('.news-filter button').forEach(x => x.setAttribute('aria-pressed', x === b)); draw(); track('news_filter', null, null, { src }); }));
   $('#newsMore').addEventListener('click', () => { shown += 16; draw(); });
   $('#newsList').addEventListener('click', e => { const a = e.target.closest('a'); if (a) track('news_click', null, null, { src: a.dataset.src }); });

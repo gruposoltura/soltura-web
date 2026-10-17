@@ -716,3 +716,17 @@ button,input,select,textarea{font:inherit;color:inherit}
 .side-cta .ticks li{color:#fff;font-weight:600}
 .side-cta .btn{justify-content:center}
 @media (max-width:900px){.side-cta{position:static}}
+
+/* ===== nieuws met thumbnails ===== */
+.news-card{padding:0;overflow:hidden;gap:0}
+.nc-txt{display:flex;flex-direction:column;gap:10px;padding:18px;flex:1}
+.nc-img{display:block;aspect-ratio:16/9;background:var(--mist);overflow:hidden}
+.nc-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s var(--ease)}
+.news-card:hover .nc-img img{transform:scale(1.05)}
+.news-card.lead{padding:0;display:grid;grid-template-columns:1fr}
+.news-card.lead.has-img{grid-template-columns:1.25fr 1fr}
+.news-card.lead .nc-img{aspect-ratio:auto;min-height:300px}
+.news-card.lead .nc-txt{padding:30px;justify-content:center}
+@media (max-width:760px){.news-card.lead.has-img{grid-template-columns:1fr}.news-card.lead .nc-img{min-height:0;aspect-ratio:16/9}.news-card.lead .nc-txt{padding:20px}}
+.nc-ph{background:var(--sun);position:relative}
+.nc-ph::after{content:"";position:absolute;inset:0;background:url("https://gruposoltura.com/wp-content/uploads/2020/06/cropped-favicon512-270x270.png") center/64px no-repeat;opacity:.9;filter:brightness(0) invert(1)}
