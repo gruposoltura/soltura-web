@@ -78,6 +78,7 @@ const ICON = {
   spark: '<svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>',
   ig: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>',
   fb: '<svg viewBox="0 0 24 24"><path d="M14 8.5V7c0-.8.5-1.2 1.2-1.2H17V2.5h-2.6C11.6 2.5 10.6 4.4 10.6 7v1.5H8V12h2.6v9.5H14V12h2.7l.4-3.5z" fill="currentColor" stroke="none"/></svg>',
+  fs: '<svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>',
   play: '<svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg>',
 };
 
@@ -612,7 +613,7 @@ async function openSheet(ref) {
       <button class="icon-btn" type="button" data-step="1" aria-label="${t('next_home')}">${ICON.r}</button>
     </div>
     <div class="gal" id="gal"><div class="gal-track" id="galTrack">${p.image ? `<img src="${esc(p.image)}" alt="">` : ''}</div>
-      <button class="nav-g prev" type="button" aria-label="Previous photo">${ICON.l}</button><button class="nav-g next" type="button" aria-label="Next photo">${ICON.r}</button><span class="count" id="galCount"></span><span class="ref-tag gal-ref">${esc(p.reference)}</span></div>
+      <button class="nav-g prev" type="button" aria-label="Previous photo">${ICON.l}</button><button class="nav-g next" type="button" aria-label="Next photo">${ICON.r}</button><span class="count" id="galCount"></span><button class="gal-fs" type="button" id="galFs" aria-label="${t('fullscreen')}">${ICON.fs}<span>${t('fullscreen')}</span></button><span class="ref-tag gal-ref">${esc(p.reference)}</span></div>
     <div class="thumbs" id="thumbs"></div>
     <div class="sh-body">
       <div>
@@ -831,12 +832,21 @@ function fillDetail(d) {
     const allIn = c.buyer_all_in_eur > 0 ? c.buyer_all_in_eur : null;
     if (allIn) rows.push([t('costs_allin'), allIn]);
     const total = rows.reduce((s, r) => s + Number(r[1] || 0), 0);
-    const ala = [[t('costs_notary'), d.fee_notary], [t('costs_registry'), d.fee_registry], [t('costs_legal'), d.fee_legal]].filter(r => r[1]);
     $('#costBox').innerHTML = `<div class="costs"><h3>${t('costs_h')}</h3><table>${rows.map(r => `<tr><td>${r[0]}</td><td>${eur(r[1])}</td></tr>`).join('')}
       <tr class="total"><td>${allIn ? t('costs_total') : t('costs_total_ex')}</td><td>${eur(total)}</td></tr></table>
       <div class="allin"><b>${t('allin_h')}</b><p>${t('allin_p')}</p>
-      ${ala.length ? `<p class="alacarte">${t('alacarte_lbl')} ${ala.map(r => `${r[0]} ${eur(r[1])}`).join(', ')}.</p>` : ''}</div>
+        <ul class="allin-factors">${t('allin_factors').map(f => `<li>${f}</li>`).join('')}</ul>
+        <p>${t('allin_ask')}</p>
+        <div class="allin-cta"><button type="button" class="btn primary" id="costAsk">${t('allin_btn')}</button>
+        <a class="btn wa" href="https://wa.me/${agentOf(d).tel.replace('+', '')}?text=${encodeURIComponent(t('allin_wa', d.reference))}" target="_blank" rel="noopener" data-track="whatsapp_costs">WhatsApp</a></div></div>
       <p class="note">${t('costs_note')}</p></div>`;
+    $('#costAsk').addEventListener('click', () => {
+      const f = $('#viewForm'); f.hidden = false;
+      $('input[name=kind]', f).value = 'costs';
+      $('textarea', f).value = t('allin_msg', d.reference);
+      f.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => $('input[name=name]', f).focus({ preventScroll: true }), 450);
+      track('costs_ask', d.wp_id);
+    });
   }
 }
 function gallery(urls) {
@@ -855,6 +865,8 @@ function gallery(urls) {
   $('.gal .next').onclick = () => go(cur() + 1);
   thumbs.onclick = e => { const i = e.target.dataset.i; if (i != null) go(Number(i)); };
   $('.gal .prev').hidden = $('.gal .next').hidden = urls.length < 2;
+  $('#galFs').onclick = () => openLightbox(urls, cur());
+  track_.ondblclick = () => openLightbox(urls, cur());
 }
 function similar(p, n = 10) {
   const base = S.all.filter(x => x.wp_id !== p.wp_id && x.image);
@@ -893,6 +905,35 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft' && e.shiftKey) step(-1);
 });
 window.addEventListener('pagehide', closeSheetTracking);
+
+// ---------- lightbox: foto's schermvullend ----------
+function openLightbox(urls, start = 0) {
+  const p = S.byId.get(S.openId);
+  const lb = document.createElement('div');
+  lb.className = 'lightbox'; lb.setAttribute('role', 'dialog'); lb.setAttribute('aria-label', t('fullscreen'));
+  lb.innerHTML = `<div class="lb-track">${urls.map((u, i) => `<figure><img src="${esc(u)}" alt="" ${Math.abs(i - start) > 2 ? 'loading="lazy"' : ''}></figure>`).join('')}</div>
+    <div class="lb-top"><span class="lb-ref">${p ? esc(p.reference) + ' · ' + esc(title(p)) : ''}</span><span class="lb-count"></span>
+    <button type="button" class="lb-close" aria-label="${t('close')}">${ICON.x}</button></div>
+    <button type="button" class="lb-nav lb-prev" aria-label="Previous">${ICON.l}</button><button type="button" class="lb-nav lb-next" aria-label="Next">${ICON.r}</button>
+    <div class="lb-bottom">${p ? `<span class="lb-price">${p.price != null ? eur(p.price) : ''}</span><button type="button" class="btn lemon" id="lbAsk">${t('qa_ask')}</button><button type="button" class="btn primary" id="lbView">${t('qa_view')}</button>` : ''}</div>`;
+  document.body.appendChild(lb);
+  const tr = $('.lb-track', lb), count = $('.lb-count', lb);
+  const cur = () => Math.round(tr.scrollLeft / tr.clientWidth);
+  const go = i => tr.scrollTo({ left: ((i + urls.length) % urls.length) * tr.clientWidth, behavior: 'smooth' });
+  const upd = () => { count.textContent = `${cur() + 1} / ${urls.length}`; };
+  requestAnimationFrame(() => { tr.scrollLeft = start * tr.clientWidth; upd(); });
+  tr.addEventListener('scroll', upd, { passive: true });
+  const close = () => { document.removeEventListener('keydown', key, true); if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); lb.remove(); };
+  const key = e => { if (e.key === 'Escape') { e.stopPropagation(); close(); } if (e.key === 'ArrowRight') go(cur() + 1); if (e.key === 'ArrowLeft') go(cur() - 1); };
+  document.addEventListener('keydown', key, true);
+  $('.lb-close', lb).onclick = close;
+  $('.lb-prev', lb).onclick = () => go(cur() - 1);
+  $('.lb-next', lb).onclick = () => go(cur() + 1);
+  const ask = $('#lbAsk', lb); if (ask) ask.onclick = () => { close(); $('#chatBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => $('#chatIn').focus({ preventScroll: true }), 450); };
+  const vw = $('#lbView', lb); if (vw) vw.onclick = () => { close(); $('#viewForm').hidden = false; $('#viewForm').scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+  if (lb.requestFullscreen && matchMedia('(pointer: fine)').matches) lb.requestFullscreen().catch(() => {});
+  track('fullscreen', S.openId, urls.length);
+}
 
 // ---------- REEL: full-screen vertical browse ----------
 function openReel(startIdx) {
