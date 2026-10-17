@@ -67,6 +67,11 @@ window.I18N = {
     nl_err_pick: 'Tick at least one interest.', nl_ok: 'Thank you, you are subscribed. Check your inbox for a confirmation.',
     mort_h: 'Mortgage calculator', mort_amount: 'Loan amount', mort_of_price: 'of price', mort_term: 'Term', mort_years: 'years', mort_rate: 'Interest rate (fixed)', mort_monthly: 'Monthly payment', mort_interest: 'Total interest', mort_total: 'Total repaid',
     mort_note: r => `Annuity calculation. ${r}% is the average Spanish mortgage rate (Banco de España, August 2026). Non-residents usually borrow up to 60-70% of the value, sometimes at a slightly higher rate. We arrange your mortgage with a Spanish bank.`,
+    ai_badge: 'Live assistant · ask in your own words',
+    ask_examples: ['A villa with a private pool near Quesada, under €400,000', 'Apartment within walking distance of the beach', 'Three bedrooms, quiet, close to a golf course', 'Something for a family with children, permanent living', 'New build with a communal pool under €250,000'],
+    hint_search: 'Search in your own words', hint_hover: 'Move over a photo to browse it', hint_tap: 'Tap a home for all photos', hint_ask: 'Ask us anything about a home', hint_reel: 'Swipe full screen', hint_fav: 'Save your favourites',
+    qa_ask: 'Ask us', qa_mort: 'Calculate mortgage', qa_photos: n => `${n} photo${n === 1 ? '' : 's'}`, qa_view: 'Plan a viewing',
+    mort_hint: 'Slide or type, your monthly payment updates instantly.',
     home_rail: 'Homes you may like', see_all: 'See all homes',
   },
   nl: {
@@ -134,6 +139,11 @@ window.I18N = {
     nl_err_pick: 'Vink minstens één onderwerp aan.', nl_ok: 'Dank je, je bent ingeschreven.',
     mort_h: 'Hypotheekcalculator', mort_amount: 'Hoofdsom', mort_of_price: 'van de prijs', mort_term: 'Looptijd', mort_years: 'jaar', mort_rate: 'Rente (vast)', mort_monthly: 'Maandlast', mort_interest: 'Totale rente', mort_total: 'Totaal terugbetaald',
     mort_note: r => `Annuïteitenberekening. ${r}% is de gemiddelde Spaanse hypotheekrente (Banco de España, augustus 2026). Niet-residenten lenen meestal tot 60-70% van de waarde, soms tegen een iets hogere rente. Wij regelen je hypotheek bij een Spaanse bank.`,
+    ai_badge: 'Live assistent · vraag het in je eigen woorden',
+    ask_examples: ['Een villa met eigen zwembad bij Quesada, tot € 400.000', 'Appartement op loopafstand van het strand', 'Drie slaapkamers, rustig, dicht bij een golfbaan', 'Iets voor een gezin met kinderen, om er te gaan wonen', 'Nieuwbouw met gemeenschappelijk zwembad tot € 250.000'],
+    hint_search: 'Zoek in je eigen woorden', hint_hover: "Beweeg over een foto om te bladeren", hint_tap: "Tik op een woning voor alle foto's", hint_ask: 'Stel ons elke vraag over een woning', hint_reel: 'Schermvullend swipen', hint_fav: 'Bewaar je favorieten',
+    qa_ask: 'Vraag het ons', qa_mort: 'Bereken hypotheek', qa_photos: n => `${n} foto${n === 1 ? '' : "'s"}`, qa_view: 'Plan bezichtiging',
+    mort_hint: 'Schuif of typ, je maandlast verandert direct mee.',
     home_rail: 'Woningen die je misschien mooi vindt', see_all: 'Alle woningen bekijken',
   }
 };

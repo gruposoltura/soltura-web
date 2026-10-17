@@ -70,6 +70,12 @@ const ICON = {
   info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>',
   wa: '<svg viewBox="0 0 24 24"><path d="M4 20l1.3-4.3A8 8 0 1 1 8.6 19z"/></svg>',
   pool: '<svg viewBox="0 0 24 24"><path d="M8 15V5a2 2 0 0 1 4 0M14 15V5a2 2 0 0 1 4 0M8 8h6M8 12h6M2 18c1.5 0 1.5-1 3-1s1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1 1.5 1 3 1"/></svg>',
+  chat: '<svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8M8 13h5"/></svg>',
+  calc: '<svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h2M12 12h2M16 12v5M8 16h2M12 16h2"/></svg>',
+  cam: '<svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+  cal: '<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>',
+  hand: '<svg viewBox="0 0 24 24"><path d="M9 11V5a1.5 1.5 0 0 1 3 0v5M12 10V4a1.5 1.5 0 0 1 3 0v6M15 10V6a1.5 1.5 0 0 1 3 0v8a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-3l-2.5-4a1.5 1.5 0 0 1 2.5-1.6L9 13"/></svg>',
+  spark: '<svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>',
   play: '<svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg>',
 };
 
@@ -269,6 +275,26 @@ function video(src, poster) {
   return `<video autoplay muted loop playsinline preload="metadata" ${poster ? `poster="${esc(poster)}"` : ''} aria-hidden="true"><source src="${src}" type="video/mp4"></video>`;
 }
 
+// ---------- typende voorbeeldvragen in het zoekveld ----------
+let typeTimer = null;
+function typePlaceholder(input, examples) {
+  clearTimeout(typeTimer);
+  if (!input || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let i = 0, ch = 0, del = false;
+  const step = () => {
+    if (!document.body.contains(input)) return;
+    if (document.activeElement === input || input.value) { input.placeholder = t('ask_ph'); typeTimer = setTimeout(step, 1500); return; }
+    const ex = examples[i % examples.length];
+    ch += del ? -1 : 1;
+    input.placeholder = ex.slice(0, ch) + (del ? '' : '▍');
+    let wait = del ? 18 : 45;
+    if (!del && ch >= ex.length) { del = true; wait = 2200; }
+    else if (del && ch <= 0) { del = false; i++; wait = 400; }
+    typeTimer = setTimeout(step, wait);
+  };
+  typeTimer = setTimeout(step, 900);
+}
+
 // ---------- live teller: telt snel op naar het aantal woningen van vandaag ----------
 function countUp() {
   const el = $('#liveCount b'); if (!el) return;
@@ -361,6 +387,7 @@ function renderHome() {
     <div class="hero-body">
       <h1>${t('hero_title')}</h1>
       <p class="sub">${t('hero_sub')}</p>
+      <div class="ai-badge"><i></i>${ICON.spark}<span>${t('ai_badge')}</span></div>
       <form class="ask" id="askForm" role="search">
         <input id="askInput" type="search" autocomplete="off" placeholder="${esc(t('ask_ph'))}" aria-label="${esc(t('ask_ph'))}">
         <button type="submit" id="askBtn">${t('ask_btn')}</button>
@@ -370,13 +397,28 @@ function renderHome() {
     </div>
   </section>
   <div class="bar" id="bar"></div>
+  <div class="hints" id="hints">
+    <button type="button" data-hint="search">${ICON.spark}<span>${t('hint_search')}</span></button>
+    <button type="button" data-hint="hover">${ICON.hand}<span>${t(matchMedia('(hover: hover)').matches ? 'hint_hover' : 'hint_tap')}</span></button>
+    <button type="button" data-hint="ask">${ICON.chat}<span>${t('hint_ask')}</span></button>
+    <button type="button" data-hint="reel">${ICON.play}<span>${t('hint_reel')}</span></button>
+    <button type="button" data-hint="fav">${ICON.heart}<span>${t('hint_fav')}</span></button>
+  </div>
   <section class="feed" id="feed" aria-live="polite"></section>
   <div class="loadmore"><button class="btn ghost" id="moreBtn" type="button">${t('more')}</button></div>
   <div id="sentinel"></div>`;
+  typePlaceholder($('#askInput'), t('ask_examples'));
   $('#liveCount').addEventListener('click', e => { e.preventDefault(); $('#bar').scrollIntoView({ behavior: 'smooth' }); });
   if (n) countUp();
   $('#askForm').addEventListener('submit', e => { e.preventDefault(); aiSearch($('#askInput').value); });
   $$('.chip').forEach(c => c.addEventListener('click', () => { $('#askInput').value = c.textContent; aiSearch(c.textContent); }));
+  $$('#hints [data-hint]').forEach(b => b.addEventListener('click', () => {
+    const k = b.dataset.hint; track('hint', null, null, { k });
+    if (k === 'search') { window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(() => $('#askInput').focus(), 350); }
+    else if (k === 'reel') openReel(0);
+    else if (k === 'fav') location.hash = '#/favorites';
+    else { const c = $('#feed .card'); if (c) { c.scrollIntoView({ behavior: 'smooth', block: 'center' }); c.classList.add('coach'); setTimeout(() => c.classList.remove('coach'), 2600); if (k === 'ask') setTimeout(() => c.click(), 900); } }
+  }));
   $('#moreBtn').addEventListener('click', () => { S.shown += PAGE; renderFeed(true); });
   if ('IntersectionObserver' in window) new IntersectionObserver(es => {
     if (es[0].isIntersecting && S.shown < S.order.length && S.all.length) { S.shown += PAGE; renderFeed(true); }
@@ -513,6 +555,12 @@ async function openSheet(ref) {
         <div class="badges" style="display:flex;gap:6px">${badges(p)}</div>
         <h1 id="sheetTitle">${esc(title(p))}</h1>
         <div class="sh-price">${p.price_from ? `<small style="font-size:16px;font-weight:500">${t('from')}</small>` : ''}${p.price != null ? eur(p.price) : ''}${reduced(p) ? `<s>${eur(p.previous_price)}</s>` : ''}</div>
+        <div class="quick-acts">
+          <button type="button" data-go="chatBox">${ICON.chat}<span>${t('qa_ask')}</span></button>
+          <button type="button" data-go="mortBox">${ICON.calc}<span>${t('qa_mort')}</span></button>
+          <button type="button" data-go="gal">${ICON.cam}<span id="qaPhotos">${t('qa_photos', (p.media_ids || []).length || 1)}</span></button>
+          <button type="button" data-go="viewBtn">${ICON.cal}<span>${t('qa_view')}</span></button>
+        </div>
         <div class="keyfacts" id="keyfacts"></div>
         <div id="marketBox"></div>
         <div class="desc" id="desc"><p class="skeleton" style="height:8em;border-radius:8px"></p></div>
@@ -521,8 +569,8 @@ async function openSheet(ref) {
       </div>
       <aside class="side">
         <div class="box chat" id="chatBox">
-          <div class="chat-head"><div class="chat-av">S</div><div><h3>${t('ask_h')}</h3><p>${t('ask_sub')}</p></div></div>
-          <div class="log" id="chatLog"><div class="msg a intro">${t('ask_intro')}</div></div>
+          <div class="chat-head"><div class="chat-av">S<i class="online"></i></div><div><h3>${t('ask_h')}</h3><p>${t('ask_sub')}</p></div></div>
+          <div class="log" id="chatLog"><div class="msg a intro typing-dots"><span></span><span></span><span></span></div></div>
           <div class="sugg" id="chatSugg">${t('ask_start').map(s => `<button type="button">${esc(s)}</button>`).join('')}</div>
           <form id="chatForm"><input id="chatIn" autocomplete="off" placeholder="${esc(t('ask_ph2'))}" aria-label="${esc(t('ask_ph2'))}"><button type="submit">${t('send')}</button></form>
           <p class="chat-hint">${t('ask_hint')}</p>
@@ -552,6 +600,7 @@ async function openSheet(ref) {
   ]);
   if (S.openId !== p.wp_id) return;
   gallery(urls);
+  if ($('#qaPhotos')) $('#qaPhotos').textContent = t('qa_photos', urls.length);
   if (geo && geo.beach_km != null) {
     const km = v => String(Math.round(v)).replace('.', ',') + ' km';
     $('#keyfacts').insertAdjacentHTML('afterbegin', `<div><b>${km(geo.beach_road_km || geo.beach_km)}</b><span>${t('sh_sea')} · ${geo.beach_drive_min} min</span></div><div><b>${km(geo.alc_km * 1.25)}</b><span>${t('sh_airport')} ALC · ${geo.alc_drive_min} min</span></div>`);
@@ -561,7 +610,7 @@ async function openSheet(ref) {
 // ---------- hypotheekcalculator (annuïteit) ----------
 function mortgageHtml(p) {
   const rate = S.cfg.mortgage_rate_pct || 3.13;
-  return `<div class="box mort" id="mortBox"><h3>${t('mort_h')}</h3>
+  return `<div class="box mort" id="mortBox"><h3>${t('mort_h')}</h3><p class="mhint">${ICON.hand}${t('mort_hint')}</p>
     <label class="mrow"><span>${t('mort_amount')}</span><span class="eurin"><b>€</b><input id="mAmt" inputmode="numeric" value="${num(250000)}" aria-label="${t('mort_amount')}"></span></label>
     ${p && p.price ? `<div class="mquick"><button type="button" data-ltv="60">60% ${t('mort_of_price')}</button><button type="button" data-ltv="70">70%</button><button type="button" data-ltv="80">80%</button></div>` : ''}
     <label class="mrow"><span>${t('mort_term')}</span><b id="mTermV">25 ${t('mort_years')}</b></label>
@@ -580,7 +629,8 @@ function bindMortgage(p) {
     $('#mTermV').textContent = `${$('#mTerm').value} ${t('mort_years')}`;
     if (!P || !n) return;
     const m = r ? P * r / (1 - Math.pow(1 + r, -n)) : P / n;
-    $('#mPay').textContent = eur(Math.round(m));
+    const pay = $('#mPay'), nv = eur(Math.round(m));
+    if (pay.textContent !== nv) { pay.textContent = nv; pay.classList.remove('bump'); void pay.offsetWidth; pay.classList.add('bump'); }
     $('#mInt').textContent = eur(Math.round(m * n - P));
     $('#mTot').textContent = eur(Math.round(m * n));
   };
@@ -628,9 +678,18 @@ function bindSheet(p, waHref) {
   $('#viewBtn').addEventListener('click', () => { const f = $('#viewForm'); f.hidden = !f.hidden; if (!f.hidden) { $('input[name=name]', f).focus(); track('contact_open', p.wp_id); } });
   bindForm($('#viewForm'), p);
   bindMortgage(p);
+  $$('.quick-acts [data-go]', inner).forEach(b => b.addEventListener('click', () => {
+    const id = b.dataset.go, el = $('#' + id); if (!el) return;
+    track('quick_action', p.wp_id, null, { id });
+    el.scrollIntoView({ behavior: 'smooth', block: id === 'gal' ? 'start' : 'center' });
+    if (id === 'chatBox') setTimeout(() => $('#chatIn').focus({ preventScroll: true }), 500);
+    if (id === 'viewBtn') setTimeout(() => { $('#viewForm').hidden = false; }, 400);
+    if (id === 'mortBox' || id === 'chatBox') { el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1400); }
+  }));
   // chat
   const hist = [];
   const log = $('#chatLog');
+  setTimeout(() => { const intro = $('.intro', log); if (intro) { intro.classList.remove('typing-dots'); intro.textContent = t('ask_intro'); } }, 1100);
   const ask = async q => {
     q = q.trim(); if (!q) return;
     $('#chatSugg').innerHTML = '';
