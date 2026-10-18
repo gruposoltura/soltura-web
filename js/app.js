@@ -1600,11 +1600,17 @@ const tgImg = (ph, w) => ph && ph.url ? ph.url.replace('/storage/v1/object/publi
 function tgCredit(ph) {
   return `${esc(ph.author || 'Wikimedia Commons')}, <a href="${esc(ph.page_url)}" target="_blank" rel="noopener nofollow">${esc(ph.license)}</a>`;
 }
+// hero met een langzaam bewegende foto (zelfde opbouw als Kopen/Verkopen, foto in plaats van video)
+const AREA_HERO = 'https://wuvpbwowdycsdlrqkaoq.supabase.co/storage/v1/object/public/property-media/towns/guardamar-del-segura/1.jpg';
+function areaHero(img, kicker, h, lead, acts) {
+  return `<section class="page-hero short area-hero">${img ? `<img class="hero-kb" src="${esc(img)}" alt="" aria-hidden="true">` : ''}<div>${kicker}<h1>${h}</h1>${lead ? `<p>${lead}</p>` : ''}<p class="hero-acts">${acts}</p></div></section>`;
+}
+const waBtn = () => `<a class="btn wa" href="https://wa.me/34664414515" target="_blank" rel="noopener" data-track="whatsapp">WhatsApp</a>`;
 async function pageArea(slug) {
   const nl = S.lang === 'nl', main = $('#main');
   if (slug) return pageAreaDetail(slug);
-  main.innerHTML = `<div class="page-head"><p class="kicker">${t('nav_areas')}</p><h1>${t('areas_h')}</h1><p>${t('areas_p')}</p></div>
-    <div class="area-grid" id="areaGrid">${'<div class="skeleton" style="height:260px;border-radius:14px"></div>'.repeat(6)}</div>${homesRail()}`;
+  main.innerHTML = areaHero(tgImg({ url: AREA_HERO }, 1800), `<p class="kicker">${t('nav_areas')}</p>`, t('areas_h'), t('areas_p'), `<a class="btn lemon" href="#/">${t('see_all')}</a>${waBtn()}`)
+    + `<div class="pg"><p class="pg-intro">${t('areas_intro')}</p><div class="area-grid" id="areaGrid">${'<div class="skeleton" style="height:260px;border-radius:14px"></div>'.repeat(6)}</div></div>${homesRail()}`;
   const list = await townGuides();
   if (currentPage !== 'area' || location.hash.replace(/\/$/, '') !== '#/area') return;
   $('#areaGrid').innerHTML = list.map(g => {
@@ -1617,7 +1623,8 @@ async function pageArea(slug) {
 }
 async function pageAreaDetail(slug) {
   const nl = S.lang === 'nl', main = $('#main');
-  main.innerHTML = `<article class="post area"><p class="kicker"><a href="#/area">← ${t('nav_areas')}</a></p><div class="skeleton" style="height:2.4em;border-radius:8px;max-width:640px"></div><div class="skeleton" style="height:16em;border-radius:14px;margin-top:20px"></div></article>`;
+  const back = `<p class="kicker"><a href="#/area">← ${t('nav_areas')}</a></p>`;
+  main.innerHTML = areaHero('', back, '&nbsp;', '', '') + `<div class="pg"><div class="skeleton" style="height:16em;border-radius:14px"></div></div>`;
   const g = await api(`web_town_guides?select=*&slug=eq.${encodeURIComponent(slug)}&lang=eq.${S.lang}&limit=1`).then(x => x[0]).catch(() => null);
   if (currentPage !== 'area' || !location.hash.startsWith('#/area/' + slug)) return;
   if (!g) {
@@ -1627,37 +1634,44 @@ async function pageAreaDetail(slug) {
   document.title = `${g.title} · Grupo Soltura`;
   const secs = (g.sections || []).filter(s => s && (s.html || (s.rows && s.rows.length)));
   const photos = g.photos || [];
+  const homes = guideHomes(g);
   const table = s => `<div class="tbl-wrap"><table class="area-tbl${s.key === 'festivals' ? ' fest' : ''}">${s.key === 'festivals'
       ? `<thead><tr><th>${nl ? 'Feest' : 'Festival'}</th><th>${nl ? 'Wanneer' : 'When'}</th><th>${nl ? 'Wat' : 'What'}</th></tr></thead>` : ''}<tbody>${s.rows.map(r => `<tr>${r.map((c, i) => `<td${i === 0 ? ' class="k"' : ''}>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
-  // foto's klein en verspreid: eerste onder de intro, de rest na een paar secties
-  const fig = (ph, i) => ph ? `<figure class="area-fig" data-i="${i}"><img src="${esc(tgImg(ph, 900))}" alt="${esc(ph.alt || '')}" loading="lazy"><figcaption>${esc(ph.alt || '')} <span>· ${tgCredit(ph)}</span></figcaption></figure>` : '';
-  const at = { 0: 1, 3: 2, 7: 3 };
-  const homes = guideHomes(g);
-  main.innerHTML = `<article class="post area">
-      <p class="kicker"><a href="#/area">← ${t('nav_areas')}</a></p>
-      <h1>${esc(g.title)}</h1>
-      ${g.lead ? `<p class="post-lead">${esc(g.lead)}</p>` : ''}
+  // eerste foto staat in de kop; de andere klein naast de tekst
+  const fig = i => photos[i] ? `<figure class="area-fig" data-i="${i}"><img src="${esc(tgImg(photos[i], 900))}" alt="${esc(photos[i].alt || '')}" loading="lazy"><figcaption>${esc(photos[i].alt || '')} <span>· ${tgCredit(photos[i])}</span></figcaption></figure>` : '';
+  const at = { 1: 1, 5: 2 };
+  const homesBtn = homes.length ? `<button type="button" class="btn lemon" data-area-homes>${t('areas_btn', g.town)}</button>` : `<a class="btn lemon" href="#/">${t('see_all')}</a>`;
+  main.innerHTML = areaHero(photos[0] ? tgImg(photos[0], 1800) : tgImg({ url: AREA_HERO }, 1800), back, esc(g.title), esc(g.lead || ''), homesBtn + waBtn())
+    + `<div class="pg area-pg">
       ${(g.facts || []).length ? `<dl class="area-facts">${g.facts.map(f => `<div><dt>${esc(f.label)}</dt><dd>${esc(f.value)}</dd></div>`).join('')}</dl>` : ''}
-      <nav class="area-toc" aria-label="${nl ? 'Onderwerpen' : 'Topics'}">${secs.map(s => `<a href="#/area/${encodeURIComponent(g.slug)}" data-sec="${esc(s.key)}">${esc(s.heading)}</a>`).join('')}</nav>
-      ${fig(photos[0], 0)}
-      <div class="post-body area-body">${secs.map((s, i) => `<section id="sec-${esc(s.key)}"><h2>${esc(s.heading)}</h2>${s.rows ? table(s) : sanitizeRich(s.html)}</section>${at[i] ? fig(photos[at[i]], at[i]) : ''}`).join('')}</div>
-      ${homes.length ? `<div class="area-cta"><p>${t('areas_cta', g.town, homes.length)}</p><button type="button" class="btn primary" id="areaHomes">${t('areas_btn', g.town)}</button> <a class="btn ghost" href="#/contact">${t('nav_contact')}</a></div>` : ''}
-      <details class="area-src"><summary>${nl ? 'Bronnen en foto\'s' : 'Sources and photos'}</summary>
-        <p class="muted">${nl ? 'Wij stellen deze gids met zorg samen uit openbare bronnen. Cijfers en data kunnen veranderen; check bij twijfel de gemeente.' : 'We compile this guide carefully from public sources. Figures and dates can change; if in doubt, check with the town hall.'} ${nl ? 'Bijgewerkt' : 'Updated'} ${fmtDate(g.updated_at, true)}.</p>
-        <ul>${(g.sources || []).filter(x => x && /^https?:/i.test(x.url || '')).map(x => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener nofollow">${esc(x.title || new URL(x.url).hostname)}</a></li>`).join('')}</ul>
-        ${photos.length ? `<p class="muted">${nl ? 'Foto\'s via Wikimedia Commons' : 'Photos via Wikimedia Commons'}: ${photos.map(tgCredit).join(' · ')}</p>` : ''}</details>
-    </article>
+      <div class="buy-grid area-grid2">
+        <div class="area-main">
+          <div class="post-body area-body">${secs.map((s, i) => `<section id="sec-${esc(s.key)}">${at[i] ? fig(at[i]) : ''}<h2 class="pg-h">${esc(s.heading)}</h2>${s.rows ? table(s) : sanitizeRich(s.html)}</section>`).join('')}</div>
+          <details class="area-src"><summary>${nl ? 'Bronnen en foto\'s' : 'Sources and photos'}</summary>
+            <p class="muted">${nl ? 'Wij stellen deze gids met zorg samen uit openbare bronnen. Cijfers en data kunnen veranderen; check bij twijfel de gemeente.' : 'We compile this guide carefully from public sources. Figures and dates can change; if in doubt, check with the town hall.'} ${nl ? 'Bijgewerkt' : 'Updated'} ${fmtDate(g.updated_at, true)}.</p>
+            <ul>${(g.sources || []).filter(x => x && /^https?:/i.test(x.url || '')).map(x => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener nofollow">${esc(x.title || new URL(x.url).hostname)}</a></li>`).join('')}</ul>
+            ${photos.length ? `<p class="muted">${nl ? 'Foto\'s via Wikimedia Commons' : 'Photos via Wikimedia Commons'}: ${photos.map(tgCredit).join(' · ')}</p>` : ''}</details>
+        </div>
+        <aside class="box side-cta area-side">
+          <h2>${esc(g.town)}</h2>
+          <nav class="area-toc" aria-label="${nl ? 'Onderwerpen' : 'Topics'}">${secs.map(s => `<a href="#/area/${encodeURIComponent(g.slug)}" data-sec="${esc(s.key)}">${esc(s.heading)}</a>`).join('')}</nav>
+          ${homes.length ? `<p>${t('areas_cta', g.town, homes.length)}</p>` : ''}
+          ${homesBtn}
+          <a class="btn ghost" href="#/contact">${t('nav_contact')}</a>
+        </aside>
+      </div>
+    </div>
     ${homes.length > 2 ? `<section class="section"><h2>${esc(t('area_h', g.town))}</h2><div class="rail">${homes.slice(0, 12).map(p => card(p)).join('')}</div></section>` : homesRail()}`;
   observeCards(main);
   $$('.area-toc a', main).forEach(a => a.addEventListener('click', e => { e.preventDefault(); const el = $('#sec-' + a.dataset.sec); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); track('area_toc', null, null, { slug: g.slug, sec: a.dataset.sec }); }));
   $$('.area-fig', main).forEach(f => f.addEventListener('click', e => { if (e.target.closest('a')) return; openLightbox(photos.map(ph => tgImg(ph, 1600)), +f.dataset.i, true); }));
-  const hb = $('#areaHomes'); if (hb) hb.onclick = () => {
+  $$('[data-area-homes]', main).forEach(hb => hb.onclick = () => {
     const names = [...new Set(homes.map(p => p.town))];
     S.f = Object.assign(blankFilters(), { towns: names }); S.type = 'all'; S.shown = PAGE;
     track('area_homes', null, homes.length, { slug: g.slug });
     location.hash = '#/';
     setTimeout(() => { const b = $('#bar'); if (b) b.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 600);
-  };
+  });
   track('area_view', null, null, { slug: g.slug });
 }
 // in het woningpaneel: verwijzing naar de gids van de plaats
