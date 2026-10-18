@@ -877,11 +877,19 @@ async function aiSearch(q) {
     }
   }
   if (!r.filters && !r.reply) note = `<div class="ab-none"><b>${t('ai_fail_h')}</b> ${t('ai_fail_p')}</div><p class="ab-tip">${t('none_tip')}</p>`;
+  // Lokale vraag (weekmarkt, strand, vliegveld...): filters blijven staan, geen scroll; wel een knop naar onze woningen in die plaats.
+  let cta = '';
+  if (!r.filters && r.town && r.cta) {
+    const f = Object.assign(blankFilters(), { towns: [r.town] });
+    const n = S.all.filter(p => match(p, f, 'all')).length;
+    if (n) { S.sugg = [{ f, type: 'all', n }]; cta = `<div class="ab-sugg"><button type="button" data-sug="0">${esc(r.cta)} <small>${n}</small></button></div>`; }
+    track('search_local', null, n, { q: q.slice(0, 120), town: r.town });
+  } else if (!r.filters && r.reply) track(r.intent === 'off_topic' ? 'search_offtopic' : 'search_local', null, null, { q: q.slice(0, 120) });
   out.className = 'ai-bubble in' + (note ? ' warn' : '');
-  out.innerHTML = `<span class="ab-av">S</span><div class="ab-body">${r.reply ? `<p class="ab-reply">${esc(r.reply)}</p>` : ''}${note}</div>`;
+  out.innerHTML = `<span class="ab-av">S</span><div class="ab-body">${r.reply ? `<p class="ab-reply">${esc(r.reply)}</p>` : ''}${cta}${note}</div>`;
   bindSugg(out);
   renderBar(); renderFeed();
-  if (!note) setTimeout(() => $('#bar').scrollIntoView({ behavior: 'smooth', block: 'start' }), 1600);
+  if (!note && r.filters) setTimeout(() => $('#bar').scrollIntoView({ behavior: 'smooth', block: 'start' }), 1600);
 }
 // alternatieven bij nul treffers: telkens één wens versoepelen en tellen wat er dan wél is
 function relaxations() {
