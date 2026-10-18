@@ -209,7 +209,8 @@ function computeOrder() {
 // ---------- status: Beschikbaar / Onder bod / Gereserveerd / Verkocht ----------
 const stOf = p => p.status && p.status !== 'draft' ? p.status : (p.under_offer ? 'under_offer' : 'available');
 const isOpen = p => stOf(p) === 'available';
-const statusTag = (p, big) => `<span class="st st-${stOf(p)}${big ? ' big' : ''}"><i></i>${t('st_' + stOf(p))}</span>`;
+// 'Beschikbaar' tonen we niet; alleen onder bod / gereserveerd / verkocht krijgen een label
+const statusTag = (p, big) => isOpen(p) ? '' : `<span class="st st-${stOf(p)}${big ? ' big' : ''}"><i></i>${t('st_' + stOf(p))}</span>`;
 
 // ---------- card ----------
 function badges(p) {
@@ -782,7 +783,7 @@ async function openSheet(ref) {
     <div class="sh-body">
       <div>
         <div class="badges" style="display:flex;gap:6px">${badges(p)}</div>
-        <div class="sh-status">${statusTag(p, true)}</div>
+        ${isOpen(p) ? '' : `<div class="sh-status">${statusTag(p, true)}</div>`}
         <h1 id="sheetTitle">${esc(title(p))}</h1>
         ${isOpen(p) ? '' : `<div class="st-note st-note-${stOf(p)}">${t('st_note_' + stOf(p))} <a href="#shMore" data-scroll>${t('st_similar')}</a></div>`}
         <div class="sh-price">${p.price_from ? `<small style="font-size:16px;font-weight:500">${t('from')}</small>` : ''}${p.price != null ? eur(p.price) : ''}${reduced(p) ? `<s>${eur(p.previous_price)}</s>` : ''}</div>
