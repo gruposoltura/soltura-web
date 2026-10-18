@@ -1,8 +1,9 @@
 // SOLTURA WEBSITE POC - Claude-assistent voor bezoekers.
 // mode=search : natuurlijke taal -> filters + korte reactie
-// mode=ask    : vraag over een specifieke woning, gegrond in web_properties
-// POST {mode, lang, query, wp_id?, history?}  of  GET ?mode=&lang=&q=&wp_id=
-// De Anthropic-key wordt server-side gelezen uit public.credentials (nooit naar de browser).
+// mode=ask    : vraag over een specifieke woning, gegrond in web_properties + web_property_geo
+// POST {mode, lang, query, id?, reference?, wp_id?, history?}  of  GET ?mode=&lang=&q=&id=&ref=&wp_id=
+// v9 (18-10-2026, NEXUS): woning op core-uuid (id) of referentie; wp_id alleen nog als terugval (nieuwe woningen hebben er geen).
+// De Anthropic-key wordt server-side gelezen (nooit naar de browser).
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 const CORS = {
@@ -91,7 +92,7 @@ Deno.serve(async (req) => {
   let body: any = {};
   if (req.method === 'GET') {
     const u = new URL(req.url);
-    body = { mode: u.searchParams.get('mode'), lang: u.searchParams.get('lang'), query: u.searchParams.get('q'), wp_id: u.searchParams.get('wp_id') };
+    body = { mode: u.searchParams.get('mode'), lang: u.searchParams.get('lang'), query: u.searchParams.get('q'), id: u.searchParams.get('id'), reference: u.searchParams.get('ref'), wp_id: u.searchParams.get('wp_id') };
   } else {
     try { body = await req.json(); } catch { return json({ error: 'bad json' }, 400); }
   }
@@ -115,10 +116,15 @@ Deno.serve(async (req) => {
       const t = await claude(sys, [{ role: 'user', content: query }], 700);
       out = parseJson(t);
     } else if (mode === 'ask') {
-      wpId = Number(body.wp_id) || null;
-      const { data: p } = await sb.from('web_properties').select('*').eq('wp_id', wpId).single();
+      const uuid = /^[0-9a-f-]{36}$/i.test(String(body.id || '')) ? String(body.id) : null;
+      const ref = String(body.reference || '').trim().toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 20) || null;
+      let q = sb.from('web_properties').select('*');
+      if (uuid) q = q.eq('id', uuid); else if (ref) q = q.ilike('reference', ref); else q = q.eq('wp_id', Number(body.wp_id) || 0);
+      const { data: rows } = await q.limit(1);
+      const p: any = rows && rows[0];
       if (!p) return json({ error: 'not found' }, 404);
-      const { data: g } = await sb.from('web_property_geo').select('*').eq('wp_id', wpId).single();
+      wpId = p.wp_id || null;
+      const { data: g } = await sb.from('web_property_geo').select('*').eq('id', p.id).maybeSingle();
       const c = await cfg();
       const facts = {
         reference: p.reference, type: p.category, newbuild: p.is_newbuild, town: p.town, area: p.suburb,
@@ -133,7 +139,7 @@ Deno.serve(async (req) => {
         price_vs_market_pct: p.is_newbuild ? null : p.market_deviation_pct, market_median_eur_m2: p.is_newbuild ? null : p.market_median_m2,
         description: strip(lang === 'nl' ? (p.body_nl || p.body_en) : (p.body_en || p.body_nl)).slice(0, 3500),
       };
-      const sys = `${VOICE}\n${LANG}\nThe visitor is looking at this home of ours right now. What we know about it (use it, but never mention that it comes from a list or data):\n${JSON.stringify(facts)}\nDistances: use nearest_beach and airports. When measured_from is the centre of a town or area, say "from the centre of <place>" naturally. Purchase costs in the Comunidad Valenciana (current rates, use exactly these): resale ${c.itp_resale_pct}% transfer tax (ITP); new build ${c.iva_newbuild_pct}% VAT (IVA) plus ${c.ajd_newbuild_pct}% stamp duty (AJD); Calculate the tax for this home when asked. Important: Grupo Soltura does not work a la carte. Our service is ONE all-in fee, agreed up front. Never list or estimate separate costs for notary, land registry, lawyer/legal fees, NIE or power of attorney, not even for comparison. Explain that what comes on top of price and tax depends on the buyer's situation (do they still need an NIE / tax number, will they sign via a power of attorney, do they take a Spanish mortgage) and encourage them to ask us for a personal cost overview (offer it, and set handoff true when they want it). ${c.buyer_all_in_eur > 0 ? 'Our all-in fee is EUR ' + c.buyer_all_in_eur + '.' : 'Do not quote an amount for our fee.'} Always label cost figures as indicative. Keep answers under 80 words. End with a natural next step only when it helps (a viewing, a call, a related question), not every time. Reply ONLY with JSON: {"reply":"...","suggestions":["two or three short follow-up questions the visitor might ask next"],"handoff":false}. Set handoff true when the visitor wants a viewing, negotiation, or anything only a person can do.`;
+      const sys = `${VOICE}\n${LANG}\nThe visitor is looking at this home of ours right now. What we know about it (use it, but never mention that it comes from a list or data):\n${JSON.stringify(facts)}\nDistances: use nearest_beach and airports. When measured_from is the centre of a town or area, say "from the centre of <place>" naturally. Purchase costs in the Comunidad Valenciana (current rates, use exactly these): resale ${c.itp_resale_pct}% transfer tax (ITP); new build ${c.iva_newbuild_pct}% VAT (IVA) plus ${c.ajd_newbuild_pct}% stamp duty (AJD); Calculate the tax for this home when asked. Important: Grupo Soltura does not work a la carte. Our service is ONE all-in fee, agreed up front. Never list or estimate separate costs for notary, land registry, lawyer/legal fees, NIE or power of attorney, not even for comparison. Explain that what comes on top of price and tax depends on the buyer's situation (do they still need an NIE / tax number, will they sign via a power of attorney, do they take a Spanish mortgage) and encourage them to ask us for a personal cost overview (offer it, and set handoff true when they want it). ${c.buyer_all_in_eur > 0 ? 'Our all-in fee is EUR ' + c.buyer_all_in_eur + '.' : 'Do not quote an amount for our fee.'} Always label cost figures as indicative. Keep answers under 80 words. End with a natural next step only when it helps (a viewing, a call, a related question), not every time. Reply ONLY with JSON: {"reply":"...","suggestions":["two or three short follow-up questions the visitor might ask next, in the same language as the reply"],"handoff":false}. Set handoff true when the visitor wants a viewing, negotiation, or anything only a person can do.`;
       const hist = Array.isArray(body.history) ? body.history.slice(-6).map((h: any) => ({ role: h.role === 'assistant' ? 'assistant' : 'user', content: String(h.content || '').slice(0, 800) })) : [];
       const t = await claude(sys, [...hist, { role: 'user', content: query }], 900);
       out = parseJson(t);

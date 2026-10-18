@@ -20,7 +20,7 @@ const OFFICE = 2;
 const PAGE = 24;
 const CAT_NL = { villa: 'Villa', apartment: 'Appartement', bungalow: 'Bungalow', detached: 'Vrijstaand huis', townhouse: 'Rijtjeshuis', penthouse: 'Penthouse', quadrant: 'Hoekwoning (quad)', duplex: 'Duplex', finca: 'Finca', 'semi-detached': 'Twee-onder-een-kap', commercial: 'Bedrijfspand', other: 'Woning', plot: 'Bouwgrond', attic: 'Penthouse' };
 const CAT_EN = { quadrant: 'Quad house', 'semi-detached': 'Semi-detached', attic: 'Penthouse', other: 'Home' };
-const LIST_COLS = 'wp_id,reference,category,is_newbuild,town,suburb,price,price_from,previous_price,price_changedate,bedrooms,bathrooms,build_area,plot_area,pool_private,pool_communal,dist_sea_m,label_exclusive,featured,under_offer,list_date,image,media_ids,market_deviation_pct,popularity,agent_wp_id';
+const LIST_COLS = 'id,wp_id,reference,category,is_newbuild,town,suburb,price,price_from,previous_price,price_changedate,bedrooms,bathrooms,build_area,plot_area,pool_private,pool_communal,dist_sea_m,label_exclusive,featured,under_offer,list_date,image,photo_count,market_deviation_pct,popularity,agent_wp_id';
 
 // ---------- state ----------
 const ls = {
@@ -29,11 +29,11 @@ const ls = {
 };
 const S = {
   lang: ls.get('lang', (navigator.language || 'en').toLowerCase().startsWith('nl') ? 'nl' : 'en'),
-  all: [], byRef: new Map(), byId: new Map(),
+  all: [], byRef: new Map(), byId: new Map(), byWp: new Map(), // byId: core-uuid; byWp: oud WP-id (alleen voor bewaarde favorieten van voor 18-10)
   f: blankFilters(), sort: 'foryou', type: 'all',
   shown: PAGE, order: [],
   favs: new Set(ls.get('favs', [])),
-  viewed: ls.get('viewed', []), // [wp_id] newest first
+  viewed: ls.get('viewed', []), // [property uuid] newest first
   media: new Map(),
   cfg: { itp_resale_pct: 9, iva_newbuild_pct: 10, ajd_newbuild_pct: 1.5, buyer_all_in_eur: 0 },
   // bezoekerscode alleen in de browser bewaren na toestemming; zonder toestemming tellen we anoniem per sessie (in geheugen)
@@ -98,12 +98,31 @@ async function fn(name, body) {
   const j = await r.json().catch(() => ({}));
   return { ok: r.ok, ...j };
 }
-function track(event, wp_id = null, value = null, meta = null) {
+// UTM-codes bij binnenkomst bewaren (per sessie) en met elk formulier meesturen
+const UTM = (() => {
   try {
+    const u = {};
+    new URLSearchParams(location.search).forEach((v, k) => { if (/^utm_[a-z]+$/i.test(k) && v) u[k.toLowerCase()] = v.slice(0, 120); });
+    if (Object.keys(u).length) sessionStorage.setItem('gs_utm', JSON.stringify(u));
+    return JSON.parse(sessionStorage.getItem('gs_utm') || 'null');
+  } catch { return null; }
+})();
+// vaste velden voor web-contact v4: form_id, page_url, utm, taal, bezoekerscode, woning (uuid + referentie)
+function formMeta(formId, p) {
+  const m = { form_id: formId, page_url: location.href.slice(0, 300), lang: S.lang, vid: S.vid };
+  if (UTM) m.utm = UTM;
+  if (p) Object.assign(m, { property_id: p.id, reference: p.reference, wp_id: p.wp_id || null });
+  return m;
+}
+// pid = core-uuid van de woning; wp_id gaat mee zolang de woning er een heeft (oude rapportages)
+function track(event, pid = null, value = null, meta = null) {
+  try {
+    const p = pid ? S.byId.get(pid) : null;
+    const wp_id = p && p.wp_id ? p.wp_id : null, property_id = p ? p.id : null;
     fetch(SB + '/rest/v1/web_events', {
       method: 'POST', keepalive: true,
       headers: { apikey: KEY, 'content-type': 'application/json', Prefer: 'return=minimal' },
-      body: JSON.stringify({ sid: S.sid, vid: S.vid, lang: S.lang, event, wp_id, value, meta }),
+      body: JSON.stringify({ sid: S.sid, vid: S.vid, lang: S.lang, event, wp_id, property_id, value, meta }),
     });
   } catch {}
 }
@@ -207,13 +226,13 @@ function specs(p) {
   return `<div class="specs">${s.join('')}</div>`;
 }
 function card(p, opts = {}) {
-  const fav = S.favs.has(p.wp_id);
-  const n = Math.min((p.media_ids || []).length, 8);
-  return `<a class="card" href="#/home/${encodeURIComponent(p.reference)}" data-id="${p.wp_id}">
+  const fav = S.favs.has(p.id);
+  const n = Math.min(p.photo_count || 0, 8);
+  return `<a class="card" href="#/home/${encodeURIComponent(p.reference)}" data-id="${p.id}">
     <div class="ph">
       ${p.image ? `<img class="kb" src="${esc(p.image)}" alt="${esc(title(p))}" loading="${opts.eager ? 'eager' : 'lazy'}" decoding="async">` : ''}
       <div class="badges">${badges(p)}</div>
-      <button class="heart" type="button" aria-pressed="${fav}" aria-label="${S.lang === 'nl' ? 'Bewaren' : 'Save'}" data-fav="${p.wp_id}">${ICON.heart}</button>
+      <button class="heart" type="button" aria-pressed="${fav}" aria-label="${S.lang === 'nl' ? 'Bewaren' : 'Save'}" data-fav="${p.id}">${ICON.heart}</button>
       ${n > 1 ? `<div class="dots">${'<i></i>'.repeat(n)}</div>` : ''}
       <span class="ref-tag">${esc(p.reference)}</span>
     </div>
@@ -226,7 +245,7 @@ document.addEventListener('click', e => {
   const h = e.target.closest('[data-fav]');
   if (!h) return;
   e.preventDefault(); e.stopPropagation();
-  toggleFav(Number(h.dataset.fav));
+  toggleFav(h.dataset.fav);
 });
 function toggleFav(id) {
   if (S.favs.has(id)) S.favs.delete(id); else { S.favs.add(id); track('fav', id); }
@@ -236,25 +255,18 @@ function toggleFav(id) {
 }
 function favCount() { $('#favCount').textContent = S.favs.size; $('.fav-link').classList.toggle('has', S.favs.size > 0); }
 
+// galerij: foto's uit core.property_media (Supabase Storage), volgorde hoofdfoto eerst, dan sort
 async function mediaFor(p) {
-  if (S.media.has(p.wp_id)) return S.media.get(p.wp_id);
-  const ids = (p.media_ids || []).slice(0, 40);
+  if (S.media.has(p.id)) return S.media.get(p.id);
   let urls = [];
-  if (ids.length) {
-    try {
-      const rows = await api(`web_media_cache?select=media_id,url&media_id=in.(${ids.join(',')})`);
-      const m = new Map(rows.map(r => [Number(r.media_id), r.url]));
-      urls = ids.map(i => m.get(i)).filter(Boolean);
-      // nieuwe woning: foto's nog niet in de cache -> eenmalig ophalen
-      if (rows.length < ids.length) {
-        const r = await fetch(FN + 'web-media-sync?wp_id=' + p.wp_id, { headers: { apikey: KEY } }).then(x => x.json()).catch(() => null);
-        if (r && Array.isArray(r.images) && r.images.length > urls.length) urls = r.images;
-      }
-    } catch {}
-  }
+  try { const r = await api(`web_properties?select=photos&id=eq.${encodeURIComponent(p.id)}`); urls = (r[0] && r[0].photos) || []; } catch {}
+  return setMedia(p, urls);
+}
+function setMedia(p, urls) {
+  urls = (urls || []).filter(Boolean);
   if (!urls.length && p.image) urls = [p.image];
   else if (p.image && !urls.includes(p.image)) urls.unshift(p.image);
-  S.media.set(p.wp_id, urls);
+  S.media.set(p.id, urls);
   return urls;
 }
 let scrubTimer = null;
@@ -262,7 +274,7 @@ document.addEventListener('pointerover', async e => {
   const c = e.target.closest('.card .ph'); if (!c || e.pointerType !== 'mouse') return;
   const card = c.closest('.card'); if (card.dataset.scrub) return;
   card.dataset.scrub = '1';
-  const p = S.byId.get(Number(card.dataset.id)); if (!p) return;
+  const p = S.byId.get(card.dataset.id); if (!p) return;
   const urls = await mediaFor(p);
   if (urls.length < 2) return;
   urls.slice(0, 8).forEach(u => { const i = new Image(); i.src = u; });
@@ -353,8 +365,8 @@ addEventListener('click', e => { const a = e.target.closest('[data-social]'); if
 async function renderSocialSheet(p) {
   const box = $('#socialBox'); if (!box) return;
   const { feed, stats } = await loadSocial();
-  if (S.openId !== p.wp_id) return;
-  const post = feed.find(f => f.wp_id === p.wp_id || (f.reference && f.reference === p.reference));
+  if (S.openId !== p.id) return;
+  const post = feed.find(f => (p.wp_id && f.wp_id === p.wp_id) || (f.reference && f.reference === p.reference));
   const url = location.origin + location.pathname + '#/home/' + encodeURIComponent(p.reference);
   box.innerHTML = `<h3>${t('social_sheet_h')}</h3>
     ${post ? `<a class="sp-post" href="${esc(post.fb_url || SOCIAL.ig)}" target="_blank" rel="noopener" data-social="post">${post.image ? `<img src="${esc(post.image)}" alt="" loading="lazy">` : ''}<span><b>${t('social_onpost')}</b><small>${esc(post.caption.slice(0, 90))}…</small></span></a>` : ''}
@@ -491,7 +503,9 @@ function bindNewsletters(root = document) {
       if (!interests.length) { msg.textContent = t('nl_err_pick'); return; }
       if (!/\S+@\S+\.\S+/.test(email)) { msg.textContent = t('form_err'); return; }
       $('.nl-btn', form).disabled = true;
-      const r = await fn('web-contact', { kind: 'newsletter', lang: S.lang, name: `${fd.get('first') || ''} ${fd.get('last') || ''}`.trim(), email, interests, website: fd.get('website'), vid: S.vid }).catch(() => ({ ok: false }));
+      const first = (fd.get('first') || '').trim(), last = (fd.get('last') || '').trim();
+      const r = await fn('web-contact', { kind: 'newsletter', ...formMeta('nl-form', null), name: `${first} ${last}`.trim(), first, last, first_name: first, last_name: last,
+        email, interests, nl_variant: box.classList.contains('pop') ? 'pop' : box.closest('#feed') ? 'feed' : 'inline', website: fd.get('website') }).catch(() => ({ ok: false }));
       $('.nl-btn', form).disabled = false;
       if (r.ok) {
         ls.set('nl_done', Date.now()); track('newsletter_signup', null, interests.length, { interests });
@@ -643,11 +657,11 @@ function renderFeed(append = false) {
 // moments keep people browsing: rails and a single video story between the cards
 function moment(pos) {
   const pr = prefs();
-  const shownIds = new Set(S.order.slice(0, S.shown).map(p => p.wp_id));
+  const shownIds = new Set(S.order.slice(0, S.shown).map(p => p.id));
   const pick = (fnSort, filt, n = 10) => S.all.filter(p => p.image && filt(p) && match(p, blankFilters())).sort(fnSort).slice(0, n);
   const rail = (h, p, items) => items.length < 3 ? '' : `<div class="moment"><h2>${h}</h2>${p ? `<p class="lead">${p}</p>` : ''}<div class="rail">${items.map(x => card(x)).join('')}</div></div>`;
   if (pos === 6) {
-    if (pr) return rail(t('m_foryou_h'), t('m_foryou_p'), pick((a, b) => score(b, pr) - score(a, pr), p => !S.viewed.includes(p.wp_id) && !shownIds.has(p.wp_id)));
+    if (pr) return rail(t('m_foryou_h'), t('m_foryou_p'), pick((a, b) => score(b, pr) - score(a, pr), p => !S.viewed.includes(p.id) && !shownIds.has(p.id)));
     return rail(t('m_drops_h'), t('m_drops_p'), pick((a, b) => new Date(b.price_changedate || 0) - new Date(a.price_changedate || 0), reduced));
   }
   if (pos === 15) return `<div class="story">${video(VIDEO.village)}<div><h2>${t('story_move_h')}</h2><p>${t('story_move_p')}</p><a class="btn lemon" href="#/move">${t('story_move_btn')}</a></div></div>`;
@@ -734,9 +748,9 @@ async function openSheet(ref) {
   const sh = $('#sheet'), inner = $('#sheetInner');
   if (!p) { inner.innerHTML = `<div class="empty"><h2>${S.lang === 'nl' ? 'Deze woning is niet meer beschikbaar' : 'This home is no longer available'}</h2><p><a class="btn primary" href="#/">${t('see_all')}</a></p></div>`; sh.hidden = false; return; }
   closeSheetTracking();
-  S.openId = p.wp_id; S.openSince = Date.now();
-  S.viewed = [p.wp_id, ...S.viewed.filter(x => x !== p.wp_id)].slice(0, 60); ls.set('viewed', S.viewed);
-  track('view_property', p.wp_id);
+  S.openId = p.id; S.openSince = Date.now();
+  S.viewed = [p.id, ...S.viewed.filter(x => x !== p.id)].slice(0, 60); ls.set('viewed', S.viewed);
+  track('view_property', p.id);
   document.body.style.overflow = 'hidden';
   sh.hidden = false;
   const ag = agentOf(p);
@@ -746,7 +760,7 @@ async function openSheet(ref) {
       <button class="icon-btn" type="button" data-close aria-label="${t('close')}">${ICON.x}</button>
       <span class="ref">${t('sh_ref')} ${esc(p.reference)}</span><span class="grow"></span>
       <button class="icon-btn" type="button" id="shShare" aria-label="${t('share')}">${ICON.share}</button>
-      <button class="heart" style="position:static;border:1px solid var(--mist)" type="button" aria-pressed="${S.favs.has(p.wp_id)}" data-fav="${p.wp_id}" aria-label="Save">${ICON.heart}</button>
+      <button class="heart" style="position:static;border:1px solid var(--mist)" type="button" aria-pressed="${S.favs.has(p.id)}" data-fav="${p.id}" aria-label="Save">${ICON.heart}</button>
       <button class="icon-btn" type="button" data-step="-1" aria-label="${t('prev_home')}">${ICON.l}</button>
       <button class="icon-btn" type="button" data-step="1" aria-label="${t('next_home')}">${ICON.r}</button>
     </div>
@@ -761,7 +775,7 @@ async function openSheet(ref) {
         <div class="quick-acts">
           <button type="button" data-go="chatBox">${ICON.chat}<span>${t('qa_ask')}</span></button>
           <button type="button" data-go="mortBox">${ICON.calc}<span>${t('qa_mort')}</span></button>
-          <button type="button" data-go="gal">${ICON.cam}<span id="qaPhotos">${t('qa_photos', (p.media_ids || []).length || 1)}</span></button>
+          <button type="button" data-go="gal">${ICON.cam}<span id="qaPhotos">${t('qa_photos', p.photo_count || 1)}</span></button>
           <button type="button" data-go="viewBtn">${ICON.cal}<span>${t('qa_view')}</span></button>
           <button type="button" data-go="guideBox">${ICON.book}<span>${t('qa_guide')}</span></button>
         </div>
@@ -797,16 +811,17 @@ async function openSheet(ref) {
     <div class="sh-next"><button class="btn ghost" type="button" data-step="-1">← ${t('prev_home')}</button><button class="btn primary" type="button" data-step="1">${t('next_home')} →</button></div>`;
   inner.scrollTop = 0;
   bindSheet(p, waHref);
-  loadReviews().then(({ rows, sum }) => { const a = $('#rvMini'); if (!a || !sum || S.openId !== p.wp_id) return; const q = rows.find(r => r.text.length < 160) || rows[0]; a.href = RV.all(sum.place_id); a.innerHTML = `<span class="rv-mini-top">${ICON.g}<b>${fmtScore(sum.score)}</b><span class="stars">★★★★★</span><small>${t('rv_count', sum.count)}</small></span>${q ? `<q>${esc(q.text.length > 150 ? q.text.slice(0, 147) + '…' : q.text)}</q>` : ''}`; a.hidden = false; });
+  loadReviews().then(({ rows, sum }) => { const a = $('#rvMini'); if (!a || !sum || S.openId !== p.id) return; const q = rows.find(r => r.text.length < 160) || rows[0]; a.href = RV.all(sum.place_id); a.innerHTML = `<span class="rv-mini-top">${ICON.g}<b>${fmtScore(sum.score)}</b><span class="stars">★★★★★</span><small>${t('rv_count', sum.count)}</small></span>${q ? `<q>${esc(q.text.length > 150 ? q.text.slice(0, 147) + '…' : q.text)}</q>` : ''}`; a.hidden = false; });
   fillFacts(p);
   renderMore(p);
   // details + gallery in parallel
-  const [full, urls, geo] = await Promise.all([
-    api(`web_properties?select=*&wp_id=eq.${p.wp_id}`).then(r => r[0]).catch(() => null),
-    mediaFor(p),
-    api(`web_property_geo?select=*&wp_id=eq.${p.wp_id}`).then(r => r[0]).catch(() => null),
+  const [full, geo] = await Promise.all([
+    api(`web_properties?select=*&id=eq.${encodeURIComponent(p.id)}`).then(r => r[0]).catch(() => null),
+    api(`web_property_geo?select=*&id=eq.${encodeURIComponent(p.id)}`).then(r => r[0]).catch(() => null),
   ]);
-  if (S.openId !== p.wp_id) return;
+  if (S.openId !== p.id) return;
+  const urls = full ? setMedia(p, full.photos) : await mediaFor(p);
+  if (S.openId !== p.id) return;
   gallery(urls);
   if ($('#qaPhotos')) $('#qaPhotos').textContent = t('qa_photos', urls.length);
   if (geo && geo.beach_km != null) {
@@ -832,7 +847,7 @@ function guideHtml(p) {
 }
 function bindGuide(p) {
   const btn = $('#guideBtn'), form = $('#guideForm'); if (!form) return;
-  btn.addEventListener('click', () => { form.hidden = false; btn.hidden = true; $('input[name=first]', form).focus(); track('guide_open', p.wp_id); });
+  btn.addEventListener('click', () => { form.hidden = false; btn.hidden = true; $('input[name=first]', form).focus(); track('guide_open', p.id); });
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(form)), out = $('.ok', form);
@@ -840,11 +855,11 @@ function bindGuide(p) {
     out.style.color = 'var(--salina)';
     if (!first || !last || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { out.textContent = t('guide_err'); return; }
     $('button[type=submit]', form).disabled = true;
-    const r = await fn('web-contact', { kind: 'guide', lang: S.lang, name: `${first} ${last}`, first, last, email,
+    const r = await fn('web-contact', { kind: 'guide', ...formMeta('guideForm', p), name: `${first} ${last}`, first, last, first_name: first, last_name: last, email,
       message: `${t('guide_msg')}\n${t('nl_first')}: ${first}\n${t('nl_last')}: ${last}\n${t('sh_ref')} ${p.reference}`,
-      wp_id: p.wp_id, reference: p.reference, website: d.website, vid: S.vid }).catch(() => ({ ok: false }));
+      website: d.website }).catch(() => ({ ok: false }));
     $('button[type=submit]', form).disabled = false;
-    if (r.ok) { track('guide_request', p.wp_id); form.innerHTML = `<p class="gb-done">${ICON.check}<span>${t('guide_ok', first)}</span></p>`; }
+    if (r.ok) { track('guide_request', p.id); form.innerHTML = `<p class="gb-done">${ICON.check}<span>${t('guide_ok', first)}</span></p>`; }
     else { out.textContent = t('form_err'); }
   });
 }
@@ -876,7 +891,7 @@ function bindMortgage(p) {
     $('#mTot').textContent = eur(Math.round(m * n));
   };
   let tracked = false;
-  const onInput = () => { calc(); if (!tracked) { tracked = true; track('mortgage', p && p.wp_id); } };
+  const onInput = () => { calc(); if (!tracked) { tracked = true; track('mortgage', p && p.id); } };
   $('#mAmt').addEventListener('input', onInput);
   $('#mAmt').addEventListener('blur', () => { $('#mAmt').value = num(parseAmt($('#mAmt').value)); });
   $('#mTerm').addEventListener('input', onInput);
@@ -897,14 +912,17 @@ function bindForm(form, p) {
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(form));
+    // losse velden: als eigen veld (data-k) mee voor de intake, en leesbaar bovenaan het bericht
+    const loose = {};
+    $$('[data-x]', form).forEach(i => { const v = i.value.trim(); if (v && i.dataset.k) loose[i.dataset.k] = v; });
     const extra = $$('[data-x]', form).map(i => i.value.trim() ? `${i.dataset.x}: ${i.value.trim()}` : '').filter(Boolean);
     if (extra.length) d.message = extra.join('\n') + (d.message ? '\n\n' + d.message : '');
     const out = $('.ok', form);
     if (!/\S+@\S+\.\S+/.test(d.email || '') && (d.phone || '').length < 6) { out.style.color = 'var(--salina)'; out.textContent = t('form_err'); return; }
     $('button[type=submit]', form).disabled = true;
-    const r = await fn('web-contact', { ...d, lang: S.lang, wp_id: p?.wp_id, reference: p?.reference, vid: S.vid }).catch(() => ({ ok: false }));
+    const r = await fn('web-contact', { ...d, ...loose, ...formMeta(form.id, p) }).catch(() => ({ ok: false }));
     out.style.color = ''; out.textContent = r.ok ? t('form_ok') : t('form_err');
-    if (r.ok) { track('contact_sent', p?.wp_id || null, null, { kind: d.kind }); $$('input,textarea', form).forEach(i => i.type !== 'hidden' && !i.dataset.keep && (i.value = '')); }
+    if (r.ok) { track('contact_sent', p?.id || null, null, { kind: d.kind }); $$('input,textarea', form).forEach(i => i.type !== 'hidden' && !i.dataset.keep && (i.value = '')); }
     $('button[type=submit]', form).disabled = false;
   });
 }
@@ -912,20 +930,20 @@ function bindSheet(p, waHref) {
   const inner = $('#sheetInner');
   $$('[data-close]', inner).forEach(b => b.addEventListener('click', closeSheet));
   $$('[data-step]', inner).forEach(b => b.addEventListener('click', () => step(Number(b.dataset.step))));
-  $$('[data-track]', inner).forEach(a => a.addEventListener('click', () => track(a.dataset.track, p.wp_id)));
+  $$('[data-track]', inner).forEach(a => a.addEventListener('click', () => track(a.dataset.track, p.id)));
   $('#shShare').addEventListener('click', async () => {
     const url = location.href;
     try { if (navigator.share) await navigator.share({ title: title(p), url }); else { await navigator.clipboard.writeText(url); $('#shShare').style.background = 'var(--lemon-soft)'; } } catch {}
-    track('share', p.wp_id);
+    track('share', p.id);
   });
-  $('#viewBtn').addEventListener('click', () => { const f = $('#viewForm'); f.hidden = !f.hidden; if (!f.hidden) { $('input[name=name]', f).focus(); track('contact_open', p.wp_id); } });
+  $('#viewBtn').addEventListener('click', () => { const f = $('#viewForm'); f.hidden = !f.hidden; if (!f.hidden) { $('input[name=name]', f).focus(); track('contact_open', p.id); } });
   bindForm($('#viewForm'), p);
   bindGuide(p);
   bindMortgage(p);
   renderSocialSheet(p);
   $$('.quick-acts [data-go]', inner).forEach(b => b.addEventListener('click', () => {
     const id = b.dataset.go, el = $('#' + id); if (!el) return;
-    track('quick_action', p.wp_id, null, { id });
+    track('quick_action', p.id, null, { id });
     el.scrollIntoView({ behavior: 'smooth', block: id === 'gal' ? 'start' : 'center' });
     if (id === 'chatBox') setTimeout(() => $('#chatIn').focus({ preventScroll: true }), 500);
     if (id === 'viewBtn') setTimeout(() => { $('#viewForm').hidden = false; }, 400);
@@ -941,8 +959,8 @@ function bindSheet(p, waHref) {
     $('#chatSugg').innerHTML = '';
     log.insertAdjacentHTML('beforeend', `<div class="msg u">${esc(q)}</div><div class="msg a typing">…</div>`);
     log.scrollTop = log.scrollHeight;
-    track('assistant', p.wp_id);
-    const r = await fn('web-assistant', { mode: 'ask', lang: S.lang, wp_id: p.wp_id, query: q, history: hist }).catch(() => ({}));
+    track('assistant', p.id);
+    const r = await fn('web-assistant', { mode: 'ask', lang: S.lang, id: p.id, reference: p.reference, wp_id: p.wp_id || null, query: q, history: hist }).catch(() => ({}));
     const reply = r.reply || (S.lang === 'nl' ? 'Dat weet ik niet zeker. Stuur ons gerust een WhatsApp.' : "I'm not sure about that. Feel free to WhatsApp us.");
     hist.push({ role: 'user', content: q }, { role: 'assistant', content: reply });
     $('.typing', log).remove();
@@ -953,7 +971,7 @@ function bindSheet(p, waHref) {
   };
   $('#chatSugg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) ask(b.textContent); });
   if ('IntersectionObserver' in window) new IntersectionObserver(es => { $('#chatFab').hidden = es[0].isIntersecting; }, { root: $('#sheetInner'), threshold: .3 }).observe($('#chatBox'));
-  $('#chatFab').addEventListener('click', () => { $('#chatBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => $('#chatIn').focus({ preventScroll: true }), 400); track('assistant_fab', p.wp_id); });
+  $('#chatFab').addEventListener('click', () => { $('#chatBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => $('#chatIn').focus({ preventScroll: true }), 400); track('assistant_fab', p.id); });
   $('#chatForm').addEventListener('submit', e => { e.preventDefault(); const v = $('#chatIn').value; $('#chatIn').value = ''; ask(v); });
 }
 function fillFacts(p) {
@@ -983,14 +1001,19 @@ function fillDetail(d) {
       <p style="margin:10px 0 0">${t('market_txt', dev, eur(d.market_median_m2), d.market_n, d.town)}</p></div>`;
   }
   // description
-  const body = S.lang === 'nl' ? (d.body_nl || d.body_en) : (d.body_en || d.body_nl);
+  let body = S.lang === 'nl' ? (d.body_nl || d.body_en) : (d.body_en || d.body_nl);
+  if (body) {
+    // partnerteksten: dubbel ge-escapete entiteiten herstellen en losse regels als alinea's tonen
+    body = body.replace(/&amp;(nbsp|amp|quot|apos|lt|gt|#\d+);/g, '&$1;');
+    if (!/<(p|br|ul|ol|li|h[2-4])\b/i.test(body)) body = body.split(/\n\s*\n+/).map(x => x.trim()).filter(Boolean).map(x => `<p>${x.replace(/\n/g, '<br>')}</p>`).join('');
+  }
   const desc = $('#desc');
   if (body) {
     desc.innerHTML = `<h3>${t('desc_h')}</h3>` + sanitize(body);
     if (desc.textContent.length > 900) {
       desc.classList.add('clamp');
       desc.insertAdjacentHTML('afterend', `<button class="btn ghost" type="button" id="readMore" style="margin:6px 0 10px">${t('read_more')}</button>`);
-      $('#readMore').addEventListener('click', e => { desc.classList.remove('clamp'); e.target.remove(); track('read_more', d.wp_id); });
+      $('#readMore').addEventListener('click', e => { desc.classList.remove('clamp'); e.target.remove(); track('read_more', d.id); });
     }
   } else desc.innerHTML = d.summary_en ? `<p>${esc(d.summary_en)}</p>` : '';
   // features
@@ -1024,7 +1047,7 @@ function fillDetail(d) {
       $('input[name=kind]', f).value = 'costs';
       $('textarea', f).value = t('allin_msg', d.reference);
       f.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => $('input[name=name]', f).focus({ preventScroll: true }), 450);
-      track('costs_ask', d.wp_id);
+      track('costs_ask', d.id);
     });
   }
 }
@@ -1048,22 +1071,22 @@ function gallery(urls) {
   track_.ondblclick = () => openLightbox(urls, cur());
 }
 function similar(p, n = 10) {
-  const base = S.all.filter(x => x.wp_id !== p.wp_id && x.image);
+  const base = S.all.filter(x => x.id !== p.id && x.image);
   const near = base.filter(x => x.category === p.category && x.price && p.price && Math.abs(x.price - p.price) / p.price < .35)
     .sort((a, b) => (b.town === p.town) - (a.town === p.town) || Math.abs(a.price - p.price) - Math.abs(b.price - p.price));
   return near.slice(0, n);
 }
 function renderMore(p) {
   const sim = similar(p);
-  const area = S.all.filter(x => x.town === p.town && x.wp_id !== p.wp_id && x.image && !sim.includes(x)).slice(0, 10);
+  const area = S.all.filter(x => x.town === p.town && x.id !== p.id && x.image && !sim.includes(x)).slice(0, 10);
   $('#shMore').innerHTML = (sim.length ? `<h2>${t('similar_h')}</h2><div class="rail">${sim.map(x => card(x)).join('')}</div>` : '')
     + (area.length > 2 ? `<h2>${esc(t('area_h', p.town))}</h2><div class="rail">${area.map(x => card(x)).join('')}</div>` : '');
 }
 function step(d) {
   const list = S.order.length ? S.order : S.all;
-  const i = list.findIndex(x => x.wp_id === S.openId);
+  const i = list.findIndex(x => x.id === S.openId);
   const nx = list[(i + d + list.length) % list.length];
-  if (nx) { track('step', nx.wp_id, d); location.replace('#/home/' + encodeURIComponent(nx.reference)); }
+  if (nx) { track('step', nx.id, d); location.replace('#/home/' + encodeURIComponent(nx.reference)); }
 }
 function closeSheetTracking() {
   if (S.openId && S.openSince) track('dwell', S.openId, Math.round((Date.now() - S.openSince) / 1000));
@@ -1119,21 +1142,21 @@ function openReel(startIdx) {
   const list = (S.order.length ? S.order : computeOrder()).filter(p => p.image).slice(0, 120);
   const reel = $('#reel');
   reel.innerHTML = `<button class="reel-close" type="button" aria-label="${t('close')}">${ICON.x}</button><span class="reel-hint">${S.lang === 'nl' ? 'Veeg omhoog voor de volgende woning' : 'Swipe up for the next home'}</span>` +
-    list.map((p, i) => `<section class="reel-item" data-id="${p.wp_id}"><img src="${esc(p.image)}" alt="${esc(title(p))}" loading="${i < 2 ? 'eager' : 'lazy'}"><span class="ref-tag reel-ref">${esc(p.reference)}</span>
+    list.map((p, i) => `<section class="reel-item" data-id="${p.id}"><img src="${esc(p.image)}" alt="${esc(title(p))}" loading="${i < 2 ? 'eager' : 'lazy'}"><span class="ref-tag reel-ref">${esc(p.reference)}</span>
       <div class="reel-cap"><div class="t"><div class="badges" style="display:flex;gap:6px;margin-bottom:6px">${badges(p)}</div>${priceHtml(p)}<h3>${esc(title(p))}</h3>${specs(p)}</div>
-      <div class="reel-side"><button type="button" data-fav="${p.wp_id}" aria-pressed="${S.favs.has(p.wp_id)}" aria-label="Save">${ICON.heart}</button>
+      <div class="reel-side"><button type="button" data-fav="${p.id}" aria-pressed="${S.favs.has(p.id)}" aria-label="Save">${ICON.heart}</button>
       <button type="button" data-open="${esc(p.reference)}" aria-label="Details">${ICON.info}</button>
-      <button type="button" data-wa="${p.wp_id}" aria-label="WhatsApp">${ICON.wa}</button></div></div></section>`).join('');
+      <button type="button" data-wa="${p.id}" aria-label="WhatsApp">${ICON.wa}</button></div></div></section>`).join('');
   reel.hidden = false; document.body.style.overflow = 'hidden';
   $('.reel-close', reel).onclick = closeReel;
   reel.onclick = e => {
     const o = e.target.closest('[data-open]'); if (o) { closeReel(); location.hash = '#/home/' + encodeURIComponent(o.dataset.open); return; }
-    const w = e.target.closest('[data-wa]'); if (w) { const p = S.byId.get(Number(w.dataset.wa)); const ag = agentOf(p); track('whatsapp', p.wp_id); window.open(`https://wa.me/${ag.tel.replace('+', '')}?text=${encodeURIComponent(t('wa_text', p.reference))}`, '_blank', 'noopener'); }
+    const w = e.target.closest('[data-wa]'); if (w) { const p = S.byId.get(w.dataset.wa); const ag = agentOf(p); track('whatsapp', p.id); window.open(`https://wa.me/${ag.tel.replace('+', '')}?text=${encodeURIComponent(t('wa_text', p.reference))}`, '_blank', 'noopener'); }
   };
   let seen = new Set();
   const obs = new IntersectionObserver(es => es.forEach(en => {
     en.target.classList.toggle('on', en.isIntersecting);
-    const id = Number(en.target.dataset.id);
+    const id = en.target.dataset.id;
     if (en.isIntersecting && !seen.has(id)) { seen.add(id); track('reel_view', id); }
   }), { root: reel, threshold: .6 });
   $$('.reel-item', reel).forEach(x => obs.observe(x));
@@ -1152,15 +1175,15 @@ function homesRail(h) {
   return `<section class="section"><h2>${h || t('home_rail')}</h2><div class="rail">${items.map(p => card(p)).join('')}</div><p><a class="btn ghost" href="#/">${t('see_all')}</a></p></section>`;
 }
 const timeline = steps => `<ol class="tl">${steps.map(([h, p], i) => `<li><span class="tl-n">${i + 1}</span><div><h3>${h}</h3><p>${p}</p></div></li>`).join('')}</ol>`;
-// formulier: velden met data-x komen als regels bovenaan het bericht (web-contact kent alleen naam/mail/telefoon/bericht)
+// formulier: velden met data-x gaan als los veld (data-k) mee én als regel bovenaan het bericht
 function richForm(id, kind, extra, msg) {
   return `<form class="form rich" id="${id}">
     <input type="hidden" name="kind" value="${kind}"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
     <div class="row2"><label><span>${t('form_name')}</span><input name="name" autocomplete="name"></label><label><span>${t('form_phone')}</span><input name="phone" type="tel" autocomplete="tel"></label></div>
     <label><span>${t('form_email')}</span><input name="email" type="email" autocomplete="email"></label>
     ${extra.length ? `<div class="row2">${extra.map(x => `<label><span>${x.label}</span>${x.opts
-      ? `<select data-x="${esc(x.label)}"><option value="">–</option>${x.opts.map(o => `<option>${esc(o)}</option>`).join('')}</select>`
-      : `<input data-x="${esc(x.label)}"${x.ph ? ` placeholder="${esc(x.ph)}"` : ''}>`}</label>`).join('')}</div>` : ''}
+      ? `<select data-x="${esc(x.label)}" data-k="${x.k}"><option value="">–</option>${x.opts.map(o => `<option>${esc(o)}</option>`).join('')}</select>`
+      : `<input data-x="${esc(x.label)}" data-k="${x.k}"${x.ph ? ` placeholder="${esc(x.ph)}"` : ''}>`}</label>`).join('')}</div>` : ''}
     <label><span>${t('form_msg')}</span><textarea name="message" rows="4"${msg ? ` data-keep="1"` : ''}>${msg ? esc(msg) : ''}</textarea></label>
     <button class="btn primary" type="submit">${t('form_send')}</button><p class="ok" aria-live="polite"></p>
     <p class="form-note">${t('form_privacy')} <a href="#/privacy">${t('privacy')}</a></p></form>`;
@@ -1180,7 +1203,7 @@ function pageBuy() {
     </div>
     ${homesRail()}
     <section class="pg form-band"><div><h2>${c.cta}</h2><p>${c.costs_note}</p></div>
-      ${richForm('buyForm', 'costs', [{ label: t('f_budget'), ph: '€' }, { label: t('f_when'), opts: t('f_when_opts') }], t('f_buy_msg'))}</section>`;
+      ${richForm('buyForm', 'costs', [{ k: 'budget', label: t('f_budget'), ph: '€' }, { k: 'timing', label: t('f_when'), opts: t('f_when_opts') }], t('f_buy_msg'))}</section>`;
 }
 function pageSell() {
   const c = P('sell');
@@ -1190,7 +1213,7 @@ function pageSell() {
       <div class="pg-2 tight">
         <div><h2 class="pg-h">${c.steps_h}</h2>${timeline(c.steps)}</div>
         <div class="box form-card" id="sellBox"><h2>${c.form_h}</h2><p>${c.form_p}</p>
-          ${richForm('sellForm', 'valuation', [{ label: t('f_town'), ph: 'Rojales, Ciudad Quesada…' }, { label: t('f_type'), opts: t('f_type_opts') }], '')}</div>
+          ${richForm('sellForm', 'valuation', [{ k: 'area', label: t('f_town'), ph: 'Rojales, Ciudad Quesada…' }, { k: 'property_type', label: t('f_type'), opts: t('f_type_opts') }], '')}</div>
       </div>
       <div class="cta-band"><p>${c.legal}</p><a class="btn ghost" href="#/contact">${t('nav_contact')}</a></div>
     </div>`;
@@ -1211,18 +1234,110 @@ function pageMove() {
     </div>
     ${homesRail()}
     <section class="pg form-band"><div><h2>${c.form_h}</h2><p>${c.form_p}</p></div>
-      ${richForm('moveForm', 'move', [{ label: t('f_when'), opts: t('f_when_opts') }, { label: t('f_budget'), ph: '€' }, { label: t('f_household'), ph: t('f_household_ph') }, { label: t('f_area'), ph: t('f_area_ph') }], '')}</section>`;
+      ${richForm('moveForm', 'move', [{ k: 'timing', label: t('f_when'), opts: t('f_when_opts') }, { k: 'budget', label: t('f_budget'), ph: '€' }, { k: 'household', label: t('f_household'), ph: t('f_household_ph') }, { k: 'area', label: t('f_area'), ph: t('f_area_ph') }], '')}</section>`;
 }
 const LANG_NAME = { es: { en: 'Spanish', nl: 'Spaans' }, nl: { en: 'Dutch', nl: 'Nederlands' }, en: { en: 'English', nl: 'Engels' }, de: { en: 'German', nl: 'Duits' }, fr: { en: 'French', nl: 'Frans' }, ca: { en: 'Valencian', nl: 'Valenciaans' } };
 // taal van het artikel zelf (de koppen in news_posts zijn al naar het Nederlands herschreven)
 const artLang = r => ({ idealista: 'es', 'vegabajadigital.com': 'es', 'Spanje Vandaag': 'nl' }[r.source]);
 const NEWS_SRC = { all: null, market: 'idealista', region: 'vegabajadigital.com', spain: 'Spanje Vandaag' };
-async function pageNews() {
+// ---------- nieuws: eigen blog (core.blog_posts via web_blog_posts) met detailpagina #/news/<slug>;
+// zolang er nog geen blogposts zijn: de koppen uit web_news als lijst met externe links (geen lege pagina)
+const fmtDate = (d, y) => d ? new Date(d).toLocaleDateString(S.lang === 'nl' ? 'nl-NL' : 'en-GB', y ? { day: 'numeric', month: 'long', year: 'numeric' } : { day: 'numeric', month: 'long' }) : '';
+function sanitizeRich(html) {
+  const doc = new DOMParser().parseFromString(String(html || ''), 'text/html');
+  doc.querySelectorAll('script,style,iframe,object,embed,noscript,template,form,input,button,link,meta,svg,math').forEach(n => n.remove());
+  const ok = new Set(['P', 'STRONG', 'B', 'EM', 'I', 'BR', 'UL', 'OL', 'LI', 'H2', 'H3', 'H4', 'BLOCKQUOTE', 'A', 'IMG', 'FIGURE', 'FIGCAPTION', 'HR']);
+  const walk = n => {
+    [...n.children].forEach(c => {
+      walk(c);
+      if (c.tagName === 'H1') { const h = doc.createElement('h2'); h.append(...c.childNodes); c.replaceWith(h); return; }
+      if (!ok.has(c.tagName)) { c.replaceWith(...c.childNodes); return; }
+      const href = c.getAttribute('href'), src = c.getAttribute('src'), alt = c.getAttribute('alt');
+      [...c.attributes].forEach(a => c.removeAttribute(a.name));
+      if (c.tagName === 'A') {
+        if (href && /^(https?:|mailto:|#\/)/i.test(href.trim())) { c.setAttribute('href', href.trim()); if (/^https?:/i.test(href.trim())) { c.setAttribute('target', '_blank'); c.setAttribute('rel', 'noopener nofollow'); } }
+        else c.replaceWith(...c.childNodes);
+      }
+      if (c.tagName === 'IMG') {
+        if (src && /^https:\/\//i.test(src.trim())) { c.setAttribute('src', src.trim()); c.setAttribute('alt', alt || ''); c.setAttribute('loading', 'lazy'); c.setAttribute('referrerpolicy', 'no-referrer'); }
+        else c.remove();
+      }
+    });
+  };
+  walk(doc.body);
+  return doc.body.innerHTML;
+}
+async function pageNews(slug) {
+  if (slug) return pagePost(slug);
   $('#main').innerHTML = `<div class="page-head"><p class="kicker">${t('nav_news')}</p><h1>${t('news_h')}</h1><p>${t('news_p')}</p></div>
-    <div class="news-filter" role="group">${Object.keys(NEWS_SRC).map((k, i) => `<button type="button" data-src="${k}" aria-pressed="${i === 0}">${t('news_' + k)}</button>`).join('')}</div>
+    <div class="news-filter" id="newsFilter" role="group" hidden></div>
     <div class="news-grid" id="newsList">${'<div class="skeleton" style="height:150px;border-radius:14px"></div>'.repeat(6)}</div>
     <div class="loadmore"><button class="btn ghost" id="newsMore" type="button" hidden>${t('news_more')}</button></div>${homesRail()}`;
   observeCards($('#main'));
+  const posts = await api('web_blog_posts?select=id,group_id,lang,slug,title,excerpt,image_url,source_name,category,published_at&order=published_at.desc.nullslast&limit=300').catch(() => []);
+  if (currentPage !== 'news') return;
+  if (posts.length) return blogList(posts);
+  return newsLinks();
+}
+function blogList(posts) {
+  // per artikelgroep één versie: in de taal van de site als die er is, anders de andere taal
+  const groups = new Map();
+  posts.forEach(p => { const k = p.group_id || p.id; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(p); });
+  const rows = [...groups.values()].map(g => g.find(p => (p.lang || '').toLowerCase() === S.lang) || g[0])
+    .sort((a, b) => new Date(b.published_at || 0) - new Date(a.published_at || 0));
+  const cats = [...new Set(rows.map(r => r.category).filter(Boolean))];
+  let cat = null, shown = 17;
+  const fl = $('#newsFilter');
+  if (cats.length > 1) {
+    fl.hidden = false;
+    fl.innerHTML = [`<button type="button" data-cat="" aria-pressed="true">${t('news_all')}</button>`, ...cats.map(c => `<button type="button" data-cat="${esc(c)}" aria-pressed="false">${esc(cap(String(c).replace(/[_-]/g, ' ')))}</button>`)].join('');
+    $$('button', fl).forEach(b => b.addEventListener('click', () => { cat = b.dataset.cat || null; shown = 17; $$('button', fl).forEach(x => x.setAttribute('aria-pressed', x === b)); draw(); track('news_filter', null, null, { cat }); }));
+  }
+  const draw = () => {
+    const list = rows.filter(r => !cat || r.category === cat);
+    const li = list.findIndex(r => r.image_url); if (li > 0 && li < 4) list.unshift(list.splice(li, 1)[0]);
+    $('#newsList').innerHTML = list.slice(0, shown).map((r, i) => `<a class="news-card${i === 0 ? ' lead' : ''}${r.image_url ? ' has-img' : ''}" href="#/news/${encodeURIComponent(r.slug)}" data-src="blog">
+      ${r.image_url ? `<span class="nc-img"><img src="${esc(r.image_url)}" alt="" loading="${i < 5 ? 'eager' : 'lazy'}" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add('nc-ph');this.remove();"></span>` : (i ? `<span class="nc-img nc-ph"></span>` : '')}
+      <span class="nc-txt"><span class="nc-tag">${esc(r.category ? cap(String(r.category).replace(/[_-]/g, ' ')) : 'Soltura')}</span><h3>${esc(r.title)}</h3>${r.excerpt && i === 0 ? `<p class="nc-ex">${esc(r.excerpt)}</p>` : ''}<small>${r.source_name ? esc(r.source_name) + ' · ' : ''}${fmtDate(r.published_at)}${(r.lang || '').toLowerCase() !== S.lang && LANG_NAME[(r.lang || '').toLowerCase()] ? ` · <span class="nc-lang">${t('news_in', LANG_NAME[r.lang.toLowerCase()][S.lang])}</span>` : ''}</small></span></a>`).join('') || `<p>${t('news_none')}</p>`;
+    $('#newsMore').hidden = list.length <= shown;
+  };
+  draw();
+  $('#newsMore').addEventListener('click', () => { shown += 16; draw(); });
+  $('#newsList').addEventListener('click', e => { const a = e.target.closest('a'); if (a) track('news_click', null, null, { src: 'blog' }); });
+}
+async function pagePost(slug) {
+  const nl = S.lang === 'nl';
+  const main = $('#main');
+  main.innerHTML = `<article class="post"><p class="kicker"><a href="#/news">← ${t('nav_news')}</a></p><div class="skeleton" style="height:2.4em;border-radius:8px;max-width:640px"></div><div class="skeleton" style="height:16em;border-radius:14px;margin-top:20px"></div></article>`;
+  const r = await api(`web_blog_posts?select=*&slug=eq.${encodeURIComponent(slug)}&limit=1`).then(x => x[0]).catch(() => null);
+  if (currentPage !== 'news' || !location.hash.startsWith('#/news/')) return;
+  if (!r) {
+    main.innerHTML = `<div class="empty"><h2>${nl ? 'Dit bericht is niet (meer) beschikbaar' : 'This article is no longer available'}</h2><p><a class="btn primary" href="#/news">${t('nav_news')}</a></p></div>${homesRail()}`;
+    observeCards(main); return;
+  }
+  // andere taal gekozen en er is een vertaling: daarheen
+  if ((r.lang || '').toLowerCase() !== S.lang && r.group_id) {
+    const sib = await api(`web_blog_posts?select=slug&group_id=eq.${encodeURIComponent(r.group_id)}&lang=eq.${S.lang}&limit=1`).then(x => x[0]).catch(() => null);
+    if (sib && sib.slug && sib.slug !== slug) { location.replace('#/news/' + encodeURIComponent(sib.slug)); return; }
+  }
+  document.title = `${r.title} · Grupo Soltura`;
+  main.innerHTML = `<article class="post">
+      <p class="kicker"><a href="#/news">← ${t('nav_news')}</a></p>
+      <h1>${esc(r.title)}</h1>
+      <p class="post-meta muted">${fmtDate(r.published_at, true)}${r.source_name ? ' · ' + esc(r.source_name) : ''}</p>
+      ${r.image_url ? `<figure class="post-img"><img src="${esc(r.image_url)}" alt="" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></figure>` : ''}
+      ${r.excerpt ? `<p class="post-lead">${esc(r.excerpt)}</p>` : ''}
+      <div class="post-body">${sanitizeRich(r.body_html)}</div>
+      ${r.source_url && /^https?:/i.test(r.source_url) ? `<p class="post-src">${nl ? 'Bron' : 'Source'}: <a href="${esc(r.source_url)}" target="_blank" rel="noopener nofollow">${esc(r.source_name || new URL(r.source_url).hostname)}</a></p>` : ''}
+      <p class="post-share"><a class="btn ghost" href="#/news">${nl ? 'Meer nieuws' : 'More news'}</a> <a class="btn wa" href="https://wa.me/?text=${encodeURIComponent(r.title + ' ' + location.origin + location.pathname + '#/news/' + encodeURIComponent(r.slug))}" target="_blank" rel="noopener" data-social="share_wa">${t('share_wa')}</a></p>
+    </article>${homesRail()}`;
+  observeCards(main);
+  track('news_view', null, null, { slug: r.slug });
+}
+async function newsLinks() {
+  const fl = $('#newsFilter');
+  fl.hidden = false;
+  fl.innerHTML = Object.keys(NEWS_SRC).map((k, i) => `<button type="button" data-src="${k}" aria-pressed="${i === 0}">${t('news_' + k)}</button>`).join('');
   const rows = await api('web_news?select=title,title_en,title_nl,lang,url,posted_at,source,image&order=posted_at.desc&limit=200').catch(() => []);
   const fmt = d => new Date(d).toLocaleDateString(S.lang === 'nl' ? 'nl-NL' : 'en-GB', { day: 'numeric', month: 'long' });
   const label = src => ({ idealista: t('news_market'), 'vegabajadigital.com': t('news_region'), 'Spanje Vandaag': t('news_spain') }[src] || src);
@@ -1240,8 +1355,8 @@ async function pageNews() {
   };
   draw();
   // nieuwe berichten zonder foto: thumbnails laten ophalen voor de volgende bezoeker
-  if (rows.some(r => !r.image || !r.title_en) && !sessionStorage.getItem('gs_newsimg')) { try { sessionStorage.setItem('gs_newsimg', '1'); } catch {} fn('web-news-images', {}).catch(() => {}); }
-  $$('.news-filter button').forEach(b => b.addEventListener('click', () => { src = b.dataset.src; shown = 17; $$('.news-filter button').forEach(x => x.setAttribute('aria-pressed', x === b)); draw(); track('news_filter', null, null, { src }); }));
+  try { if (rows.some(r => !r.image || !r.title_en) && !sessionStorage.getItem('gs_newsimg')) { sessionStorage.setItem('gs_newsimg', '1'); fn('web-news-images', {}).catch(() => {}); } } catch {}
+  $$('#newsFilter button').forEach(b => b.addEventListener('click', () => { src = b.dataset.src; shown = 17; $$('#newsFilter button').forEach(x => x.setAttribute('aria-pressed', x === b)); draw(); track('news_filter', null, null, { src }); }));
   $('#newsMore').addEventListener('click', () => { shown += 16; draw(); });
   $('#newsList').addEventListener('click', e => { const a = e.target.closest('a'); if (a) track('news_click', null, null, { src: a.dataset.src }); });
 }
@@ -1293,7 +1408,7 @@ function pageContact() {
       <div class="team-cards">${[2, 3, 4, 6].map(id => { const a = AGENTS[id]; return `<div class="tm"><div class="av">${a.short[0]}</div><div><b>${a.name}</b><span>${a.role[S.lang]}</span>
         <p><a href="https://wa.me/${a.tel.replace('+', '')}" target="_blank" rel="noopener" data-track="whatsapp">WhatsApp</a> · <a href="tel:${a.tel}" data-track="call">${fmtTel(a.tel)}</a></p></div></div>`; }).join('')}</div>
     </div>
-    <div class="box form-card sticky"><h2>${t('c_form_h')}</h2>${richForm('contactForm', 'contact', [{ label: t('f_topic'), opts: t('f_topic_opts') }, { label: t('f_lang'), opts: ['English', 'Nederlands', 'Deutsch', 'Français', 'Español'] }], '')}</div>
+    <div class="box form-card sticky"><h2>${t('c_form_h')}</h2>${richForm('contactForm', 'contact', [{ k: 'topic', label: t('f_topic'), opts: t('f_topic_opts') }, { k: 'preferred_language', label: t('f_lang'), opts: ['English', 'Nederlands', 'Deutsch', 'Français', 'Español'] }], '')}</div>
   </div>`;
 }
 function pagePrivacy() {
@@ -1338,7 +1453,7 @@ function renderPage(h) {
     case 'buy': main.innerHTML = pageBuy(); bindMortgage(null); bindForm($('#buyForm')); break;
     case 'sell': main.innerHTML = pageSell(); bindForm($('#sellForm')); break;
     case 'move': main.innerHTML = pageMove(); bindForm($('#moveForm')); break;
-    case 'news': pageNews(); break;
+    case 'news': pageNews(decodeURIComponent(h.split('/')[2] || '')); break;
     case 'contact': main.innerHTML = pageContact(); bindForm($('#contactForm')); if ('IntersectionObserver' in window) { const o = new IntersectionObserver(es => { if (es[0].isIntersecting) { o.disconnect(); initMap(); } }, { rootMargin: '300px' }); o.observe($('#mapEl')); } else initMap(); break;
     case 'privacy': main.innerHTML = pagePrivacy(); break;
     case 'favorites': main.innerHTML = pageFavs(); break;
@@ -1396,9 +1511,12 @@ async function boot() {
     $('#main').insertAdjacentHTML('afterbegin', `<div class="empty"><h2>${S.lang === 'nl' ? 'Het aanbod laadt even niet' : 'Listings could not load'}</h2><p>${S.lang === 'nl' ? 'Ververs de pagina, of bel ons op +34 966 792 113.' : 'Refresh the page, or call us on +34 966 792 113.'}</p></div>`);
     return;
   }
-  S.all.forEach(p => { S.byRef.set(String(p.reference).toUpperCase(), p); S.byId.set(p.wp_id, p); });
+  S.all.forEach(p => { S.byRef.set(String(p.reference).toUpperCase(), p); S.byId.set(p.id, p); if (p.wp_id) S.byWp.set(Number(p.wp_id), p); });
   // keep only favourites/viewed that still exist
-  S.favs = new Set([...S.favs].filter(id => S.byId.has(id))); ls.set('favs', [...S.favs]); favCount();
+  // bewaarde/bekeken woningen van vóór 18-10 staan op WP-id: omzetten naar de core-uuid; verdwenen woningen vallen weg
+  const toId = x => typeof x === 'number' || /^\d+$/.test(String(x)) ? (S.byWp.get(Number(x)) || {}).id : (S.byId.has(x) ? x : null);
+  S.favs = new Set([...S.favs].map(toId).filter(Boolean)); ls.set('favs', [...S.favs]); favCount();
+  S.viewed = [...new Set(S.viewed.map(toId).filter(Boolean))]; ls.set('viewed', S.viewed);
   if (currentPage === 'home') { countUp(); renderBar(); renderFeed(); }
   else renderPage(S.lastRoute);
   const m = location.hash.match(/^#\/home\/(.+)$/);

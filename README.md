@@ -10,21 +10,24 @@ Statische site voor GitHub Pages. Geen build-stap: `index.html`, `css/site.css` 
 - **Bewegend beeld**: drie sfeerclips (Higgsfield, eenmalig) alleen als decoratie op home/emigreren/verkopen; op hover scrubt een kaart door de foto's.
 - Talen: EN + NL.
 
-## Data (Supabase `wuvpbwowdycsdlrqkaoq`)
+## Data (Supabase `wuvpbwowdycsdlrqkaoq`) — sinds 18-10-2026 volledig op NEXUS core
+Migratie: `nexus_core_011_site_views` (bron in het NEXUS-pakket `011_site_views.sql`). De site gebruikt de anon key; core-tabellen blijven dicht, de views draaien met `security_invoker=false`.
+
 | Object | Rol |
 |---|---|
-| `web_properties` (view) | Live aanbod, alleen veilige velden (geen eigenaar, huisnummer, sleutels, interne notities). Coördinaten afgerond op ~100 m. |
-| `web_media_cache` | WP-attachment-id → foto-URL voor galerijen. Gevuld voor alle live woningen (15.329 foto's, 17-10-2026); nieuwe woningen worden bij openen aangevuld via edge function `web-media-sync`. |
-| `web_reviews` / `web_reviews_summary` (views) | Laatste Google-reviews (≥4 sterren, zonder naam reviewer) + score/aantal. Getoond in de feed, boven de footer, als badge in de hero en op de woningpagina. |
-| `web_news` (view) | Nieuwskoppen uit `news_posts` + thumbnail uit `web_news_media` (og:image, opgehaald door edge function `web-news-images`; de nieuwspagina roept die aan zodra er berichten zonder foto zijn). |
-| `web_events` | Anonieme interactie-events (insert-only). `web_engagement_daily` telt woningen per sessie. |
-| `web_assistant_log` | Vragen aan de assistent (IP alleen gehasht). |
-| `web_contact_requests` | Contact/bezichtiging/waardebepaling. |
-| bucket `web-media` | De drie sfeervideo's. |
+| `web_properties` (view) | Live aanbod uit `core.properties` + `property_texts` + `property_media`: alleen `published` en status `available`/`under_offer`, alleen veilige velden (geen eigenaar, huisnummer, sleutels, notities, transacties/commissies). Coördinaten afgerond op ~100 m. Sleutel = `id` (core-uuid); `wp_id` alleen nog voor oude woningen. `image` = hoofdfoto, `photos` = galerij (Storage `property-media`, nooit wp-content), `photo_count`, `url_new`. |
+| `web_property_geo` (view) | Afstand strand/vliegvelden per woning (kolom `id`). |
+| `web_blog_posts` (view) | Eigen blog (`core.blog_posts`, gepubliceerd, niet verlopen, NL/EN). Nieuwspagina + detail `#/news/<slug>`. Zolang de blog leeg is: koppen uit `web_news` als externe links. |
+| `web_reviews` / `web_reviews_summary` (views) | Google-reviews (≥4 sterren, zonder naam) + score/aantal. |
+| `web_config` | Tarieven (numeriek) en `site_base_url` (`value_text`, functie `nexus2_site_base_url()`): publieke basis-URL voor `url_new` en de partner-feed. Na de domeinwissel alleen deze waarde aanpassen. |
+| `web_events` | Anonieme interactie-events (insert-only), met `wp_id` (oud) en `property_id` (uuid). |
+| bucket `web-media` | Sfeervideo's en kantoorfoto. Logo via Cloudinary (`soltura/assets/brochure`). |
 
-Edge functions (bron van `web-assistant` in `supabase/functions/`): `web-assistant` (Claude Haiku), `web-contact` (opslaan + Brevo-mail, POC: naar rick@), `web-media-sync` (galerijfoto's), `web-gallery` (reserve).
+Edge functions: `web-assistant` (v9: woning op `id`/referentie), `web-contact` (v4: form_id, page_url, utm, losse velden, voor-/achternaam, property_id/reference → web_contact_requests → JARVIS WebFormIntake-v2 → core). `web-media-sync`/`web_media_cache` worden niet meer gebruikt.
 
-Instelbare waarden (belastingtarieven, hypotheekrente, all-in tarief): tabel `web_config`.
+Formuliervelden naar web-contact: `form_id` (viewForm/guideForm/buyForm/sellForm/moveForm/contactForm/nl-form), `page_url`, `utm` (utm_* uit de URL, per sessie bewaard), `lang`, `vid`, bij woningen `property_id` + `reference` (+ `wp_id` indien aanwezig); losse velden `budget`, `timing`, `area`, `property_type`, `topic`, `preferred_language`, `household`; nieuwsbrief `first_name`/`last_name` + `interests` (market_report, monthly_matches, price_reduced, weekly_news).
+
+De site is domein-onafhankelijk (alle links via `location.origin`); hij draait zonder wijziging op gruposoltura.com.
 
 ## Pagina's
 Woningen, Kopen, Verkopen, Emigreren, Nieuws, Contact, Privacy (`#/privacy`). Team is opgegaan in Contact (`#/team` stuurt door). Onderaan elke pagina: Google-reviews, nieuwsbrief, socials, footer.
@@ -36,11 +39,8 @@ Zonder toestemming worden bezoeken anoniem per sessie geteld (niets opgeslagen o
 - Privacytekst is een concept en moet juridisch worden nagelezen; e-mailadres info@gruposoltura.com aangenomen.
 - `property_distance_sea` staat bijna overal op 7000 (CPR-standaardwaarde) en wordt als onbekend behandeld.
 - Marktvergelijking (`property_price_m2`) is gebaseerd op bestaande bouw; voor nieuwbouw wordt hij niet getoond.
-- `web_properties` telt 507 woningen, de huidige site 448: verschil uitzoeken vóór migratie.
+- `web_properties` telt 518 woningen (18-10-2026: gepubliceerd + beschikbaar/onder bod in core).
 - De sfeervideo's zijn 13–21 MB; comprimeren naar ~3 MB vóór livegang.
 
 ## Migratieplan: punten vanuit de nieuwe site
-- **`wp-content/uploads` kopiëren naar Supabase Storage, vóór WordPress uitgaat.** Alle woningfoto's (15.329 in `web_media_cache`), hoofdfoto's (`nexus_property_raw.image`) en het logo verwijzen nog naar `gruposoltura.com/wp-content/uploads/`. Zonder kopie vallen alle foto's op de nieuwe site weg. Daarna: URL's in `web_media_cache` en de hoofdfoto-bron omzetten naar de Storage-URL's (één update-query op het pad-deel).
-- Logo naar eigen opslag (nu `wp-content/uploads/2020/06/Soltura-logo-345x120-1.png`).
-- `web-media-sync` en de koppeling via JARVIS-Infra-WpProbe vervallen na de migratie; foto's worden dan direct in Supabase beheerd.
-- Nieuwsbrief/contact van de nieuwe site schrijven nu alleen naar `web_contact_requests` (+ mail naar rick@); bij de migratie aansluiten op contacts/opt-ins en de bevestigingsmail.
+Afgerond 18-10-2026: woningen, foto's (Storage), nieuws (eigen blog) en formulieren lopen via core. Logo en favicon staan niet meer op wp-content.
