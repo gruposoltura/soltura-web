@@ -218,3 +218,13 @@ Object.assign(I18N.nl, {
   st_note_sold: 'Deze woning is verkocht. We hebben vaak iets vergelijkbaars, soms nog voordat het online staat.',
   st_similar: 'Bekijk vergelijkbare woningen',
 });
+
+// zoeken op referentienummer
+Object.assign(I18N.en, {
+  ref_open: r => `Opening ${r} for you.`, ref_many: 'Several homes have that number. Which one do you mean?',
+  ref_missing_h: r => `${r} is not online at the moment.`, ref_missing_p: 'It may have been sold or reserved, or the number is slightly different. Send it to us and we will tell you straight away.',
+});
+Object.assign(I18N.nl, {
+  ref_open: r => `We openen ${r} voor je.`, ref_many: 'Meerdere woningen hebben dat nummer. Welke bedoel je?',
+  ref_missing_h: r => `${r} staat op dit moment niet online.`, ref_missing_p: 'Hij is misschien verkocht of gereserveerd, of het nummer wijkt iets af. Stuur het ons, dan laten we het je meteen weten.',
+});

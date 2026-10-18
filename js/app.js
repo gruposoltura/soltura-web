@@ -685,9 +685,41 @@ function moment(pos) {
   return '';
 }
 
+// referentienummer herkennen (RH500, rh 500, VWX-541, of alleen de cijfers als die uniek zijn): direct de woning openen
+function findRef(q) {
+  const up = q.toUpperCase();
+  const toks = up.match(/[A-Z]{1,6}[\s.\-]?\d{2,6}/g) || [];
+  for (const tk of toks) { const k = tk.replace(/[\s.\-]/g, ''); if (S.byRef.has(k)) return { p: S.byRef.get(k) }; }
+  const digits = up.replace(/^(REF\.?|REFERENTIE|REFERENCE)\s*/, '').trim();
+  if (/^\d{3,6}$/.test(digits)) {
+    const hits = S.all.filter(p => String(p.reference).toUpperCase().replace(/^[A-Z]+/, '') === digits);
+    if (hits.length === 1) return { p: hits[0] };
+    if (hits.length > 1) return { many: hits };
+  }
+  // lijkt op een referentie (één woord, letters+cijfers) maar staat niet online
+  const bare = up.replace(/^(REF\.?|REFERENTIE|REFERENCE)\s*/, '').trim();
+  if (/^[A-Z]{2,4}[.\-]?\d{3,5}$/.test(bare)) return { missing: bare.replace(/[.\-]/g, '') };
+  return null;
+}
 async function aiSearch(q) {
   q = (q || '').trim(); if (!q) return;
   const btn = $('#askBtn'), out = $('#aiReply');
+  const ref = S.all.length ? findRef(q) : null;
+  if (ref) {
+    out.hidden = false; out.className = 'ai-bubble in' + (ref.p ? '' : ' warn');
+    if (ref.p) {
+      out.innerHTML = `<span class="ab-av">S</span><div class="ab-body"><p class="ab-reply">${t('ref_open', esc(ref.p.reference))}</p></div>`;
+      track('search_ref', null, null, { ref: ref.p.reference });
+      location.hash = '#/home/' + encodeURIComponent(ref.p.reference);
+    } else if (ref.many) {
+      S.sugg = ref.many.map(p => ({ ref: p.reference }));
+      out.innerHTML = `<span class="ab-av">S</span><div class="ab-body"><p class="ab-reply">${t('ref_many')}</p><div class="ab-sugg">${ref.many.slice(0, 8).map(p => `<a class="ab-ref" href="#/home/${encodeURIComponent(p.reference)}">${esc(p.reference)} <small>${esc(p.town || '')}</small></a>`).join('')}</div></div>`;
+    } else {
+      out.innerHTML = `<span class="ab-av">S</span><div class="ab-body"><div class="ab-none"><b>${t('ref_missing_h', esc(ref.missing))}</b> ${t('ref_missing_p')}</div><p class="ab-tip"><a href="https://wa.me/34664414515?text=${encodeURIComponent(t('wa_text', ref.missing))}" target="_blank" rel="noopener">WhatsApp</a> · <a href="#/contact">${t('nav_contact')}</a></p></div>`;
+      track('search_ref_missing', null, null, { ref: ref.missing });
+    }
+    return;
+  }
   btn.disabled = true; btn.textContent = t('asking');
   out.hidden = false; out.className = 'ai-bubble'; out.innerHTML = `<span class="ab-av">S</span><div class="ab-body"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
   track('search', null, null, { q: q.slice(0, 200) });
