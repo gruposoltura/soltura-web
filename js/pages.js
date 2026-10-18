@@ -228,3 +228,13 @@ Object.assign(I18N.nl, {
   ref_open: r => `We openen ${r} voor je.`, ref_many: 'Meerdere woningen hebben dat nummer. Welke bedoel je?',
   ref_missing_h: r => `${r} staat op dit moment niet online.`, ref_missing_p: 'Hij is misschien verkocht of gereserveerd, of het nummer wijkt iets af. Stuur het ons, dan laten we het je meteen weten.',
 });
+
+// zoeken op begin van een referentienummer
+Object.assign(I18N.en, {
+  ref_short: 'Ref.', ref_prefix_ok: (n, p) => `We found ${n} homes whose reference starts with ${p}. They are below.`,
+  ref_prefix_none: p => `No home online has a reference starting with ${p}.`, ref_prefix_tip: 'Check the letters, or type the full reference number, for example RH500.',
+});
+Object.assign(I18N.nl, {
+  ref_short: 'Ref.', ref_prefix_ok: (n, p) => `We vonden ${n} woningen waarvan de referentie begint met ${p}. Ze staan hieronder.`,
+  ref_prefix_none: p => `Er staat geen woning online met een referentie die begint met ${p}.`, ref_prefix_tip: 'Controleer de letters, of typ het volledige referentienummer, bijvoorbeeld RH500.',
+});

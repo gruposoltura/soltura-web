@@ -41,7 +41,7 @@ const S = {
   lastRoute: '#/', openSince: 0, openId: null,
 };
 if (S.vid) ls.set('vid', S.vid); else { try { localStorage.removeItem('gs_vid'); } catch {} }
-function blankFilters() { return { towns: [], categories: [], price_min: null, price_max: null, beds_min: null, baths_min: null, pool: null, newbuild: null, max_sea_km: null, reduced_only: false }; }
+function blankFilters() { return { towns: [], categories: [], price_min: null, price_max: null, beds_min: null, baths_min: null, pool: null, newbuild: null, max_sea_km: null, reduced_only: false, ref_prefix: null }; }
 function rid() { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
 
 // ---------- helpers ----------
@@ -170,6 +170,7 @@ function score(p, pr) {
 
 // ---------- filtering ----------
 function match(p, f = S.f, type = S.type) {
+  if (f.ref_prefix && !String(p.reference || '').toUpperCase().startsWith(f.ref_prefix)) return false;
   if (type === 'resale' && p.is_newbuild) return false;
   if (type === 'new' && !p.is_newbuild) return false;
   if (f.newbuild === true && !p.is_newbuild) return false;
@@ -604,6 +605,7 @@ function renderBar() {
   const bar = $('#bar'); if (!bar) return;
   const f = S.f, pills = [];
   const pill = (txt, key) => pills.push(`<span class="filter-pill">${esc(txt)}<button type="button" data-clear="${key}" aria-label="${t('clear')}">×</button></span>`);
+  if (f.ref_prefix) pill(`${t('ref_short')} ${f.ref_prefix}…`, 'ref_prefix');
   if (f.towns.length) pill(f.towns.join(', '), 'towns');
   if (f.categories.length) pill(f.categories.map(catName).join(', '), 'categories');
   if (f.price_min || f.price_max) pill(`${f.price_min ? eur(f.price_min) : '€0'} – ${f.price_max ? eur(f.price_max) : '…'}`, 'price');
@@ -685,6 +687,24 @@ function moment(pos) {
   return '';
 }
 
+// begin van een referentienummer, alleen als de vraag dat duidelijk maakt:
+// "referentie RH", "ref begint met VWX", "alle huizen die beginnen met RH", "RH*". Losse letters zonder zo'n aanwijzing gaan gewoon naar de assistent.
+function findRefPrefix(q) {
+  const qs = q.trim();
+  const known = pre => S.all.some(p => String(p.reference || '').toUpperCase().startsWith(pre));
+  const pats = [
+    /^([A-Za-z]{1,6}\d{0,4})\s*[*…]$/,                                                        // RH*  of  RH…
+    /\b(?:referen\w*|ref\.?|refnr\.?|referencia|código)\s*(?:nummers?|numbers?|nrs?\.?)?\s*(?:die|dat|that|which|que)?\s*(?:begin\w*|start\w*|empie\w*)?\s*(?:met|with|con|por)?\s*["'“‘]?([A-Za-z]{1,6}\d{0,4})["'”’]?\s*[*…]?\s*$/i,
+    /\b(?:begin\w*|start\w*|empie\w*)\s+(?:met|with|con|por)\s+(?:de\s+letters?\s+|the\s+letters?\s+|las\s+letras\s+)?["'“‘]?([A-Za-z]{1,6}\d{0,4})["'”’]?\s*[*…]?\s*$/i,
+  ];
+  for (let i = 0; i < pats.length; i++) {
+    const m = qs.match(pats[i]); if (!m) continue;
+    const pre = m[1].toUpperCase();
+    if (known(pre)) return pre;
+    if (i < 2) return { none: pre }; // alleen bij expliciet 'referentie' of 'RH*' melden dat het niet bestaat
+  }
+  return null;
+}
 // referentienummer herkennen (RH500, rh 500, VWX-541, of alleen de cijfers als die uniek zijn): direct de woning openen
 function findRef(q) {
   const up = q.toUpperCase();
@@ -704,6 +724,23 @@ function findRef(q) {
 async function aiSearch(q) {
   q = (q || '').trim(); if (!q) return;
   const btn = $('#askBtn'), out = $('#aiReply');
+  const pre = S.all.length ? findRefPrefix(q) : null;
+  if (pre) {
+    out.hidden = false;
+    if (typeof pre === 'string') {
+      S.f = Object.assign(blankFilters(), { ref_prefix: pre }); S.type = 'all'; S.shown = PAGE;
+      const n = S.all.filter(p => match(p)).length;
+      out.className = 'ai-bubble in';
+      out.innerHTML = `<span class="ab-av">S</span><div class="ab-body"><p class="ab-reply">${t('ref_prefix_ok', n, esc(pre))}</p></div>`;
+      track('search_ref_prefix', null, n, { pre });
+      renderBar(); renderFeed();
+      setTimeout(() => $('#bar').scrollIntoView({ behavior: 'smooth', block: 'start' }), 900);
+    } else {
+      out.className = 'ai-bubble in warn';
+      out.innerHTML = `<span class="ab-av">S</span><div class="ab-body"><div class="ab-none"><b>${t('ref_prefix_none', esc(pre.none))}</b> ${t('ref_prefix_tip')}</div></div>`;
+    }
+    return;
+  }
   const ref = S.all.length ? findRef(q) : null;
   if (ref) {
     out.hidden = false; out.className = 'ai-bubble in' + (ref.p ? '' : ' warn');
