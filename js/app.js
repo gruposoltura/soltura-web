@@ -685,6 +685,8 @@ function moment(pos) {
   if (pos === 24) return rail(t('m_value_h'), t('m_value_p'), pick((a, b) => a.market_deviation_pct - b.market_deviation_pct, p => belowMkt(p) > 0));
   if (pos === 30) return `<div class="moment rv-moment" data-reviews></div>`;
   if (pos === 36 && S.viewed.length >= 3) return rail(t('m_recent_h'), '', S.viewed.slice(0, 12).map(id => S.byId.get(id)).filter(Boolean));
+  // nieuwsbrief-aanmelding tussen de woningen (zelfde blok als de pop-up), zolang iemand nog niet is aangemeld
+  if ((pos === 40 || pos === 72) && !ls.get('nl_done', 0)) return `<div class="moment nl-moment">${newsletterHtml('inline')}</div>`;
   if (pos === 48) return `<div class="story">${video(VIDEO.villa)}<div><h2>${t('story_sell_h')}</h2><p>${t('story_sell_p')}</p><a class="btn lemon" href="#/sell">${t('story_sell_btn')}</a></div></div>`;
   return '';
 }
