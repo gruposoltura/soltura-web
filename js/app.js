@@ -107,9 +107,11 @@ const UTM = (() => {
     return JSON.parse(sessionStorage.getItem('gs_utm') || 'null');
   } catch { return null; }
 })();
-// vaste velden voor web-contact v4: form_id, page_url, utm, taal, bezoekerscode, woning (uuid + referentie)
-function formMeta(formId, p) {
-  const m = { form_id: formId, page_url: location.href.slice(0, 300), lang: S.lang, vid: S.vid };
+// Beschrijvende formulier-ID per ingang; NEXUS toont hier een leesbare naam bij (core.request_forms).
+const FORM_NAMES = { viewForm: 'web-property-viewing', guideForm: 'web-property-buying-guide', buyForm: 'web-buy-costs', sellForm: 'web-sell-valuation', moveForm: 'web-move-intake', contactForm: 'web-contact' };
+// vaste velden voor web-contact: form_id (beschrijvend), form_el (technisch), page_url, utm, taal, bezoekerscode, woning (uuid + referentie)
+function formMeta(formId, p, name) {
+  const m = { form_id: name || FORM_NAMES[formId] || formId, form_el: formId, page_url: location.href.slice(0, 300), lang: S.lang, vid: S.vid };
   if (UTM) m.utm = UTM;
   if (p) Object.assign(m, { property_id: p.id, reference: p.reference, wp_id: p.wp_id || null });
   return m;
@@ -520,7 +522,8 @@ function bindNewsletters(root = document) {
       if (!/\S+@\S+\.\S+/.test(email)) { msg.textContent = t('form_err'); return; }
       $('.nl-btn', form).disabled = true;
       const first = (fd.get('first') || '').trim(), last = (fd.get('last') || '').trim();
-      const r = await fn('web-contact', { kind: 'newsletter', ...formMeta('nl-form', null), name: `${first} ${last}`.trim(), first, last, first_name: first, last_name: last,
+      const nlv = box.classList.contains('pop') ? 'popup' : box.closest('#feed') ? 'feed' : 'footer';
+      const r = await fn('web-contact', { kind: 'newsletter', ...formMeta('nl-form', null, 'web-newsletter-' + nlv), name: `${first} ${last}`.trim(), first, last, first_name: first, last_name: last,
         email, interests, nl_variant: box.classList.contains('pop') ? 'pop' : box.closest('#feed') ? 'feed' : 'inline', website: fd.get('website') }).catch(() => ({ ok: false }));
       $('.nl-btn', form).disabled = false;
       if (r.ok) {
@@ -987,6 +990,14 @@ function bindMortgage(p) {
   $$('[data-ltv]', box).forEach(b => b.addEventListener('click', () => { $('#mAmt').value = num(Math.round(p.price * b.dataset.ltv / 100 / 1000) * 1000); onInput(); }));
   calc();
 }
+function openViewForm(name = 'web-property-viewing', kind = 'viewing') {
+  const f = $('#viewForm'); if (!f) return null;
+  const ta = $('textarea', f), k = $('input[name=kind]', f);
+  if (f.dataset.vmsg === undefined) f.dataset.vmsg = ta.value;
+  if (kind === 'viewing' && k.value !== 'viewing') ta.value = f.dataset.vmsg;
+  k.value = kind; f.dataset.fname = name; f.hidden = false;
+  return f;
+}
 function contactFields(kind, p) {
   return `<input type="hidden" name="kind" value="${kind}">
     <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -1008,7 +1019,7 @@ function bindForm(form, p) {
     const out = $('.ok', form);
     if (!/\S+@\S+\.\S+/.test(d.email || '') && (d.phone || '').length < 6) { out.style.color = 'var(--salina)'; out.textContent = t('form_err'); return; }
     $('button[type=submit]', form).disabled = true;
-    const r = await fn('web-contact', { ...d, ...loose, ...formMeta(form.id, p) }).catch(() => ({ ok: false }));
+    const r = await fn('web-contact', { ...d, ...loose, ...formMeta(form.id, p, form.dataset.fname) }).catch(() => ({ ok: false }));
     out.style.color = ''; out.textContent = r.ok ? t('form_ok') : t('form_err');
     if (r.ok) { track('contact_sent', p?.id || null, null, { kind: d.kind }); $$('input,textarea', form).forEach(i => i.type !== 'hidden' && !i.dataset.keep && (i.value = '')); }
     $('button[type=submit]', form).disabled = false;
@@ -1024,7 +1035,7 @@ function bindSheet(p, waHref) {
     try { if (navigator.share) await navigator.share({ title: title(p), url }); else { await navigator.clipboard.writeText(url); $('#shShare').style.background = 'var(--lemon-soft)'; } } catch {}
     track('share', p.id);
   });
-  $('#viewBtn').addEventListener('click', () => { const f = $('#viewForm'); f.hidden = !f.hidden; if (!f.hidden) { $('input[name=name]', f).focus(); track('contact_open', p.id); } });
+  $('#viewBtn').addEventListener('click', () => { const f = $('#viewForm'); if (f.hidden) openViewForm(); else f.hidden = true; if (!f.hidden) { $('input[name=name]', f).focus(); track('contact_open', p.id); } });
   bindForm($('#viewForm'), p);
   bindGuide(p);
   bindMortgage(p);
@@ -1034,7 +1045,7 @@ function bindSheet(p, waHref) {
     track('quick_action', p.id, null, { id });
     el.scrollIntoView({ behavior: 'smooth', block: id === 'gal' ? 'start' : 'center' });
     if (id === 'chatBox') setTimeout(() => $('#chatIn').focus({ preventScroll: true }), 500);
-    if (id === 'viewBtn') setTimeout(() => { $('#viewForm').hidden = false; }, 400);
+    if (id === 'viewBtn') setTimeout(() => { openViewForm(); }, 400);
     if (id === 'guideBox') setTimeout(() => { const f = $('#guideForm'); if (f) { f.hidden = false; $('#guideBtn').hidden = true; } }, 400);
     if (id === 'mortBox' || id === 'chatBox' || id === 'guideBox') { el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1400); }
   }));
@@ -1054,7 +1065,7 @@ function bindSheet(p, waHref) {
     $('.typing', log).remove();
     log.insertAdjacentHTML('beforeend', `<div class="msg a">${esc(reply)}${r.handoff ? `<br><br>${t('handoff')} <a href="${waHref}" target="_blank" rel="noopener">WhatsApp</a>` : ''}</div>`);
     log.scrollTop = log.scrollHeight;
-    if (r.handoff) { $('#viewForm').hidden = false; }
+    if (r.handoff) { openViewForm('web-property-viewing-assistant'); }
     $('#chatSugg').innerHTML = (r.suggestions || []).slice(0, 3).map(s => `<button type="button">${esc(s)}</button>`).join('');
   };
   $('#chatSugg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) ask(b.textContent); });
@@ -1131,8 +1142,7 @@ function fillDetail(d) {
         <a class="btn wa" href="https://wa.me/${agentOf(d).tel.replace('+', '')}?text=${encodeURIComponent(t('allin_wa', d.reference))}" target="_blank" rel="noopener" data-track="whatsapp_costs">WhatsApp</a></div></div>
       <p class="note">${t('costs_note')}</p></div>`;
     $('#costAsk').addEventListener('click', () => {
-      const f = $('#viewForm'); f.hidden = false;
-      $('input[name=kind]', f).value = 'costs';
+      const f = openViewForm('web-property-costs', 'costs');
       $('textarea', f).value = t('allin_msg', d.reference);
       f.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => $('input[name=name]', f).focus({ preventScroll: true }), 450);
       track('costs_ask', d.id);
@@ -1220,7 +1230,7 @@ function openLightbox(urls, start = 0) {
   $('.lb-prev', lb).onclick = () => go(cur() - 1);
   $('.lb-next', lb).onclick = () => go(cur() + 1);
   const ask = $('#lbAsk', lb); if (ask) ask.onclick = () => { close(); $('#chatBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => $('#chatIn').focus({ preventScroll: true }), 450); };
-  const vw = $('#lbView', lb); if (vw) vw.onclick = () => { close(); $('#viewForm').hidden = false; $('#viewForm').scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+  const vw = $('#lbView', lb); if (vw) vw.onclick = () => { close(); openViewForm('web-property-viewing-gallery'); $('#viewForm').scrollIntoView({ behavior: 'smooth', block: 'center' }); };
   if (lb.requestFullscreen && matchMedia('(pointer: fine)').matches) lb.requestFullscreen().catch(() => {});
   track('fullscreen', S.openId, urls.length);
 }
