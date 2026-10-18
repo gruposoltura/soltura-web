@@ -33,7 +33,12 @@ De site is domein-onafhankelijk (alle links via `location.origin`); hij draait z
 Woningen, Kopen, Verkopen, Emigreren, Nieuws, Contact, Privacy (`#/privacy`). Team is opgegaan in Contact (`#/team` stuurt door). Onderaan elke pagina: Google-reviews, nieuwsbrief, socials, footer.
 
 ## Privacy / cookiekeuze
-Zonder toestemming worden bezoeken anoniem per sessie geteld (niets opgeslagen op het apparaat). Met toestemming bewaart de browser een willekeurige bezoekerscode (`gs_vid`). Geen Google Analytics, geen advertentiecookies, geen Google Fonts.
+Zonder toestemming worden bezoeken anoniem per sessie geteld (niets opgeslagen op het apparaat). Met toestemming bewaart de browser een willekeurige bezoekerscode (`gs_vid`). Geen advertentiecookies, geen Google Fonts.
+
+## Meting (sinds 18-10-2026)
+- **Google Analytics 4** via de Google-tag `GT-T5MHQ45` (dezelfde als Site Kit op de oude WordPress; GA4-property 335774479). Consent Mode v2: standaard alles `denied` (cookieloze pings), `analytics_storage` wordt `granted` na 'Ja' in de cookiekeuze; advertentie-opslag blijft altijd `denied`. Cookiekeuze is geversioneerd (`gs_consent_v` = 2): wie vóór de GA-tekst koos, krijgt de vraag opnieuw.
+- Hash-routes worden als pad naar GA4 gestuurd (`#/home/RH550` -> `/home/RH550`), met eigen `page_view` (`send_page_view: false`). Eventkoppeling in `GA_MAP` (app.js): `view_item`, `generate_lead` (contact/koopgids), `sign_up` (nieuwsbrief), `search`, `add_to_wishlist`, `share`, `contact_whatsapp`, `contact_call`, …
+- **Eigen meting** blijft: `web_events` -> views `bridge_site_daily` / `bridge_site_top_properties` (Bridge kpi.html) en RPC `nexus_property_web_stats` (NEXUS woning). Terugkerende bezoekers = bezoekerscode (`vid`) die op een eerdere dag al gezien is.
 
 ## Bekende punten
 - Privacytekst is een concept en moet juridisch worden nagelezen; e-mailadres info@gruposoltura.com aangenomen.

@@ -37,12 +37,34 @@ const S = {
   media: new Map(),
   cfg: { itp_resale_pct: 9, iva_newbuild_pct: 10, ajd_newbuild_pct: 1.5, buyer_all_in_eur: 0 },
   // bezoekerscode alleen in de browser bewaren na toestemming; zonder toestemming tellen we anoniem per sessie (in geheugen)
-  vid: ls.get('consent', null) === 'yes' ? (ls.get('vid', null) || rid()) : null, sid: rid(),
+  vid: ls.get('consent', null) === 'yes' && ls.get('consent_v', 0) >= 2 ? (ls.get('vid', null) || rid()) : null, sid: rid(), gaRef: null,
   lastRoute: '#/', openSince: 0, openId: null,
 };
 if (S.vid) ls.set('vid', S.vid); else { try { localStorage.removeItem('gs_vid'); } catch {} }
 function blankFilters() { return { towns: [], categories: [], price_min: null, price_max: null, beds_min: null, baths_min: null, pool: null, newbuild: null, max_sea_km: null, reduced_only: false, ref_prefix: null }; }
 function rid() { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
+
+// ---------- Google Analytics 4 (Google-tag van Site Kit, GA4-property 335774479) ----------
+// Consent Mode v2: standaard alles 'denied' -> GA4 ontvangt alleen cookieloze pings (geen cookies, geen ID op het apparaat).
+// Pas na 'Ja' in de cookiekeuze wordt analytics_storage 'granted'. Advertentie-opslag blijft altijd 'denied'.
+// Routes zijn hash-routes (#/home/REF); GA4 knipt de # weg, dus we sturen zelf page_view met een padvorm (/home/REF).
+const GTAG = 'GT-T5MHQ45';
+const CONSENT_V = 2; // v2 (18-10-2026): cookiekeuze noemt nu Google Analytics -> eerdere keuzes opnieuw vragen
+window.dataLayer = window.dataLayer || [];
+function gtag() { window.dataLayer.push(arguments); }
+const gaGranted = () => ls.get('consent', null) === 'yes' && ls.get('consent_v', 0) >= CONSENT_V;
+gtag('consent', 'default', { analytics_storage: gaGranted() ? 'granted' : 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', wait_for_update: 500 });
+gtag('set', 'url_passthrough', false);
+gtag('set', 'ads_data_redaction', true);
+gtag('js', new Date());
+gtag('config', GTAG, { send_page_view: false, cookie_flags: 'SameSite=Lax;Secure' });
+(() => { const g = document.createElement('script'); g.async = true; g.src = 'https://www.googletagmanager.com/gtag/js?id=' + GTAG; document.head.appendChild(g); })();
+// eigen events -> GA4 (aanbevolen namen waar die bestaan)
+const GA_MAP = { view_property: 'view_item', contact_sent: 'generate_lead', guide_request: 'generate_lead', newsletter_signup: 'sign_up', search: 'search', share: 'share', fav: 'add_to_wishlist', whatsapp: 'contact_whatsapp', call: 'contact_call', contact_open: 'contact_open', assistant: 'assistant_question', mortgage: 'mortgage_calc', costs_ask: 'costs_overview' };
+function gaPath() { const h = (location.hash || '#/').replace(/^#/, ''); return h === '/' ? '/' : h.replace(/\/+$/, ''); }
+function gaPage(title) {
+  try { gtag('event', 'page_view', { page_location: location.origin + gaPath() + location.search, page_path: gaPath(), page_title: title || document.title, language: S.lang, page_referrer: S.gaRef || document.referrer || undefined }); S.gaRef = location.origin + gaPath(); } catch {}
+}
 
 // ---------- helpers ----------
 const $ = (s, el = document) => el.querySelector(s);
@@ -121,11 +143,26 @@ function track(event, pid = null, value = null, meta = null) {
   try {
     const p = pid ? S.byId.get(pid) : null;
     const wp_id = p && p.wp_id ? p.wp_id : null, property_id = p ? p.id : null;
+    gaEvent(event, p, value, meta);
     fetch(SB + '/rest/v1/web_events', {
       method: 'POST', keepalive: true,
       headers: { apikey: KEY, 'content-type': 'application/json', Prefer: 'return=minimal' },
       body: JSON.stringify({ sid: S.sid, vid: S.vid, lang: S.lang, event, wp_id, property_id, value, meta }),
     });
+  } catch {}
+}
+function gaEvent(event, p, value, meta) {
+  try {
+    if (event === 'page') return gaPage();
+    if (event === 'view_property' && p) gaPage(`${title(p)} · ${p.reference} · Grupo Soltura`);
+    const name = GA_MAP[event]; if (!name) return;
+    const prm = { language: S.lang };
+    if (p) Object.assign(prm, { item_id: p.reference, item_category: p.category, item_location: p.town, currency: 'EUR', value: p.price || undefined, items: [{ item_id: p.reference, item_name: title(p), item_category: p.category, price: p.price || undefined, location_id: p.town }] });
+    if (event === 'search' && meta && meta.q) prm.search_term = String(meta.q).slice(0, 100);
+    if (event === 'newsletter_signup') prm.method = 'newsletter';
+    if (event === 'guide_request') prm.lead_type = 'buyer_guide';
+    if (event === 'contact_sent') prm.lead_type = (meta && meta.kind) || 'contact';
+    gtag('event', name, prm);
   } catch {}
 }
 function sanitize(html) {
@@ -455,13 +492,14 @@ function renderFooterStack() {
 
 // ---------- cookiekeuze: statistieken met bezoekerscode alleen na toestemming ----------
 function consentBar(force) {
-  if (!force && ls.get('consent', null)) return;
+  if (!force && ls.get('consent', null) && ls.get('consent_v', 0) >= CONSENT_V) return;
   let bar = $('#consent');
   if (!bar) { bar = document.createElement('div'); bar.id = 'consent'; bar.className = 'consent'; bar.setAttribute('role', 'dialog'); bar.setAttribute('aria-label', t('cc_h')); document.body.appendChild(bar); }
   bar.innerHTML = `<p><b>${t('cc_h')}</b> ${t('cc_p')} <a href="#/privacy">${t('privacy')}</a></p><div><button class="btn ghost" type="button" data-cc="no">${t('cc_no')}</button><button class="btn primary" type="button" data-cc="yes">${t('cc_yes')}</button></div>`;
   $$('[data-cc]', bar).forEach(b => b.addEventListener('click', () => {
     const yes = b.dataset.cc === 'yes';
-    ls.set('consent', yes ? 'yes' : 'no');
+    ls.set('consent', yes ? 'yes' : 'no'); ls.set('consent_v', CONSENT_V);
+    gtag('consent', 'update', { analytics_storage: yes ? 'granted' : 'denied' });
     if (yes) { S.vid = ls.get('vid', null) || rid(); ls.set('vid', S.vid); } else { S.vid = null; try { localStorage.removeItem('gs_vid'); } catch {} }
     track('consent', null, yes ? 1 : 0);
     bar.classList.remove('in'); setTimeout(() => bar.remove(), 300);
