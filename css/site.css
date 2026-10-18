@@ -657,7 +657,11 @@ button,input,select,textarea{font:inherit;color:inherit}
 .consent p{margin:0;font-size:14.5px;line-height:1.5;color:var(--ink-2)}
 .consent b{color:var(--ink)}
 .consent a{color:var(--sea)}
-.consent div{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.consent .cc-btns{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.consent .cc-opts{display:flex;flex-direction:column;gap:8px}
+.consent .cc-opts label{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.45;color:var(--ink-2);cursor:pointer}
+.consent .cc-opts input{margin-top:3px;width:16px;height:16px;flex:0 0 auto;accent-color:var(--sea)}
+.consent .cc-opts input:disabled{opacity:.6}
 .consent .btn{padding:9px 18px;font-size:15px}
 @media (max-width:640px){.consent{left:8px;right:8px;bottom:8px;max-width:none}}
 .foot-links a{white-space:nowrap}
