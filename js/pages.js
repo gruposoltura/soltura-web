@@ -202,3 +202,19 @@ Object.assign(I18N.nl, {
   guide_err: 'Vul je voornaam, achternaam en een geldig e-mailadres in.', guide_ok: n => `Dank je, ${n}. De koopgids komt naar je inbox.`,
   guide_msg: 'Koopgids aangevraagd via de woningpagina.',
 });
+
+// status van de woning
+Object.assign(I18N.en, {
+  st_available: 'Available', st_under_offer: 'Under offer', st_reserved: 'Reserved', st_sold: 'Sold',
+  st_note_under_offer: 'There is an offer on this home. Until it is signed you can still view it and make an offer.',
+  st_note_reserved: 'This home is reserved. If the sale does not go through, it comes back; we can let you know.',
+  st_note_sold: 'This home has been sold. We often have something similar, sometimes before it goes online.',
+  st_similar: 'See similar homes',
+});
+Object.assign(I18N.nl, {
+  st_available: 'Beschikbaar', st_under_offer: 'Onder bod', st_reserved: 'Gereserveerd', st_sold: 'Verkocht',
+  st_note_under_offer: 'Er ligt een bod op deze woning. Zolang er niet getekend is, kun je hem nog bekijken en een bod doen.',
+  st_note_reserved: 'Deze woning is gereserveerd. Gaat de koop niet door, dan komt hij terug; we laten het je graag weten.',
+  st_note_sold: 'Deze woning is verkocht. We hebben vaak iets vergelijkbaars, soms nog voordat het online staat.',
+  st_similar: 'Bekijk vergelijkbare woningen',
+});

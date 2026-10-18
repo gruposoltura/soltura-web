@@ -20,7 +20,7 @@ const OFFICE = 2;
 const PAGE = 24;
 const CAT_NL = { villa: 'Villa', apartment: 'Appartement', bungalow: 'Bungalow', detached: 'Vrijstaand huis', townhouse: 'Rijtjeshuis', penthouse: 'Penthouse', quadrant: 'Hoekwoning (quad)', duplex: 'Duplex', finca: 'Finca', 'semi-detached': 'Twee-onder-een-kap', commercial: 'Bedrijfspand', other: 'Woning', plot: 'Bouwgrond', attic: 'Penthouse' };
 const CAT_EN = { quadrant: 'Quad house', 'semi-detached': 'Semi-detached', attic: 'Penthouse', other: 'Home' };
-const LIST_COLS = 'id,wp_id,reference,category,is_newbuild,town,suburb,price,price_from,previous_price,price_changedate,bedrooms,bathrooms,build_area,plot_area,pool_private,pool_communal,dist_sea_m,label_exclusive,featured,under_offer,list_date,image,photo_count,market_deviation_pct,popularity,agent_wp_id';
+const LIST_COLS = 'id,wp_id,reference,category,is_newbuild,town,suburb,price,price_from,previous_price,price_changedate,bedrooms,bathrooms,build_area,plot_area,pool_private,pool_communal,dist_sea_m,label_exclusive,featured,under_offer,list_date,image,photo_count,market_deviation_pct,popularity,agent_wp_id,status';
 
 // ---------- state ----------
 const ls = {
@@ -157,7 +157,9 @@ function score(p, pr) {
   if (p.list_date) s += Math.max(0, 4 - (Date.now() - new Date(p.list_date)) / 864e5 / 30); // fresh listings
   if (reduced(p)) s += 1.5;
   if (belowMkt(p)) s += 1;
-  if (p.under_offer) s -= 3;
+  if (stOf(p) === 'under_offer') s -= 3;
+  if (stOf(p) === 'reserved') s -= 5;
+  if (stOf(p) === 'sold') s -= 40;
   if (!p.image) s -= 10;
   if (pr) {
     s += 4 * (pr.towns[p.town] || 0) / pr.n + 4 * (pr.cats[p.category] || 0) / pr.n;
@@ -197,19 +199,27 @@ function computeOrder() {
     reduced: (a, b) => (dropPct(b) - dropPct(a)) || (new Date(b.price_changedate || 0) - new Date(a.price_changedate || 0)),
   }[S.sort] || (() => 0);
   list.sort(by);
+  // niet meer beschikbare woningen altijd achteraan (beschikbaar > onder bod > gereserveerd > verkocht)
+  const rank = { available: 0, under_offer: 1, reserved: 2, sold: 3 };
+  list = list.map((p, i) => [p, i]).sort((a, b) => ((rank[stOf(a[0])] || 0) - (rank[stOf(b[0])] || 0)) || a[1] - b[1]).map(x => x[0]);
   S.order = list;
   return list;
 }
 
+// ---------- status: Beschikbaar / Onder bod / Gereserveerd / Verkocht ----------
+const stOf = p => p.status && p.status !== 'draft' ? p.status : (p.under_offer ? 'under_offer' : 'available');
+const isOpen = p => stOf(p) === 'available';
+const statusTag = (p, big) => `<span class="st st-${stOf(p)}${big ? ' big' : ''}"><i></i>${t('st_' + stOf(p))}</span>`;
+
 // ---------- card ----------
 function badges(p) {
   const b = [];
-  if (p.under_offer) b.push(`<span class="badge offer">${t('under_offer')}</span>`);
+  if (stOf(p) === 'sold') return '';
   if (reduced(p)) b.push(`<span class="badge drop">${t('reduced')} −${dropPct(p)}%</span>`);
   if (belowMkt(p)) b.push(`<span class="badge value">${t('below_market', belowMkt(p))}</span>`);
   if (p.is_newbuild) b.push(`<span class="badge new">${t('new_badge')}</span>`);
   if (p.label_exclusive) b.push(`<span class="badge">${t('exclusive')}</span>`);
-  return b.slice(0, 2).join('');
+  return b.slice(0, isOpen(p) ? 2 : 1).join('');
 }
 function priceHtml(p) {
   if (p.price == null) return `<div class="price">${S.lang === 'nl' ? 'Prijs op aanvraag' : 'Price on request'}</div>`;
@@ -228,10 +238,12 @@ function specs(p) {
 function card(p, opts = {}) {
   const fav = S.favs.has(p.id);
   const n = Math.min(p.photo_count || 0, 8);
-  return `<a class="card" href="#/home/${encodeURIComponent(p.reference)}" data-id="${p.id}">
+  return `<a class="card st-card-${stOf(p)}" href="#/home/${encodeURIComponent(p.reference)}" data-id="${p.id}">
     <div class="ph">
+      ${statusTag(p)}
       ${p.image ? `<img class="kb" src="${esc(p.image)}" alt="${esc(title(p))}" loading="${opts.eager ? 'eager' : 'lazy'}" decoding="async">` : ''}
       <div class="badges">${badges(p)}</div>
+      ${stOf(p) === 'sold' ? `<span class="sold-band">${t('st_sold')}</span>` : ''}
       <button class="heart" type="button" aria-pressed="${fav}" aria-label="${S.lang === 'nl' ? 'Bewaren' : 'Save'}" data-fav="${p.id}">${ICON.heart}</button>
       ${n > 1 ? `<div class="dots">${'<i></i>'.repeat(n)}</div>` : ''}
       <span class="ref-tag">${esc(p.reference)}</span>
@@ -658,7 +670,7 @@ function renderFeed(append = false) {
 function moment(pos) {
   const pr = prefs();
   const shownIds = new Set(S.order.slice(0, S.shown).map(p => p.id));
-  const pick = (fnSort, filt, n = 10) => S.all.filter(p => p.image && filt(p) && match(p, blankFilters())).sort(fnSort).slice(0, n);
+  const pick = (fnSort, filt, n = 10) => S.all.filter(p => p.image && isOpen(p) && filt(p) && match(p, blankFilters())).sort(fnSort).slice(0, n);
   const rail = (h, p, items) => items.length < 3 ? '' : `<div class="moment"><h2>${h}</h2>${p ? `<p class="lead">${p}</p>` : ''}<div class="rail">${items.map(x => card(x)).join('')}</div></div>`;
   if (pos === 6) {
     if (pr) return rail(t('m_foryou_h'), t('m_foryou_p'), pick((a, b) => score(b, pr) - score(a, pr), p => !S.viewed.includes(p.id) && !shownIds.has(p.id)));
@@ -765,12 +777,14 @@ async function openSheet(ref) {
       <button class="icon-btn" type="button" data-step="1" aria-label="${t('next_home')}">${ICON.r}</button>
     </div>
     <div class="gal" id="gal"><div class="gal-track" id="galTrack">${p.image ? `<img src="${esc(p.image)}" alt="">` : ''}</div>
-      <button class="nav-g prev" type="button" aria-label="Previous photo">${ICON.l}</button><button class="nav-g next" type="button" aria-label="Next photo">${ICON.r}</button><span class="count" id="galCount"></span><button class="gal-fs" type="button" id="galFs" aria-label="${t('fullscreen')}">${ICON.fs}<span>${t('fullscreen')}</span></button><span class="ref-tag gal-ref">${esc(p.reference)}</span></div>
+      <button class="nav-g prev" type="button" aria-label="Previous photo">${ICON.l}</button><button class="nav-g next" type="button" aria-label="Next photo">${ICON.r}</button><span class="count" id="galCount"></span><button class="gal-fs" type="button" id="galFs" aria-label="${t('fullscreen')}">${ICON.fs}<span>${t('fullscreen')}</span></button><span class="ref-tag gal-ref">${esc(p.reference)}</span>${statusTag(p)}</div>
     <div class="thumbs" id="thumbs"></div>
     <div class="sh-body">
       <div>
         <div class="badges" style="display:flex;gap:6px">${badges(p)}</div>
+        <div class="sh-status">${statusTag(p, true)}</div>
         <h1 id="sheetTitle">${esc(title(p))}</h1>
+        ${isOpen(p) ? '' : `<div class="st-note st-note-${stOf(p)}">${t('st_note_' + stOf(p))} <a href="#shMore" data-scroll>${t('st_similar')}</a></div>`}
         <div class="sh-price">${p.price_from ? `<small style="font-size:16px;font-weight:500">${t('from')}</small>` : ''}${p.price != null ? eur(p.price) : ''}${reduced(p) ? `<s>${eur(p.previous_price)}</s>` : ''}</div>
         <div class="quick-acts">
           <button type="button" data-go="chatBox">${ICON.chat}<span>${t('qa_ask')}</span></button>
@@ -1170,7 +1184,7 @@ function closeReel() { $('#reel').hidden = true; $('#reel').innerHTML = ''; docu
 const P = k => (PAGES[S.lang] || PAGES.en)[k];
 function homesRail(h) {
   const pr = prefs();
-  const items = S.all.filter(p => p.image && !p.under_offer).sort((a, b) => score(b, pr) - score(a, pr)).slice(0, 12);
+  const items = S.all.filter(p => p.image && isOpen(p)).sort((a, b) => score(b, pr) - score(a, pr)).slice(0, 12);
   if (!items.length) return '';
   return `<section class="section"><h2>${h || t('home_rail')}</h2><div class="rail">${items.map(p => card(p)).join('')}</div><p><a class="btn ghost" href="#/">${t('see_all')}</a></p></section>`;
 }

@@ -813,3 +813,26 @@ img,video,svg{max-width:100%}
 .post-src{color:var(--muted);margin-top:26px}
 .post-share{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
 .nc-ex{margin:0;opacity:.85}
+
+/* ===== status van de woning ===== */
+.st{position:absolute;right:10px;bottom:10px;z-index:3;display:inline-flex;align-items:center;gap:6px;padding:5px 11px 5px 9px;border-radius:var(--radius-ui);font:700 12.5px/1 var(--sans);letter-spacing:.02em;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.22)}
+.st i{width:8px;height:8px;border-radius:50%;background:currentColor;opacity:.9}
+.st-available{background:#1A7F43}
+.st-available i{background:#9BF2BE;animation:stPulse 2s ease-in-out infinite}
+.st-under_offer{background:#E07B12}
+.st-reserved{background:var(--lemon);color:var(--ink)}
+.st-sold{background:var(--sea)}
+@keyframes stPulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.st-available i{animation:none}}
+.st.big{position:static;font-size:14px;padding:7px 14px 7px 11px;box-shadow:none}
+.sh-status{margin:2px 0 8px}
+.st-card-sold .ph img{filter:grayscale(.65) brightness(.92)}
+.st-card-reserved .ph img{filter:saturate(.8)}
+.sold-band{position:absolute;z-index:2;top:22px;left:-44px;width:170px;transform:rotate(-35deg);background:var(--sea);color:#fff;text-align:center;font:800 13px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;padding:7px 0;box-shadow:0 4px 10px rgba(0,0,0,.25)}
+.st-card-sold .badges{display:none}
+.st-note{margin:6px 0 12px;padding:12px 14px;border-radius:12px;font-size:15px;line-height:1.5;background:var(--salt);border-left:4px solid var(--ink)}
+.st-note a{font-weight:700;color:var(--sea)}
+.st-note-under_offer{background:#FFF1E0;border-color:#E07B12}
+.st-note-reserved{background:var(--lemon-soft);border-color:var(--lemon)}
+.st-note-sold{background:#FDE8E6;border-color:var(--sea)}
+.gal .st{top:14px;left:14px;right:auto;bottom:auto;font-size:14px;padding:7px 14px 7px 11px}
