@@ -20,7 +20,7 @@ const OFFICE = 2;
 const PAGE = 24;
 const CAT_NL = { villa: 'Villa', apartment: 'Appartement', bungalow: 'Bungalow', detached: 'Vrijstaand huis', townhouse: 'Rijtjeshuis', penthouse: 'Penthouse', quadrant: 'Hoekwoning (quad)', duplex: 'Duplex', finca: 'Finca', 'semi-detached': 'Twee-onder-een-kap', commercial: 'Bedrijfspand', other: 'Woning', plot: 'Bouwgrond', attic: 'Penthouse' };
 const CAT_EN = { quadrant: 'Quad house', 'semi-detached': 'Semi-detached', attic: 'Penthouse', other: 'Home' };
-const LIST_COLS = 'id,wp_id,reference,category,is_newbuild,town,suburb,price,price_from,previous_price,price_changedate,bedrooms,bathrooms,build_area,plot_area,pool_private,pool_communal,dist_sea_m,label_exclusive,featured,under_offer,list_date,image,photo_count,market_deviation_pct,popularity,agent_wp_id,status';
+const LIST_COLS = 'id,wp_id,reference,category,is_newbuild,town,suburb,price,price_from,previous_price,price_changedate,bedrooms,bathrooms,build_area,plot_area,pool_private,pool_communal,dist_sea_m,label_exclusive,featured,under_offer,list_date,image,photo_count,market_deviation_pct,popularity,agent_wp_id,status,is_own';
 
 // ---------- state ----------
 const ls = {
@@ -202,7 +202,9 @@ function computeOrder() {
   list.sort(by);
   // niet meer beschikbare woningen altijd achteraan (beschikbaar > onder bod > gereserveerd > verkocht)
   const rank = { available: 0, under_offer: 1, reserved: 2, sold: 3 };
-  list = list.map((p, i) => [p, i]).sort((a, b) => ((rank[stOf(a[0])] || 0) - (rank[stOf(b[0])] || 0)) || a[1] - b[1]).map(x => x[0]);
+  // bij de standaardvolgorde ('voor jou gekozen') staan onze eigen woningen vooraan
+  const own = p => (S.sort === 'foryou' && !p.is_own) ? 1 : 0;
+  list = list.map((p, i) => [p, i]).sort((a, b) => ((rank[stOf(a[0])] || 0) - (rank[stOf(b[0])] || 0)) || (own(a[0]) - own(b[0])) || a[1] - b[1]).map(x => x[0]);
   S.order = list;
   return list;
 }
