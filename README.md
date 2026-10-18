@@ -38,7 +38,14 @@ Op `#/favorites` staat een zwevend paneel **"Stuur jezelf je favorieten"** (desk
 - Limiet: max 5 favorietenmails per e-mailadres per uur.
 
 ## Pagina's
-Woningen, Kopen, Verkopen, Emigreren, Nieuws, Contact, Privacy (`#/privacy`). Team is opgegaan in Contact (`#/team` stuurt door). Onderaan elke pagina: Google-reviews, nieuwsbrief, socials, footer.
+Woningen, Kopen, Verkopen, Emigreren, Woonplaatsen (`#/area`, `#/area/<slug>`), Nieuws, Contact, Privacy (`#/privacy`). Team is opgegaan in Contact (`#/team` stuurt door). Onderaan elke pagina: Google-reviews, nieuwsbrief, socials, footer.
+
+## Woonplaatsgidsen (sinds 18-10-2026)
+- Tabel `core.town_guides` (één rij per plaats per taal: `slug`, `lang`, `town`, `aliases`, `title`, `lead`, `facts`, `sections`, `photos`, `sources`, `sort`, `status`, `review_notes`), view `web_town_guides` (alleen `published`, foto-URL erbij).
+- Secties met vaste sleutels: housing, work, population, education, distances (tabel), shops, culture, festivals (tabel), health, outdoor, indoor. Tekst-HTML gaat door `sanitizeRich`.
+- Een woning hoort bij een gids als `town` of `suburb` (zonder accenten) gelijk is aan de plaatsnaam of een alias (bv. Ciudad Quesada → Rojales). Het woningpaneel toont dan een link "Wonen in <plaats>"; de gids toont woningen uit die plaats.
+- Foto's: Wikimedia Commons (alleen CC0/PD/CC BY/CC BY-SA), gekopieerd naar Storage `property-media/towns/<slug>/<n>.jpg` door edge function `town-photos` (bron `supabase/functions/town-photos`, sleutel in `public.fn_keys`), getoond via Image Transformations met naamsvermelding.
+- Eerste inhoud: `supabase/seed/town_guides.json` (10 plaatsen, NL+EN). Wijzigen kan direct in `core.town_guides`; open punten per plaats in `review_notes`.
 
 ## Privacy / cookiekeuze
 Zonder toestemming worden bezoeken anoniem per sessie geteld (niets opgeslagen op het apparaat). Met toestemming bewaart de browser een willekeurige bezoekerscode (`gs_vid`). Geen Google Fonts.

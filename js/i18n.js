@@ -1,7 +1,7 @@
 // Grupo Soltura website POC — interface texts (EN / NL)
 window.I18N = {
   en: {
-    call_us: 'Call us', nav_homes: 'Homes', nav_buy: 'Buying', nav_sell: 'Selling', nav_move: 'Move to Spain', nav_team: 'Team', nav_news: 'News', nav_contact: 'Contact',
+    call_us: 'Call us', nav_homes: 'Homes', nav_buy: 'Buying', nav_sell: 'Selling', nav_move: 'Move to Spain', nav_areas: 'Areas', areas_h: 'Living in the Vega Baja', areas_p: 'What is it like to live there? Per town: housing, work, schools, healthcare, shops, festivals and distances to everything you need.', areas_n: n => `${n} home${n === 1 ? '' : 's'} for sale`, areas_cta: (town, n) => `We currently have ${n} home${n === 1 ? '' : 's'} for sale in and around ${town}.`, areas_btn: town => `View homes in ${town}`, areas_link_h: town => `Living in ${town}`, areas_link_p: 'Schools, healthcare, shops, festivals and distances', nav_team: 'Team', nav_news: 'News', nav_contact: 'Contact',
     claim: 'Local experts since 2002, always one step ahead.',
     foot_reg: 'Grupo Soltura S.L. · RAICV 5781 · API 992 Alicante · GIPE 3.473 · AIPP member.',
     privacy: 'Privacy policy',
@@ -86,7 +86,7 @@ window.I18N = {
     home_rail: 'Homes you may like', see_all: 'See all homes',
   },
   nl: {
-    call_us: 'Bel ons', nav_homes: 'Woningen', nav_buy: 'Kopen', nav_sell: 'Verkopen', nav_move: 'Emigreren', nav_team: 'Team', nav_news: 'Nieuws', nav_contact: 'Contact',
+    call_us: 'Bel ons', nav_homes: 'Woningen', nav_buy: 'Kopen', nav_sell: 'Verkopen', nav_move: 'Emigreren', nav_areas: 'Woonplaatsen', areas_h: 'Wonen in de Vega Baja', areas_p: 'Hoe is het om er te wonen? Per plaats: huisvesting, werk, scholen, zorg, winkels, feesten en afstanden tot alles wat je nodig hebt.', areas_n: n => `${n} ${n === 1 ? 'woning' : 'woningen'} te koop`, areas_cta: (town, n) => `We hebben nu ${n} ${n === 1 ? 'woning' : 'woningen'} te koop in en rond ${town}.`, areas_btn: town => `Bekijk woningen in ${town}`, areas_link_h: town => `Wonen in ${town}`, areas_link_p: 'Scholen, zorg, winkels, feesten en afstanden', nav_team: 'Team', nav_news: 'Nieuws', nav_contact: 'Contact',
     claim: 'Lokale experts sinds 2002, altijd een stap vooruit.',
     foot_reg: 'Grupo Soltura S.L. · RAICV 5781 · API 992 Alicante · GIPE 3.473 · lid AIPP.',
     privacy: 'Privacybeleid',

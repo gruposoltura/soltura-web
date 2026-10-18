@@ -984,6 +984,7 @@ async function openSheet(ref) {
       </aside>
     </div>
     <button class="chat-fab" type="button" id="chatFab">${t('ask_fab')}</button>
+    <div class="sh-area" id="shArea"></div>
     <div class="sh-more" id="shMore"></div>
     <div class="sh-next"><button class="btn ghost" type="button" data-step="-1">← ${t('prev_home')}</button><button class="btn primary" type="button" data-step="1">${t('next_home')} →</button></div>`;
   inner.scrollTop = 0;
@@ -1262,6 +1263,7 @@ function similar(p, n = 10) {
   return near.slice(0, n);
 }
 function renderMore(p) {
+  areaLink(p);
   const sim = similar(p);
   const area = S.all.filter(x => x.town === p.town && x.id !== p.id && x.image && !sim.includes(x)).slice(0, 10);
   $('#shMore').innerHTML = (sim.length ? `<h2>${t('similar_h')}</h2><div class="rail">${sim.map(x => card(x)).join('')}</div>` : '')
@@ -1294,8 +1296,8 @@ document.addEventListener('keydown', e => {
 window.addEventListener('pagehide', closeSheetTracking);
 
 // ---------- lightbox: foto's schermvullend ----------
-function openLightbox(urls, start = 0) {
-  const p = S.byId.get(S.openId);
+function openLightbox(urls, start = 0, plain = false) {
+  const p = plain ? null : S.byId.get(S.openId);
   const lb = document.createElement('div');
   lb.className = 'lightbox'; lb.setAttribute('role', 'dialog'); lb.setAttribute('aria-label', t('fullscreen'));
   lb.innerHTML = `<div class="lb-track">${urls.map((u, i) => `<figure><img src="${esc(u)}" alt="" ${Math.abs(i - start) > 2 ? 'loading="lazy"' : ''}></figure>`).join('')}</div>
@@ -1319,7 +1321,7 @@ function openLightbox(urls, start = 0) {
   const ask = $('#lbAsk', lb); if (ask) ask.onclick = () => { close(); $('#chatBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => $('#chatIn').focus({ preventScroll: true }), 450); };
   const vw = $('#lbView', lb); if (vw) vw.onclick = () => { close(); openViewForm('web-property-viewing-gallery'); $('#viewForm').scrollIntoView({ behavior: 'smooth', block: 'center' }); };
   if (lb.requestFullscreen && matchMedia('(pointer: fine)').matches) lb.requestFullscreen().catch(() => {});
-  track('fullscreen', S.openId, urls.length);
+  track('fullscreen', plain ? null : S.openId, urls.length);
 }
 
 // ---------- REEL: full-screen vertical browse ----------
@@ -1408,6 +1410,7 @@ function pageMove() {
   return `<section class="page-hero">${video(VIDEO.village)}<div><p class="kicker">${t('nav_move')}</p><h1>${c.h}</h1><p>${c.lead}</p></div></section>
     <div class="pg">
       <div class="stages">${c.stages.map(([h, p], i) => `<div class="stage"><span>${i + 1}</span><h3>${h}</h3><p>${p}</p></div>`).join('')}</div>
+      <p class="move-areas"><a href="#/area">${t('areas_h')}: ${S.lang === 'nl' ? 'lees per woonplaats over scholen, zorg, winkels en feesten' : 'read about schools, healthcare, shops and festivals per town'} →</a></p>
       <div class="buy-grid move-grid">
         <div class="acc">${c.topics.map(([h, p], i) => `<details${i === 0 ? ' open' : ''}><summary>${h}</summary><p>${p}</p></details>`).join('')}
           <p class="disclaimer">${c.disclaimer}</p></div>
@@ -1573,6 +1576,101 @@ async function initMap() {
   map.on('click', () => map.scrollWheelZoom.enable());
   map.on('mouseout', () => map.scrollWheelZoom.disable());
 }
+// ---------- woonplaatsen: gids per plaats (core.town_guides via web_town_guides) — #/area en #/area/<slug> ----------
+// Woningen horen bij een gids als hun plaats (of wijk) overeenkomt met de plaatsnaam of een alias van de gids.
+const fold = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+const TG = { list: {}, load: {} };
+function townGuides() {
+  const lang = S.lang;
+  if (!TG.load[lang]) TG.load[lang] = api(`web_town_guides?select=slug,lang,town,aliases,title,lead,photos,sort&lang=eq.${lang}&order=sort.asc`)
+    .then(r => (TG.list[lang] = r)).catch(() => { delete TG.load[lang]; return []; });
+  return TG.load[lang];
+}
+function guideKeys(g) { return [g.town, ...(g.aliases || [])].map(fold); }
+function guideFor(p, list) {
+  if (!p || !list) return null;
+  const k = [p.town, p.suburb].map(fold).filter(Boolean);
+  return list.find(g => guideKeys(g).some(x => k.includes(x))) || null;
+}
+function guideHomes(g) {
+  const keys = guideKeys(g);
+  return S.all.filter(p => p.image && (keys.includes(fold(p.town)) || (p.suburb && keys.includes(fold(p.suburb)))));
+}
+const tgImg = (ph, w) => ph && ph.url ? ph.url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + `?width=${w}&quality=72&resize=contain` : '';
+function tgCredit(ph) {
+  return `${esc(ph.author || 'Wikimedia Commons')}, <a href="${esc(ph.page_url)}" target="_blank" rel="noopener nofollow">${esc(ph.license)}</a>`;
+}
+async function pageArea(slug) {
+  const nl = S.lang === 'nl', main = $('#main');
+  if (slug) return pageAreaDetail(slug);
+  main.innerHTML = `<div class="page-head"><p class="kicker">${t('nav_areas')}</p><h1>${t('areas_h')}</h1><p>${t('areas_p')}</p></div>
+    <div class="area-grid" id="areaGrid">${'<div class="skeleton" style="height:260px;border-radius:14px"></div>'.repeat(6)}</div>${homesRail()}`;
+  const list = await townGuides();
+  if (currentPage !== 'area' || location.hash.replace(/\/$/, '') !== '#/area') return;
+  $('#areaGrid').innerHTML = list.map(g => {
+    const n = guideHomes(g).length, ph = (g.photos || [])[0];
+    return `<a class="area-card" href="#/area/${encodeURIComponent(g.slug)}">
+      ${ph ? `<span class="ac-img"><img src="${esc(tgImg(ph, 640))}" alt="${esc(ph.alt || g.town)}" loading="lazy"></span>` : '<span class="ac-img"></span>'}
+      <span class="ac-txt"><h3>${esc(g.town)}</h3><p>${esc(g.lead || '')}</p>${n ? `<small>${t('areas_n', n)}</small>` : ''}</span></a>`;
+  }).join('') || `<p>${nl ? 'De gidsen laden even niet. Probeer het zo opnieuw.' : 'The guides could not load. Please try again shortly.'}</p>`;
+  observeCards(main);
+}
+async function pageAreaDetail(slug) {
+  const nl = S.lang === 'nl', main = $('#main');
+  main.innerHTML = `<article class="post area"><p class="kicker"><a href="#/area">← ${t('nav_areas')}</a></p><div class="skeleton" style="height:2.4em;border-radius:8px;max-width:640px"></div><div class="skeleton" style="height:16em;border-radius:14px;margin-top:20px"></div></article>`;
+  const g = await api(`web_town_guides?select=*&slug=eq.${encodeURIComponent(slug)}&lang=eq.${S.lang}&limit=1`).then(x => x[0]).catch(() => null);
+  if (currentPage !== 'area' || !location.hash.startsWith('#/area/' + slug)) return;
+  if (!g) {
+    main.innerHTML = `<div class="empty"><h2>${nl ? 'Deze plaats hebben we (nog) niet beschreven' : "We haven't written about this place yet"}</h2><p><a class="btn primary" href="#/area">${t('nav_areas')}</a></p></div>${homesRail()}`;
+    observeCards(main); return;
+  }
+  document.title = `${g.title} · Grupo Soltura`;
+  const secs = (g.sections || []).filter(s => s && (s.html || (s.rows && s.rows.length)));
+  const photos = g.photos || [];
+  const table = s => `<div class="tbl-wrap"><table class="area-tbl${s.key === 'festivals' ? ' fest' : ''}">${s.key === 'festivals'
+      ? `<thead><tr><th>${nl ? 'Feest' : 'Festival'}</th><th>${nl ? 'Wanneer' : 'When'}</th><th>${nl ? 'Wat' : 'What'}</th></tr></thead>` : ''}<tbody>${s.rows.map(r => `<tr>${r.map((c, i) => `<td${i === 0 ? ' class="k"' : ''}>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  // foto's klein en verspreid: eerste onder de intro, de rest na een paar secties
+  const fig = (ph, i) => ph ? `<figure class="area-fig" data-i="${i}"><img src="${esc(tgImg(ph, 900))}" alt="${esc(ph.alt || '')}" loading="lazy"><figcaption>${esc(ph.alt || '')} <span>· ${tgCredit(ph)}</span></figcaption></figure>` : '';
+  const at = { 0: 1, 3: 2, 7: 3 };
+  const homes = guideHomes(g);
+  main.innerHTML = `<article class="post area">
+      <p class="kicker"><a href="#/area">← ${t('nav_areas')}</a></p>
+      <h1>${esc(g.title)}</h1>
+      ${g.lead ? `<p class="post-lead">${esc(g.lead)}</p>` : ''}
+      ${(g.facts || []).length ? `<dl class="area-facts">${g.facts.map(f => `<div><dt>${esc(f.label)}</dt><dd>${esc(f.value)}</dd></div>`).join('')}</dl>` : ''}
+      <nav class="area-toc" aria-label="${nl ? 'Onderwerpen' : 'Topics'}">${secs.map(s => `<a href="#/area/${encodeURIComponent(g.slug)}" data-sec="${esc(s.key)}">${esc(s.heading)}</a>`).join('')}</nav>
+      ${fig(photos[0], 0)}
+      <div class="post-body area-body">${secs.map((s, i) => `<section id="sec-${esc(s.key)}"><h2>${esc(s.heading)}</h2>${s.rows ? table(s) : sanitizeRich(s.html)}</section>${at[i] ? fig(photos[at[i]], at[i]) : ''}`).join('')}</div>
+      ${homes.length ? `<div class="area-cta"><p>${t('areas_cta', g.town, homes.length)}</p><button type="button" class="btn primary" id="areaHomes">${t('areas_btn', g.town)}</button> <a class="btn ghost" href="#/contact">${t('nav_contact')}</a></div>` : ''}
+      <details class="area-src"><summary>${nl ? 'Bronnen en foto\'s' : 'Sources and photos'}</summary>
+        <p class="muted">${nl ? 'Wij stellen deze gids met zorg samen uit openbare bronnen. Cijfers en data kunnen veranderen; check bij twijfel de gemeente.' : 'We compile this guide carefully from public sources. Figures and dates can change; if in doubt, check with the town hall.'} ${nl ? 'Bijgewerkt' : 'Updated'} ${fmtDate(g.updated_at, true)}.</p>
+        <ul>${(g.sources || []).filter(x => x && /^https?:/i.test(x.url || '')).map(x => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener nofollow">${esc(x.title || new URL(x.url).hostname)}</a></li>`).join('')}</ul>
+        ${photos.length ? `<p class="muted">${nl ? 'Foto\'s via Wikimedia Commons' : 'Photos via Wikimedia Commons'}: ${photos.map(tgCredit).join(' · ')}</p>` : ''}</details>
+    </article>
+    ${homes.length > 2 ? `<section class="section"><h2>${esc(t('area_h', g.town))}</h2><div class="rail">${homes.slice(0, 12).map(p => card(p)).join('')}</div></section>` : homesRail()}`;
+  observeCards(main);
+  $$('.area-toc a', main).forEach(a => a.addEventListener('click', e => { e.preventDefault(); const el = $('#sec-' + a.dataset.sec); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); track('area_toc', null, null, { slug: g.slug, sec: a.dataset.sec }); }));
+  $$('.area-fig', main).forEach(f => f.addEventListener('click', e => { if (e.target.closest('a')) return; openLightbox(photos.map(ph => tgImg(ph, 1600)), +f.dataset.i, true); }));
+  const hb = $('#areaHomes'); if (hb) hb.onclick = () => {
+    const names = [...new Set(homes.map(p => p.town))];
+    S.f = Object.assign(blankFilters(), { towns: names }); S.type = 'all'; S.shown = PAGE;
+    track('area_homes', null, homes.length, { slug: g.slug });
+    location.hash = '#/';
+    setTimeout(() => { const b = $('#bar'); if (b) b.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 600);
+  };
+  track('area_view', null, null, { slug: g.slug });
+}
+// in het woningpaneel: verwijzing naar de gids van de plaats
+function areaLink(p) {
+  townGuides().then(list => {
+    const g = guideFor(p, list), box = $('#shArea');
+    if (!box || S.openId !== p.id) return;
+    if (!g) { box.innerHTML = ''; return; }
+    const ph = (g.photos || [])[0];
+    box.innerHTML = `<a class="area-link" href="#/area/${encodeURIComponent(g.slug)}" data-track="area_from_home">${ph ? `<img src="${esc(tgImg(ph, 240))}" alt="" loading="lazy">` : ''}<span><b>${esc(t('areas_link_h', g.town))}</b><small>${t('areas_link_p')}</small></span><i aria-hidden="true">→</i></a>`;
+    $('a', box).addEventListener('click', () => track('area_from_home', p.id, null, { slug: g.slug }));
+  });
+}
 function pageContact() {
   const fmtTel = tel => tel.replace(/(\+34)(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4');
   return `<section class="page-hero contact-hero"><img src="${OFFICE_IMG}" alt="${esc(t('c_office_alt'))}" fetchpriority="high"><div><p class="kicker">${t('nav_contact')}</p><h1>${t('contact_h')}</h1><p>${t('contact_p')}</p>
@@ -1710,6 +1808,7 @@ function renderPage(h) {
     case 'sell': main.innerHTML = pageSell(); bindForm($('#sellForm')); break;
     case 'move': main.innerHTML = pageMove(); bindForm($('#moveForm')); break;
     case 'news': pageNews(decodeURIComponent(h.split('/')[2] || '')); break;
+    case 'area': pageArea(decodeURIComponent((h.split('/')[2] || '').split('?')[0])); break;
     case 'contact': main.innerHTML = pageContact(); bindForm($('#contactForm')); if ('IntersectionObserver' in window) { const o = new IntersectionObserver(es => { if (es[0].isIntersecting) { o.disconnect(); initMap(); } }, { rootMargin: '300px' }); o.observe($('#mapEl')); } else initMap(); break;
     case 'privacy': main.innerHTML = pagePrivacy(); break;
     case 'favorites': importFavs(); main.innerHTML = pageFavs(); bindFavMail(); break;
@@ -1721,8 +1820,8 @@ function renderPage(h) {
   $$('[data-track]', main).forEach(a => a.addEventListener('click', () => track(a.dataset.track, null, null, { from: key })));
   renderFooterStack();
   if (key !== 'home') hidePop();
-  const names = { buy: 'nav_buy', sell: 'nav_sell', move: 'nav_move', news: 'nav_news', contact: 'nav_contact', favorites: 'fav_h', privacy: 'privacy' };
-  document.title = key === 'home' || !names[key] ? 'Grupo Soltura · ' + t('hero_title') : `${t(names[key])} · Grupo Soltura`;
+  const names = { buy: 'nav_buy', sell: 'nav_sell', move: 'nav_move', area: 'nav_areas', news: 'nav_news', contact: 'nav_contact', favorites: 'fav_h', privacy: 'privacy' };
+  if (!(key === 'area' && h.split('/')[2])) document.title = key === 'home' || !names[key] ? 'Grupo Soltura · ' + t('hero_title') : `${t(names[key])} · Grupo Soltura`;
   track('page', null, null, { p: key });
 }
 window.addEventListener('hashchange', route);
