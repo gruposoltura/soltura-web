@@ -1745,8 +1745,10 @@ $$('.top [data-track]').forEach(a => a.addEventListener('click', () => track(a.d
   const top = $('#top');
   const setH = () => document.documentElement.style.setProperty('--top-h', top.offsetHeight + 'px');
   if ('ResizeObserver' in window) new ResizeObserver(setH).observe(top); else setH();
+  // Hysterese: compact vanaf 100px, pas weer groot onder 16px. Het compact maken haalt ~40px hoogte weg,
+  // waardoor scrollY terugspringt; met één drempel (40) gaf dat een lus en trilde het logo.
   let compact = false;
-  addEventListener('scroll', () => { const c = scrollY > 40; if (c !== compact) { compact = c; top.classList.toggle('compact', c); } }, { passive: true });
+  addEventListener('scroll', () => { const y = scrollY; const c = compact ? y > 16 : y > 100; if (c !== compact) { compact = c; top.classList.toggle('compact', c); } }, { passive: true });
 })();
 
 // ---------- boot ----------
