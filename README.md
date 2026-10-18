@@ -29,6 +29,14 @@ Formuliervelden naar web-contact: `form_id` (viewForm/guideForm/buyForm/sellForm
 
 De site is domein-onafhankelijk (alle links via `location.origin`); hij draait zonder wijziging op gruposoltura.com.
 
+## Favorieten mailen (sinds 18-10-2026)
+Op `#/favorites` staat een zwevend paneel **"Stuur jezelf je favorieten"** (desktop open linksonder, mobiel als knop die openklapt). Voornaam, achternaam en e-mail (ook van iemand anders) -> `web-contact` v8 met `kind: 'favorites'`, `form_id: 'web-favorites-mail'`, `favorites` (referenties, max 30) en `browser_lang` (`navigator.language`).
+- Keten: `web_contact_requests` -> JARVIS-Sales-WebFormIntake-v2 (contact + request `favorite` in core) -> **JARVIS-Sales-FavoritesMail** (`TjFGkuInnt7KRzcB`, webhook `jarvis-favorites-mail`): mail in de vaste klantmail-huisstijl via Brevo.
+- Taal van de mail: opgeslagen taal als het e-mailadres een bekend contact is, anders de browsertaal (nl/en/es/de/fr), anders Engels.
+- **Testmodus**: `#/favorites?test=1` -> de mail gaat alleen naar Rick (met testbanner), er wordt niets opgeslagen. Agent-breed: `DRY_RUN` in de Config-node.
+- Link in de mail `#/favorites?add=REF1,REF2` zet de woningen (weer) bij de favorieten op het apparaat waarop de mail wordt geopend.
+- Limiet: max 5 favorietenmails per e-mailadres per uur.
+
 ## Pagina's
 Woningen, Kopen, Verkopen, Emigreren, Nieuws, Contact, Privacy (`#/privacy`). Team is opgegaan in Contact (`#/team` stuurt door). Onderaan elke pagina: Google-reviews, nieuwsbrief, socials, footer.
 

@@ -86,7 +86,7 @@ if (adsGranted()) fbLoad();
 // eigen events -> Meta standaard-events (content_type home_listing = vastgoedcatalogus)
 const FB_MAP = { view_property: 'ViewContent', contact_sent: 'Lead', guide_request: 'Lead', newsletter_signup: 'CompleteRegistration', search: 'Search', fav: 'AddToWishlist', whatsapp: 'Contact', call: 'Contact' };
 // eigen events -> GA4 (aanbevolen namen waar die bestaan)
-const GA_MAP = { view_property: 'view_item', contact_sent: 'generate_lead', guide_request: 'generate_lead', newsletter_signup: 'sign_up', search: 'search', share: 'share', fav: 'add_to_wishlist', whatsapp: 'contact_whatsapp', call: 'contact_call', contact_open: 'contact_open', assistant: 'assistant_question', mortgage: 'mortgage_calc', costs_ask: 'costs_overview' };
+const GA_MAP = { view_property: 'view_item', contact_sent: 'generate_lead', guide_request: 'generate_lead', newsletter_signup: 'sign_up', search: 'search', share: 'share', fav: 'add_to_wishlist', whatsapp: 'contact_whatsapp', call: 'contact_call', contact_open: 'contact_open', assistant: 'assistant_question', mortgage: 'mortgage_calc', costs_ask: 'costs_overview', fav_mail: 'favorites_email' };
 function gaPath() { const h = (location.hash || '#/').replace(/^#/, ''); return h === '/' ? '/' : h.replace(/\/+$/, ''); }
 function gaPage(title) {
   fb('PageView');
@@ -1605,7 +1605,78 @@ function pagePrivacy() {
 function pageFavs() {
   const items = [...S.favs].map(id => S.byId.get(id)).filter(Boolean);
   if (!items.length) return `<div class="empty"><h2>${t('fav_h')}</h2><p>${t('fav_empty')}</p><p><a class="btn primary" href="#/">${t('see_all')}</a></p></div>`;
-  return `<div class="page-head"><h1>${t('fav_h')}</h1></div><section class="feed">${items.map(p => card(p)).join('')}</section>${homesRail()}`;
+  return `<div class="page-head"><h1>${t('fav_h')}</h1></div><section class="feed">${items.map(p => card(p)).join('')}</section>${homesRail()}${favMailPanel(items.length)}`;
+}
+// ---------- favorieten mailen (paneel "Stuur jezelf je favorieten") ----------
+// web-contact (kind favorites) -> WebFormIntake-v2 -> JARVIS-Sales-FavoritesMail. Taal van de mail: opgeslagen taal als het
+// e-mailadres bekend is, anders de browsertaal. Testmodus: #/favorites?test=1 -> mail alleen naar Rick, niets opgeslagen.
+const favTest = () => /[?&]test=1\b/.test(location.hash) || new URLSearchParams(location.search).get('test') === '1';
+const favMailOpen = () => { try { return sessionStorage.getItem('gs_favmail') !== 'closed' && !(matchMedia('(max-width:640px)').matches && sessionStorage.getItem('gs_favmail') !== 'open'); } catch { return true; } };
+function favMailPanel(n) {
+  const open = favMailOpen();
+  const saved = ls.get('favmail', {});
+  return `<aside class="favmail${open ? ' open' : ''}" id="favMail" aria-label="${esc(t('fm_title'))}">
+    <button type="button" class="fm-pill" data-fm-toggle aria-expanded="${open}">${ICON.mail}<span>${esc(t('fm_pill', n))}</span></button>
+    <div class="fm-card" role="region">
+      <button type="button" class="fm-x" data-fm-toggle aria-label="${esc(t('fm_close'))}">×</button>
+      <p class="fm-kicker">${ICON.heart}${esc(t('fm_kicker'))}</p>
+      <h2>${esc(t('fm_title'))}</h2>
+      <p class="fm-lead">${esc(t('fm_lead', n))}</p>
+      ${favTest() ? `<p class="fm-test">${esc(t('fm_test'))}</p>` : ''}
+      <form id="favMailForm" novalidate>
+        <div class="fm-row">
+          <label><span>${esc(t('fm_first'))}</span><input name="first" autocomplete="given-name" required maxlength="60" value="${esc(saved.first || '')}"></label>
+          <label><span>${esc(t('fm_last'))}</span><input name="last" autocomplete="family-name" required maxlength="60" value="${esc(saved.last || '')}"></label>
+        </div>
+        <label><span>${esc(t('fm_email'))}</span><input name="email" type="email" inputmode="email" autocomplete="email" required maxlength="160" value="${esc(saved.email || '')}"></label>
+        <input name="website" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true">
+        <button class="btn primary fm-send" type="submit">${ICON.mail}${esc(t('fm_send'))}</button>
+        <p class="fm-out" aria-live="polite"></p>
+        <p class="fm-note">${esc(t('fm_other'))} ${esc(t('fm_note'))} <a href="#/privacy">${esc(t('privacy'))}</a></p>
+      </form>
+    </div>
+  </aside>`;
+}
+function bindFavMail() {
+  const box = $('#favMail'); if (!box) return;
+  const sync = () => { const o = box.classList.contains('open'); $$('[data-fm-toggle]', box).forEach(b => b.setAttribute('aria-expanded', o)); document.body.classList.toggle('favmail-open', o); };
+  $$('[data-fm-toggle]', box).forEach(b => b.addEventListener('click', () => {
+    box.classList.toggle('open'); sync();
+    try { sessionStorage.setItem('gs_favmail', box.classList.contains('open') ? 'open' : 'closed'); } catch {}
+    if (box.classList.contains('open')) { const f = $('input[name=first]', box); if (f && !f.value) f.focus({ preventScroll: true }); track('fav_mail_open'); }
+  }));
+  sync();
+  const form = $('#favMailForm', box);
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const d = Object.fromEntries(new FormData(form));
+    const first = String(d.first || '').trim(), last = String(d.last || '').trim(), email = String(d.email || '').trim();
+    const out = $('.fm-out', form);
+    out.className = 'fm-out';
+    if (!first || !last || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { out.classList.add('err'); out.textContent = t('fm_err'); return; }
+    const refs = [...S.favs].map(id => S.byId.get(id)).filter(Boolean).map(p => p.reference).filter(Boolean).slice(0, 30);
+    const btn = $('.fm-send', form); btn.disabled = true; btn.classList.add('busy');
+    const test = favTest();
+    const r = await fn('web-contact', { kind: 'favorites', ...formMeta('favMailForm', null, 'web-favorites-mail'), website: d.website || '',
+      name: `${first} ${last}`, first, last, first_name: first, last_name: last, email, favorites: refs,
+      browser_lang: (navigator.languages && navigator.languages[0]) || navigator.language || '', site_lang: S.lang, dry_run: test }).catch(() => ({ ok: false }));
+    btn.disabled = false; btn.classList.remove('busy');
+    if (r.ok) {
+      out.classList.add('ok'); out.textContent = t('fm_ok', email);
+      ls.set('favmail', { first, last, email });
+      track('fav_mail', null, refs.length, { test });
+    } else { out.classList.add('err'); out.textContent = r.error === 'rate' ? t('fm_rate') : r.error === 'contact' ? t('fm_err') : t('fm_fail'); }
+  });
+}
+// link uit de favorietenmail: #/favorites?add=RH550,STU139 -> die woningen (weer) bewaren op dit apparaat
+function importFavs() {
+  const m = location.hash.match(/^#\/favorites\?(.*)$/); if (!m || !S.all.length) return;
+  const q = new URLSearchParams(m[1]); const add = (q.get('add') || '').split(',').map(x => x.trim().toUpperCase()).filter(Boolean);
+  if (!add.length) return;
+  let n = 0; add.forEach(ref => { const p = S.byRef.get(ref); if (p && !S.favs.has(p.id)) { S.favs.add(p.id); n++; } });
+  if (n) { ls.set('favs', [...S.favs]); favCount(); }
+  q.delete('add'); const rest = q.toString();
+  history.replaceState(null, '', location.pathname + location.search + '#/favorites' + (rest ? '?' + rest : ''));
 }
 // ankerlinks binnen een pagina (hash-router gebruikt # voor routes)
 addEventListener('click', e => { const a = e.target.closest('a[data-scroll]'); if (!a) return; e.preventDefault(); const el = document.getElementById(a.getAttribute('href').slice(1)); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
@@ -1625,7 +1696,7 @@ function route() {
   renderPage(h);
 }
 function renderPage(h) {
-  const key = (h.replace('#/', '').split('/')[0]) || 'home';
+  const key = (h.replace('#/', '').split(/[/?]/)[0]) || 'home';
   currentPage = key;
   $$('.nav a').forEach(a => { if (a.dataset.route === key) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   $('#nav').classList.remove('open'); $('#menuBtn').setAttribute('aria-expanded', 'false');
@@ -1638,10 +1709,11 @@ function renderPage(h) {
     case 'news': pageNews(decodeURIComponent(h.split('/')[2] || '')); break;
     case 'contact': main.innerHTML = pageContact(); bindForm($('#contactForm')); if ('IntersectionObserver' in window) { const o = new IntersectionObserver(es => { if (es[0].isIntersecting) { o.disconnect(); initMap(); } }, { rootMargin: '300px' }); o.observe($('#mapEl')); } else initMap(); break;
     case 'privacy': main.innerHTML = pagePrivacy(); break;
-    case 'favorites': main.innerHTML = pageFavs(); break;
+    case 'favorites': importFavs(); main.innerHTML = pageFavs(); bindFavMail(); break;
     case 'team': location.replace('#/contact'); return;
     default: currentPage = 'home'; renderHome();
   }
+  if (key !== 'favorites') document.body.classList.remove('favmail-open');
   observeCards(main);
   $$('[data-track]', main).forEach(a => a.addEventListener('click', () => track(a.dataset.track, null, null, { from: key })));
   renderFooterStack();

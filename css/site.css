@@ -841,3 +841,43 @@ img,video,svg{max-width:100%}
 .st-note-sold{background:#FDE8E6;border-color:var(--sea)}
 .gal .st{top:14px;left:14px;right:auto;bottom:auto;font-size:14px;padding:7px 14px 7px 11px}
 .ab-ref{display:inline-flex;gap:6px;align-items:center;border:1.5px solid var(--sea);background:#fff;color:var(--sea);border-radius:var(--radius-ui);padding:7px 14px;font-weight:700;font-size:14.5px;text-decoration:none}.ab-ref small{color:var(--ink-2);font-weight:600}.ab-ref:hover{background:var(--sea);color:#fff}
+
+/* ---------- favorieten mailen: zwevend paneel op #/favorites ---------- */
+.favmail{position:fixed;left:18px;bottom:18px;z-index:52;width:min(360px,calc(100vw - 36px));font-size:14.5px}
+.favmail .fm-card{display:none;position:relative;background:#fff;border-radius:18px;padding:18px 18px 14px;box-shadow:0 22px 60px rgba(30,40,45,.28);border:1px solid var(--mist);overflow:hidden;animation:fmIn .45s var(--ease)}
+.favmail .fm-card::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:var(--sun)}
+.favmail.open .fm-card{display:block}
+.favmail.open .fm-pill{display:none}
+.fm-pill{display:inline-flex;align-items:center;gap:10px;border:0;border-radius:var(--radius-ui);background:var(--sea);color:#fff;font-weight:700;font-size:15px;padding:13px 20px 13px 16px;cursor:pointer;box-shadow:0 10px 28px rgba(198,50,50,.38);animation:fmIn .45s var(--ease)}
+.fm-pill svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8}
+.fm-pill:hover{background:var(--red-bright)}
+.fm-x{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;border:0;background:var(--salt);color:var(--ink-2);font-size:22px;line-height:1;cursor:pointer}
+.fm-x:hover{background:var(--mist)}
+.fm-kicker{display:flex;align-items:center;gap:6px;margin:4px 0 6px;color:var(--sea);font-size:12.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.fm-kicker svg{width:16px;height:16px;fill:var(--sea);stroke:none}
+.favmail h2{margin:0 36px 6px 0;font:600 23px/1.15 var(--serif);color:var(--ink)}
+.fm-lead{margin:0 0 12px;color:var(--ink-2);line-height:1.5}
+.fm-test{margin:0 0 12px;padding:8px 12px;border-radius:10px;background:var(--lemon-soft);color:#5c4a00;font-size:13.5px;font-weight:600}
+#favMailForm{display:grid;gap:8px}
+#favMailForm .fm-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#favMailForm label span{display:block;font-size:12.5px;font-weight:700;margin-bottom:4px;color:var(--ink-2)}
+#favMailForm input{width:100%;border:1px solid var(--mist);border-radius:10px;padding:9px 11px;background:var(--salt);transition:border-color .15s,background .15s}
+#favMailForm input:focus{outline:none;border-color:var(--sea);background:#fff;box-shadow:0 0 0 3px rgba(198,50,50,.12)}
+#favMailForm .hp{position:absolute;left:-5000px;width:1px;height:1px}
+.fm-send{justify-content:center;width:100%;margin-top:2px}
+.fm-send svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:1.8}
+.fm-send.busy{opacity:.7;cursor:progress}
+.fm-out{margin:0;font-size:14px;font-weight:600;min-height:0}
+.fm-out.ok{color:#1F7A45}
+.fm-out.err{color:var(--salina)}
+.fm-note{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
+.fm-note a{color:var(--muted)}
+@keyframes fmIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@media (max-width:640px){
+  .favmail{left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));width:auto}
+  .favmail .fm-card{max-height:calc(100vh - 110px);overflow-y:auto;padding:20px 18px 14px}
+  .fm-pill{max-width:calc(100vw - 100px)}
+  .favmail h2{font-size:22px}
+  body.favmail-open .wa-float{display:none}
+}
+@media (prefers-reduced-motion:reduce){.favmail .fm-card,.fm-pill{animation:none}}
