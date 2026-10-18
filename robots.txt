@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /redirects.json
+
+Sitemap: https://gruposoltura.com/sitemap.xml

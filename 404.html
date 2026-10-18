@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Grupo Soltura</title>
+<style>
+  :root { --bg: #faf7f2; --fg: #1d2a2f; --muted: #5c6b70; --accent: #0f5c63; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #11181b; --fg: #eef2f2; --muted: #9fb0b3; --accent: #6cc3c9; } }
+  html, body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 34rem; margin: 18vh auto 0; padding: 0 16px; }
+  h1 { font-size: 1.35rem; margin: 0 0 .5rem; }
+  p { color: var(--muted); margin: 0 0 1rem; }
+  a { color: var(--accent); font-weight: 600; }
+</style>
+<script>
+// solturaResolve(path, search, M) -> doel-URL relatief aan de site-root ("/?lang=nl#/buy", "/#/home/ABC2407", ...)
+// Gedeeld door 404.html (GitHub Pages) en de Cloudflare Worker; M = inhoud van /redirects.json.
+// Geeft null als het pad geen oud WordPress-pad is (de Worker laat het dan ongemoeid).
+function solturaResolve(path, search, M) {
+  var p = String(path || '/');
+  try { p = decodeURIComponent(p); } catch (e) {}
+  p = p.toLowerCase().replace(/\/{2,}/g, '/');
+  if (p.slice(-1) !== '/' && !/\.[a-z0-9]{2,5}$/.test(p)) p += '/';
+  var qs = {};
+  String(search || '').replace(/^\?/, '').split('&').forEach(function (kv) {
+    if (!kv) return; var i = kv.indexOf('='); var k = i < 0 ? kv : kv.slice(0, i);
+    var v = i < 0 ? '' : kv.slice(i + 1); try { v = decodeURIComponent(v.replace(/\+/g, ' ')); } catch (e) {}
+    qs[k.toLowerCase()] = v;
+  });
+  var key = function (r) { return String(r).toLowerCase().replace(/[^a-z0-9]/g, ''); };
+  if (!M._live) { M._live = {}; String(M.live || '').split(' ').forEach(function (r) { if (r) M._live[key(r)] = r; }); }
+  if (!M._ts) { M._ts = Object.keys(M.ts || {}).sort(function (a, b) { return b.length - a.length; }); }
+  var lang = null, rest = p, m = p.match(/^\/(nl|en|es|de)(\/.*)$/);
+  if (m) { lang = m[1] === 'nl' ? 'nl' : (m[1] === 'en' ? 'en' : null); rest = m[2]; }
+  var out = function (hash, town) {
+    var q = [];
+    if (lang) q.push('lang=' + lang);
+    if (town) q.push('town=' + encodeURIComponent(town));
+    return '/' + (q.length ? '?' + q.join('&') : '') + hash;
+  };
+  var townOf = function (s, skipProvince) {
+    var x = '-' + s + '-';
+    for (var i = 0; i < M._ts.length; i++) {
+      var t = M._ts[i];
+      if (skipProvince && (t === 'alicante' || t === 'murcia' || t === 'costa-blanca')) continue;
+      if (x.indexOf('-' + t + '-') >= 0) return M.tn[M.ts[t]];
+    }
+    return null;
+  };
+  var prop = function (s) {
+    var ref = key(s.split('-').pop());
+    if (M._live[ref]) return out('#/home/' + M._live[ref]);
+    if (M.rt && M.rt[ref] != null) return out('#/', M.tn[M.rt[ref]]);
+    return out('#/', townOf(s, true));
+  };
+
+  // 1. vaste pagina's (inclusief /nl/ en /en/)
+  if (M.pg && M.pg[p]) return M.pg[p];
+  // 2. WordPress-shortlinks en zoek-URL's op de root
+  if (rest === '/') {
+    var id = qs.p || qs.page_id || qs.post;
+    if (id && M.w && M.w[id]) return out('#/home/' + M.w[id]);
+    if (qs.property) return prop(qs.property);
+    if (id || qs.s != null || qs.post_type || qs.cpr_search != null) return out('#/');
+    return null; // gewone homepage
+  }
+  // 3. woningen
+  if ((m = rest.match(/^\/(property|properties|object|woning|propiedad)\/([^\/]+)\//))) return prop(m[2]);
+  if ((m = rest.match(/^\/(property|properties|object|woning)\/$/))) return out('#/');
+  // 4. locatiepagina's
+  if ((m = rest.match(/^\/(location|locations|locatie|locaties)\/([^\/]+)\/(?:([^\/]+)\/)?/))) {
+    if (!lang && m[1].indexOf('locatie') === 0) lang = 'nl';
+    var t = (M.ts[m[2]] != null ? M.tn[M.ts[m[2]]] : null) || (m[3] && M.ts[m[3]] != null ? M.tn[M.ts[m[3]]] : null) || townOf(m[2] + (m[3] ? '-' + m[3] : ''), false);
+    return out('#/', t);
+  }
+  if ((m = rest.match(/^\/(?:buying-property-in|woning-kopen-in|comprar-casa-en)-([^\/]+)\/$/))) return out('#/', townOf(m[1], false));
+  // 5. overige WordPress-paden
+  if (/^\/(author|team|agent)\//.test(rest)) return out('#/contact');
+  if (/^\/(blog|category|tag|news|nieuws|feed|comments)\//.test(rest)) return out('#/news');
+  if (/^\/(my-soltura|mijn-soltura|my-account|favorites|favorieten)\//.test(rest)) return out('#/favorites');
+  if (/^\/(privacy|cookie)/.test(rest)) return out('#/privacy');
+  if (/^\/(contact|kontakt|contacto)\//.test(rest)) return out('#/contact');
+  if (/sitemap[^\/]*\.xml$/.test(rest)) return '/sitemap.xml';
+  if (/^\/(wp-content|wp-includes|wp-json|wp-admin|unsubscribe)\b/.test(rest)) return null; // de Worker regelt deze apart
+  // 6. berichten staan onder /nl/<slug>/ en /en/<slug>/ -> nieuwsoverzicht
+  if (lang && /^\/[^\/]+\/$/.test(rest)) return out('#/news');
+  // 7. onbekend oud pad
+  if (/\.(php|html?|aspx?)$/.test(rest) || /^\/[^.]*\/$/.test(rest)) return out('#/');
+  return null;
+}
+(function () {
+  var go = function (t) { location.replace(location.origin + t); };
+  var fallback = function () {
+    var nl = /^\/(nl|locatie)\//.test(location.pathname) || /^nl/i.test(navigator.language || '');
+    document.getElementById('msg').hidden = false;
+    document.getElementById('h').textContent = nl ? 'Deze pagina bestaat niet meer' : 'This page no longer exists';
+    document.getElementById('a').textContent = nl ? 'Naar het woningaanbod' : 'See all homes';
+  };
+  var x = new XMLHttpRequest();
+  x.open('GET', '/redirects.json', true);
+  x.onload = function () {
+    var t = null;
+    try { t = solturaResolve(location.pathname, location.search, JSON.parse(x.responseText)); } catch (e) {}
+    if (t && t !== location.pathname + location.search + location.hash) go(t); else fallback();
+  };
+  x.onerror = function () { go('/#/'); };
+  x.send();
+})();
+</script>
+</head>
+<body>
+<main id="msg" hidden>
+  <h1 id="h">Deze pagina bestaat niet meer</h1>
+  <p>Grupo Soltura · Rojales, Costa Blanca</p>
+  <p><a id="a" href="/#/">Naar het woningaanbod</a></p>
+</main>
+</body>
+</html>
