@@ -287,6 +287,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .keyfacts div{background:#fff;padding:12px 14px;box-shadow:1px 0 0 var(--mist),0 1px 0 var(--mist)}
 .keyfacts b{display:block;font-size:20px}
 .keyfacts span{color:var(--muted);font-size:13.5px}
+.keyfacts .kf-ic{display:inline-flex}.keyfacts .kf-ic svg{width:26px;height:26px;fill:none;stroke-width:1.8;stroke:var(--sea)}.keyfacts .kf-ic.shared svg{stroke:var(--ink-2)}
 .market{margin:22px 0;padding:18px;border-radius:12px;background:var(--salt)}
 .market h3,.costs h3,.side h3,.desc h3,.feat h3{margin:0 0 10px;font-size:17px}
 .mbar{position:relative;height:10px;border-radius:5px;background:linear-gradient(90deg,#CDE8D3,var(--mist) 50%,var(--salina-soft));margin:26px 0 8px}

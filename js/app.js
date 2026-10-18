@@ -120,6 +120,8 @@ const ICON = {
   info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>',
   wa: '<svg viewBox="0 0 24 24"><path d="M4 20l1.3-4.3A8 8 0 1 1 8.6 19z"/></svg>',
   pool: '<svg viewBox="0 0 24 24"><path d="M8 15V5a2 2 0 0 1 4 0M14 15V5a2 2 0 0 1 4 0M8 8h6M8 12h6M2 18c1.5 0 1.5-1 3-1s1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1 1.5 1 3 1"/></svg>',
+  // gemeenschappelijk zwembad: hetzelfde trapje met een "C" ernaast (zoals op de oude site)
+  poolC: '<svg viewBox="0 0 24 24"><path d="M4 15V5a2 2 0 0 1 4 0M10 15V5a2 2 0 0 1 4 0M4 8h6M4 12h6M22.2 6.4a3.6 3.6 0 1 0 0 5.2M2 18c1.5 0 1.5-1 3-1s1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1 1.5 1 3 1"/></svg>',
   chat: '<svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8M8 13h5"/></svg>',
   calc: '<svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h2M12 12h2M16 12v5M8 16h2M12 16h2"/></svg>',
   cam: '<svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
@@ -311,7 +313,7 @@ function specs(p) {
   if (p.build_area) s.push(`<span title="${t('built')}">${ICON.area}${num(p.build_area)} m²</span>`);
   if (p.plot_area) s.push(`<span title="${t('plot')}">${num(p.plot_area)} m² ${S.lang === 'nl' ? 'perceel' : 'plot'}</span>`);
   if (p.pool_private) s.push(`<span class="pool own" title="${t('pool_private')}">${ICON.pool}${t('pool_short_private')}</span>`);
-  else if (p.pool_communal) s.push(`<span class="pool shared" title="${t('pool_communal')}">${ICON.pool}${t('pool_short_communal')}</span>`);
+  if (p.pool_communal) s.push(`<span class="pool shared" title="${t('pool_communal')}">${ICON.poolC}${t('pool_short_communal')}</span>`);
   return `<div class="specs">${s.join('')}</div>`;
 }
 function card(p, opts = {}) {
@@ -1163,7 +1165,8 @@ function fillFacts(p) {
   add(p.bedrooms, t('sh_bed')); add(p.bathrooms, t('sh_bath'));
   add(p.build_area && num(p.build_area) + ' m²', t('sh_built')); add(p.plot_area && num(p.plot_area) + ' m²', t('sh_plot'));
   add(dist(p.dist_sea_m), t('sh_sea'));
-  if (p.pool_private) add('✓', t('pool_private')); else if (p.pool_communal) add('✓', t('pool_communal'));
+  if (p.pool_private) add(`<i class="kf-ic own">${ICON.pool}</i>`, t('pool_private'));
+  if (p.pool_communal) add(`<i class="kf-ic shared">${ICON.poolC}</i>`, t('pool_communal'));
   $('#keyfacts').innerHTML = kf.join('');
 }
 function fillDetail(d) {
