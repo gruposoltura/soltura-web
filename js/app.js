@@ -1099,7 +1099,7 @@ function bindGuide(p) {
 function mortgageHtml(p) {
   const rate = S.cfg.mortgage_rate_pct || 3.13;
   return `<div class="box mort" id="mortBox"><h3>${t('mort_h')}</h3><p class="mhint">${ICON.hand}${t('mort_hint')}</p>
-    <label class="mrow"><span>${t('mort_amount')}</span><span class="eurin"><b>€</b><input id="mAmt" inputmode="numeric" value="${num(250000)}" aria-label="${t('mort_amount')}"></span></label>
+    <label class="mrow"><span>${t('mort_amount')}</span><span class="eurin"><b>€</b><input id="mAmt" inputmode="numeric" value="${num(p && p.price ? Math.round(p.price * 0.7 / 1000) * 1000 : 250000)}" aria-label="${t('mort_amount')}"></span></label>
     ${p && p.price ? `<div class="mquick"><button type="button" data-ltv="60">60% ${t('mort_of_price')}</button><button type="button" data-ltv="70">70%</button><button type="button" data-ltv="80">80%</button></div>` : ''}
     <label class="mrow"><span>${t('mort_term')}</span><b id="mTermV">25 ${t('mort_years')}</b></label>
     <input type="range" id="mTerm" min="5" max="30" step="1" value="25" aria-label="${t('mort_term')}">
