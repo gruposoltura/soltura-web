@@ -29,7 +29,7 @@ Elke pagina heeft een echte URL per taal; Google krijgt bij het eerste verzoek v
 - **Schermvullend bladeren**: verticale swipe door het aanbod, zoals Reels.
 - **Personalisatie zonder cookies van derden**: bekeken en bewaarde woningen (localStorage) sturen de volgorde "Voor jou gekozen".
 - **Bewegend beeld**: drie sfeerclips (Higgsfield, eenmalig) alleen als decoratie op home/emigreren/verkopen; op hover scrubt een kaart door de foto's.
-- Talen: EN + NL.
+- Talen: EN + NL + SV (Zweeds sinds 19-10-2026).
 
 ## Data (Supabase `wuvpbwowdycsdlrqkaoq`) — sinds 18-10-2026 volledig op NEXUS core
 Migratie: `nexus_core_011_site_views` (bron in het NEXUS-pakket `011_site_views.sql`). De site gebruikt de anon key; core-tabellen blijven dicht, de views draaien met `security_invoker=false`.
@@ -57,6 +57,16 @@ Op `/en/favorites/` · `/nl/favorieten/` staat een zwevend paneel **"Stuur jezel
 - **Testmodus**: `/nl/favorieten/?test=1` (oud: `#/favorites?test=1`) -> de mail gaat alleen naar Rick (met testbanner), er wordt niets opgeslagen. Agent-breed: `DRY_RUN` in de Config-node.
 - Link in de mail `#/favorites?add=REF1,REF2` (wordt omgezet naar `/en/favorites/?add=...`) zet de woningen (weer) bij de favorieten op het apparaat waarop de mail wordt geopend.
 - Limiet: max 5 favorietenmails per e-mailadres per uur.
+
+## Zweeds (sinds 19-10-2026)
+Besluit Rick: de website is volledig Zweeds onder `/sv/` (taalkiezer met Zweedse vlag), maar **alle uitgaande communicatie blijft Engels**.
+- **Paden:** `/sv/` · `/sv/kopa/` · `/sv/salja/` · `/sv/flytta-till-spanien/` · `/sv/orter/` · `/sv/bo-i/<slug>/` · `/sv/bostad/<ref>-<soort>-<plaats>/` · `/sv/nyheter/` · `/sv/kontakt/` · `/sv/integritet/` · `/sv/favoriter/` (noindex). hreflang `sv` in alle pagina's en sitemaps.
+- **Teksten:** interface `I18N.sv` (`js/i18n.js` + aanvulling in `js/pages.js`), pagina's `PAGES.sv`. Berichten aan kantoor (WhatsApp-tekst, bezichtiging, kostenoverzicht) blijven Engels.
+- **Woningen:** `core.property_texts` lang `sv`, in `web_properties` als `body_sv`/`heading_sv`/`summary_sv`. Gevuld door edge function `property-translate-sv` (EN->SV, claude-sonnet-5-5), aangestuurd door n8n **JARVIS-Web-TranslateSV** (`FIRu1fYTepDQVK1C`, elke 5 min, 10 per run, token `TranslateSV`). Een nieuwe of gewijzigde Engelse tekst wordt vanzelf opnieuw vertaald. Zolang er geen Zweedse tekst is, toont de site de Engelse.
+- **Woonplaatsgidsen:** `core.town_guides` lang `sv` (16 plaatsen, zelfde slugs).
+- **Nieuws:** geen Zweedse berichten; `/sv/nyheter/` toont de Engelse versie.
+- **Assistent:** `web-assistant` v14 antwoordt in de taal van de bezoeker, terugval Zweeds op `/sv/`.
+- **Communicatie Engels:** `web-contact` v9 zet `sv` om naar `en` (contacttaal en FavoritesMail); `nexus2_submit_form` maakt een contact van de Zweedse site aan met taal `en`. De sitetaal blijft zichtbaar in `payload.site_lang` en `page_url`.
 
 ## Pagina's
 Woningen, Kopen, Verkopen, Emigreren, Woonplaatsen, Nieuws, Contact, Privacy (zie de URL-tabel hierboven). Team is opgegaan in Contact (`#/team` stuurt door). Onderaan elke pagina: Google-reviews, nieuwsbrief, socials, footer.

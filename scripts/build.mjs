@@ -2,7 +2,7 @@
 // Grupo Soltura — statische build voor SEO (besluit 19-10-2026, optie A).
 // Leest de publieke views (web_properties, web_town_guides, web_blog_posts) met de publieke sleutel en schrijft naar dist/:
 //   - een kopie van de site
-//   - per URL (/en/..., /nl/...) een index.html met echte inhoud, unieke title/description, canonical, hreflang,
+//   - per URL (/en/..., /nl/..., /sv/...) een index.html met echte inhoud, unieke title/description, canonical, hreflang,
 //     Open Graph en JSON-LD. De app (js/app.js) neemt het daarna over; de inhoud is dezelfde als wat de bezoeker ziet.
 //   - sitemap.xml (index) + sitemap-<soort>.xml met hreflang-alternates
 //   - routes.json: referentie -> canonieke woning-URL, verdwenen woningen -> woonplaatsgids (voor 404.html en de Worker)
@@ -32,6 +32,10 @@ const die = (msg) => { console.error('[build] AFGEBROKEN: ' + msg); process.exit
 const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
 for (const f of ['js/i18n.js', 'js/pages.js']) vm.runInContext(fs.readFileSync(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
 const I18N = ctx.I18N, PAGES = ctx.PAGES;
+// talen van de site (js/routes.js); Zweeds (sv) sinds 19-10-2026. tx({en,nl,sv}, lang) kiest een tekst (terugval Engels).
+const LANGS = R.LANGS;
+const tx = (o, lang) => o[lang] ?? o.en;
+const LOCALE = { en: 'en-GB', nl: 'nl-NL', sv: 'sv-SE' }, OG_LOCALE = { en: 'en_GB', nl: 'nl_NL', sv: 'sv_SE' };
 const T = (lang, k, ...a) => { const v = (I18N[lang] || I18N.en)[k] ?? I18N.en[k]; return typeof v === 'function' ? v(...a) : (v ?? ''); };
 
 // ---------- data ----------
@@ -44,7 +48,7 @@ async function get(pathq) {
     if (rows.length < 1000) return out;
   }
 }
-const PROP_COLS = 'id,reference,category,is_newbuild,town,suburb,province,price,price_from,previous_price,price_changedate,bedrooms,bathrooms,build_area,plot_area,pool_private,pool_communal,dist_sea_m,year_built,energy_label,orientation,features,terraces,solarium,aircon,image,photos,body_en,body_nl,summary_en,summary_nl,list_date,status,under_offer,featured,is_own,popularity';
+const PROP_COLS = 'id,reference,category,is_newbuild,town,suburb,province,price,price_from,previous_price,price_changedate,bedrooms,bathrooms,build_area,plot_area,pool_private,pool_communal,dist_sea_m,year_built,energy_label,orientation,features,terraces,solarium,aircon,image,photos,body_en,body_nl,body_sv,summary_en,summary_nl,summary_sv,list_date,status,under_offer,featured,is_own,popularity';
 async function loadData() {
   const off = arg('--offline');
   if (off) return JSON.parse(fs.readFileSync(off, 'utf8'));
@@ -68,11 +72,11 @@ async function previous() {
 // ---------- helpers ----------
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const abs = p => SITE + p;
-const eur = (n, lang) => n == null ? '' : new Intl.NumberFormat(lang === 'nl' ? 'nl-NL' : 'en-GB', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n);
-const num = (n, lang) => new Intl.NumberFormat(lang === 'nl' ? 'nl-NL' : 'en-GB').format(n);
+const eur = (n, lang) => n == null ? '' : new Intl.NumberFormat(LOCALE[lang] || 'en-GB', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n);
+const num = (n, lang) => new Intl.NumberFormat(LOCALE[lang] || 'en-GB').format(n);
 const cut = (s, n = 158) => { s = String(s || '').replace(/\s+/g, ' ').trim(); return s.length <= n ? s : s.slice(0, n - 1).replace(/\s+\S*$/, '') + '…'; };
 const strip = h => String(h || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/\s+/g, ' ').trim();
-const fmtDate = (d, lang) => d ? new Date(d).toLocaleDateString(lang === 'nl' ? 'nl-NL' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+const fmtDate = (d, lang) => d ? new Date(d).toLocaleDateString(LOCALE[lang] || 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 const render = (url, w) => url && url.includes('/storage/v1/object/public/') ? url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + `?width=${w}&quality=72&resize=contain` : url;
 // eenvoudige whitelist-sanitizer (zelfde tags als sanitizeRich in de app); inhoud komt uit onze eigen database
 function sanitize(html, lang) {
@@ -90,7 +94,7 @@ function sanitize(html, lang) {
       const own = R.ownLink(href, lang || 'en', GUIDE_SLUGS); // oude eigen WordPress-links -> interne link
       if (own) return `<a href="${esc(own)}">`;
       if (/^https?:/i.test(href)) return `<a href="${esc(href)}" target="_blank" rel="noopener nofollow">`;
-      if (/^\/(en|nl)\//.test(href) || /^mailto:/i.test(href)) return `<a href="${esc(href)}">`;
+      if (/^\/(en|nl|sv)\//.test(href) || /^mailto:/i.test(href)) return `<a href="${esc(href)}">`;
       if (/^#\//.test(href)) return `<a href="${esc(R.fromHash(href, 'en'))}">`;
       return '<a>';
     }
@@ -103,7 +107,10 @@ function sanitize(html, lang) {
   });
 }
 // woningomschrijving: opschonen, daarna de eerste vermelding van elke plaats linken naar de woonplaatsgids (R.linkTowns)
-const GUIDE_SLUGS = {}, LINK_GUIDES = { en: [], nl: [] };
+const GUIDE_SLUGS = {}, LINK_GUIDES = { en: [], nl: [], sv: [] };
+// tekst van een woning in een taal: eigen taal, anders Engels (Zweeds komt van JARVIS-Web-TranslateSV; tot die klaar is: Engels)
+const bodyOf = (p, l) => l === 'nl' ? (p.body_nl || p.body_en) : l === 'sv' ? (p.body_sv || p.body_en || p.body_nl) : (p.body_en || p.body_nl);
+const summaryOf = (p, l) => l === 'nl' ? (p.summary_nl || p.summary_en) : l === 'sv' ? (p.summary_sv || (p.body_sv ? null : p.summary_en)) : p.summary_en;
 function bodyHtml(body, lang, guides) {
   if (!body) return '';
   body = body.replace(/&amp;(nbsp|amp|quot|apos|lt|gt|#\d+);/g, '&$1;');
@@ -113,7 +120,7 @@ function bodyHtml(body, lang, guides) {
 
 // ---------- domein: woningen, gidsen ----------
 const stOf = p => p.status && p.status !== 'draft' ? p.status : (p.under_offer ? 'under_offer' : 'available');
-const title = (p, lang) => `${R.catName(p.category, lang)} in ${R.placeLabel(p)}`; // zelfde als title() in de app
+const title = (p, lang) => `${R.catName(p.category, lang)} ${lang === 'sv' ? 'i' : 'in'} ${R.placeLabel(p)}`; // zelfde als title() in de app
 const guideKeys = g => [g.town, ...(g.aliases || [])].map(R.fold);
 function guideFor(p, list) {
   const town = R.fold(p.town), sub = R.fold(p.suburb);
@@ -132,7 +139,7 @@ const PARENT = { 'ciudad-quesada': { name: 'Rojales', slug: 'rojales' }, 'orihue
 
 // ---------- pagina-sjabloon (index.html van de site zelf) ----------
 const TEMPLATE = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-let FOOT_GUIDES = { en: '', nl: '' };
+let FOOT_GUIDES = { en: '', nl: '', sv: '' };
 function page({ lang, key, path: p, alt, title: ttl, desc, image, jsonld = [], body, noindex = false, ogType = 'website' }) {
   let h = TEMPLATE;
   h = h.replace('<html lang="en">', `<html lang="${lang}">`);
@@ -145,8 +152,8 @@ function page({ lang, key, path: p, alt, title: ttl, desc, image, jsonld = [], b
     ...(!noindex && alt && alt.en ? [`<link rel="alternate" hreflang="x-default" href="${abs(alt.en)}">`] : []),
     `<meta property="og:type" content="${ogType}">`, `<meta property="og:site_name" content="Grupo Soltura">`,
     `<meta property="og:title" content="${esc(ttl)}">`, `<meta property="og:description" content="${esc(desc)}">`,
-    `<meta property="og:url" content="${canonical}">`, `<meta property="og:locale" content="${lang === 'nl' ? 'nl_NL' : 'en_GB'}">`,
-    ...(alt && alt[lang === 'nl' ? 'en' : 'nl'] ? [`<meta property="og:locale:alternate" content="${lang === 'nl' ? 'en_GB' : 'nl_NL'}">`] : []),
+    `<meta property="og:url" content="${canonical}">`, `<meta property="og:locale" content="${OG_LOCALE[lang] || 'en_GB'}">`,
+    ...(alt ? LANGS.filter(l => l !== lang && alt[l]).map(l => `<meta property="og:locale:alternate" content="${OG_LOCALE[l]}">`) : []),
     `<meta property="og:image" content="${esc(image || LOGO)}">`,
     `<meta name="twitter:card" content="${image ? 'summary_large_image' : 'summary'}">`,
     ...jsonld.map(j => `<script type="application/ld+json">${JSON.stringify(j).replace(/</g, '\\u003c')}</script>`),
@@ -158,7 +165,7 @@ function page({ lang, key, path: p, alt, title: ttl, desc, image, jsonld = [], b
   h = h.replace(/<a href="[^"]*" data-route="(\w+)"( data-t="\w+")?>/g, (m, r, dt) => `<a href="${R.href(lang, r)}" data-route="${r}"${dt || ''}${(key === 'guide' ? 'area' : key) === r ? ' aria-current="page"' : ''}>`);
   h = h.replace(/href="[^"]*" data-href="(\w+)"/g, (m, r) => `href="${R.href(lang, r)}" data-href="${r}"`);
   h = h.replace(/(data-t="(\w+)"[^>]*>)([^<]*)(<)/g, (m, a, k, txt, b) => { const v = T(lang, k); return a + (typeof v === 'string' && v ? esc(v) : txt) + b; });
-  h = h.replace('<a class="skip" href="#main">Skip to content</a>', `<a class="skip" href="#main">${lang === 'nl' ? 'Naar de inhoud' : 'Skip to content'}</a>`);
+  h = h.replace('<a class="skip" href="#main">Skip to content</a>', `<a class="skip" href="#main">${tx({ en: 'Skip to content', nl: 'Naar de inhoud', sv: 'Till innehållet' }, lang)}</a>`);
   h = h.replace('<main id="main"></main>', `<main id="main">${body}</main>`);
   h = h.replace('<div class="foot-grid">', `<div class="foot-grid">\n    <nav class="foot-areas" aria-label="${esc(T(lang, 'nav_areas'))}"><p><b data-t="nav_areas">${esc(T(lang, 'nav_areas'))}</b></p><p>${FOOT_GUIDES[lang]}</p></nav>`);
   return h;
@@ -167,10 +174,10 @@ function page({ lang, key, path: p, alt, title: ttl, desc, image, jsonld = [], b
 // ---------- inhoud per paginatype (zelfde teksten en opbouw als de app) ----------
 function cardHtml(p, lang) {
   const t = title(p, lang), st = stOf(p);
-  const specs = [p.bedrooms && `${p.bedrooms} ${T(lang, 'sh_bed').toLowerCase()}`, p.bathrooms && `${p.bathrooms} ${T(lang, 'sh_bath').toLowerCase()}`, p.build_area && `${num(p.build_area, lang)} m²`, p.plot_area && `${num(p.plot_area, lang)} m² ${lang === 'nl' ? 'perceel' : 'plot'}`].filter(Boolean).join(' · ');
+  const specs = [p.bedrooms && `${p.bedrooms} ${T(lang, 'sh_bed').toLowerCase()}`, p.bathrooms && `${p.bathrooms} ${T(lang, 'sh_bath').toLowerCase()}`, p.build_area && `${num(p.build_area, lang)} m²`, p.plot_area && `${num(p.plot_area, lang)} m² ${tx({ en: 'plot', nl: 'perceel', sv: 'tomt' }, lang)}`].filter(Boolean).join(' · ');
   return `<a class="card st-card-${st}" href="${R.href(lang, 'property', p)}">
     <div class="ph">${p.image ? `<img src="${esc(render(p.image, 640))}" alt="${esc(t)}" loading="lazy" decoding="async">` : ''}<span class="ref-tag">${esc(p.reference)}</span>${st !== 'available' ? `<span class="st st-${st}"><i></i>${esc(T(lang, 'st_' + st))}</span>` : ''}</div>
-    <div class="meta"><div class="price">${p.price == null ? (lang === 'nl' ? 'Prijs op aanvraag' : 'Price on request') : (p.price_from ? `<small>${esc(T(lang, 'from'))}</small>` : '') + eur(p.price, lang)}</div><h3>${esc(t)}</h3><div class="specs">${esc(specs)}</div></div></a>`;
+    <div class="meta"><div class="price">${p.price == null ? tx({ en: 'Price on request', nl: 'Prijs op aanvraag', sv: 'Pris på förfrågan' }, lang) : (p.price_from ? `<small>${esc(T(lang, 'from'))}</small>` : '') + eur(p.price, lang)}</div><h3>${esc(t)}</h3><div class="specs">${esc(specs)}</div></div></a>`;
 }
 const order = props => [...props].sort((a, b) => ((a.is_own ? 0 : 1) - (b.is_own ? 0 : 1)) || ((b.featured ? 1 : 0) - (a.featured ? 1 : 0)) || String(b.list_date || '').localeCompare(String(a.list_date || '')));
 const timeline = steps => `<ol class="tl">${steps.map(([h, p], i) => `<li><span class="tl-n">${i + 1}</span><div><h3>${h}</h3><p>${p}</p></div></li>`).join('')}</ol>`;
@@ -229,10 +236,9 @@ function bodyAreas(lang, guides, props) {
   }).join('')}</div></div>`;
 }
 function bodyGuide(lang, g, guides, props) {
-  const nl = lang === 'nl';
   const secs = (g.sections || []).filter(s => s && (s.html || (s.rows && s.rows.length)));
   const photos = g.photos || [], homes = guideHomes(g, props);
-  const table = s => `<div class="tbl-wrap"><table class="area-tbl${s.key === 'festivals' ? ' fest' : ''}">${s.key === 'festivals' ? `<thead><tr><th>${nl ? 'Feest' : 'Festival'}</th><th>${nl ? 'Wanneer' : 'When'}</th><th>${nl ? 'Wat' : 'What'}</th></tr></thead>` : ''}<tbody>${s.rows.map(r => `<tr>${r.map((c, i) => `<td${i === 0 ? ' class="k"' : ''}>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  const table = s => `<div class="tbl-wrap"><table class="area-tbl${s.key === 'festivals' ? ' fest' : ''}">${s.key === 'festivals' ? `<thead><tr><th>${tx({ en: 'Festival', nl: 'Feest', sv: 'Fest' }, lang)}</th><th>${tx({ en: 'When', nl: 'Wanneer', sv: 'När' }, lang)}</th><th>${tx({ en: 'What', nl: 'Wat', sv: 'Vad' }, lang)}</th></tr></thead>` : ''}<tbody>${s.rows.map(r => `<tr>${r.map((c, i) => `<td${i === 0 ? ' class="k"' : ''}>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
   const near = nearby(g, guides);
   return `<section class="page-hero short area-hero">${photos[0] ? `<img class="hero-kb" src="${esc(render(photos[0].url, 1800))}" alt="" aria-hidden="true">` : ''}<div>
     <nav class="kicker crumbs" aria-label="Breadcrumb"><a href="${R.href(lang, 'home')}">Grupo Soltura</a> › <a href="${R.href(lang, 'area')}">${esc(T(lang, 'nav_areas'))}</a></nav>
@@ -240,15 +246,16 @@ function bodyGuide(lang, g, guides, props) {
   <div class="pg area-pg">
     ${(g.facts || []).length ? `<dl class="area-facts">${g.facts.map(f => `<div><dt>${esc(f.label)}</dt><dd>${esc(f.value)}</dd></div>`).join('')}</dl>` : ''}
     <div class="post-body area-body">${secs.map(s => `<section id="sec-${esc(s.key)}"><h2 class="pg-h">${esc(s.heading)}</h2>${s.rows ? table(s) : sanitize(s.html, lang)}</section>`).join('')}</div>
-    ${near.length ? `<section class="area-near"><h2 class="pg-h">${nl ? 'In de buurt' : 'Nearby'}</h2><ul class="near-list">${near.map(x => `<li><a href="${R.href(lang, 'guide', x.g.slug)}">${esc(x.g.town)}</a> <small>${Math.round(x.km)} km</small></li>`).join('')}</ul></section>` : ''}
-    <details class="area-src"><summary>${nl ? 'Bronnen en foto\'s' : 'Sources and photos'}</summary><ul>${(g.sources || []).filter(x => x && /^https?:/i.test(x.url || '')).map(x => `<li><a href="${esc(x.url)}" rel="noopener nofollow">${esc(x.title || new URL(x.url).hostname)}</a></li>`).join('')}</ul>
-      ${photos.length ? `<p class="muted">${nl ? 'Foto\'s via Wikimedia Commons' : 'Photos via Wikimedia Commons'}: ${photos.map(ph => `${esc(ph.author || 'Wikimedia Commons')}, <a href="${esc(ph.page_url)}" rel="noopener nofollow">${esc(ph.license)}</a>`).join(' · ')}</p>` : ''}</details>
+    ${near.length ? `<section class="area-near"><h2 class="pg-h">${tx({ en: 'Nearby', nl: 'In de buurt', sv: 'I närheten' }, lang)}</h2><ul class="near-list">${near.map(x => `<li><a href="${R.href(lang, 'guide', x.g.slug)}">${esc(x.g.town)}</a> <small>${Math.round(x.km)} km</small></li>`).join('')}</ul></section>` : ''}
+    <details class="area-src"><summary>${tx({ en: 'Sources and photos', nl: 'Bronnen en foto\'s', sv: 'Källor och foton' }, lang)}</summary><ul>${(g.sources || []).filter(x => x && /^https?:/i.test(x.url || '')).map(x => `<li><a href="${esc(x.url)}" rel="noopener nofollow">${esc(x.title || new URL(x.url).hostname)}</a></li>`).join('')}</ul>
+      ${photos.length ? `<p class="muted">${tx({ en: 'Photos via Wikimedia Commons', nl: 'Foto\'s via Wikimedia Commons', sv: 'Foton via Wikimedia Commons' }, lang)}: ${photos.map(ph => `${esc(ph.author || 'Wikimedia Commons')}, <a href="${esc(ph.page_url)}" rel="noopener nofollow">${esc(ph.license)}</a>`).join(' · ')}</p>` : ''}</details>
   </div>
   ${homes.length ? `<section class="section"><h2>${esc(T(lang, 'area_h', g.town))}</h2><div class="rail">${order(homes).slice(0, 24).map(p => cardHtml(p, lang)).join('')}</div></section>` : homesRail(props, lang)}`;
 }
 function bodyProperty(lang, p, guide) {
-  const nl = lang === 'nl', t = title(p, lang), st = stOf(p);
-  const body = bodyHtml(nl ? (p.body_nl || p.body_en) : (p.body_en || p.body_nl), lang, LINK_GUIDES[lang]) || (p.summary_en ? `<p>${esc(nl ? (p.summary_nl || p.summary_en) : p.summary_en)}</p>` : '');
+  const t = title(p, lang), st = stOf(p);
+  const sum = summaryOf(p, lang) || p.summary_en;
+  const body = bodyHtml(bodyOf(p, lang), lang, LINK_GUIDES[lang]) || (sum ? `<p>${esc(sum)}</p>` : '');
   const facts = [[p.bedrooms, T(lang, 'sh_bed')], [p.bathrooms, T(lang, 'sh_bath')], [p.build_area && num(p.build_area, lang) + ' m²', T(lang, 'sh_built')], [p.plot_area && num(p.plot_area, lang) + ' m²', T(lang, 'sh_plot')], [p.year_built, T(lang, 'sh_year')], [p.energy_label && p.energy_label !== 'R' ? p.energy_label : null, T(lang, 'sh_energy')]].filter(x => x[0] != null && x[0] !== '');
   const feats = [];
   if (p.pool_private) feats.push(T(lang, 'pool_private')); if (p.pool_communal) feats.push(T(lang, 'pool_communal'));
@@ -258,7 +265,7 @@ function bodyProperty(lang, p, guide) {
   return `<article class="prop-static">
     <nav class="kicker crumbs" aria-label="Breadcrumb"><a href="${R.href(lang, 'home')}">${esc(T(lang, 'nav_homes'))}</a>${guide ? ` › <a href="${R.href(lang, 'guide', guide.slug)}">${esc(guide.town)}</a>` : ''} › ${esc(p.reference)}</nav>
     <h1>${esc(t)}</h1>
-    <p class="sh-price">${st !== 'available' ? `<span class="st st-${st} big"><i></i>${esc(T(lang, 'st_' + st))}</span> ` : ''}${p.price_from ? `<small>${esc(T(lang, 'from'))}</small> ` : ''}${p.price != null ? eur(p.price, lang) : (nl ? 'Prijs op aanvraag' : 'Price on request')}</p>
+    <p class="sh-price">${st !== 'available' ? `<span class="st st-${st} big"><i></i>${esc(T(lang, 'st_' + st))}</span> ` : ''}${p.price_from ? `<small>${esc(T(lang, 'from'))}</small> ` : ''}${p.price != null ? eur(p.price, lang) : tx({ en: 'Price on request', nl: 'Prijs op aanvraag', sv: 'Pris på förfrågan' }, lang)}</p>
     <p class="ref">${esc(T(lang, 'sh_ref'))} ${esc(p.reference)}</p>
     ${photos.length ? `<div class="gal-static">${photos.map((u, i) => `<img src="${esc(render(u, i ? 900 : 1600) || u)}" alt="${esc(t)}${i ? ' – ' + (i + 1) : ''}"${i ? ' loading="lazy"' : ''}>`).join('')}</div>` : ''}
     ${facts.length ? `<dl class="keyfacts">${facts.map(([v, l]) => `<div><dt>${esc(l)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>` : ''}
@@ -273,12 +280,11 @@ function bodyNews(lang, list) {
   <div class="news-grid" id="newsList">${list.map(r => `<a class="news-card${r.image_url ? ' has-img' : ''}" href="${R.href(r.lang, 'news', r.slug)}">${r.image_url ? `<span class="nc-img"><img src="${esc(r.image_url)}" alt="" loading="lazy" referrerpolicy="no-referrer"></span>` : ''}<span class="nc-txt"><h3>${esc(r.title)}</h3>${r.excerpt ? `<p class="nc-ex">${esc(r.excerpt)}</p>` : ''}<small>${r.source_name ? esc(r.source_name) + ' · ' : ''}${fmtDate(r.published_at, lang)}</small></span></a>`).join('')}</div>`;
 }
 function bodyPost(lang, r) {
-  const nl = lang === 'nl';
   return `<article class="post"><p class="kicker"><a href="${R.href(lang, 'news')}">← ${esc(T(lang, 'nav_news'))}</a></p><h1>${esc(r.title)}</h1>
     <p class="post-meta muted"><time datetime="${esc(r.published_at || '')}">${fmtDate(r.published_at, lang)}</time>${r.source_name ? ' · ' + esc(r.source_name) : ''}</p>
     ${r.image_url ? `<figure class="post-img"><img src="${esc(r.image_url)}" alt="" referrerpolicy="no-referrer"></figure>` : ''}
     ${r.excerpt ? `<p class="post-lead">${esc(r.excerpt)}</p>` : ''}<div class="post-body">${sanitize(r.body_html, r.lang)}</div>
-    ${r.source_url && /^https?:/i.test(r.source_url) ? `<p class="post-src">${nl ? 'Bron' : 'Source'}: <a href="${esc(r.source_url)}" rel="noopener nofollow">${esc(r.source_name || new URL(r.source_url).hostname)}</a></p>` : ''}</article>`;
+    ${r.source_url && /^https?:/i.test(r.source_url) ? `<p class="post-src">${tx({ en: 'Source', nl: 'Bron', sv: 'Källa' }, lang)}: <a href="${esc(r.source_url)}" rel="noopener nofollow">${esc(r.source_name || new URL(r.source_url).hostname)}</a></p>` : ''}</article>`;
 }
 
 // ---------- JSON-LD ----------
@@ -317,19 +323,20 @@ async function main() {
   log(`woningen ${props.length} (vorige build ${prevN || 'onbekend'}), gidsen ${allGuides.length}, berichten ${posts.length}`);
   if (props.length < 50 && prevN >= 50) die(`slechts ${props.length} woningen`);
   if (prevN && props.length < prevN * 0.5) die(`${props.length} woningen is minder dan 50% van de vorige build (${prevN})`);
-  const G = { en: allGuides.filter(g => g.lang === 'en'), nl: allGuides.filter(g => g.lang === 'nl') };
+  const G = Object.fromEntries(LANGS.map(l => [l, allGuides.filter(g => g.lang === l)]));
   if (!G.en.length || !G.nl.length) die('geen woonplaatsgidsen ontvangen');
-  for (const l of ['en', 'nl']) { LINK_GUIDES[l] = G[l]; G[l].forEach(g => { GUIDE_SLUGS[g.slug] = 1; }); }
-  for (const l of ['en', 'nl']) FOOT_GUIDES[l] = G[l].map(g => `<a href="${R.href(l, 'guide', g.slug)}" data-guide="${esc(g.slug)}">${esc(g.town)}</a>`).join(' · ');
+  if (!G.sv.length) G.sv = G.en; // nog geen Zweedse gidsen: Engelse inhoud onder /sv/ (komt niet voor sinds 19-10-2026)
+  for (const l of LANGS) { LINK_GUIDES[l] = G[l]; G[l].forEach(g => { GUIDE_SLUGS[g.slug] = 1; }); }
+  for (const l of LANGS) FOOT_GUIDES[l] = G[l].map(g => `<a href="${R.href(l, 'guide', g.slug)}" data-guide="${esc(g.slug)}">${esc(g.town)}</a>`).join(' · ');
 
   copySite();
   const sm = { pages: [], areas: [], homes: [], news: [] }; // [{alt:{en,nl}, lastmod}]
-  const both = key => ({ en: R.href('en', key), nl: R.href('nl', key) });
+  const both = key => Object.fromEntries(LANGS.map(l => [l, R.href(l, key)]));
   const lastProp = props.map(p => p.price_changedate || p.list_date).filter(Boolean).sort().pop()?.slice(0, 10) || TODAY;
 
   // vaste pagina's
   const fixed = [
-    ['home', l => ({ title: l === 'nl' ? 'Grupo Soltura · Woningen te koop aan de Costa Blanca' : 'Grupo Soltura · Homes for sale on the Costa Blanca', desc: l === 'nl' ? 'Lokale experts sinds 2002. Bekijk al onze woningen te koop in de Vega Baja en aan de zuidelijke Costa Blanca, stel vragen per woning en spreek het team direct.' : 'Local experts since 2002. Browse every home we offer in the Vega Baja and on the southern Costa Blanca, ask questions about any listing and talk to the team directly.', body: bodyHome(l, props, G[l]), jsonld: [ld(ORG), ld({ '@type': 'WebSite', name: 'Grupo Soltura', url: SITE + '/', inLanguage: l })], lastmod: lastProp })],
+    ['home', l => ({ title: tx({ en: 'Grupo Soltura · Homes for sale on the Costa Blanca', nl: 'Grupo Soltura · Woningen te koop aan de Costa Blanca', sv: 'Grupo Soltura · Bostäder till salu på Costa Blanca' }, l), desc: tx({ en: 'Local experts since 2002. Browse every home we offer in the Vega Baja and on the southern Costa Blanca, ask questions about any listing and talk to the team directly.', nl: 'Lokale experts sinds 2002. Bekijk al onze woningen te koop in de Vega Baja en aan de zuidelijke Costa Blanca, stel vragen per woning en spreek het team direct.', sv: 'Lokala experter sedan 2002. Se alla bostäder vi har till salu i Vega Baja och på södra Costa Blanca, ställ frågor om varje bostad och prata direkt med teamet.' }, l), body: bodyHome(l, props, G[l]), jsonld: [ld(ORG), ld({ '@type': 'WebSite', name: 'Grupo Soltura', url: SITE + '/', inLanguage: l })], lastmod: lastProp })],
     ['buy', l => ({ title: `${strip(PAGES[l].buy.h)} · Grupo Soltura`, desc: cut(strip(PAGES[l].buy.lead + ' ' + PAGES[l].buy.intro)), body: bodyBuy(l, props) })],
     ['sell', l => ({ title: `${strip(PAGES[l].sell.h)} · Grupo Soltura`, desc: cut(strip(PAGES[l].sell.lead)), body: bodySell(l) })],
     ['move', l => ({ title: `${strip(PAGES[l].move.h)} · Grupo Soltura`, desc: cut(strip(PAGES[l].move.lead)), body: bodyMove(l, props) })],
@@ -339,7 +346,7 @@ async function main() {
   ];
   for (const [key, fnc] of fixed) {
     const alt = both(key);
-    for (const l of ['en', 'nl']) {
+    for (const l of LANGS) {
       const c = fnc(l);
       const jsonld = [...(c.jsonld || []), ...(key === 'home' ? [] : [crumbs([['Grupo Soltura', R.href(l, 'home')], [strip(c.title.split(' · ')[0]), R.href(l, key)]])])];
       const html = page({ lang: l, key, path: alt[l], alt, title: c.title, desc: c.desc, jsonld, body: c.body });
@@ -349,12 +356,12 @@ async function main() {
     sm.pages.push({ alt, lastmod: fnc('en').lastmod || TODAY });
   }
   // favorieten: persoonlijk, niet indexeren
-  for (const l of ['en', 'nl']) write(R.href(l, 'favorites'), page({ lang: l, key: 'favorites', path: R.href(l, 'favorites'), title: `${T(l, 'fav_h')} · Grupo Soltura`, desc: T(l, 'fav_h'), noindex: true, body: `<div class="page-head"><h1>${esc(T(l, 'fav_h'))}</h1></div>` }));
+  for (const l of LANGS) write(R.href(l, 'favorites'), page({ lang: l, key: 'favorites', path: R.href(l, 'favorites'), title: `${T(l, 'fav_h')} · Grupo Soltura`, desc: T(l, 'fav_h'), noindex: true, body: `<div class="page-head"><h1>${esc(T(l, 'fav_h'))}</h1></div>` }));
 
   // woonplaatsgidsen
   for (const g of G.en) {
-    const alt = { en: R.href('en', 'guide', g.slug), nl: G.nl.some(x => x.slug === g.slug) ? R.href('nl', 'guide', g.slug) : null };
-    for (const l of ['en', 'nl']) {
+    const alt = Object.fromEntries(LANGS.map(l => [l, G[l].some(x => x.slug === g.slug) ? R.href(l, 'guide', g.slug) : null]));
+    for (const l of LANGS) {
       const gl = G[l].find(x => x.slug === g.slug); if (!gl) continue;
       const ph = (gl.photos || [])[0];
       const par = PARENT[gl.slug];
@@ -371,12 +378,12 @@ async function main() {
   // woningen
   const routes = { v: TODAY, props: {}, gone: {}, guides: {}, towns: {} };
   for (const p of props) {
-    const guide = { en: guideFor(p, G.en), nl: guideFor(p, G.nl) };
-    const alt = { en: R.href('en', 'property', p), nl: R.href('nl', 'property', p) };
-    for (const l of ['en', 'nl']) {
+    const guide = Object.fromEntries(LANGS.map(l => [l, guideFor(p, G[l])]));
+    const alt = Object.fromEntries(LANGS.map(l => [l, R.href(l, 'property', p)]));
+    for (const l of LANGS) {
       const t = title(p, l), img = p.image ? render(p.image, 1200) : null, gd = guide[l];
-      const summary = l === 'nl' ? (p.summary_nl || p.summary_en) : p.summary_en;
-      const desc = cut(`${t}${p.price != null ? ' · ' + eur(p.price, l) : ''}. ${summary || strip(l === 'nl' ? (p.body_nl || p.body_en) : (p.body_en || p.body_nl))}`);
+      const summary = summaryOf(p, l);
+      const desc = cut(`${t}${p.price != null ? ' · ' + eur(p.price, l) : ''}. ${summary || strip(bodyOf(p, l))}`);
       const avail = { available: 'https://schema.org/InStock', under_offer: 'https://schema.org/LimitedAvailability', reserved: 'https://schema.org/LimitedAvailability', sold: 'https://schema.org/SoldOut' }[stOf(p)] || 'https://schema.org/InStock';
       const listing = ld({ '@type': 'RealEstateListing', name: `${t} · ${p.reference}`, url: abs(alt[l]), inLanguage: l, datePosted: p.list_date || undefined,
         image: [...new Set([p.image, ...(p.photos || [])].filter(Boolean))].slice(0, 6).map(u => render(u, 1200)),
@@ -386,9 +393,9 @@ async function main() {
           floorSize: p.build_area ? { '@type': 'QuantitativeValue', value: Number(p.build_area), unitCode: 'MTK' } : undefined,
           address: { '@type': 'PostalAddress', addressLocality: R.placeLabel(p), addressRegion: p.province || 'Alicante', addressCountry: 'ES' } } });
       const cr = crumbs([[T(l, 'nav_homes'), R.href(l, 'home')], ...(gd ? [[gd.town, R.href(l, 'guide', gd.slug)]] : []), [`${t} · ${p.reference}`, alt[l]]]);
-      write(alt[l], page({ lang: l, key: 'property', path: alt[l], alt, title: `${t} ${stOf(p) === 'sold' ? (l === 'nl' ? '(verkocht)' : '(sold)') : (l === 'nl' ? 'te koop' : 'for sale')} · ${p.reference} · Grupo Soltura`, desc, image: img, ogType: 'product', jsonld: [cr, listing], body: bodyProperty(l, p, gd) }));
+      write(alt[l], page({ lang: l, key: 'property', path: alt[l], alt, title: `${t} ${stOf(p) === 'sold' ? tx({ en: '(sold)', nl: '(verkocht)', sv: '(såld)' }, l) : tx({ en: 'for sale', nl: 'te koop', sv: 'till salu' }, l)} · ${p.reference} · Grupo Soltura`, desc, image: img, ogType: 'product', jsonld: [cr, listing], body: bodyProperty(l, p, gd) }));
     }
-    routes.props[p.reference.toUpperCase()] = { en: alt.en, nl: alt.nl, g: guide.en ? guide.en.slug : null };
+    routes.props[p.reference.toUpperCase()] = { en: alt.en, nl: alt.nl, sv: alt.sv, g: guide.en ? guide.en.slug : null };
     sm.homes.push({ alt, lastmod: (p.price_changedate || p.list_date || TODAY).slice(0, 10) });
   }
   // verdwenen woningen onthouden (301 naar de gids van hun plaats, anders het aanbod)
@@ -413,8 +420,8 @@ async function main() {
     if (!sm.news.some(x => x.alt[l] === p)) sm.news.push({ alt, lastmod: (r.published_at || TODAY).slice(0, 10) });
   }
   const newsAlt = both('news');
-  for (const l of ['en', 'nl']) {
-    const list = [...byGroup.values()].map(g => g.find(r => (r.lang || '').toLowerCase() === l) || g[0]).filter(r => ['en', 'nl'].includes((r.lang || '').toLowerCase()))
+  for (const l of LANGS) {
+    const list = [...byGroup.values()].map(g => g.find(r => (r.lang || '').toLowerCase() === l) || g.find(r => (r.lang || '').toLowerCase() === 'en') || g[0]).filter(r => ['en', 'nl'].includes((r.lang || '').toLowerCase()))
       .sort((a, b) => String(b.published_at || '').localeCompare(String(a.published_at || ''))).slice(0, 60);
     write(newsAlt[l], page({ lang: l, key: 'news', path: newsAlt[l], alt: newsAlt, title: `${T(l, 'news_h')} · Grupo Soltura`, desc: cut(T(l, 'news_p')), body: bodyNews(l, list),
       jsonld: [crumbs([['Grupo Soltura', R.href(l, 'home')], [T(l, 'nav_news'), newsAlt[l]]])] }));
@@ -425,7 +432,7 @@ async function main() {
   // zo niet, dan draait de app: een woning die na de laatste build is gepubliceerd opent gewoon, een onbekend pad toont 'bestaat niet'.
   const RESOLVE = `<script src="/js/routes.js"></script><script src="/js/resolve.js"></script><script>(function(){var g=function(u){return fetch(u).then(function(r){return r.ok?r.json():null}).catch(function(){return null})};Promise.all([g('/redirects.json'),g('/routes.json')]).then(function(x){var t=null;try{t=solturaResolve(location.pathname,location.search,x[0]||{},x[1]||null)}catch(e){}if(t&&t!==location.pathname)location.replace(location.origin+t+(location.hash||''))})})();</script>`;
   const nf = page({ lang: 'en', key: 'notfound', path: '/404/', title: 'Grupo Soltura', desc: 'Grupo Soltura · Costa Blanca', noindex: true,
-    body: `<div class="empty"><h1>Grupo Soltura</h1><p><a class="btn primary" href="/en/">See all homes</a> <a class="btn ghost" href="/en/areas/">Areas</a> · <a href="/nl/">Alle woningen</a> · <a href="/nl/woonplaatsen/">Woonplaatsen</a></p></div>` })
+    body: `<div class="empty"><h1>Grupo Soltura</h1><p><a class="btn primary" href="/en/">See all homes</a> <a class="btn ghost" href="/en/areas/">Areas</a> · <a href="/nl/">Alle woningen</a> · <a href="/nl/woonplaatsen/">Woonplaatsen</a> · <a href="/sv/">Alla bostäder</a> · <a href="/sv/orter/">Orter</a></p></div>` })
     .replace('</head>', RESOLVE + '\n</head>');
   fs.writeFileSync(path.join(OUT, '404.html'), nf);
 

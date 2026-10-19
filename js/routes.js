@@ -1,24 +1,24 @@
 /* Grupo Soltura — URL-schema (echte paden per taal). Gedeeld door de app (window.ROUTES),
    het buildscript (scripts/build.mjs) en de redirects (404.html / Cloudflare Worker).
-   Schema (besluit 19-10-2026): /en/ en /nl/ met voorvoegsel, / = Engelse inhoud met canonical naar /en/.
+   Schema (besluit 19-10-2026): /en/, /nl/ en (sinds 19-10) /sv/ met voorvoegsel, / = Engelse inhoud met canonical naar /en/.
    Woning: /en/property/<ref>-<soort>-<plaats>/ · /nl/woning/<ref>-<soort>-<plaats>/ — de referentie is de sleutel,
    de rest is leesbaar en mag veranderen (een afwijkend leesbaar deel wordt doorgestuurd naar de canonieke vorm). */
 (function (root) {
   'use strict';
-  var LANGS = ['en', 'nl'];
+  var LANGS = ['en', 'nl', 'sv'];
   // routesleutel -> padsegment per taal ('' = startpagina van die taal)
   var SEG = {
-    home: { en: '', nl: '' },
-    buy: { en: 'buying', nl: 'kopen' },
-    sell: { en: 'selling', nl: 'verkopen' },
-    move: { en: 'move-to-spain', nl: 'emigreren' },
-    area: { en: 'areas', nl: 'woonplaatsen' },
-    guide: { en: 'living-in', nl: 'wonen-in' },
-    news: { en: 'news', nl: 'nieuws' },
-    contact: { en: 'contact', nl: 'contact' },
-    privacy: { en: 'privacy', nl: 'privacy' },
-    favorites: { en: 'favorites', nl: 'favorieten' },
-    property: { en: 'property', nl: 'woning' },
+    home: { en: '', nl: '', sv: '' },
+    buy: { en: 'buying', nl: 'kopen', sv: 'kopa' },
+    sell: { en: 'selling', nl: 'verkopen', sv: 'salja' },
+    move: { en: 'move-to-spain', nl: 'emigreren', sv: 'flytta-till-spanien' },
+    area: { en: 'areas', nl: 'woonplaatsen', sv: 'orter' },
+    guide: { en: 'living-in', nl: 'wonen-in', sv: 'bo-i' },
+    news: { en: 'news', nl: 'nieuws', sv: 'nyheter' },
+    contact: { en: 'contact', nl: 'contact', sv: 'kontakt' },
+    privacy: { en: 'privacy', nl: 'privacy', sv: 'integritet' },
+    favorites: { en: 'favorites', nl: 'favorieten', sv: 'favoriter' },
+    property: { en: 'property', nl: 'woning', sv: 'bostad' },
   };
   // segment -> sleutel (beide talen; ook een segment uit de andere taal wordt herkend en daarna rechtgezet)
   var BYSEG = {};
@@ -26,6 +26,7 @@
 
   var CAT = {
     en: { quadrant: 'Quad house', 'semi-detached': 'Semi-detached', attic: 'Penthouse', other: 'Home' },
+    sv: { villa: 'Villa', apartment: 'L\u00e4genhet', bungalow: 'Bungalow', detached: 'Frist\u00e5ende hus', townhouse: 'Radhus', penthouse: 'Takv\u00e5ning', quadrant: 'Kedjehus (quad)', duplex: 'Duplex', finca: 'Finca', 'semi-detached': 'Parhus', commercial: 'Lokal', other: 'Bostad', plot: 'Tomt', attic: 'Takv\u00e5ning' },
     nl: { villa: 'Villa', apartment: 'Appartement', bungalow: 'Bungalow', detached: 'Vrijstaand huis', townhouse: 'Rijtjeshuis', penthouse: 'Penthouse', quadrant: 'Hoekwoning (quad)', duplex: 'Duplex', finca: 'Finca', 'semi-detached': 'Twee-onder-een-kap', commercial: 'Bedrijfspand', other: 'Woning', plot: 'Bouwgrond', attic: 'Penthouse' },
   };
   function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
@@ -51,7 +52,7 @@
 
   // href(lang, key, arg) -> pad. key 'property' verwacht arg = woning-object (of {reference, category, town, suburb}) of een referentie.
   function href(lang, key, arg) {
-    lang = lang === 'nl' ? 'nl' : 'en';
+    lang = LANGS.indexOf(lang) >= 0 ? lang : 'en';
     var s = SEG[key] ? SEG[key][lang] : '';
     if (key === 'property') {
       var a = typeof arg === 'string' ? arg.toLowerCase() : propSlug(arg, lang);
@@ -141,7 +142,7 @@
     if (!m) return null;
     var p = (m[1] || '/').toLowerCase(), g = p.match(/\/(?:woning-kopen-in-|buying-property-in-|wonen-in\/|living-in\/|area\/|woonplaatsen\/|areas\/)([a-z0-9\-]+)/);
     if (g && slugs && slugs[g[1]]) return href(lang, 'guide', g[1]);
-    if (/^\/(en|nl)\//.test(p) && parse(p)) return p;
+    if (/^\/(en|nl|sv)\//.test(p) && parse(p)) return p;
     return href(lang, 'home');
   }
   // html: al opgeschoonde omschrijving. guides: woonplaatsgidsen in deze taal (slug, town, aliases).

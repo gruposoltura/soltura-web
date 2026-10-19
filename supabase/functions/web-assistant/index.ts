@@ -2,6 +2,7 @@
 // mode=search : natuurlijke taal -> filters + korte reactie, OF een lokale vraag over onze plaatsen (intent 'local')
 // mode=ask    : vraag over een specifieke woning, gegrond in web_properties + web_property_geo
 // POST {mode, lang, query, id?, reference?, wp_id?, history?}  of  GET ?mode=&lang=&q=&id=&ref=&wp_id=
+// v14 (19-10-2026): Zweedse website (/sv/): lang 'sv' als terugvaltaal, Zweedse knopteksten en foutmeldingen, Zweedse omschrijving (body_sv) als die er is.
 // v13 (18-10-2026): lokale antwoorden korter; afstanden alleen uit de tabel; geen routes/buslijnen; geen ongevraagde diensten.
 // v12 (18-10-2026): search-mode via tool use (altijd geldige JSON, geen afgekapte replies) en typische afstanden per plaats
 //   (gemiddelden uit web_property_geo) als grond voor strand/vliegveld-vragen.
@@ -31,6 +32,7 @@ How we talk:
 - Always in the "we" form: "we", "our", "this villa of ours", "we know this area well". Never refer to "the listing", "the data", "the description", "the information provided" or "the facts I have". You know this home and this area; speak from that knowledge with quiet authority.
 - Warm, direct and confident, like an experienced local agent talking to a client. Short sentences. No hype, no exclamation marks, no filler.
 - Dutch: informal "je/jij", natural Dutch, never a literal translation of English phrasing.
+- Swedish: informal "du", natural Swedish, never a literal translation of English phrasing.
 - Give concrete numbers (km, minutes, euros, m²) whenever you have them, rounded sensibly ("about 7 km, roughly a quarter of an hour by car").
 - Never say you cannot answer or that something is unknown in a distant way. If a detail is genuinely not known to us yet (for example community fees or the exact year of a renovation), say it the way an agent would: "That is something we will check for you with the owner." and offer to arrange it. Do not invent such details.
 - You may use general, stable local knowledge about the Vega Baja and Costa Blanca South (towns, beaches, golf courses, airports, healthcare, supermarkets, the climate, the AP-7 and CV-905), but never invent facts about this specific home.
@@ -175,16 +177,17 @@ Deno.serve(async (req) => {
     try { body = await req.json(); } catch { return json({ error: 'bad json' }, 400); }
   }
   const mode = String(body.mode || 'search');
-  const lang = body.lang === 'nl' ? 'nl' : 'en';
+  const lang = body.lang === 'nl' || body.lang === 'sv' ? body.lang : 'en';
+  const tx = (o: Record<string, string>) => o[lang] ?? o.en;
   const query = String(body.query || '').slice(0, 500);
   // Taal: altijd de taal waarin de bezoeker schrijft; de paginataal is alleen de terugval.
-  const LANG = `Always reply in the language the visitor writes in (Dutch, English, Spanish, German, French, Swedish, Norwegian, Polish or any other), also when the website is set to another language. Only when the message gives no clear language, reply in ${lang === 'nl' ? 'Dutch' : 'English'}. Suggestions use the same language as your reply.`;
+  const LANG = `Always reply in the language the visitor writes in (Dutch, English, Spanish, German, French, Swedish, Norwegian, Polish or any other), also when the website is set to another language. Only when the message gives no clear language, reply in ${tx({ en: 'English', nl: 'Dutch', sv: 'Swedish' })}. Suggestions use the same language as your reply.`;
   if (!query) return json({ error: 'empty' }, 400);
 
   // eenvoudige rate limit: 40 vragen per uur per (gehasht) IP
   const since = new Date(Date.now() - 3600_000).toISOString();
   const { count } = await sb.from('web_assistant_log').select('id', { count: 'exact', head: true }).eq('ip_hash', ipHash).gte('at', since);
-  if ((count || 0) > 40) return json({ reply: lang === 'nl' ? 'Je hebt veel vragen gesteld. Bel of app ons gerust, dan helpen we je persoonlijk verder.' : 'You have asked a lot of questions. Feel free to call or WhatsApp us and we will help you personally.' }, 429);
+  if ((count || 0) > 40) return json({ reply: tx({ en: 'You have asked a lot of questions. Feel free to call or WhatsApp us and we will help you personally.', nl: 'Je hebt veel vragen gesteld. Bel of app ons gerust, dan helpen we je persoonlijk verder.', sv: 'Du har ställt många frågor. Ring eller skicka ett WhatsApp till oss, så hjälper vi dig personligen.' }) }, 429);
 
   let out: any = {}, ok = true, wpId: number | null = null;
   try {
@@ -210,7 +213,7 @@ ${tg}
    - If you are not sure a facility (health centre, school, station, hospital) exists in that exact town, say what is nearby in general terms and offer to check it for them.
    - Never offer services nobody asked for (airport pickup, car rental, bookings). The only offers you make: more about the area, showing our homes there, or checking a detail for them.
    - End with one short, natural bridge to living there, only when it fits, for example that we have homes in that town. Never pushy.
-   - Set "town" to the one town from our list the question is mainly about (exact spelling from the list), else null. Set "cta" to a short button label in the reply language, like "Bekijk onze woningen in Rojales" / "See our homes in Rojales", only when town is set; else null.
+   - Set "town" to the one town from our list the question is mainly about (exact spelling from the list), else null. Set "cta" to a short button label in the reply language, like "Bekijk onze woningen in Rojales" / "See our homes in Rojales" / "Se våra bostäder i Rojales", only when town is set; else null.
 
 3. intent "off_topic": anything not about homes or about life around our towns (programming, recipes, homework, politics, other countries or regions of Spain far from us). Reply in one or two friendly sentences that this is not something we help with here, and that we are happy to tell them about homes and life on the Costa Blanca South. No filters, town null.
 
@@ -225,7 +228,7 @@ ${LANG}`;
       out.intent = intent;
       if (intent !== 'search') out.filters = null;
       if (!out.town || !f.towns.includes(out.town) || intent !== 'local') { out.town = null; out.cta = null; }
-      if (out.town && !out.cta) out.cta = (lang === 'nl' ? 'Bekijk onze woningen in ' : 'See our homes in ') + out.town;
+      if (out.town && !out.cta) out.cta = tx({ en: 'See our homes in ', nl: 'Bekijk onze woningen in ', sv: 'Se våra bostäder i ' }) + out.town;
     } else if (mode === 'ask') {
       const uuid = /^[0-9a-f-]{36}$/i.test(String(body.id || '')) ? String(body.id) : null;
       const ref = String(body.reference || '').trim().toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 20) || null;
@@ -248,7 +251,7 @@ ${LANG}`;
         energy_label: p.energy_label === 'R' ? 'in progress' : p.energy_label, orientation: p.orientation, view: p.view_type, features: p.features, terraces: p.terraces,
         solarium: p.solarium, aircon: p.aircon, status: p.status || (p.under_offer ? 'under_offer' : 'available'),
         price_vs_market_pct: p.is_newbuild ? null : p.market_deviation_pct, market_median_eur_m2: p.is_newbuild ? null : p.market_median_m2,
-        description: strip(lang === 'nl' ? (p.body_nl || p.body_en) : (p.body_en || p.body_nl)).slice(0, 3500),
+        description: strip(lang === 'nl' ? (p.body_nl || p.body_en) : lang === 'sv' ? (p.body_sv || p.body_en || p.body_nl) : (p.body_en || p.body_nl)).slice(0, 3500),
       };
       // Lokale feiten van de plaats van deze woning (bijv. de weekmarkt), zodat ook die vragen goed gaan.
       const ti = await townInfo();
@@ -262,7 +265,7 @@ ${LANG}`;
     }
   } catch (e) {
     ok = false;
-    out = { reply: lang === 'nl' ? 'Even geen verbinding met onze assistent. App of bel ons gerust, we reageren snel.' : 'Our assistant is briefly unavailable. Feel free to WhatsApp or call us, we reply quickly.', error: String(e).slice(0, 200) };
+    out = { reply: tx({ en: 'Our assistant is briefly unavailable. Feel free to WhatsApp or call us, we reply quickly.', nl: 'Even geen verbinding met onze assistent. App of bel ons gerust, we reageren snel.', sv: 'Vår assistent är inte tillgänglig just nu. Skicka gärna ett WhatsApp eller ring oss, vi svarar snabbt.' }), error: String(e).slice(0, 200) };
   }
   await sb.from('web_assistant_log').insert({ ip_hash: ipHash, mode, lang, query, wp_id: wpId, result: out, ms: Date.now() - t0, ok });
   const { error: _e, ...pub } = out;

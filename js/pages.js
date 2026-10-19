@@ -1,4 +1,4 @@
-// Grupo Soltura website — inhoud van de vaste pagina's (Kopen, Verkopen, Emigreren, Privacy), NL + EN.
+// Grupo Soltura website — inhoud van de vaste pagina's (Kopen, Verkopen, Emigreren, Privacy), NL + EN + SV.
 // Gebaseerd op de huidige gruposoltura.com, bijgewerkt: ITP 9%, één all-in tarief, geen losse kostenposten.
 window.PAGES = {
   en: {
@@ -139,6 +139,75 @@ window.PAGES = {
       change: 'Mijn cookiekeuze wijzigen',
     },
   },
+  sv: {
+    buy: {
+      h: 'Köp en bostad med oss',
+      lead: 'Från första visningen till notarien och dagen du får nycklarna. Ett team, på ditt språk, sedan 2002.',
+      intro: 'Att köpa bostad i Spanien fungerar annorlunda än i de flesta andra länder: andra rutiner, andra skatter, andra kontroller. Vi guidar dig genom allt, från ett sökande anpassat efter dina önskemål till underskriften hos notarien och månaderna efteråt.',
+      steps_h: 'Så går ett köp till',
+      steps: [
+        ['Reservation', 'När vi har kommit överens om ett pris med säljaren skriver du under ett reservationsavtal och betalar en handpenning, oftast 3 000 till 5 000 €. Bostaden tas bort från marknaden och priset är låst.'],
+        ['Privat köpekontrakt', 'Kontraktet fastställer datumet för tillträdet. Ligger det mer än fyra veckor fram i tiden fyller du på handpenningen till 10 % av köpesumman.'],
+        ['Kontroller och förberedelser', 'Fastighetsregister, skulder, tillstånd, samfällighetsavgifter: vi kontrollerar allt och berättar vad vi hittar. Vi förbereder dina papper och samordnar notarie, advokat och bank.'],
+        ['Tillträde hos notarien', 'En av oss är med dig på dagen. Du betalar resterande belopp när köpebrevet (escritura) skrivs under.'],
+        ['Nycklarna, och sedan', 'Nu är du ägare. Vi för över el, vatten, IBI och samfällighetsavgifter till ditt namn och är fortsatt din kontakt under månaderna efteråt.'],
+      ],
+      costs_h: 'Vad du betalar utöver priset',
+      costs: ['<b>Andrahandsbostad:</b> överlåtelseskatt (ITP) på 9 % av köpesumman, Comunidad Valenciana.', '<b>Nyproduktion:</b> 10 % moms (IVA) plus 1,5 % stämpelskatt (AJD).', '<b>Vår tjänst:</b> ett enda allt-i-ett-arvode som vi kommer överens om i förväg. Inga separata fakturor för advokat, notariestöd, NIE eller fullmakt.'],
+      costs_note: 'Vad du betalar totalt beror på din situation: behöver du fortfarande ett NIE / skattenummer, skriver du under via fullmakt, tar du ett spanskt bolån? Be oss om din personliga kostnadsöversikt.',
+      fin_h: 'Ordna finansieringen i god tid',
+      fin_p: 'När du känner till din budget vet du vilka bostäder som ligger inom räckhåll, och du kan agera snabbt när rätt bostad dyker upp. Den som inte är bosatt i Spanien kan oftast låna 60 till 70 % av värdet. Vi ordnar ditt bolån hos en spansk bank.',
+      services_h: 'Det här gör vi för dig',
+      services: ['Ett sökande anpassat efter dina önskemål, ofta innan bostäderna läggs ut online', 'Visningar samlade under en effektiv resa', 'Juridiska kontroller och samordning med notarie, advokat och bank', 'En kollega vid din sida på tillträdesdagen', 'Hjälp efter köpet på ditt eget språk'],
+      cta: 'Be om din personliga kostnadsöversikt',
+    },
+    sell: {
+      h: 'Sälj din bostad', lead: 'Allt din försäljning behöver, under ett och samma tak. Ett team från första bilden till notarien, på ditt språk.',
+      feats: [
+        ['Sedan 2002', 'Mer än 24 år av bostadsförsäljning i Rojales, Formentera del Segura och Vega Baja.'],
+        ['Flerspråkigt team', 'Engelska, nederländska, tyska, franska och spanska, så att vi når köpare på deras eget språk.'],
+        ['Professionella bilder', 'Varje bostad fotograferas professionellt innan den läggs ut online.'],
+        ['Drönarvideo och 3D-visningar', 'Flygbilder av bostaden och omgivningen, och 3D-visningar som köpare kan gå runt i dygnet runt.'],
+        ['Stora portaler', 'Idealista, Kyero och de ledande internationella portalerna.'],
+        ['Våra köpare först', 'Innan din bostad hamnar på portalerna skickar vi den till köpare som redan letar efter just en sådan.'],
+        ['Veckouppdatering', 'Varje vecka får du veta hur många som sett din bostad, frågat om den eller kommit på visning.'],
+        ['Juridisk vägledning', 'Från reservationsavtal till notarie guidar vi dig genom varje steg. Registrerade hos API, AIPP och GIPE.'],
+      ],
+      steps_h: 'Så säljer vi din bostad',
+      steps: [['Kostnadsfri värdering', 'Vi kommer på besök, tittar på marknaden och ger dig ett ärligt utgångspris.'], ['Klart inom ett dygn', 'Bilder, beskrivning och annons online, oftast inom 24 timmar.'], ['Marknadsföring och visningar', 'Portaler, våra egna köpare, sociala medier och veckouppdateringen till dig.'], ['Bud och reservation', 'Vi förhandlar, kontrollerar köparen och ordnar reservationsavtalet.'], ['Notarie', 'Vi förbereder pappersarbetet och är med dig vid underskriften.']],
+      form_h: 'Be om en kostnadsfri värdering', form_p: 'Helt utan förpliktelser. Berätta var bostaden ligger och vilken typ av bostad det är, så hör vi av oss inom en arbetsdag.',
+      legal: 'Redan sålt och behöver juridisk hjälp med överlåtelsen? Det hjälper vi också till med.',
+    },
+    move: {
+      h: 'Flytta till Spanien', lead: 'Att köpa huset är ett steg. Att bygga ett liv här är resten. Vi har hjälpt familjer att rota sig i Vega Baja sedan 2002.',
+      stages: [['Innan du köper', 'Papper, ekonomi och en realistisk budget.'], ['Medan du köper', 'Reservation, oberoende juridiska kontroller, privat köpekontrakt och notarie, allt samordnat av oss.'], ['När du har köpt', 'El och vatten, registrering hos kommunen, uppehåll, vård, skolor och skatter, med oss som din kontakt.']],
+      topics: [
+        ['NIE: ditt identifikationsnummer som utlänning', 'Du behöver det hos notarien, för ett spanskt bankkonto, för el och vatten och för fastighetsskatter. Ansök i god tid: på en polisstation i Spanien, på ett spanskt konsulat utomlands eller genom ett ombud med fullmakt. EU-medborgare som stannar mer än tre månader per år registrerar sig som bosatta; medborgare utanför EU behöver rätt visum eller uppehållstillstånd. Vi hjälper dig med blanketter och tider, eller ordnar det åt dig med fullmakt.'],
+        ['Bolån och ekonomi', 'Den som inte är bosatt i Spanien kan ofta finansiera 60 till 70 % av priset eller värderingen, bosatta något mer. Öppna ett spanskt bankkonto och samla ihop inkomstbevis, deklarationer och kontoutdrag. Banken värderar bostaden (tasación) och du får det bindande erbjudandet (FEIN) minst tio dagar före underskriften. Vi presenterar dig för banker och ordnar bolånet.'],
+        ['Skolor', 'Spanska kommunala skolor, halvprivata (concertado) skolor och internationella skolor med brittisk eller annan läroplan. Ditt val av skola kan avgöra var du köper, och internationella skolor har ofta kö. För att börja i en kommunal skola krävs registrering hos kommunen (padrón); ansökan öppnar oftast på våren. Undervisningen sker på spanska och valencianska, med språkstöd för nyanlända.'],
+        ['Vård', 'Ett starkt offentligt system, kompletterat med privata kliniker och flerspråkiga läkare. Bosatta som arbetar omfattas via socialförsäkringen; pensionärer från EU kan ofta föra över sitt skydd med en S1-blankett. Efter flytten registrerar du dig på din vårdcentral (centro de salud) och ansöker om SIP-kortet. Larmnummer: 112.'],
+        ['Juridik', 'Före: fastighetsregister (nota simple), skulder, tillstånd, beboelseintyg, obetald IBI eller samfällighetsavgifter. Under: reservation, privat köpekontrakt, köpebrev hos notarie och inskrivning i ditt namn. Efter: el, vatten, IBI och samfällighetsavgifter i ditt namn, deklaration som icke-bosatt vid behov, och ett spanskt testamente.'],
+        ['Efter nycklarna', 'El och vatten, registrering hos kommunen, lokala hantverkare och frågor om IBI. Vårt eftermarknadsteam stöttar dig på ditt eget språk under de första månaderna.'],
+      ],
+      disclaimer: 'Det här är allmän information, inte personlig juridisk, skattemässig eller ekonomisk rådgivning. Regler och procentsatser ändras; vi tittar på din situation individuellt.',
+      form_h: 'Redo att ta steget?', form_p: 'Berätta om din tidsplan, familjesituation, budget och vilken typ av bostad du letar efter. Vi skickar dig en personlig steg-för-steg-plan.',
+    },
+    privacy: {
+      h: 'Integritet och cookies', updated: 'Senast uppdaterad: 18 oktober 2026',
+      sections: [
+        ['Vilka vi är', 'Grupo Soltura SL (CIF B54286042), Avenida de la Constitución s/n, 03179 Formentera del Segura (Alicante), Spanien. Telefon +34 966 792 113, e-post info@gruposoltura.com. Registrerade i det valencianska registret över fastighetsmäklare (RAICV 5781) och medlem nr 992 i API-kollegiet i Alicante. Den här policyn gäller för den här webbplatsen och för kontakt via telefon, e-post, WhatsApp eller personligen.'],
+        ['Vad vi samlar in', '<b>Det du ger oss:</b> namn, e-post, telefon, ditt meddelande, dina önskemål om bostad, dina val för nyhetsbrev och, vid köp, försäljning eller juridisk tjänst, de handlingar som lagen kräver (till exempel pass eller NIE). <b>Frågor till vår onlineassistent:</b> texten i din fråga och den bostad den gäller. <b>På den här webbplatsen:</b> anonyma användningsdata, till exempel vilka sidor och bostäder som visas och hur länge, utan ditt namn och utan att något lagras på din enhet för detta. <b>Endast med ditt samtycke</b> sparar vi också en slumpmässig besökarkod i din webbläsare, så att vi kan koppla ihop besök. Vi använder Google Analytics (Google Ireland Ltd.) för att mäta besök. Utan ditt samtycke tar det bara emot cookiefria signaler, utan att någon identifierare lagras på din enhet; med ditt samtycke får det sätta sina statistikcookies (_ga). <b>Endast med ditt samtycke till marknadsföring</b> använder vi Meta Pixel (Meta Platforms Ireland Ltd.): den talar om för Meta vilka sidor och bostäder du har tittat på och om du har skickat en förfrågan, så att vi kan mäta våra annonser på Facebook och Instagram och visa dig relevanta bostäder där. Utan det samtycket skickas inga uppgifter till Meta.'],
+        ['Varför vi använder det', 'För att svara på dina frågor och ordna visningar och värderingar; för att guida ett köp, en försäljning eller en juridisk tjänst; för att uppfylla rättsliga skyldigheter (penningtvätt, skatt); för att skicka de nyhetsbrev du har valt; och, med ditt samtycke, för att förbättra webbplatsen och för att mäta och rikta vår annonsering på Facebook och Instagram.'],
+        ['Rättslig grund', 'Fullgörande av avtal eller åtgärder före ett avtal (GDPR art. 6.1.b) för frågor, visningar och transaktioner; rättslig förpliktelse (art. 6.1.c) för åtgärder mot penningtvätt (Ley 10/2010) och skatt; samtycke (art. 6.1.a) för nyhetsbrev, statistikcookies (besökarkod, Google Analytics) och marknadsföringscookies (Meta Pixel); berättigat intresse (art. 6.1.f) för anonym besöksräkning och webbplatsens säkerhet.'],
+        ['Vår onlineassistent (AI)', 'Assistenten på den här webbplatsen drivs av Claude, en modell från Anthropic. Din fråga och uppgifterna om bostaden skickas till Anthropic för att ta fram svaret; Anthropic behandlar detta som vår tjänsteleverantör och använder det inte för att träna sina modeller. Vi sparar din fråga tillsammans med en förkortad, icke-reversibel kod av din IP-adress för att förhindra missbruk. Dela inga känsliga personuppgifter i assistenten. En kollega är alltid ansvarig; inga beslut med rättslig verkan fattas automatiskt.'],
+        ['Hur länge vi sparar det', 'Frågor och önskemål om bostad utan transaktion: upp till två år efter senaste kontakt. Ärenden om köp, försäljning och juridiska tjänster: tio år efter avslut (regler om penningtvätt och skatt). Nyhetsbrev: tills du avslutar prenumerationen. Anonym webbplatsstatistik: upp till 26 månader.'],
+        ['Vem som behandlar uppgifter åt oss', 'Supabase (databas och lagring, servrar i Frankfurt, EU); Brevo (e-post, EU); Anthropic (onlineassistent, USA); GitHub (webbhotell, USA); OpenStreetMap (karta på kontaktsidan, laddas bara på den sidan, Storbritannien/EU); Google Ireland (Google Analytics, statistik); Meta Platforms Ireland (Meta Pixel, endast med samtycke till marknadsföring; för detta är Meta gemensamt personuppgiftsansvarig med oss, art. 26 GDPR). Överföringar utanför EES omfattas av EU–US Data Privacy Framework eller Europeiska kommissionens standardavtalsklausuler. Vid en transaktion delar vi det som behövs med notarier, advokater, banker och motparten. Vi säljer aldrig dina uppgifter.'],
+        ['Lagring på din enhet', '<b>Nödvändigt (inget samtycke krävs):</b> ditt språkval, dina sparade bostäder, bostäder du har tittat på (för att visa dem igen) och ditt cookieval. Detta stannar i din webbläsare. <b>Statistik (endast med samtycke):</b> en egen slumpmässig besökarkod som kopplar ihop dina besök, och Google Analytics-cookies (_ga, _ga_*), som sparas i upp till 14 månader. <b>Marknadsföring (endast med samtycke):</b> Meta Pixel-cookies (_fbp, _fbc), som sparas i upp till 3 månader. Du kan när som helst ändra ditt val via länken längst ned på varje sida.'],
+        ['Dina rättigheter', 'Du kan begära tillgång till, rättelse eller radering av dina uppgifter, begära begränsning av eller invända mot användningen, och få ut dem i ett portabelt format. Du kan när som helst återkalla ditt samtycke. Mejla info@gruposoltura.com; vi svarar inom en månad och kan be dig bekräfta din identitet. Du kan också lämna klagomål till Agencia Española de Protección de Datos (www.aepd.es).'],
+      ],
+      change: 'Ändra mitt cookieval',
+    },
+  },
 };
 
 // extra UI-teksten voor reviews, formulieren, contact, nieuws en cookiekeuze
@@ -237,4 +306,40 @@ Object.assign(I18N.en, {
 Object.assign(I18N.nl, {
   ref_short: 'Ref.', ref_prefix_ok: (n, p) => `We vonden ${n} woningen waarvan de referentie begint met ${p}. Ze staan hieronder.`,
   ref_prefix_none: p => `Er staat geen woning online met een referentie die begint met ${p}.`, ref_prefix_tip: 'Controleer de letters, of typ het volledige referentienummer, bijvoorbeeld RH500.',
+});
+
+// svenska: extra UI-teksten (reviews, formulieren, cookiekeuze, zoeken, koopgids, status, referentie)
+Object.assign(I18N.sv, {
+  rv_h: 'Vad våra kunder säger', rv_p: 'Riktiga omdömen från köpare och säljare, direkt från Google.',
+  rv_count: n => `${n} omdömen`, rv_all: n => `Läs alla ${n} omdömen`, rv_write: 'Skriv ett omdöme', rv_on_google: 'Google-omdöme', rv_answered: 'besvarat av oss',
+  cc_h: 'Välkommen till Grupo Soltura', cc_p: 'Får vi använda cookies? Då ser vi vilka bostäder som intresserar dig, kommer ihåg dem till nästa besök och kan visa dig relevanta bostäder på Facebook och Instagram. Du kan alltid säga nej: sajten fungerar precis likadant ändå.', cc_set: 'Välj per kategori', cc_yes: 'Ja, det går bra', cc_no: 'Bara nödvändiga', cc_save: 'Spara mitt val', cc_all: 'Godkänn alla', cc_nec: 'Nödvändiga', cc_nec_d: 'språk, sparade bostäder och ditt cookieval. Alltid på.', cc_stat: 'Statistik', cc_stat_d: 'vår egen besökarkod och Google Analytics: vilka bostäder som intresserar besökare över flera besök.', cc_ads: 'Marknadsföring', cc_ads_d: 'Meta Pixel (Facebook/Instagram): mäter vilka annonser som leder till ett besök eller en förfrågan, och visar bostäder du har tittat på i våra annonser.', cookie_settings: 'Cookieinställningar',
+  form_privacy: 'Vi använder bara dina uppgifter för att svara dig.',
+  f_budget: 'Budget', f_when: 'När', f_when_opts: ['Inom 3 månader', '3 till 6 månader', '6 till 12 månader', 'Senare / orienterar mig bara'],
+  f_buy_msg: 'I would like a personal cost overview. Do I still need an NIE, will I sign via a power of attorney, do I need a mortgage? Please contact me.',
+  f_town: 'Ort eller område', f_type: 'Typ av bostad', f_type_opts: ['Villa', 'Fristående hus', 'Quad-hus', 'Bungalow', 'Radhus', 'Lägenhet', 'Takvåning', 'Tomt / annat'],
+  f_household: 'Vem flyttar', f_household_ph: 't.ex. par, familj med 2 barn', f_area: 'Önskat område', f_area_ph: 't.ex. nära kusten, en by',
+  f_topic: 'Ämne', f_topic_opts: ['Köpa en bostad', 'Sälja min bostad', 'Flytta till Spanien', 'Juridiska tjänster', 'Något annat'], f_lang: 'Önskat språk',
+  news_all: 'Alla', news_market: 'Bostadsmarknaden', news_region: 'Vega Baja', news_spain: 'Spanien', news_none: 'Inga nyheter i den här kategorin än.', news_more: 'Fler nyheter', c_find: 'Hitta till vårt kontor', c_map: 'Karta över vårt kontor i Formentera del Segura', c_office_alt: 'Vårt mötesrum i Formentera del Segura', news_in: l => l ? `artikel på ${l}` : 'artikel på ett annat språk', move_plan_btn: 'Få min steg-för-steg-plan',
+  c_wa: 'Snabbast: oftast svar inom en timme', c_call: 'Måndag till fredag, under kontorstid', c_mail: 'Vi svarar inom en arbetsdag', c_route: 'Planera din väg hit', c_team: 'Prata direkt med någon av oss', c_form_h: 'Skicka ett meddelande till oss',
+  none_h: 'Inget matchar exakt.', none_applied: (l, n) => `Därför har vi vidgat en av dina önskningar: <b>${l}</b> ger ${n} bostäder, som du ser nedan.`,
+  none_try: 'Eller ändra din fråga på ett annat sätt:', none_bar: 'Ändra en önskning så ser du bostäder igen:',
+  none_tip: 'Tips: ange ett prisintervall, en ort eller ett område och typ av bostad. Till exempel ”villa med pool nära Rojales upp till 400 000 €”.',
+  none_contact: 'Vill du hellre att vi letar åt dig? Många bostäder når våra egna sökande först.',
+  ai_fail_h: 'Vi kunde inte riktigt tolka den frågan.', ai_fail_p: 'Försök igen med några få ord, eller välj ett av exemplen ovan.',
+  rx_budget: v => `Budget upp till ${v}`, rx_pmin: 'Utan lägsta pris', rx_towns: x => `Även utanför ${x}`, rx_cat: x => `Även andra typer än ${x.toLowerCase()}`,
+  rx_beds: n => `${n}+ sovrum`, rx_baths: 'Färre badrum', rx_pool_any: 'Gemensam pool går också bra', rx_pool: 'Utan pool', rx_newbuild: 'Andrahand och nyproduktion', rx_sea: km => `Upp till ${km} km från havet`, rx_reduced: 'Inte bara prissänkta',
+  qa_guide: 'Köpguide', guide_h: 'Kostnadsfri köpguide', guide_p: 'Allt om att köpa bostad i Spanien, på klarspråk. Vi mejlar den till dig.',
+  guide_items: ['Varje steg från reservation till nycklar', 'Skatter och vårt enda allt-i-ett-arvode', 'NIE, fullmakt och bolån', 'Kontrollerna vi gör innan du skriver under'],
+  guide_btn: 'Skicka köpguiden till mig', guide_send: 'Beställ guiden',
+  guide_err: 'Fyll i förnamn, efternamn och en giltig e-postadress.', guide_ok: n => `Tack, ${n}! Köpguiden är på väg till din inkorg.`,
+  guide_msg: 'Buying guide requested from the property page.',
+  st_available: 'Tillgänglig', st_under_offer: 'Bud lagt', st_reserved: 'Reserverad', st_sold: 'Såld',
+  st_note_under_offer: 'Det finns ett bud på den här bostaden. Så länge inget är underskrivet kan du fortfarande titta på den och lägga ett bud.',
+  st_note_reserved: 'Den här bostaden är reserverad. Om affären inte blir av kommer den tillbaka; vi kan höra av oss till dig.',
+  st_note_sold: 'Den här bostaden är såld. Vi har ofta något liknande, ibland innan det läggs ut online.',
+  st_similar: 'Se liknande bostäder',
+  ref_open: r => `Vi öppnar ${r} åt dig.`, ref_many: 'Flera bostäder har det numret. Vilken menar du?',
+  ref_missing_h: r => `${r} ligger inte ute just nu.`, ref_missing_p: 'Den kan vara såld eller reserverad, eller så skiljer sig numret lite. Skicka det till oss så återkommer vi direkt.',
+  ref_short: 'Ref.', ref_prefix_ok: (n, p) => `Vi hittade ${n} bostäder vars referens börjar med ${p}. De visas nedan.`,
+  ref_prefix_none: p => `Det finns ingen bostad online med en referens som börjar med ${p}.`, ref_prefix_tip: 'Kontrollera bokstäverna, eller skriv hela referensnumret, till exempel RH500.',
 });

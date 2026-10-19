@@ -31,7 +31,7 @@ const ls = {
 const R = window.ROUTES;
 const R0 = R.parse(location.pathname);
 const S = {
-  lang: (R0 && R0.lang) || ls.get('lang', (navigator.language || 'en').toLowerCase().startsWith('nl') ? 'nl' : 'en'),
+  lang: (R0 && R0.lang) || ls.get('lang', browserLang()),
   all: [], byRef: new Map(), byId: new Map(), byWp: new Map(), // byId: core-uuid; byWp: oud WP-id (alleen voor bewaarde favorieten van voor 18-10)
   f: blankFilters(), sort: 'foryou', type: 'all',
   shown: PAGE, order: [],
@@ -44,6 +44,8 @@ const S = {
   lastRoute: '/', openSince: 0, openId: null, sheetDepth: 0, pageTitle: '',
 };
 if (S.vid) ls.set('vid', S.vid); else { try { localStorage.removeItem('gs_vid'); } catch {} }
+// browsertaal -> sitetaal (nl, sv, anders en)
+function browserLang() { const b = (navigator.language || 'en').toLowerCase(); return b.startsWith('nl') ? 'nl' : b.startsWith('sv') ? 'sv' : 'en'; }
 function blankFilters() { return { towns: [], categories: [], price_min: null, price_max: null, beds_min: null, baths_min: null, pool: null, newbuild: null, max_sea_km: null, reduced_only: false, ref_prefix: null }; }
 function rid() { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
 
@@ -103,13 +105,18 @@ const L = (key, arg) => R.href(S.lang, key, arg);
 const ph = p => R.href(S.lang, 'property', p);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const t = (k, ...a) => { const v = (I18N[S.lang] || I18N.en)[k] ?? I18N.en[k]; return typeof v === 'function' ? v(...a) : v; };
+// taalafhankelijke opmaak: tx({ en, nl, sv }) kiest de tekst in de taal van de pagina (valt terug op Engels)
+const tx = o => o[S.lang] ?? o.en;
+const LOCALE = { en: 'en-GB', nl: 'nl-NL', sv: 'sv-SE' };
+const loc = () => LOCALE[S.lang] || 'en-GB';
+const dec = () => S.lang === 'en' ? '.' : ',';
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const eur = n => n == null ? '' : new Intl.NumberFormat(S.lang === 'nl' ? 'nl-NL' : 'en-GB', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n);
-const num = n => new Intl.NumberFormat(S.lang === 'nl' ? 'nl-NL' : 'en-GB').format(n);
-const dist = m => m == null || m === 7000 ? null : (m >= 1000 ? (Math.round(m / 100) / 10).toString().replace('.', S.lang === 'nl' ? ',' : '.') + ' km' : Math.round(m) + ' m');
-const catName = c => S.lang === 'nl' ? (CAT_NL[c] || cap(c)) : (CAT_EN[c] || cap(c));
+const eur = n => n == null ? '' : new Intl.NumberFormat(loc(), { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n);
+const num = n => new Intl.NumberFormat(loc()).format(n);
+const dist = m => m == null || m === 7000 ? null : (m >= 1000 ? (Math.round(m / 100) / 10).toString().replace('.', dec()) + ' km' : Math.round(m) + ' m');
+const catName = c => S.lang === 'en' ? (CAT_EN[c] || cap(c)) : R.catName(c, S.lang);
 const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
-const title = p => `${catName(p.category)} in ${R.placeLabel(p)}`;
+const title = p => `${catName(p.category)} ${S.lang === 'sv' ? 'i' : 'in'} ${R.placeLabel(p)}`;
 const agentOf = p => AGENTS[p.agent_wp_id] || AGENTS[OFFICE];
 const reduced = p => p.previous_price && p.previous_price > p.price;
 const dropPct = p => reduced(p) ? Math.round((1 - p.price / p.previous_price) * 100) : 0;
@@ -218,7 +225,7 @@ function sanitize(html) {
     [...n.children].forEach(c => {
       walk(c);
       if (c.tagName === 'A') { // alleen interne links houden (oude eigen WordPress-links worden omgezet), de rest wordt platte tekst
-        const h = c.getAttribute('href') || '', own = /^\/(en|nl)\//.test(h) ? h : R.ownLink(h, S.lang, slugs);
+        const h = c.getAttribute('href') || '', own = /^\/(en|nl|sv)\//.test(h) ? h : R.ownLink(h, S.lang, slugs);
         if (!own) { c.replaceWith(...c.childNodes); return; }
         const cls = c.getAttribute('class');
         [...c.attributes].forEach(a => c.removeAttribute(a.name));
@@ -318,7 +325,7 @@ function badges(p) {
   return b.slice(0, isOpen(p) ? 2 : 1).join('');
 }
 function priceHtml(p) {
-  if (p.price == null) return `<div class="price">${S.lang === 'nl' ? 'Prijs op aanvraag' : 'Price on request'}</div>`;
+  if (p.price == null) return `<div class="price">${tx({ en: 'Price on request', nl: 'Prijs op aanvraag', sv: 'Pris på förfrågan' })}</div>`;
   return `<div class="price">${p.price_from ? `<small>${t('from')}</small>` : ''}${eur(p.price)}${reduced(p) ? `<s>${eur(p.previous_price)}</s>` : ''}</div>`;
 }
 function specs(p) {
@@ -326,7 +333,7 @@ function specs(p) {
   if (p.bedrooms) s.push(`<span title="${t('beds')}">${ICON.bed}${p.bedrooms}</span>`);
   if (p.bathrooms) s.push(`<span title="${t('baths')}">${ICON.bath}${p.bathrooms}</span>`);
   if (p.build_area) s.push(`<span title="${t('built')}">${ICON.area}${num(p.build_area)} m²</span>`);
-  if (p.plot_area) s.push(`<span title="${t('plot')}">${num(p.plot_area)} m² ${S.lang === 'nl' ? 'perceel' : 'plot'}</span>`);
+  if (p.plot_area) s.push(`<span title="${t('plot')}">${num(p.plot_area)} m² ${tx({ en: 'plot', nl: 'perceel', sv: 'tomt' })}</span>`);
   if (p.pool_private) s.push(`<span class="pool own" title="${t('pool_private')}">${ICON.pool}${t('pool_short_private')}</span>`);
   if (p.pool_communal) s.push(`<span class="pool shared" title="${t('pool_communal')}">${ICON.poolC}${t('pool_short_communal')}</span>`);
   return `<div class="specs">${s.join('')}</div>`;
@@ -340,7 +347,7 @@ function card(p, opts = {}) {
       ${p.image ? `<img class="kb" src="${esc(p.image)}" alt="${esc(title(p))}" loading="${opts.eager ? 'eager' : 'lazy'}" decoding="async">` : ''}
       <div class="badges">${badges(p)}</div>
       ${stOf(p) === 'sold' ? `<span class="sold-band">${t('st_sold')}</span>` : ''}
-      <button class="heart" type="button" aria-pressed="${fav}" aria-label="${S.lang === 'nl' ? 'Bewaren' : 'Save'}" data-fav="${p.id}">${ICON.heart}</button>
+      <button class="heart" type="button" aria-pressed="${fav}" aria-label="${tx({ en: 'Save', nl: 'Bewaren', sv: 'Spara' })}" data-fav="${p.id}">${ICON.heart}</button>
       ${n > 1 ? `<div class="dots">${'<i></i>'.repeat(n)}</div>` : ''}
       <span class="ref-tag">${esc(p.reference)}</span>
     </div>
@@ -499,10 +506,10 @@ function loadReviews() {
   ]).then(([rows, sum]) => ({ rows, sum }));
   return rvData;
 }
-const fmtScore = v => String(Number(v).toFixed(1)).replace('.', S.lang === 'nl' ? ',' : '.');
+const fmtScore = v => String(Number(v).toFixed(1)).replace('.', dec());
 function ago(d) {
   const days = Math.round((Date.now() - new Date(d)) / 864e5);
-  const rtf = new Intl.RelativeTimeFormat(S.lang === 'nl' ? 'nl' : 'en', { numeric: 'auto' });
+  const rtf = new Intl.RelativeTimeFormat(S.lang, { numeric: 'auto' });
   if (days < 7) return rtf.format(-days, 'day');
   if (days < 45) return rtf.format(-Math.round(days / 7), 'week');
   if (days < 365) return rtf.format(-Math.round(days / 30), 'month');
@@ -737,7 +744,7 @@ function renderBar() {
   if (f.beds_min) pill(`${f.beds_min}+ ${t('beds')}`, 'beds_min');
   if (f.baths_min) pill(`${f.baths_min}+ ${t('baths')}`, 'baths_min');
   if (f.pool) pill(f.pool === 'communal' ? t('pool_communal') : t('pool_private'), 'pool');
-  if (f.max_sea_km) pill(`≤ ${f.max_sea_km} km ${S.lang === 'nl' ? 'tot zee' : 'to the sea'}`, 'max_sea_km');
+  if (f.max_sea_km) pill(`≤ ${f.max_sea_km} km ${tx({ en: 'to the sea', nl: 'tot zee', sv: 'till havet' })}`, 'max_sea_km');
   if (f.reduced_only) pill(t('reduced'), 'reduced_only');
   if (f.newbuild != null) pill(f.newbuild ? t('newbuild') : t('resale'), 'newbuild');
   const sorts = ['foryou', 'newest', 'price_asc', 'price_desc', 'value', 'reduced'];
@@ -927,7 +934,7 @@ async function aiSearch(q) {
 }
 // alternatieven bij nul treffers: telkens één wens versoepelen en tellen wat er dan wél is
 function relaxations() {
-  const base = S.f, type = S.type, nl = S.lang === 'nl';
+  const base = S.f, type = S.type;
   const cnt = (f, ty = type) => S.all.filter(p => match(p, f, ty)).length;
   const out = [];
   const add = (label, f, ty = type) => { const n = cnt(f, ty); if (n > 0) out.push({ label, f, type: ty, n }); };
@@ -963,7 +970,7 @@ function bindSugg(root) {
 async function openSheet(ref) {
   const p = S.byRef.get(ref.toUpperCase());
   const sh = $('#sheet'), inner = $('#sheetInner');
-  if (!p) { inner.innerHTML = `<div class="empty"><h2>${S.lang === 'nl' ? 'Deze woning is niet meer beschikbaar' : 'This home is no longer available'}</h2><p><a class="btn primary" href="${L('home')}">${t('see_all')}</a></p></div>`; sh.hidden = false; return; }
+  if (!p) { inner.innerHTML = `<div class="empty"><h2>${tx({ en: 'This home is no longer available', nl: 'Deze woning is niet meer beschikbaar', sv: 'Den här bostaden är inte längre till salu' })}</h2><p><a class="btn primary" href="${L('home')}">${t('see_all')}</a></p></div>`; sh.hidden = false; return; }
   closeSheetTracking();
   S.openId = p.id; S.openSince = Date.now();
   document.title = `${title(p)} · ${p.reference} · Grupo Soltura`;
@@ -1092,10 +1099,10 @@ function mortgageHtml(p) {
     ${p && p.price ? `<div class="mquick"><button type="button" data-ltv="60">60% ${t('mort_of_price')}</button><button type="button" data-ltv="70">70%</button><button type="button" data-ltv="80">80%</button></div>` : ''}
     <label class="mrow"><span>${t('mort_term')}</span><b id="mTermV">25 ${t('mort_years')}</b></label>
     <input type="range" id="mTerm" min="5" max="30" step="1" value="25" aria-label="${t('mort_term')}">
-    <label class="mrow"><span>${t('mort_rate')}</span><span class="pctin"><input id="mRate" inputmode="decimal" value="${String(rate).replace('.', S.lang === 'nl' ? ',' : '.')}" aria-label="${t('mort_rate')}"><b>%</b></span></label>
+    <label class="mrow"><span>${t('mort_rate')}</span><span class="pctin"><input id="mRate" inputmode="decimal" value="${String(rate).replace('.', dec())}" aria-label="${t('mort_rate')}"><b>%</b></span></label>
     <div class="mout"><span>${t('mort_monthly')}</span><strong id="mPay">–</strong></div>
     <div class="mmeta"><span>${t('mort_interest')} <b id="mInt">–</b></span><span>${t('mort_total')} <b id="mTot">–</b></span></div>
-    <p class="mnote">${t('mort_note', String(rate).replace('.', S.lang === 'nl' ? ',' : '.'))}</p></div>`;
+    <p class="mnote">${t('mort_note', String(rate).replace('.', dec()))}</p></div>`;
 }
 function bindMortgage(p) {
   const box = $('#mortBox'); if (!box) return;
@@ -1190,7 +1197,7 @@ function bindSheet(p, waHref) {
     log.scrollTop = log.scrollHeight;
     track('assistant', p.id);
     const r = await fn('web-assistant', { mode: 'ask', lang: S.lang, id: p.id, reference: p.reference, wp_id: p.wp_id || null, query: q, history: hist }).catch(() => ({}));
-    const reply = r.reply || (S.lang === 'nl' ? 'Dat weet ik niet zeker. Stuur ons gerust een WhatsApp.' : "I'm not sure about that. Feel free to WhatsApp us.");
+    const reply = r.reply || tx({ en: "I'm not sure about that. Feel free to WhatsApp us.", nl: 'Dat weet ik niet zeker. Stuur ons gerust een WhatsApp.', sv: 'Det är jag inte säker på. Skicka gärna ett WhatsApp till oss.' });
     hist.push({ role: 'user', content: q }, { role: 'assistant', content: reply });
     $('.typing', log).remove();
     log.insertAdjacentHTML('beforeend', `<div class="msg a">${esc(reply)}${r.handoff ? `<br><br>${t('handoff')} <a href="${waHref}" target="_blank" rel="noopener">WhatsApp</a>` : ''}</div>`);
@@ -1231,7 +1238,7 @@ function fillDetail(d) {
       <p style="margin:10px 0 0">${t('market_txt', dev, eur(d.market_median_m2), d.market_n, d.town)}</p></div>`;
   }
   // description
-  let body = S.lang === 'nl' ? (d.body_nl || d.body_en) : (d.body_en || d.body_nl);
+  let body = S.lang === 'nl' ? (d.body_nl || d.body_en) : S.lang === 'sv' ? (d.body_sv || d.body_en || d.body_nl) : (d.body_en || d.body_nl);
   if (body) {
     // partnerteksten: dubbel ge-escapete entiteiten herstellen en losse regels als alinea's tonen
     body = body.replace(/&amp;(nbsp|amp|quot|apos|lt|gt|#\d+);/g, '&$1;');
@@ -1255,14 +1262,14 @@ function fillDetail(d) {
   if (d.pool_private) feats.push(t('pool_private')); if (d.pool_communal) feats.push(t('pool_communal'));
   if (d.aircon) feats.push(t('aircon')); if (d.solarium) feats.push(t('solarium'));
   (d.features || '').split(',').map(s => s.trim()).filter(Boolean).forEach(s => feats.push(cap(s)));
-  (d.terraces || '').split(',').map(s => s.trim()).filter(Boolean).forEach(s => feats.push(cap(s) + (S.lang === 'nl' ? ' terras' : ' terrace')));
+  (d.terraces || '').split(',').map(s => s.trim()).filter(Boolean).forEach(s => feats.push(cap(s) + tx({ en: ' terrace', nl: ' terras', sv: ' terrass' })));
   if (feats.length) $('#featBox').innerHTML = `<div class="feat" style="margin:20px 0"><h3>${t('feat_h')}</h3><ul>${[...new Set(feats)].map(f => `<li>${esc(f)}</li>`).join('')}</ul></div>`;
   // costs: belastingtarieven uit web_config; wij werken met één vast all-in tarief, geen losse rekeningen
   if (d.price) {
     const c = S.cfg;
     const rate = d.is_newbuild ? c.iva_newbuild_pct + c.ajd_newbuild_pct : c.itp_resale_pct;
     const tax = Math.round(d.price * rate / 100);
-    const pct = v => String(v).replace('.', S.lang === 'nl' ? ',' : '.');
+    const pct = v => String(v).replace('.', dec());
     const taxLbl = d.is_newbuild ? t('costs_tax_new', pct(c.iva_newbuild_pct), pct(c.ajd_newbuild_pct)) : t('costs_tax_resale', pct(c.itp_resale_pct));
     const rows = [[t('costs_price'), d.price], [taxLbl, tax]];
     const allIn = c.buyer_all_in_eur > 0 ? c.buyer_all_in_eur : null;
@@ -1379,7 +1386,7 @@ function openLightbox(urls, start = 0, plain = false) {
 function openReel(startIdx) {
   const list = (S.order.length ? S.order : computeOrder()).filter(p => p.image).slice(0, 120);
   const reel = $('#reel');
-  reel.innerHTML = `<button class="reel-close" type="button" aria-label="${t('close')}">${ICON.x}</button><span class="reel-hint">${S.lang === 'nl' ? 'Veeg omhoog voor de volgende woning' : 'Swipe up for the next home'}</span>` +
+  reel.innerHTML = `<button class="reel-close" type="button" aria-label="${t('close')}">${ICON.x}</button><span class="reel-hint">${tx({ en: 'Swipe up for the next home', nl: 'Veeg omhoog voor de volgende woning', sv: 'Svep uppåt för nästa bostad' })}</span>` +
     list.map((p, i) => `<section class="reel-item" data-id="${p.id}"><img src="${esc(p.image)}" alt="${esc(title(p))}" loading="${i < 2 ? 'eager' : 'lazy'}"><span class="ref-tag reel-ref">${esc(p.reference)}</span>
       <div class="reel-cap"><div class="t"><div class="badges" style="display:flex;gap:6px;margin-bottom:6px">${badges(p)}</div>${priceHtml(p)}<h3>${esc(title(p))}</h3>${specs(p)}</div>
       <div class="reel-side"><button type="button" data-fav="${p.id}" aria-pressed="${S.favs.has(p.id)}" aria-label="Save">${ICON.heart}</button>
@@ -1461,7 +1468,7 @@ function pageMove() {
   return `<section class="page-hero">${video(VIDEO.village)}<div><p class="kicker">${t('nav_move')}</p><h1>${c.h}</h1><p>${c.lead}</p></div></section>
     <div class="pg">
       <div class="stages">${c.stages.map(([h, p], i) => `<div class="stage"><span>${i + 1}</span><h3>${h}</h3><p>${p}</p></div>`).join('')}</div>
-      <p class="move-areas"><a href="${L('area')}">${t('areas_h')}: ${S.lang === 'nl' ? 'lees per woonplaats over scholen, zorg, winkels en feesten' : 'read about schools, healthcare, shops and festivals per town'} →</a></p>
+      <p class="move-areas"><a href="${L('area')}">${t('areas_h')}: ${tx({ en: 'read about schools, healthcare, shops and festivals per town', nl: 'lees per woonplaats over scholen, zorg, winkels en feesten', sv: 'läs om skolor, vård, affärer och fester ort för ort' })} →</a></p>
       <div class="buy-grid move-grid">
         <div class="acc">${c.topics.map(([h, p], i) => `<details${i === 0 ? ' open' : ''}><summary>${h}</summary><p>${p}</p></details>`).join('')}
           <p class="disclaimer">${c.disclaimer}</p></div>
@@ -1475,13 +1482,13 @@ function pageMove() {
     <section class="pg form-band"><div><h2>${c.form_h}</h2><p>${c.form_p}</p></div>
       ${richForm('moveForm', 'move', [{ k: 'timing', label: t('f_when'), opts: t('f_when_opts') }, { k: 'budget', label: t('f_budget'), ph: '€' }, { k: 'household', label: t('f_household'), ph: t('f_household_ph') }, { k: 'area', label: t('f_area'), ph: t('f_area_ph') }], '')}</section>`;
 }
-const LANG_NAME = { es: { en: 'Spanish', nl: 'Spaans' }, nl: { en: 'Dutch', nl: 'Nederlands' }, en: { en: 'English', nl: 'Engels' }, de: { en: 'German', nl: 'Duits' }, fr: { en: 'French', nl: 'Frans' }, ca: { en: 'Valencian', nl: 'Valenciaans' } };
+const LANG_NAME = { es: { en: 'Spanish', nl: 'Spaans', sv: 'spanska' }, nl: { en: 'Dutch', nl: 'Nederlands', sv: 'nederländska' }, en: { en: 'English', nl: 'Engels', sv: 'engelska' }, de: { en: 'German', nl: 'Duits', sv: 'tyska' }, fr: { en: 'French', nl: 'Frans', sv: 'franska' }, ca: { en: 'Valencian', nl: 'Valenciaans', sv: 'valencianska' }, sv: { en: 'Swedish', nl: 'Zweeds', sv: 'svenska' } };
 // taal van het artikel zelf (de koppen in news_posts zijn al naar het Nederlands herschreven)
 const artLang = r => ({ idealista: 'es', 'vegabajadigital.com': 'es', 'Spanje Vandaag': 'nl' }[r.source]);
 const NEWS_SRC = { all: null, market: 'idealista', region: 'vegabajadigital.com', spain: 'Spanje Vandaag' };
 // ---------- nieuws: eigen blog (core.blog_posts via web_blog_posts) met detailpagina #/news/<slug>;
 // zolang er nog geen blogposts zijn: de koppen uit web_news als lijst met externe links (geen lege pagina)
-const fmtDate = (d, y) => d ? new Date(d).toLocaleDateString(S.lang === 'nl' ? 'nl-NL' : 'en-GB', y ? { day: 'numeric', month: 'long', year: 'numeric' } : { day: 'numeric', month: 'long' }) : '';
+const fmtDate = (d, y) => d ? new Date(d).toLocaleDateString(loc(), y ? { day: 'numeric', month: 'long', year: 'numeric' } : { day: 'numeric', month: 'long' }) : '';
 function sanitizeRich(html) {
   const doc = new DOMParser().parseFromString(String(html || ''), 'text/html');
   doc.querySelectorAll('script,style,iframe,object,embed,noscript,template,form,input,button,link,meta,svg,math').forEach(n => n.remove());
@@ -1494,7 +1501,7 @@ function sanitizeRich(html) {
       const href = c.getAttribute('href'), src = c.getAttribute('src'), alt = c.getAttribute('alt');
       [...c.attributes].forEach(a => c.removeAttribute(a.name));
       if (c.tagName === 'A') {
-        if (href && /^(https?:|mailto:|#\/|\/(en|nl)\/)/i.test(href.trim())) { c.setAttribute('href', href.trim()); if (/^https?:/i.test(href.trim())) { c.setAttribute('target', '_blank'); c.setAttribute('rel', 'noopener nofollow'); } }
+        if (href && /^(https?:|mailto:|#\/|\/(en|nl|sv)\/)/i.test(href.trim())) { c.setAttribute('href', href.trim()); if (/^https?:/i.test(href.trim())) { c.setAttribute('target', '_blank'); c.setAttribute('rel', 'noopener nofollow'); } }
         else c.replaceWith(...c.childNodes);
       }
       if (c.tagName === 'IMG') {
@@ -1522,7 +1529,7 @@ function blogList(posts) {
   // per artikelgroep één versie: in de taal van de site als die er is, anders de andere taal
   const groups = new Map();
   posts.forEach(p => { const k = p.group_id || p.id; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(p); });
-  const rows = [...groups.values()].map(g => g.find(p => (p.lang || '').toLowerCase() === S.lang) || g[0])
+  const rows = [...groups.values()].map(g => g.find(p => (p.lang || '').toLowerCase() === S.lang) || g.find(p => (p.lang || '').toLowerCase() === 'en') || g[0])
     .sort((a, b) => new Date(b.published_at || 0) - new Date(a.published_at || 0));
   const cats = [...new Set(rows.map(r => r.category).filter(Boolean))];
   let cat = null, shown = 17;
@@ -1545,13 +1552,12 @@ function blogList(posts) {
   $('#newsList').addEventListener('click', e => { const a = e.target.closest('a'); if (a) track('news_click', null, null, { src: 'blog' }); });
 }
 async function pagePost(slug) {
-  const nl = S.lang === 'nl';
   const main = $('#main');
   main.innerHTML = `<article class="post"><p class="kicker"><a href="${L('news')}">← ${t('nav_news')}</a></p><div class="skeleton" style="height:2.4em;border-radius:8px;max-width:640px"></div><div class="skeleton" style="height:16em;border-radius:14px;margin-top:20px"></div></article>`;
   const r = await api(`web_blog_posts?select=*&slug=eq.${encodeURIComponent(slug)}&limit=1`).then(x => x[0]).catch(() => null);
   if (currentPage !== 'news' || cur().arg !== slug) return;
   if (!r) {
-    main.innerHTML = `<div class="empty"><h2>${nl ? 'Dit bericht is niet (meer) beschikbaar' : 'This article is no longer available'}</h2><p><a class="btn primary" href="${L('news')}">${t('nav_news')}</a></p></div>${homesRail()}`;
+    main.innerHTML = `<div class="empty"><h2>${tx({ en: 'This article is no longer available', nl: 'Dit bericht is niet (meer) beschikbaar', sv: 'Den här artikeln finns inte längre' })}</h2><p><a class="btn primary" href="${L('news')}">${t('nav_news')}</a></p></div>${homesRail()}`;
     observeCards(main); return;
   }
   // andere taal gekozen en er is een vertaling: daarheen
@@ -1567,8 +1573,8 @@ async function pagePost(slug) {
       ${r.image_url ? `<figure class="post-img"><img src="${esc(r.image_url)}" alt="" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></figure>` : ''}
       ${r.excerpt ? `<p class="post-lead">${esc(r.excerpt)}</p>` : ''}
       <div class="post-body">${sanitizeRich(r.body_html)}</div>
-      ${r.source_url && /^https?:/i.test(r.source_url) ? `<p class="post-src">${nl ? 'Bron' : 'Source'}: <a href="${esc(r.source_url)}" target="_blank" rel="noopener nofollow">${esc(r.source_name || new URL(r.source_url).hostname)}</a></p>` : ''}
-      <p class="post-share"><a class="btn ghost" href="${L('news')}">${nl ? 'Meer nieuws' : 'More news'}</a> <a class="btn wa" href="https://wa.me/?text=${encodeURIComponent(r.title + ' ' + location.origin + L('news', r.slug))}" target="_blank" rel="noopener" data-social="share_wa">${t('share_wa')}</a></p>
+      ${r.source_url && /^https?:/i.test(r.source_url) ? `<p class="post-src">${tx({ en: 'Source', nl: 'Bron', sv: 'Källa' })}: <a href="${esc(r.source_url)}" target="_blank" rel="noopener nofollow">${esc(r.source_name || new URL(r.source_url).hostname)}</a></p>` : ''}
+      <p class="post-share"><a class="btn ghost" href="${L('news')}">${t('news_more')}</a> <a class="btn wa" href="https://wa.me/?text=${encodeURIComponent(r.title + ' ' + location.origin + L('news', r.slug))}" target="_blank" rel="noopener" data-social="share_wa">${t('share_wa')}</a></p>
     </article>${homesRail()}`;
   observeCards(main);
   track('news_view', null, null, { slug: r.slug });
@@ -1578,10 +1584,10 @@ async function newsLinks() {
   fl.hidden = false;
   fl.innerHTML = Object.keys(NEWS_SRC).map((k, i) => `<button type="button" data-src="${k}" aria-pressed="${i === 0}">${t('news_' + k)}</button>`).join('');
   const rows = await api('web_news?select=title,title_en,title_nl,lang,url,posted_at,source,image&order=posted_at.desc&limit=200').catch(() => []);
-  const fmt = d => new Date(d).toLocaleDateString(S.lang === 'nl' ? 'nl-NL' : 'en-GB', { day: 'numeric', month: 'long' });
+  const fmt = d => new Date(d).toLocaleDateString(loc(), { day: 'numeric', month: 'long' });
   const label = src => ({ idealista: t('news_market'), 'vegabajadigital.com': t('news_region'), 'Spanje Vandaag': t('news_spain') }[src] || src);
   // koppen in de taal van de site (vertaald door web-news-images); het artikel zelf staat in de brontaal
-  const head = r => (S.lang === 'nl' ? r.title_nl : r.title_en) || r.title; // NL: altijd informeel (je/jij)
+  const head = r => (S.lang === 'nl' ? r.title_nl : r.title_en) || r.title; // SV: Engelse kop // NL: altijd informeel (je/jij)
   let src = 'all', shown = 17;
   const draw = () => {
     const list = rows.filter(r => !NEWS_SRC[src] || r.source === NEWS_SRC[src]);
@@ -1671,7 +1677,7 @@ function areaHero(img, kicker, h, lead, acts) {
 }
 const waBtn = () => `<a class="btn wa" href="https://wa.me/34664414515" target="_blank" rel="noopener" data-track="whatsapp">WhatsApp</a>`;
 async function pageArea(slug) {
-  const nl = S.lang === 'nl', main = $('#main');
+  const main = $('#main');
   if (slug) return pageAreaDetail(slug);
   main.innerHTML = areaHero(tgImg({ url: AREA_HERO }, 1800), `<p class="kicker">${t('nav_areas')}</p>`, t('areas_h'), t('areas_p'), `<a class="btn lemon" href="${L('home')}">${t('see_all')}</a>${waBtn()}`)
     + `<div class="pg"><p class="pg-intro">${t('areas_intro')}</p><div class="area-grid" id="areaGrid">${'<div class="skeleton" style="height:260px;border-radius:14px"></div>'.repeat(6)}</div></div>${homesRail()}`;
@@ -1682,17 +1688,17 @@ async function pageArea(slug) {
     return `<a class="area-card" href="${L('guide', g.slug)}">
       ${ph ? `<span class="ac-img"><img src="${esc(tgImg(ph, 640))}" alt="${esc(ph.alt || g.town)}" loading="lazy"></span>` : '<span class="ac-img"></span>'}
       <span class="ac-txt"><h3>${esc(g.town)}</h3><p>${esc(g.lead || '')}</p>${n ? `<small>${t('areas_n', n)}</small>` : ''}</span></a>`;
-  }).join('') || `<p>${nl ? 'De gidsen laden even niet. Probeer het zo opnieuw.' : 'The guides could not load. Please try again shortly.'}</p>`;
+  }).join('') || `<p>${tx({ en: 'The guides could not load. Please try again shortly.', nl: 'De gidsen laden even niet. Probeer het zo opnieuw.', sv: 'Guiderna kunde inte laddas. Försök igen om en stund.' })}</p>`;
   observeCards(main);
 }
 async function pageAreaDetail(slug) {
-  const nl = S.lang === 'nl', main = $('#main');
+  const main = $('#main');
   const back = `<p class="kicker"><a href="${L('area')}">← ${t('nav_areas')}</a></p>`;
   main.innerHTML = areaHero('', back, '&nbsp;', '', '') + `<div class="pg"><div class="skeleton" style="height:16em;border-radius:14px"></div></div>`;
   const g = await api(`web_town_guides?select=*&slug=eq.${encodeURIComponent(slug)}&lang=eq.${S.lang}&limit=1`).then(x => x[0]).catch(() => null);
   if (currentPage !== 'area' || cur().arg !== slug) return;
   if (!g) {
-    main.innerHTML = `<div class="empty"><h2>${nl ? 'Deze plaats hebben we (nog) niet beschreven' : "We haven't written about this place yet"}</h2><p><a class="btn primary" href="${L('area')}">${t('nav_areas')}</a></p></div>${homesRail()}`;
+    main.innerHTML = `<div class="empty"><h2>${tx({ en: "We haven't written about this place yet", nl: 'Deze plaats hebben we (nog) niet beschreven', sv: 'Den här orten har vi inte skrivit om än' })}</h2><p><a class="btn primary" href="${L('area')}">${t('nav_areas')}</a></p></div>${homesRail()}`;
     observeCards(main); return;
   }
   document.title = `${g.title} · Grupo Soltura`;
@@ -1700,7 +1706,7 @@ async function pageAreaDetail(slug) {
   const photos = g.photos || [];
   const homes = guideHomes(g);
   const table = s => `<div class="tbl-wrap"><table class="area-tbl${s.key === 'festivals' ? ' fest' : ''}">${s.key === 'festivals'
-      ? `<thead><tr><th>${nl ? 'Feest' : 'Festival'}</th><th>${nl ? 'Wanneer' : 'When'}</th><th>${nl ? 'Wat' : 'What'}</th></tr></thead>` : ''}<tbody>${s.rows.map(r => `<tr>${r.map((c, i) => `<td${i === 0 ? ' class="k"' : ''}>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+      ? `<thead><tr><th>${tx({ en: 'Festival', nl: 'Feest', sv: 'Fest' })}</th><th>${tx({ en: 'When', nl: 'Wanneer', sv: 'När' })}</th><th>${tx({ en: 'What', nl: 'Wat', sv: 'Vad' })}</th></tr></thead>` : ''}<tbody>${s.rows.map(r => `<tr>${r.map((c, i) => `<td${i === 0 ? ' class="k"' : ''}>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
   // eerste foto staat in de kop; de andere klein naast de tekst
   const fig = i => photos[i] ? `<figure class="area-fig" data-i="${i}"><img src="${esc(tgImg(photos[i], 900))}" alt="${esc(photos[i].alt || '')}" loading="lazy"><figcaption>${esc(photos[i].alt || '')} <span>· ${tgCredit(photos[i])}</span></figcaption></figure>` : '';
   const at = { 1: 1, 5: 2 };
@@ -1711,15 +1717,15 @@ async function pageAreaDetail(slug) {
       <div class="buy-grid area-grid2">
         <div class="area-main">
           <div class="post-body area-body">${secs.map((s, i) => `<section id="sec-${esc(s.key)}">${at[i] ? fig(at[i]) : ''}<h2 class="pg-h">${esc(s.heading)}</h2>${s.rows ? table(s) : sanitizeRich(s.html)}</section>`).join('')}</div>
-          <details class="area-src"><summary>${nl ? 'Bronnen en foto\'s' : 'Sources and photos'}</summary>
-            <p class="muted">${nl ? 'Wij stellen deze gids met zorg samen uit openbare bronnen. Cijfers en data kunnen veranderen; check bij twijfel de gemeente.' : 'We compile this guide carefully from public sources. Figures and dates can change; if in doubt, check with the town hall.'} ${nl ? 'Bijgewerkt' : 'Updated'} ${fmtDate(g.updated_at, true)}.</p>
+          <details class="area-src"><summary>${tx({ en: 'Sources and photos', nl: 'Bronnen en foto\'s', sv: 'Källor och foton' })}</summary>
+            <p class="muted">${tx({ en: 'We compile this guide carefully from public sources. Figures and dates can change; if in doubt, check with the town hall.', nl: 'Wij stellen deze gids met zorg samen uit openbare bronnen. Cijfers en data kunnen veranderen; check bij twijfel de gemeente.', sv: 'Vi sammanställer guiden noggrant utifrån offentliga källor. Siffror och datum kan ändras; kontrollera med kommunen om du är osäker.' })} ${tx({ en: 'Updated', nl: 'Bijgewerkt', sv: 'Uppdaterad' })} ${fmtDate(g.updated_at, true)}.</p>
             <ul>${(g.sources || []).filter(x => x && /^https?:/i.test(x.url || '')).map(x => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener nofollow">${esc(x.title || new URL(x.url).hostname)}</a></li>`).join('')}</ul>
-            ${photos.length ? `<p class="muted">${nl ? 'Foto\'s via Wikimedia Commons' : 'Photos via Wikimedia Commons'}: ${photos.map(tgCredit).join(' · ')}</p>` : ''}</details>
+            ${photos.length ? `<p class="muted">${tx({ en: 'Photos via Wikimedia Commons', nl: 'Foto\'s via Wikimedia Commons', sv: 'Foton via Wikimedia Commons' })}: ${photos.map(tgCredit).join(' · ')}</p>` : ''}</details>
           <section class="area-near" id="areaNear" hidden></section>
         </div>
         <aside class="box side-cta area-side">
           <h2>${esc(g.town)}</h2>
-          <nav class="area-toc" aria-label="${nl ? 'Onderwerpen' : 'Topics'}">${secs.map(s => `<a href="#sec-${esc(s.key)}" data-sec="${esc(s.key)}">${esc(s.heading)}</a>`).join('')}</nav>
+          <nav class="area-toc" aria-label="${tx({ en: 'Topics', nl: 'Onderwerpen', sv: 'Ämnen' })}">${secs.map(s => `<a href="#sec-${esc(s.key)}" data-sec="${esc(s.key)}">${esc(s.heading)}</a>`).join('')}</nav>
           ${homes.length ? `<p>${t('areas_cta', g.town, homes.length)}</p>` : ''}
           ${homesBtn}
           <a class="btn ghost" href="${L('contact')}">${t('nav_contact')}</a>
@@ -1740,7 +1746,7 @@ async function pageAreaDetail(slug) {
   townGuides().then(list => {
     const near = nearGuides(g, list), box = $('#areaNear');
     if (!box || !near.length || cur().arg !== g.slug) return;
-    box.innerHTML = `<h2 class="pg-h">${nl ? 'In de buurt' : 'Nearby'}</h2><ul class="near-list">${near.map(x => `<li><a href="${L('guide', x.g.slug)}">${esc(x.g.town)}</a> <small>${Math.round(x.km)} km</small></li>`).join('')}</ul>`;
+    box.innerHTML = `<h2 class="pg-h">${tx({ en: 'Nearby', nl: 'In de buurt', sv: 'I närheten' })}</h2><ul class="near-list">${near.map(x => `<li><a href="${L('guide', x.g.slug)}">${esc(x.g.town)}</a> <small>${Math.round(x.km)} km</small></li>`).join('')}</ul>`;
     box.hidden = false;
   });
   track('area_view', null, null, { slug: g.slug });
@@ -1773,7 +1779,7 @@ function pageContact() {
           <p class="map-acts"><a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=${OFFICE_LL.join(',')}" target="_blank" rel="noopener" data-track="route">${t('c_route')}</a><a class="btn ghost" href="https://www.openstreetmap.org/?mlat=${OFFICE_LL[0]}&mlon=${OFFICE_LL[1]}#map=17/${OFFICE_LL[0]}/${OFFICE_LL[1]}" target="_blank" rel="noopener">OpenStreetMap</a></p></div>
       </div>
       <h2 class="pg-h">${t('c_team')}</h2>
-      <div class="team-cards">${[2, 3, 4, 6].map(id => { const a = AGENTS[id]; return `<div class="tm"><div class="av">${a.short[0]}</div><div><b>${a.name}</b><span>${a.role[S.lang]}</span>
+      <div class="team-cards">${[2, 3, 4, 6].map(id => { const a = AGENTS[id]; return `<div class="tm"><div class="av">${a.short[0]}</div><div><b>${a.name}</b><span>${(a.role[S.lang] || a.role.en)}</span>
         <p><a href="https://wa.me/${a.tel.replace('+', '')}" target="_blank" rel="noopener" data-track="whatsapp">WhatsApp</a> · <a href="tel:${a.tel}" data-track="call">${fmtTel(a.tel)}</a></p></div></div>`; }).join('')}</div>
     </div>
     <div class="box form-card sticky"><h2>${t('c_form_h')}</h2>${richForm('contactForm', 'contact', [{ k: 'topic', label: t('f_topic'), opts: t('f_topic_opts') }, { k: 'preferred_language', label: t('f_lang'), opts: ['English', 'Nederlands', 'Deutsch', 'Français', 'Español'] }], '')}</div>
@@ -1891,7 +1897,7 @@ function go(path, o = {}) {
   route();
 }
 function setLang(l) {
-  if (l !== 'en' && l !== 'nl' || l === S.lang) return false;
+  if (!R.LANGS.includes(l) || l === S.lang) return false;
   S.lang = l; ls.set('lang', l); applyLang(); return true;
 }
 function route() {
@@ -1936,7 +1942,7 @@ function renderPage(r) {
     case 'contact': main.innerHTML = pageContact(); bindForm($('#contactForm')); if ('IntersectionObserver' in window) { const o = new IntersectionObserver(es => { if (es[0].isIntersecting) { o.disconnect(); initMap(); } }, { rootMargin: '300px' }); o.observe($('#mapEl')); } else initMap(); break;
     case 'privacy': main.innerHTML = pagePrivacy(); break;
     case 'favorites': importFavs(); main.innerHTML = pageFavs(); bindFavMail(); break;
-    case 'notfound': main.innerHTML = `<div class="empty"><h2>${S.lang === 'nl' ? 'Deze pagina bestaat niet (meer)' : 'This page does not exist'}</h2><p><a class="btn primary" href="${L('home')}">${t('see_all')}</a> <a class="btn ghost" href="${L('area')}">${t('nav_areas')}</a></p></div>`; break;
+    case 'notfound': main.innerHTML = `<div class="empty"><h2>${tx({ en: 'This page does not exist', nl: 'Deze pagina bestaat niet (meer)', sv: 'Den här sidan finns inte' })}</h2><p><a class="btn primary" href="${L('home')}">${t('see_all')}</a> <a class="btn ghost" href="${L('area')}">${t('nav_areas')}</a></p></div>`; break;
     default: currentPage = 'home'; renderHome();
   }
   if (key !== 'favorites') document.body.classList.remove('favmail-open');
@@ -1977,7 +1983,7 @@ addEventListener('popstate', () => {
 addEventListener('hashchange', () => { if (location.hash.startsWith('#/')) go(legacyUrl(), { replace: true }); });
 function legacyUrl() {
   const qp = new URLSearchParams(location.search);
-  const lang = qp.get('lang') === 'nl' || qp.get('lang') === 'en' ? qp.get('lang') : S.lang;
+  const lang = R.LANGS.includes(qp.get('lang')) ? qp.get('lang') : S.lang;
   qp.delete('lang');
   const target = R.fromHash(location.hash, lang); // pad (+ eventuele ?add=... uit de hash)
   const u = new URL(target, location.origin);
@@ -2028,10 +2034,10 @@ async function boot() {
   const qp = new URLSearchParams(location.search);
   if (location.hash.startsWith('#/')) history.replaceState(null, '', legacyUrl());
   else if (location.pathname === '/' || location.pathname === '/index.html') {
-    const want = qp.get('lang') === 'nl' || qp.get('lang') === 'en' ? qp.get('lang') : S.lang;
+    const want = R.LANGS.includes(qp.get('lang')) ? qp.get('lang') : S.lang;
     qp.delete('lang'); const q = qp.toString() ? '?' + qp.toString() : '';
-    // '/' toont Engels (canonical /en/); wie Nederlands koos of een Nederlandse browser heeft, gaat naar /nl/
-    if (want === 'nl') history.replaceState(null, '', '/nl/' + q + location.hash);
+    // '/' toont Engels (canonical /en/); wie Nederlands/Zweeds koos of zo'n browser heeft, gaat naar /nl/ of /sv/
+    if (want === 'nl' || want === 'sv') history.replaceState(null, '', '/' + want + '/' + q + location.hash);
     else { S.lang = 'en'; if (location.search !== q) history.replaceState(null, '', '/' + q + location.hash); }
   }
   const r0 = R.parse(location.pathname);
@@ -2046,7 +2052,7 @@ async function boot() {
   try {
     S.all = await api(`web_properties?select=${LIST_COLS}`);
   } catch (e) {
-    $('#main').insertAdjacentHTML('afterbegin', `<div class="empty"><h2>${S.lang === 'nl' ? 'Het aanbod laadt even niet' : 'Listings could not load'}</h2><p>${S.lang === 'nl' ? 'Ververs de pagina, of bel ons op +34 966 792 113.' : 'Refresh the page, or call us on +34 966 792 113.'}</p></div>`);
+    $('#main').insertAdjacentHTML('afterbegin', `<div class="empty"><h2>${tx({ en: 'Listings could not load', nl: 'Het aanbod laadt even niet', sv: 'Utbudet kunde inte laddas' })}</h2><p>${tx({ en: 'Refresh the page, or call us on +34 966 792 113.', nl: 'Ververs de pagina, of bel ons op +34 966 792 113.', sv: 'Ladda om sidan eller ring oss på +34 966 792 113.' })}</p></div>`);
     return;
   }
   S.all.forEach(p => { S.byRef.set(String(p.reference).toUpperCase(), p); S.byId.set(p.id, p); if (p.wp_id) S.byWp.set(Number(p.wp_id), p); });
