@@ -1,6 +1,27 @@
 # Grupo Soltura — nieuwe website (proof of concept)
 
-Statische site voor GitHub Pages. Geen build-stap: `index.html`, `css/site.css` + `css/fonts.css` (lettertypen zelf gehost in `fonts/`), `js/i18n.js`, `js/pages.js` (teksten Kopen/Verkopen/Emigreren/Privacy, NL+EN), `js/app.js`.
+Site voor GitHub Pages: `index.html`, `css/site.css` + `css/fonts.css` (lettertypen zelf gehost in `fonts/`), `js/routes.js` (URL-schema), `js/i18n.js`, `js/pages.js` (teksten Kopen/Verkopen/Emigreren/Privacy, NL+EN), `js/app.js`, `js/resolve.js` (doorverwijzingen).
+
+## URL's, build en SEO (sinds 19-10-2026)
+Elke pagina heeft een echte URL per taal; Google krijgt bij het eerste verzoek volledige HTML, daarna neemt de app het over.
+
+| Pagina | EN | NL |
+|---|---|---|
+| Home | `/en/` (en `/`, canonical `/en/`) | `/nl/` |
+| Kopen / Verkopen / Emigreren | `/en/buying/` · `/en/selling/` · `/en/move-to-spain/` | `/nl/kopen/` · `/nl/verkopen/` · `/nl/emigreren/` |
+| Woonplaatsen | `/en/areas/` · `/en/living-in/<slug>/` | `/nl/woonplaatsen/` · `/nl/wonen-in/<slug>/` |
+| Woning | `/en/property/<ref>-<soort>-<plaats>/` | `/nl/woning/<ref>-<soort>-<plaats>/` |
+| Nieuws | `/en/news/` · `/en/news/<slug>/` | `/nl/nieuws/` · `/nl/nieuws/<slug>/` |
+| Contact, privacy, favorieten | `/en/contact/` · `/en/privacy/` · `/en/favorites/` (noindex) | `/nl/contact/` · `/nl/privacy/` · `/nl/favorieten/` (noindex) |
+
+- **Woning-URL:** de referentie (eerste deel) is de sleutel; het leesbare deel mag veranderen. Een afwijkend leesbaar deel gaat met een 301 (Worker) of in de app naar de canonieke vorm. Een woning opent nog steeds als sheet over de lijst, maar met een eigen URL (`pushState`); sluiten = terug.
+- **Taal** komt uit het pad. De taalwissel gaat naar de tegenhanger-URL (nieuws via `group_id`, anders het nieuwsoverzicht). Op `/` gaat wie Nederlands koos (of een Nederlandse browser heeft) naar `/nl/`; crawlers krijgen geen taal-redirect.
+- **Oude links blijven werken:** `#/home/RH550`, `/?lang=nl#/area/rojales`, `#/favorites?add=...` (FavoritesMail), `?test=1` worden bij binnenkomst omgezet naar het echte pad. Oude WordPress-paden en verouderde nieuwe paden: `js/resolve.js` (in `404.html` client-side, in de Worker als 301). Verdwenen woning -> 301 naar de woonplaatsgids van die plaats, anders het aanbod.
+- **Build:** `node scripts/build.mjs` (Node 20, geen dependencies) leest `web_properties`, `web_town_guides`, `web_blog_posts` met de publieke sleutel en schrijft `dist/`: per URL een `index.html` met inhoud, unieke title/description, canonical, hreflang (nl/en/x-default), Open Graph en JSON-LD (`RealEstateAgent`, `BreadcrumbList`, `Place`, `RealEstateListing`+`Offer`, `NewsArticle`; geen `FAQPage`), `sitemap.xml` (index) + `sitemap-pages/areas/homes/news.xml`, `routes.json` (referentie -> URL, verdwenen woningen -> gids, plaatsnaam -> gids) en `404.html` (de app in site-layout, noindex). Lokaal testen zonder netwerk: `--offline data.json` met `{props, guides, posts}`.
+- **Faalveiligheid:** Supabase-fout of minder dan 50% van de woningen van de vorige build (`/routes.json` live) -> de build breekt af, er wordt niets gepubliceerd, Brevo-mail naar Rick (secret `BREVO_API_KEY`). Verdwenen woningen worden onthouden via de vorige `routes.json`.
+- **Deploy** (`.github/workflows/pages.yml`): bij push op `main`, elke nacht 01:30 UTC, en via `repository_dispatch` type `content-changed` (vanuit n8n bij publicatie of statuswijziging van een woning).
+- **Cloudflare Worker:** `worker/worker.js` wordt gemaakt met `node scripts/make-worker.mjs` (template + `js/routes.js` + `js/resolve.js`) en met de hand geplakt in `gruposoltura-legacy`. Na elke wijziging aan `routes.js`/`resolve.js` opnieuw genereren en plakken.
+- **Meting:** GA4 `page_path` = het echte pad; `web_events` en de eventnamen zijn ongewijzigd. Formulieren sturen `page_url` met het echte pad mee.
 
 ## Uitgangspunten
 - **De woning is de hoofdzaak.** Hero is kort; het aanbod staat direct eronder. Een woning opent als sheet over de lijst (geen pagina-wissel), met vorige/volgende, vergelijkbare woningen en "meer in deze plaats" — zo blijft de bezoeker bladeren.
@@ -17,7 +38,7 @@ Migratie: `nexus_core_011_site_views` (bron in het NEXUS-pakket `011_site_views.
 |---|---|
 | `web_properties` (view) | Live aanbod uit `core.properties` + `property_texts` + `property_media`: alleen `published` en status `available`/`under_offer`, alleen veilige velden (geen eigenaar, huisnummer, sleutels, notities, transacties/commissies). Coördinaten afgerond op ~100 m. Sleutel = `id` (core-uuid); `wp_id` alleen nog voor oude woningen. `image` = hoofdfoto, `photos` = galerij (Storage `property-media`, nooit wp-content), `photo_count`, `url_new`. |
 | `web_property_geo` (view) | Afstand strand/vliegvelden per woning (kolom `id`). |
-| `web_blog_posts` (view) | Eigen blog (`core.blog_posts`, gepubliceerd, niet verlopen, NL/EN). Nieuwspagina + detail `#/news/<slug>`. Zolang de blog leeg is: koppen uit `web_news` als externe links. |
+| `web_blog_posts` (view) | Eigen blog (`core.blog_posts`, gepubliceerd, niet verlopen, NL/EN). Nieuwspagina + detail `/en/news/<slug>/` · `/nl/nieuws/<slug>/`. Zolang de blog leeg is: koppen uit `web_news` als externe links. |
 | `web_reviews` / `web_reviews_summary` (views) | Google-reviews (≥4 sterren, zonder naam) + score/aantal. |
 | `web_config` | Tarieven (numeriek) en `site_base_url` (`value_text`, functie `nexus2_site_base_url()`): publieke basis-URL voor `url_new` en de partner-feed. Na de domeinwissel alleen deze waarde aanpassen. |
 | `web_events` | Anonieme interactie-events (insert-only), met `wp_id` (oud) en `property_id` (uuid). |
@@ -30,15 +51,15 @@ Formuliervelden naar web-contact: `form_id` (viewForm/guideForm/buyForm/sellForm
 De site is domein-onafhankelijk (alle links via `location.origin`); hij draait zonder wijziging op gruposoltura.com.
 
 ## Favorieten mailen (sinds 18-10-2026)
-Op `#/favorites` staat een zwevend paneel **"Stuur jezelf je favorieten"** (desktop open linksonder, mobiel als knop die openklapt). Voornaam, achternaam en e-mail (ook van iemand anders) -> `web-contact` v8 met `kind: 'favorites'`, `form_id: 'web-favorites-mail'`, `favorites` (referenties, max 30) en `browser_lang` (`navigator.language`).
+Op `/en/favorites/` · `/nl/favorieten/` staat een zwevend paneel **"Stuur jezelf je favorieten"** (desktop open linksonder, mobiel als knop die openklapt). Voornaam, achternaam en e-mail (ook van iemand anders) -> `web-contact` v8 met `kind: 'favorites'`, `form_id: 'web-favorites-mail'`, `favorites` (referenties, max 30) en `browser_lang` (`navigator.language`).
 - Keten: `web_contact_requests` -> JARVIS-Sales-WebFormIntake-v2 (contact + request `favorite` in core) -> **JARVIS-Sales-FavoritesMail** (`TjFGkuInnt7KRzcB`, webhook `jarvis-favorites-mail`): mail in de vaste klantmail-huisstijl via Brevo.
 - Taal van de mail: opgeslagen taal als het e-mailadres een bekend contact is, anders de browsertaal (nl/en/es/de/fr), anders Engels.
-- **Testmodus**: `#/favorites?test=1` -> de mail gaat alleen naar Rick (met testbanner), er wordt niets opgeslagen. Agent-breed: `DRY_RUN` in de Config-node.
-- Link in de mail `#/favorites?add=REF1,REF2` zet de woningen (weer) bij de favorieten op het apparaat waarop de mail wordt geopend.
+- **Testmodus**: `/nl/favorieten/?test=1` (oud: `#/favorites?test=1`) -> de mail gaat alleen naar Rick (met testbanner), er wordt niets opgeslagen. Agent-breed: `DRY_RUN` in de Config-node.
+- Link in de mail `#/favorites?add=REF1,REF2` (wordt omgezet naar `/en/favorites/?add=...`) zet de woningen (weer) bij de favorieten op het apparaat waarop de mail wordt geopend.
 - Limiet: max 5 favorietenmails per e-mailadres per uur.
 
 ## Pagina's
-Woningen, Kopen, Verkopen, Emigreren, Woonplaatsen (`#/area`, `#/area/<slug>`), Nieuws, Contact, Privacy (`#/privacy`). Team is opgegaan in Contact (`#/team` stuurt door). Onderaan elke pagina: Google-reviews, nieuwsbrief, socials, footer.
+Woningen, Kopen, Verkopen, Emigreren, Woonplaatsen, Nieuws, Contact, Privacy (zie de URL-tabel hierboven). Team is opgegaan in Contact (`#/team` stuurt door). Onderaan elke pagina: Google-reviews, nieuwsbrief, socials, footer.
 
 ## Woonplaatsgidsen (sinds 18-10-2026)
 - Tabel `core.town_guides` (één rij per plaats per taal: `slug`, `lang`, `town`, `aliases`, `title`, `lead`, `facts`, `sections`, `photos`, `sources`, `sort`, `status`, `review_notes`), view `web_town_guides` (alleen `published`, foto-URL erbij).
@@ -52,7 +73,7 @@ Zonder toestemming worden bezoeken anoniem per sessie geteld (niets opgeslagen o
 
 ## Meting (sinds 18-10-2026)
 - **Google Analytics 4** via de Google-tag `GT-T5MHQ45` (dezelfde als Site Kit op de oude WordPress; GA4-property 335774479). Consent Mode v2: standaard alles `denied` (cookieloze pings), `analytics_storage` wordt `granted` na 'Ja' in de cookiekeuze; advertentie-opslag blijft altijd `denied`. Cookiekeuze is geversioneerd (`gs_consent_v` = 2): wie vóór de GA-tekst koos, krijgt de vraag opnieuw.
-- Hash-routes worden als pad naar GA4 gestuurd (`#/home/RH550` -> `/home/RH550`), met eigen `page_view` (`send_page_view: false`). Eventkoppeling in `GA_MAP` (app.js): `view_item`, `generate_lead` (contact/koopgids), `sign_up` (nieuwsbrief), `search`, `add_to_wishlist`, `share`, `contact_whatsapp`, `contact_call`, …
+- GA4 krijgt het echte pad (`/nl/woning/rh550-.../`) met eigen `page_view` (`send_page_view: false`); bij een woning komt de `page_view` met `view_item`. Eventkoppeling in `GA_MAP` (app.js): `view_item`, `generate_lead` (contact/koopgids), `sign_up` (nieuwsbrief), `search`, `add_to_wishlist`, `share`, `contact_whatsapp`, `contact_call`, …
 - **Meta Pixel** `1362466522519143`: alleen geladen na marketing-toestemming (cookiekeuze v3: Noodzakelijk / Statistiek / Marketing; `gs_consent_ads`). Zonder die toestemming gaat er geen enkel verzoek naar Meta. Events: PageView (per route), ViewContent (`content_type: home_listing`, `content_ids` = referentie), Lead (contact, koopgids), CompleteRegistration (nieuwsbrief), Search, AddToWishlist, Contact (WhatsApp/bellen). Intrekken = `fbq('consent','revoke')` + _fbp/_fbc gewist. Google ad_*-consent volgt dezelfde marketingkeuze.
 - **Eigen meting** blijft: `web_events` -> views `bridge_site_daily` / `bridge_site_top_properties` (Bridge kpi.html) en RPC `nexus_property_web_stats` (NEXUS woning). Terugkerende bezoekers = bezoekerscode (`vid`) die op een eerdere dag al gezien is.
 

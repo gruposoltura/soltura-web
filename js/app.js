@@ -27,8 +27,11 @@ const ls = {
   get(k, d) { try { const v = localStorage.getItem('gs_' + k); return v ? JSON.parse(v) : d; } catch { return d; } },
   set(k, v) { try { localStorage.setItem('gs_' + k, JSON.stringify(v)); } catch {} },
 };
+// ---------- routes: echte paden per taal (js/routes.js); de taal komt uit het pad ----------
+const R = window.ROUTES;
+const R0 = R.parse(location.pathname);
 const S = {
-  lang: ls.get('lang', (navigator.language || 'en').toLowerCase().startsWith('nl') ? 'nl' : 'en'),
+  lang: (R0 && R0.lang) || ls.get('lang', (navigator.language || 'en').toLowerCase().startsWith('nl') ? 'nl' : 'en'),
   all: [], byRef: new Map(), byId: new Map(), byWp: new Map(), // byId: core-uuid; byWp: oud WP-id (alleen voor bewaarde favorieten van voor 18-10)
   f: blankFilters(), sort: 'foryou', type: 'all',
   shown: PAGE, order: [],
@@ -38,7 +41,7 @@ const S = {
   cfg: { itp_resale_pct: 9, iva_newbuild_pct: 10, ajd_newbuild_pct: 1.5, buyer_all_in_eur: 0 },
   // bezoekerscode alleen in de browser bewaren na toestemming; zonder toestemming tellen we anoniem per sessie (in geheugen)
   vid: ls.get('consent', null) === 'yes' && ls.get('consent_v', 0) >= 3 ? (ls.get('vid', null) || rid()) : null, sid: rid(), gaRef: null,
-  lastRoute: '#/', openSince: 0, openId: null,
+  lastRoute: '/', openSince: 0, openId: null, sheetDepth: 0, pageTitle: '',
 };
 if (S.vid) ls.set('vid', S.vid); else { try { localStorage.removeItem('gs_vid'); } catch {} }
 function blankFilters() { return { towns: [], categories: [], price_min: null, price_max: null, beds_min: null, baths_min: null, pool: null, newbuild: null, max_sea_km: null, reduced_only: false, ref_prefix: null }; }
@@ -47,7 +50,7 @@ function rid() { return Math.random().toString(36).slice(2) + Date.now().toStrin
 // ---------- Google Analytics 4 (Google-tag van Site Kit, GA4-property 335774479) ----------
 // Consent Mode v2: standaard alles 'denied' -> GA4 ontvangt alleen cookieloze pings (geen cookies, geen ID op het apparaat).
 // Statistiek-toestemming -> analytics_storage 'granted'. Marketing-toestemming -> ad_* 'granted' en Meta Pixel laden.
-// Routes zijn hash-routes (#/home/REF); GA4 knipt de # weg, dus we sturen zelf page_view met een padvorm (/home/REF).
+// Sinds 19-10-2026 echte paden (/nl/woning/rh550-.../); page_view gaat met het echte pad mee (send_page_view: false, eigen page_view per route).
 const GTAG = 'GT-T5MHQ45';
 const CONSENT_V = 3; // v2: Google Analytics genoemd; v3 (18-10-2026): aparte keuze marketing (Meta Pixel) -> eerdere keuzes opnieuw vragen
 const META_PIXEL = '1362466522519143';
@@ -87,7 +90,7 @@ if (adsGranted()) fbLoad();
 const FB_MAP = { view_property: 'ViewContent', contact_sent: 'Lead', guide_request: 'Lead', newsletter_signup: 'CompleteRegistration', search: 'Search', fav: 'AddToWishlist', whatsapp: 'Contact', call: 'Contact' };
 // eigen events -> GA4 (aanbevolen namen waar die bestaan)
 const GA_MAP = { view_property: 'view_item', contact_sent: 'generate_lead', guide_request: 'generate_lead', newsletter_signup: 'sign_up', search: 'search', share: 'share', fav: 'add_to_wishlist', whatsapp: 'contact_whatsapp', call: 'contact_call', contact_open: 'contact_open', assistant: 'assistant_question', mortgage: 'mortgage_calc', costs_ask: 'costs_overview', fav_mail: 'favorites_email' };
-function gaPath() { const h = (location.hash || '#/').replace(/^#/, ''); return h === '/' ? '/' : h.replace(/\/+$/, ''); }
+function gaPath() { return location.pathname || '/'; }
 function gaPage(title) {
   fb('PageView');
   try { gtag('event', 'page_view', { page_location: location.origin + gaPath() + location.search, page_path: gaPath(), page_title: title || document.title, language: S.lang, page_referrer: S.gaRef || document.referrer || undefined }); S.gaRef = location.origin + gaPath(); } catch {}
@@ -95,6 +98,9 @@ function gaPage(title) {
 
 // ---------- helpers ----------
 const $ = (s, el = document) => el.querySelector(s);
+// L(key, arg) -> pad in de huidige taal; ph(p) -> pad van een woning
+const L = (key, arg) => R.href(S.lang, key, arg);
+const ph = p => R.href(S.lang, 'property', p);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const t = (k, ...a) => { const v = (I18N[S.lang] || I18N.en)[k] ?? I18N.en[k]; return typeof v === 'function' ? v(...a) : v; };
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -103,7 +109,7 @@ const num = n => new Intl.NumberFormat(S.lang === 'nl' ? 'nl-NL' : 'en-GB').form
 const dist = m => m == null || m === 7000 ? null : (m >= 1000 ? (Math.round(m / 100) / 10).toString().replace('.', S.lang === 'nl' ? ',' : '.') + ' km' : Math.round(m) + ' m');
 const catName = c => S.lang === 'nl' ? (CAT_NL[c] || cap(c)) : (CAT_EN[c] || cap(c));
 const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
-const title = p => `${catName(p.category)} ${S.lang === 'nl' ? 'in' : 'in'} ${p.suburb && p.suburb !== p.town ? p.suburb + ', ' : ''}${p.town || ''}`;
+const title = p => `${catName(p.category)} in ${R.placeLabel(p)}`;
 const agentOf = p => AGENTS[p.agent_wp_id] || AGENTS[OFFICE];
 const reduced = p => p.previous_price && p.previous_price > p.price;
 const dropPct = p => reduced(p) ? Math.round((1 - p.price / p.previous_price) * 100) : 0;
@@ -182,7 +188,7 @@ function track(event, pid = null, value = null, meta = null) {
 }
 function gaEvent(event, p, value, meta) {
   try {
-    if (event === 'page') return gaPage();
+    if (event === 'page') return cur().key === 'property' ? undefined : gaPage(); // woning: page_view komt met view_property
     if (event === 'view_property' && p) gaPage(`${title(p)} · ${p.reference} · Grupo Soltura`);
     const fbn = FB_MAP[event];
     if (fbn) {
@@ -319,7 +325,7 @@ function specs(p) {
 function card(p, opts = {}) {
   const fav = S.favs.has(p.id);
   const n = Math.min(p.photo_count || 0, 8);
-  return `<a class="card st-card-${stOf(p)}" href="#/home/${encodeURIComponent(p.reference)}" data-id="${p.id}">
+  return `<a class="card st-card-${stOf(p)}" href="${ph(p)}" data-id="${p.id}">
     <div class="ph">
       ${statusTag(p)}
       ${p.image ? `<img class="kb" src="${esc(p.image)}" alt="${esc(title(p))}" loading="${opts.eager ? 'eager' : 'lazy'}" decoding="async">` : ''}
@@ -460,7 +466,7 @@ async function renderSocialSheet(p) {
   const { feed, stats } = await loadSocial();
   if (S.openId !== p.id) return;
   const post = feed.find(f => (p.wp_id && f.wp_id === p.wp_id) || (f.reference && f.reference === p.reference));
-  const url = location.origin + location.pathname + '#/home/' + encodeURIComponent(p.reference);
+  const url = location.origin + ph(p);
   box.innerHTML = `<h3>${t('social_sheet_h')}</h3>
     ${post ? `<a class="sp-post" href="${esc(post.fb_url || SOCIAL.ig)}" target="_blank" rel="noopener" data-social="post">${post.image ? `<img src="${esc(post.image)}" alt="" loading="lazy">` : ''}<span><b>${t('social_onpost')}</b><small>${esc(post.caption.slice(0, 90))}…</small></span></a>` : ''}
     <div class="share-row">
@@ -534,7 +540,7 @@ function consentBar(force) {
   let bar = $('#consent');
   if (!bar) { bar = document.createElement('div'); bar.id = 'consent'; bar.className = 'consent'; bar.setAttribute('role', 'dialog'); bar.setAttribute('aria-label', t('cc_h')); document.body.appendChild(bar); }
   const cur = consentCurrent();
-  bar.innerHTML = `<p><b>${t('cc_h')}</b> ${t('cc_p')} <a href="#/privacy">${t('privacy')}</a></p>
+  bar.innerHTML = `<p><b>${t('cc_h')}</b> ${t('cc_p')} <a href="${L('privacy')}">${t('privacy')}</a></p>
     <div class="cc-opts">
       <label><input type="checkbox" checked disabled> <span><b>${t('cc_nec')}</b> ${t('cc_nec_d')}</span></label>
       <label><input type="checkbox" id="ccStat" ${cur && gaGranted() ? 'checked' : ''}> <span><b>${t('cc_stat')}</b> ${t('cc_stat_d')}</span></label>
@@ -681,7 +687,7 @@ function renderHome() {
     const k = b.dataset.hint; track('hint', null, null, { k });
     if (k === 'search') { window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(() => $('#askInput').focus(), 350); }
     else if (k === 'reel') openReel(0);
-    else if (k === 'fav') location.hash = '#/favorites';
+    else if (k === 'fav') go(L('favorites'));
     else { const c = $('#feed .card'); if (c) { c.scrollIntoView({ behavior: 'smooth', block: 'center' }); c.classList.add('coach'); setTimeout(() => c.classList.remove('coach'), 2600); if (k === 'ask') setTimeout(() => c.click(), 900); } }
   }));
   $('#moreBtn').addEventListener('click', () => { S.shown += PAGE; renderFeed(true); });
@@ -741,7 +747,7 @@ function renderFeed(append = false) {
     feed.innerHTML = `<div class="ai-bubble in warn feed-bubble" style="grid-column:1/-1"><span class="ab-av">S</span><div class="ab-body">
       <div class="ab-none"><b>${t('none_h')}</b> ${t('none_bar')}</div>
       ${S.sugg.length ? `<div class="ab-sugg">${S.sugg.map((x, i) => `<button type="button" data-sug="${i}">${esc(x.label)} <small>${x.n}</small></button>`).join('')}</div>` : ''}
-      <p class="ab-tip">${t('none_contact')} <a href="#/contact">${t('nav_contact')}</a></p></div></div>`;
+      <p class="ab-tip">${t('none_contact')} <a href="${L('contact')}">${t('nav_contact')}</a></p></div></div>`;
     bindSugg(feed);
     $('#moreBtn').hidden = true; return;
   }
@@ -770,13 +776,13 @@ function moment(pos) {
     if (pr) return rail(t('m_foryou_h'), t('m_foryou_p'), pick((a, b) => score(b, pr) - score(a, pr), p => !S.viewed.includes(p.id) && !shownIds.has(p.id)));
     return rail(t('m_drops_h'), t('m_drops_p'), pick((a, b) => new Date(b.price_changedate || 0) - new Date(a.price_changedate || 0), reduced));
   }
-  if (pos === 15) return `<div class="story">${video(VIDEO.village)}<div><h2>${t('story_move_h')}</h2><p>${t('story_move_p')}</p><a class="btn lemon" href="#/move">${t('story_move_btn')}</a></div></div>`;
+  if (pos === 15) return `<div class="story">${video(VIDEO.village)}<div><h2>${t('story_move_h')}</h2><p>${t('story_move_p')}</p><a class="btn lemon" href="${L('move')}">${t('story_move_btn')}</a></div></div>`;
   if (pos === 24) return rail(t('m_value_h'), t('m_value_p'), pick((a, b) => a.market_deviation_pct - b.market_deviation_pct, p => belowMkt(p) > 0));
   if (pos === 30) return `<div class="moment rv-moment" data-reviews></div>`;
   if (pos === 36 && S.viewed.length >= 3) return rail(t('m_recent_h'), '', S.viewed.slice(0, 12).map(id => S.byId.get(id)).filter(Boolean));
   // nieuwsbrief-aanmelding tussen de woningen (zelfde blok als de pop-up), zolang iemand nog niet is aangemeld
   if ((pos === 40 || pos === 72) && !ls.get('nl_done', 0)) return `<div class="moment nl-moment">${newsletterHtml('inline')}</div>`;
-  if (pos === 48) return `<div class="story">${video(VIDEO.villa)}<div><h2>${t('story_sell_h')}</h2><p>${t('story_sell_p')}</p><a class="btn lemon" href="#/sell">${t('story_sell_btn')}</a></div></div>`;
+  if (pos === 48) return `<div class="story">${video(VIDEO.villa)}<div><h2>${t('story_sell_h')}</h2><p>${t('story_sell_p')}</p><a class="btn lemon" href="${L('sell')}">${t('story_sell_btn')}</a></div></div>`;
   return '';
 }
 
@@ -840,12 +846,12 @@ async function aiSearch(q) {
     if (ref.p) {
       out.innerHTML = `<span class="ab-av">S</span><div class="ab-body"><p class="ab-reply">${t('ref_open', esc(ref.p.reference))}</p></div>`;
       track('search_ref', null, null, { ref: ref.p.reference });
-      location.hash = '#/home/' + encodeURIComponent(ref.p.reference);
+      go(ph(ref.p));
     } else if (ref.many) {
       S.sugg = ref.many.map(p => ({ ref: p.reference }));
-      out.innerHTML = `<span class="ab-av">S</span><div class="ab-body"><p class="ab-reply">${t('ref_many')}</p><div class="ab-sugg">${ref.many.slice(0, 8).map(p => `<a class="ab-ref" href="#/home/${encodeURIComponent(p.reference)}">${esc(p.reference)} <small>${esc(p.town || '')}</small></a>`).join('')}</div></div>`;
+      out.innerHTML = `<span class="ab-av">S</span><div class="ab-body"><p class="ab-reply">${t('ref_many')}</p><div class="ab-sugg">${ref.many.slice(0, 8).map(p => `<a class="ab-ref" href="${ph(p)}">${esc(p.reference)} <small>${esc(p.town || '')}</small></a>`).join('')}</div></div>`;
     } else {
-      out.innerHTML = `<span class="ab-av">S</span><div class="ab-body"><div class="ab-none"><b>${t('ref_missing_h', esc(ref.missing))}</b> ${t('ref_missing_p')}</div><p class="ab-tip"><a href="https://wa.me/34664414515?text=${encodeURIComponent(t('wa_text', ref.missing))}" target="_blank" rel="noopener">WhatsApp</a> · <a href="#/contact">${t('nav_contact')}</a></p></div>`;
+      out.innerHTML = `<span class="ab-av">S</span><div class="ab-body"><div class="ab-none"><b>${t('ref_missing_h', esc(ref.missing))}</b> ${t('ref_missing_p')}</div><p class="ab-tip"><a href="https://wa.me/34664414515?text=${encodeURIComponent(t('wa_text', ref.missing))}" target="_blank" rel="noopener">WhatsApp</a> · <a href="${L('contact')}">${t('nav_contact')}</a></p></div>`;
       track('search_ref_missing', null, null, { ref: ref.missing });
     }
     return;
@@ -929,9 +935,10 @@ function bindSugg(root) {
 async function openSheet(ref) {
   const p = S.byRef.get(ref.toUpperCase());
   const sh = $('#sheet'), inner = $('#sheetInner');
-  if (!p) { inner.innerHTML = `<div class="empty"><h2>${S.lang === 'nl' ? 'Deze woning is niet meer beschikbaar' : 'This home is no longer available'}</h2><p><a class="btn primary" href="#/">${t('see_all')}</a></p></div>`; sh.hidden = false; return; }
+  if (!p) { inner.innerHTML = `<div class="empty"><h2>${S.lang === 'nl' ? 'Deze woning is niet meer beschikbaar' : 'This home is no longer available'}</h2><p><a class="btn primary" href="${L('home')}">${t('see_all')}</a></p></div>`; sh.hidden = false; return; }
   closeSheetTracking();
   S.openId = p.id; S.openSince = Date.now();
+  document.title = `${title(p)} · ${p.reference} · Grupo Soltura`;
   S.viewed = [p.id, ...S.viewed.filter(x => x !== p.id)].slice(0, 60); ls.set('viewed', S.viewed);
   track('view_property', p.id);
   document.body.style.overflow = 'hidden';
@@ -1028,7 +1035,7 @@ function guideHtml(p) {
       <label><span>${t('form_email')} *</span><input name="email" type="email" autocomplete="email" required></label>
       <button class="btn primary" type="submit">${t('guide_send')}</button>
       <p class="ok" aria-live="polite"></p>
-      <p class="form-note">${t('form_privacy')} <a href="#/privacy">${t('privacy')}</a></p>
+      <p class="form-note">${t('form_privacy')} <a href="${L('privacy')}">${t('privacy')}</a></p>
     </form></div>`;
 }
 function bindGuide(p) {
@@ -1281,7 +1288,7 @@ function step(d) {
   const list = S.order.length ? S.order : S.all;
   const i = list.findIndex(x => x.id === S.openId);
   const nx = list[(i + d + list.length) % list.length];
-  if (nx) { track('step', nx.id, d); location.replace('#/home/' + encodeURIComponent(nx.reference)); }
+  if (nx) { track('step', nx.id, d); go(ph(nx), { replace: true }); }
 }
 function closeSheetTracking() {
   if (S.openId && S.openSince) track('dwell', S.openId, Math.round((Date.now() - S.openSince) / 1000));
@@ -1290,7 +1297,11 @@ function closeSheetTracking() {
 function closeSheet() {
   closeSheetTracking();
   $('#sheet').hidden = true; document.body.style.overflow = '';
-  if (location.hash.startsWith('#/home/')) location.hash = S.lastRoute || '#/';
+  if (cur().key !== 'property') return;
+  // in de app geopend: terug in de geschiedenis naar de pagina eronder; direct binnengekomen: naar die pagina zonder herladen
+  if (S.sheetDepth > 0) { const n = S.sheetDepth; S.sheetDepth = 0; history.go(-n); }
+  else history.replaceState(null, '', S.lastRoute || L('home'));
+  setTitle();
 }
 $('#sheet').addEventListener('click', e => { if (e.target.id === 'sheet') closeSheet(); });
 document.addEventListener('keydown', e => {
@@ -1345,7 +1356,7 @@ function openReel(startIdx) {
   reel.hidden = false; document.body.style.overflow = 'hidden';
   $('.reel-close', reel).onclick = closeReel;
   reel.onclick = e => {
-    const o = e.target.closest('[data-open]'); if (o) { closeReel(); location.hash = '#/home/' + encodeURIComponent(o.dataset.open); return; }
+    const o = e.target.closest('[data-open]'); if (o) { closeReel(); go(ph(S.byRef.get(o.dataset.open) || o.dataset.open)); return; }
     const w = e.target.closest('[data-wa]'); if (w) { const p = S.byId.get(w.dataset.wa); const ag = agentOf(p); track('whatsapp', p.id); window.open(`https://wa.me/${ag.tel.replace('+', '')}?text=${encodeURIComponent(t('wa_text', p.reference))}`, '_blank', 'noopener'); }
   };
   let seen = new Set();
@@ -1367,7 +1378,7 @@ function homesRail(h) {
   const pr = prefs();
   const items = S.all.filter(p => p.image && isOpen(p)).sort((a, b) => score(b, pr) - score(a, pr)).slice(0, 12);
   if (!items.length) return '';
-  return `<section class="section"><h2>${h || t('home_rail')}</h2><div class="rail">${items.map(p => card(p)).join('')}</div><p><a class="btn ghost" href="#/">${t('see_all')}</a></p></section>`;
+  return `<section class="section"><h2>${h || t('home_rail')}</h2><div class="rail">${items.map(p => card(p)).join('')}</div><p><a class="btn ghost" href="${L('home')}">${t('see_all')}</a></p></section>`;
 }
 const timeline = steps => `<ol class="tl">${steps.map(([h, p], i) => `<li><span class="tl-n">${i + 1}</span><div><h3>${h}</h3><p>${p}</p></div></li>`).join('')}</ol>`;
 // formulier: velden met data-x gaan als los veld (data-k) mee én als regel bovenaan het bericht
@@ -1381,11 +1392,11 @@ function richForm(id, kind, extra, msg) {
       : `<input data-x="${esc(x.label)}" data-k="${x.k}"${x.ph ? ` placeholder="${esc(x.ph)}"` : ''}>`}</label>`).join('')}</div>` : ''}
     <label><span>${t('form_msg')}</span><textarea name="message" rows="4"${msg ? ` data-keep="1"` : ''}>${msg ? esc(msg) : ''}</textarea></label>
     <button class="btn primary" type="submit">${t('form_send')}</button><p class="ok" aria-live="polite"></p>
-    <p class="form-note">${t('form_privacy')} <a href="#/privacy">${t('privacy')}</a></p></form>`;
+    <p class="form-note">${t('form_privacy')} <a href="${L('privacy')}">${t('privacy')}</a></p></form>`;
 }
 function pageBuy() {
   const c = P('buy');
-  return `<section class="page-hero short">${video(VIDEO.coast)}<div><p class="kicker">${t('nav_buy')}</p><h1>${c.h}</h1><p>${c.lead}</p><p class="hero-acts"><a class="btn lemon" href="#/">${t('see_all')}</a><a class="btn wa" href="https://wa.me/34664414515" target="_blank" rel="noopener" data-track="whatsapp">WhatsApp</a></p></div></section>
+  return `<section class="page-hero short">${video(VIDEO.coast)}<div><p class="kicker">${t('nav_buy')}</p><h1>${c.h}</h1><p>${c.lead}</p><p class="hero-acts"><a class="btn lemon" href="${L('home')}">${t('see_all')}</a><a class="btn wa" href="https://wa.me/34664414515" target="_blank" rel="noopener" data-track="whatsapp">WhatsApp</a></p></div></section>
     <div class="pg">
       <p class="pg-intro">${c.intro}</p>
       <div class="buy-grid">
@@ -1410,7 +1421,7 @@ function pageSell() {
         <div class="box form-card" id="sellBox"><h2>${c.form_h}</h2><p>${c.form_p}</p>
           ${richForm('sellForm', 'valuation', [{ k: 'area', label: t('f_town'), ph: 'Rojales, Ciudad Quesada…' }, { k: 'property_type', label: t('f_type'), opts: t('f_type_opts') }], '')}</div>
       </div>
-      <div class="cta-band"><p>${c.legal}</p><a class="btn ghost" href="#/contact">${t('nav_contact')}</a></div>
+      <div class="cta-band"><p>${c.legal}</p><a class="btn ghost" href="${L('contact')}">${t('nav_contact')}</a></div>
     </div>`;
 }
 function pageMove() {
@@ -1418,7 +1429,7 @@ function pageMove() {
   return `<section class="page-hero">${video(VIDEO.village)}<div><p class="kicker">${t('nav_move')}</p><h1>${c.h}</h1><p>${c.lead}</p></div></section>
     <div class="pg">
       <div class="stages">${c.stages.map(([h, p], i) => `<div class="stage"><span>${i + 1}</span><h3>${h}</h3><p>${p}</p></div>`).join('')}</div>
-      <p class="move-areas"><a href="#/area">${t('areas_h')}: ${S.lang === 'nl' ? 'lees per woonplaats over scholen, zorg, winkels en feesten' : 'read about schools, healthcare, shops and festivals per town'} →</a></p>
+      <p class="move-areas"><a href="${L('area')}">${t('areas_h')}: ${S.lang === 'nl' ? 'lees per woonplaats over scholen, zorg, winkels en feesten' : 'read about schools, healthcare, shops and festivals per town'} →</a></p>
       <div class="buy-grid move-grid">
         <div class="acc">${c.topics.map(([h, p], i) => `<details${i === 0 ? ' open' : ''}><summary>${h}</summary><p>${p}</p></details>`).join('')}
           <p class="disclaimer">${c.disclaimer}</p></div>
@@ -1451,7 +1462,7 @@ function sanitizeRich(html) {
       const href = c.getAttribute('href'), src = c.getAttribute('src'), alt = c.getAttribute('alt');
       [...c.attributes].forEach(a => c.removeAttribute(a.name));
       if (c.tagName === 'A') {
-        if (href && /^(https?:|mailto:|#\/)/i.test(href.trim())) { c.setAttribute('href', href.trim()); if (/^https?:/i.test(href.trim())) { c.setAttribute('target', '_blank'); c.setAttribute('rel', 'noopener nofollow'); } }
+        if (href && /^(https?:|mailto:|#\/|\/(en|nl)\/)/i.test(href.trim())) { c.setAttribute('href', href.trim()); if (/^https?:/i.test(href.trim())) { c.setAttribute('target', '_blank'); c.setAttribute('rel', 'noopener nofollow'); } }
         else c.replaceWith(...c.childNodes);
       }
       if (c.tagName === 'IMG') {
@@ -1492,7 +1503,7 @@ function blogList(posts) {
   const draw = () => {
     const list = rows.filter(r => !cat || r.category === cat);
     const li = list.findIndex(r => r.image_url); if (li > 0 && li < 4) list.unshift(list.splice(li, 1)[0]);
-    $('#newsList').innerHTML = list.slice(0, shown).map((r, i) => `<a class="news-card${i === 0 ? ' lead' : ''}${r.image_url ? ' has-img' : ''}" href="#/news/${encodeURIComponent(r.slug)}" data-src="blog">
+    $('#newsList').innerHTML = list.slice(0, shown).map((r, i) => `<a class="news-card${i === 0 ? ' lead' : ''}${r.image_url ? ' has-img' : ''}" href="${L('news', r.slug)}" data-src="blog">
       ${r.image_url ? `<span class="nc-img"><img src="${esc(r.image_url)}" alt="" loading="${i < 5 ? 'eager' : 'lazy'}" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add('nc-ph');this.remove();"></span>` : (i ? `<span class="nc-img nc-ph"></span>` : '')}
       <span class="nc-txt"><span class="nc-tag">${esc(r.category ? cap(String(r.category).replace(/[_-]/g, ' ')) : 'Soltura')}</span><h3>${esc(r.title)}</h3>${r.excerpt && i === 0 ? `<p class="nc-ex">${esc(r.excerpt)}</p>` : ''}<small>${r.source_name ? esc(r.source_name) + ' · ' : ''}${fmtDate(r.published_at)}${(r.lang || '').toLowerCase() !== S.lang && LANG_NAME[(r.lang || '').toLowerCase()] ? ` · <span class="nc-lang">${t('news_in', LANG_NAME[r.lang.toLowerCase()][S.lang])}</span>` : ''}</small></span></a>`).join('') || `<p>${t('news_none')}</p>`;
     $('#newsMore').hidden = list.length <= shown;
@@ -1504,28 +1515,28 @@ function blogList(posts) {
 async function pagePost(slug) {
   const nl = S.lang === 'nl';
   const main = $('#main');
-  main.innerHTML = `<article class="post"><p class="kicker"><a href="#/news">← ${t('nav_news')}</a></p><div class="skeleton" style="height:2.4em;border-radius:8px;max-width:640px"></div><div class="skeleton" style="height:16em;border-radius:14px;margin-top:20px"></div></article>`;
+  main.innerHTML = `<article class="post"><p class="kicker"><a href="${L('news')}">← ${t('nav_news')}</a></p><div class="skeleton" style="height:2.4em;border-radius:8px;max-width:640px"></div><div class="skeleton" style="height:16em;border-radius:14px;margin-top:20px"></div></article>`;
   const r = await api(`web_blog_posts?select=*&slug=eq.${encodeURIComponent(slug)}&limit=1`).then(x => x[0]).catch(() => null);
-  if (currentPage !== 'news' || !location.hash.startsWith('#/news/')) return;
+  if (currentPage !== 'news' || cur().arg !== slug) return;
   if (!r) {
-    main.innerHTML = `<div class="empty"><h2>${nl ? 'Dit bericht is niet (meer) beschikbaar' : 'This article is no longer available'}</h2><p><a class="btn primary" href="#/news">${t('nav_news')}</a></p></div>${homesRail()}`;
+    main.innerHTML = `<div class="empty"><h2>${nl ? 'Dit bericht is niet (meer) beschikbaar' : 'This article is no longer available'}</h2><p><a class="btn primary" href="${L('news')}">${t('nav_news')}</a></p></div>${homesRail()}`;
     observeCards(main); return;
   }
   // andere taal gekozen en er is een vertaling: daarheen
   if ((r.lang || '').toLowerCase() !== S.lang && r.group_id) {
     const sib = await api(`web_blog_posts?select=slug&group_id=eq.${encodeURIComponent(r.group_id)}&lang=eq.${S.lang}&limit=1`).then(x => x[0]).catch(() => null);
-    if (sib && sib.slug && sib.slug !== slug) { location.replace('#/news/' + encodeURIComponent(sib.slug)); return; }
+    if (sib && sib.slug && sib.slug !== slug) { go(L('news', sib.slug), { replace: true }); return; }
   }
   document.title = `${r.title} · Grupo Soltura`;
   main.innerHTML = `<article class="post">
-      <p class="kicker"><a href="#/news">← ${t('nav_news')}</a></p>
+      <p class="kicker"><a href="${L('news')}">← ${t('nav_news')}</a></p>
       <h1>${esc(r.title)}</h1>
       <p class="post-meta muted">${fmtDate(r.published_at, true)}${r.source_name ? ' · ' + esc(r.source_name) : ''}</p>
       ${r.image_url ? `<figure class="post-img"><img src="${esc(r.image_url)}" alt="" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></figure>` : ''}
       ${r.excerpt ? `<p class="post-lead">${esc(r.excerpt)}</p>` : ''}
       <div class="post-body">${sanitizeRich(r.body_html)}</div>
       ${r.source_url && /^https?:/i.test(r.source_url) ? `<p class="post-src">${nl ? 'Bron' : 'Source'}: <a href="${esc(r.source_url)}" target="_blank" rel="noopener nofollow">${esc(r.source_name || new URL(r.source_url).hostname)}</a></p>` : ''}
-      <p class="post-share"><a class="btn ghost" href="#/news">${nl ? 'Meer nieuws' : 'More news'}</a> <a class="btn wa" href="https://wa.me/?text=${encodeURIComponent(r.title + ' ' + location.origin + location.pathname + '#/news/' + encodeURIComponent(r.slug))}" target="_blank" rel="noopener" data-social="share_wa">${t('share_wa')}</a></p>
+      <p class="post-share"><a class="btn ghost" href="${L('news')}">${nl ? 'Meer nieuws' : 'More news'}</a> <a class="btn wa" href="https://wa.me/?text=${encodeURIComponent(r.title + ' ' + location.origin + L('news', r.slug))}" target="_blank" rel="noopener" data-social="share_wa">${t('share_wa')}</a></p>
     </article>${homesRail()}`;
   observeCards(main);
   track('news_view', null, null, { slug: r.slug });
@@ -1590,7 +1601,7 @@ const fold = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLow
 const TG = { list: {}, load: {} };
 function townGuides() {
   const lang = S.lang;
-  if (!TG.load[lang]) TG.load[lang] = api(`web_town_guides?select=slug,lang,town,aliases,title,lead,photos,sort&lang=eq.${lang}&order=sort.asc`)
+  if (!TG.load[lang]) TG.load[lang] = api(`web_town_guides?select=slug,lang,town,aliases,title,lead,photos,coords,sort&lang=eq.${lang}&order=sort.asc`)
     .then(r => (TG.list[lang] = r)).catch(() => { delete TG.load[lang]; return []; });
   return TG.load[lang];
 }
@@ -1606,6 +1617,12 @@ function guideFor(p, list) {
     if (sc > top) { top = sc; best = g; }
   });
   return best;
+}
+// "In de buurt": de dichtstbijzijnde gidsen (hemelsbreed, uit coords) — zelfde als in de statische HTML (scripts/build.mjs)
+function nearGuides(g, list, n = 4) {
+  if (!g.coords || g.coords.length < 2) return [];
+  const r = x => x * Math.PI / 180, km = (a, b) => 6371 * 2 * Math.asin(Math.sqrt(Math.sin(r(b[0] - a[0]) / 2) ** 2 + Math.cos(r(a[0])) * Math.cos(r(b[0])) * Math.sin(r(b[1] - a[1]) / 2) ** 2));
+  return (list || []).filter(x => x.slug !== g.slug && x.coords && x.coords.length >= 2).map(x => ({ g: x, km: km(g.coords, x.coords) })).sort((a, b) => a.km - b.km).slice(0, n);
 }
 function guideHomes(g) {
   const keys = guideKeys(g);
@@ -1624,13 +1641,13 @@ const waBtn = () => `<a class="btn wa" href="https://wa.me/34664414515" target="
 async function pageArea(slug) {
   const nl = S.lang === 'nl', main = $('#main');
   if (slug) return pageAreaDetail(slug);
-  main.innerHTML = areaHero(tgImg({ url: AREA_HERO }, 1800), `<p class="kicker">${t('nav_areas')}</p>`, t('areas_h'), t('areas_p'), `<a class="btn lemon" href="#/">${t('see_all')}</a>${waBtn()}`)
+  main.innerHTML = areaHero(tgImg({ url: AREA_HERO }, 1800), `<p class="kicker">${t('nav_areas')}</p>`, t('areas_h'), t('areas_p'), `<a class="btn lemon" href="${L('home')}">${t('see_all')}</a>${waBtn()}`)
     + `<div class="pg"><p class="pg-intro">${t('areas_intro')}</p><div class="area-grid" id="areaGrid">${'<div class="skeleton" style="height:260px;border-radius:14px"></div>'.repeat(6)}</div></div>${homesRail()}`;
   const list = await townGuides();
-  if (currentPage !== 'area' || location.hash.replace(/\/$/, '') !== '#/area') return;
+  if (currentPage !== 'area' || cur().key !== 'area') return;
   $('#areaGrid').innerHTML = list.map(g => {
     const n = guideHomes(g).length, ph = (g.photos || [])[0];
-    return `<a class="area-card" href="#/area/${encodeURIComponent(g.slug)}">
+    return `<a class="area-card" href="${L('guide', g.slug)}">
       ${ph ? `<span class="ac-img"><img src="${esc(tgImg(ph, 640))}" alt="${esc(ph.alt || g.town)}" loading="lazy"></span>` : '<span class="ac-img"></span>'}
       <span class="ac-txt"><h3>${esc(g.town)}</h3><p>${esc(g.lead || '')}</p>${n ? `<small>${t('areas_n', n)}</small>` : ''}</span></a>`;
   }).join('') || `<p>${nl ? 'De gidsen laden even niet. Probeer het zo opnieuw.' : 'The guides could not load. Please try again shortly.'}</p>`;
@@ -1638,12 +1655,12 @@ async function pageArea(slug) {
 }
 async function pageAreaDetail(slug) {
   const nl = S.lang === 'nl', main = $('#main');
-  const back = `<p class="kicker"><a href="#/area">← ${t('nav_areas')}</a></p>`;
+  const back = `<p class="kicker"><a href="${L('area')}">← ${t('nav_areas')}</a></p>`;
   main.innerHTML = areaHero('', back, '&nbsp;', '', '') + `<div class="pg"><div class="skeleton" style="height:16em;border-radius:14px"></div></div>`;
   const g = await api(`web_town_guides?select=*&slug=eq.${encodeURIComponent(slug)}&lang=eq.${S.lang}&limit=1`).then(x => x[0]).catch(() => null);
-  if (currentPage !== 'area' || !location.hash.startsWith('#/area/' + slug)) return;
+  if (currentPage !== 'area' || cur().arg !== slug) return;
   if (!g) {
-    main.innerHTML = `<div class="empty"><h2>${nl ? 'Deze plaats hebben we (nog) niet beschreven' : "We haven't written about this place yet"}</h2><p><a class="btn primary" href="#/area">${t('nav_areas')}</a></p></div>${homesRail()}`;
+    main.innerHTML = `<div class="empty"><h2>${nl ? 'Deze plaats hebben we (nog) niet beschreven' : "We haven't written about this place yet"}</h2><p><a class="btn primary" href="${L('area')}">${t('nav_areas')}</a></p></div>${homesRail()}`;
     observeCards(main); return;
   }
   document.title = `${g.title} · Grupo Soltura`;
@@ -1655,7 +1672,7 @@ async function pageAreaDetail(slug) {
   // eerste foto staat in de kop; de andere klein naast de tekst
   const fig = i => photos[i] ? `<figure class="area-fig" data-i="${i}"><img src="${esc(tgImg(photos[i], 900))}" alt="${esc(photos[i].alt || '')}" loading="lazy"><figcaption>${esc(photos[i].alt || '')} <span>· ${tgCredit(photos[i])}</span></figcaption></figure>` : '';
   const at = { 1: 1, 5: 2 };
-  const homesBtn = homes.length ? `<button type="button" class="btn lemon" data-area-homes>${t('areas_btn', g.town)}</button>` : `<a class="btn lemon" href="#/">${t('see_all')}</a>`;
+  const homesBtn = homes.length ? `<button type="button" class="btn lemon" data-area-homes>${t('areas_btn', g.town)}</button>` : `<a class="btn lemon" href="${L('home')}">${t('see_all')}</a>`;
   main.innerHTML = areaHero(photos[0] ? tgImg(photos[0], 1800) : tgImg({ url: AREA_HERO }, 1800), back, esc(g.title), esc(g.lead || ''), homesBtn + waBtn())
     + `<div class="pg area-pg">
       ${(g.facts || []).length ? `<dl class="area-facts">${g.facts.map(f => `<div><dt>${esc(f.label)}</dt><dd>${esc(f.value)}</dd></div>`).join('')}</dl>` : ''}
@@ -1666,13 +1683,14 @@ async function pageAreaDetail(slug) {
             <p class="muted">${nl ? 'Wij stellen deze gids met zorg samen uit openbare bronnen. Cijfers en data kunnen veranderen; check bij twijfel de gemeente.' : 'We compile this guide carefully from public sources. Figures and dates can change; if in doubt, check with the town hall.'} ${nl ? 'Bijgewerkt' : 'Updated'} ${fmtDate(g.updated_at, true)}.</p>
             <ul>${(g.sources || []).filter(x => x && /^https?:/i.test(x.url || '')).map(x => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener nofollow">${esc(x.title || new URL(x.url).hostname)}</a></li>`).join('')}</ul>
             ${photos.length ? `<p class="muted">${nl ? 'Foto\'s via Wikimedia Commons' : 'Photos via Wikimedia Commons'}: ${photos.map(tgCredit).join(' · ')}</p>` : ''}</details>
+          <section class="area-near" id="areaNear" hidden></section>
         </div>
         <aside class="box side-cta area-side">
           <h2>${esc(g.town)}</h2>
-          <nav class="area-toc" aria-label="${nl ? 'Onderwerpen' : 'Topics'}">${secs.map(s => `<a href="#/area/${encodeURIComponent(g.slug)}" data-sec="${esc(s.key)}">${esc(s.heading)}</a>`).join('')}</nav>
+          <nav class="area-toc" aria-label="${nl ? 'Onderwerpen' : 'Topics'}">${secs.map(s => `<a href="#sec-${esc(s.key)}" data-sec="${esc(s.key)}">${esc(s.heading)}</a>`).join('')}</nav>
           ${homes.length ? `<p>${t('areas_cta', g.town, homes.length)}</p>` : ''}
           ${homesBtn}
-          <a class="btn ghost" href="#/contact">${t('nav_contact')}</a>
+          <a class="btn ghost" href="${L('contact')}">${t('nav_contact')}</a>
         </aside>
       </div>
     </div>
@@ -1684,8 +1702,14 @@ async function pageAreaDetail(slug) {
     const names = [...new Set(homes.map(p => p.town))];
     S.f = Object.assign(blankFilters(), { towns: names }); S.type = 'all'; S.shown = PAGE;
     track('area_homes', null, homes.length, { slug: g.slug });
-    location.hash = '#/';
+    go(L('home'));
     setTimeout(() => { const b = $('#bar'); if (b) b.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 600);
+  });
+  townGuides().then(list => {
+    const near = nearGuides(g, list), box = $('#areaNear');
+    if (!box || !near.length || cur().arg !== g.slug) return;
+    box.innerHTML = `<h2 class="pg-h">${nl ? 'In de buurt' : 'Nearby'}</h2><ul class="near-list">${near.map(x => `<li><a href="${L('guide', x.g.slug)}">${esc(x.g.town)}</a> <small>${Math.round(x.km)} km</small></li>`).join('')}</ul>`;
+    box.hidden = false;
   });
   track('area_view', null, null, { slug: g.slug });
 }
@@ -1696,7 +1720,7 @@ function areaLink(p) {
     if (!box || S.openId !== p.id) return;
     if (!g) { box.innerHTML = ''; return; }
     const ph = (g.photos || [])[0];
-    box.innerHTML = `<a class="area-link" href="#/area/${encodeURIComponent(g.slug)}" data-track="area_from_home">${ph ? `<img src="${esc(tgImg(ph, 240))}" alt="" loading="lazy">` : ''}<span><b>${esc(t('areas_link_h', g.town))}</b><small>${t('areas_link_p')}</small></span><i aria-hidden="true">→</i></a>`;
+    box.innerHTML = `<a class="area-link" href="${L('guide', g.slug)}" data-track="area_from_home">${ph ? `<img src="${esc(tgImg(ph, 240))}" alt="" loading="lazy">` : ''}<span><b>${esc(t('areas_link_h', g.town))}</b><small>${t('areas_link_p')}</small></span><i aria-hidden="true">→</i></a>`;
     $('a', box).addEventListener('click', () => track('area_from_home', p.id, null, { slug: g.slug }));
   });
 }
@@ -1734,13 +1758,13 @@ function pagePrivacy() {
 }
 function pageFavs() {
   const items = [...S.favs].map(id => S.byId.get(id)).filter(Boolean);
-  if (!items.length) return `<div class="empty"><h2>${t('fav_h')}</h2><p>${t('fav_empty')}</p><p><a class="btn primary" href="#/">${t('see_all')}</a></p></div>`;
+  if (!items.length) return `<div class="empty"><h2>${t('fav_h')}</h2><p>${t('fav_empty')}</p><p><a class="btn primary" href="${L('home')}">${t('see_all')}</a></p></div>`;
   return `<div class="page-head"><h1>${t('fav_h')}</h1></div><section class="feed">${items.map(p => card(p)).join('')}</section>${homesRail()}${favMailPanel(items.length)}`;
 }
 // ---------- favorieten mailen (paneel "Stuur jezelf je favorieten") ----------
 // web-contact (kind favorites) -> WebFormIntake-v2 -> JARVIS-Sales-FavoritesMail. Taal van de mail: opgeslagen taal als het
-// e-mailadres bekend is, anders de browsertaal. Testmodus: #/favorites?test=1 -> mail alleen naar Rick, niets opgeslagen.
-const favTest = () => /[?&]test=1\b/.test(location.hash) || new URLSearchParams(location.search).get('test') === '1';
+// e-mailadres bekend is, anders de browsertaal. Testmodus: /nl/favorieten/?test=1 (of oud #/favorites?test=1) -> mail alleen naar Rick, niets opgeslagen.
+const favTest = () => new URLSearchParams(location.search).get('test') === '1';
 const favMailOpen = () => { try { return sessionStorage.getItem('gs_favmail') !== 'closed' && !(matchMedia('(max-width:640px)').matches && sessionStorage.getItem('gs_favmail') !== 'open'); } catch { return true; } };
 function favMailPanel(n) {
   const open = favMailOpen();
@@ -1762,7 +1786,7 @@ function favMailPanel(n) {
         <input name="website" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true">
         <button class="btn primary fm-send" type="submit">${ICON.mail}${esc(t('fm_send'))}</button>
         <p class="fm-out" aria-live="polite"></p>
-        <p class="fm-note">${esc(t('fm_other'))} ${esc(t('fm_note'))} <a href="#/privacy">${esc(t('privacy'))}</a></p>
+        <p class="fm-note">${esc(t('fm_other'))} ${esc(t('fm_note'))} <a href="${L('privacy')}">${esc(t('privacy'))}</a></p>
       </form>
     </div>
   </aside>`;
@@ -1798,37 +1822,75 @@ function bindFavMail() {
     } else { out.classList.add('err'); out.textContent = r.error === 'rate' ? t('fm_rate') : r.error === 'contact' ? t('fm_err') : t('fm_fail'); }
   });
 }
-// link uit de favorietenmail: #/favorites?add=RH550,STU139 -> die woningen (weer) bewaren op dit apparaat
+// link uit de favorietenmail: /en/favorites/?add=RH550,STU139 (oud: #/favorites?add=...) -> die woningen (weer) bewaren op dit apparaat
 function importFavs() {
-  const m = location.hash.match(/^#\/favorites\?(.*)$/); if (!m || !S.all.length) return;
-  const q = new URLSearchParams(m[1]); const add = (q.get('add') || '').split(',').map(x => x.trim().toUpperCase()).filter(Boolean);
+  if (!S.all.length) return;
+  const q = new URLSearchParams(location.search); const add = (q.get('add') || '').split(',').map(x => x.trim().toUpperCase()).filter(Boolean);
   if (!add.length) return;
   let n = 0; add.forEach(ref => { const p = S.byRef.get(ref); if (p && !S.favs.has(p.id)) { S.favs.add(p.id); n++; } });
   if (n) { ls.set('favs', [...S.favs]); favCount(); }
   q.delete('add'); const rest = q.toString();
-  history.replaceState(null, '', location.pathname + location.search + '#/favorites' + (rest ? '?' + rest : ''));
+  history.replaceState(null, '', location.pathname + (rest ? '?' + rest : ''));
 }
-// ankerlinks binnen een pagina (hash-router gebruikt # voor routes)
+// ankerlinks binnen een pagina (#sectie)
 addEventListener('click', e => { const a = e.target.closest('a[data-scroll]'); if (!a) return; e.preventDefault(); const el = document.getElementById(a.getAttribute('href').slice(1)); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
 
-// ---------- router ----------
+// ---------- router: echte paden (History API) ----------
+// /en/... en /nl/... (js/routes.js). Een woning opent als sheet over de pagina eronder, maar heeft een eigen URL.
+// Oude hash-links (#/home/RH550, #/area/rojales, #/favorites?add=...) uit mails en feeds worden bij binnenkomst omgezet.
 let currentPage = null;
+const cur = () => R.parse(location.pathname) || { lang: S.lang, key: 'notfound', arg: null };
+// canonieke vorm van een route in een taal ('/' blijft '/': Engelse inhoud, canonical /en/)
+function canon(r, lang = S.lang) {
+  if (!r) return R.href(lang, 'home');
+  if (r.key === 'home' && !r.lang && lang === 'en') return '/';
+  if (r.key === 'property') { const p = S.byRef.get(r.arg); return R.href(lang, 'property', p || r.arg); }
+  if (r.key === 'guide') return R.href(lang, 'guide', r.arg);
+  if (r.key === 'news') return R.href(lang, 'news', r.arg);
+  if (r.key === 'notfound') return location.pathname;
+  return R.href(lang, r.key);
+}
+function go(path, o = {}) {
+  const u = new URL(path, location.origin);
+  if (u.origin !== location.origin) { location.assign(u.href); return; }
+  const url = u.pathname + u.search + u.hash, nr = R.parse(u.pathname);
+  if (o.replace) history.replaceState(null, '', url); else history.pushState(null, '', url);
+  if (nr && nr.key === 'property') { if (!o.replace) S.sheetDepth = (S.sheetDepth || 0) + 1; } else S.sheetDepth = 0;
+  route();
+}
+function setLang(l) {
+  if (l !== 'en' && l !== 'nl' || l === S.lang) return false;
+  S.lang = l; ls.set('lang', l); applyLang(); return true;
+}
 function route() {
-  const h = location.hash || '#/';
-  const m = h.match(/^#\/home\/(.+)$/);
-  if (m) {
-    if (!currentPage) renderPage('#/');
-    if (S.all.length) openSheet(decodeURIComponent(m[1]));
+  const r = cur();
+  if (r.lang) setLang(r.lang);
+  if (r.key === 'property') {
+    const p = S.byRef.get(r.arg);
+    if (p) { const c = ph(p); if (c !== location.pathname) history.replaceState(null, '', c + location.search); }
+    // de pagina eronder (lijst of de pagina waar de woning vandaan werd geopend), in de taal van de woning
+    const under = R.parse(S.lastRoute);
+    if (under && under.key === 'news' && under.arg) under.arg = null;
+    const lr = canon(under && under.key !== 'property' ? under : { key: 'home', lang: S.lang });
+    if (!currentPage || S.renderedLang !== S.lang || S.lastRoute !== lr) { S.lastRoute = lr; renderPage(R.parse(lr) || { key: 'home' }); }
+    if (S.all.length) openSheet(r.arg);
     return;
   }
   if (!$('#sheet').hidden) { closeSheetTracking(); $('#sheet').hidden = true; document.body.style.overflow = ''; }
-  S.lastRoute = h;
-  renderPage(h);
+  if (r.key !== 'notfound') { const c = canon(r); if (c !== location.pathname) history.replaceState(null, '', c + location.search + location.hash); }
+  const path = location.pathname;
+  // terug van een woning naar dezelfde pagina: niet opnieuw opbouwen (filters en scrollpositie blijven)
+  if (currentPage && S.lastRoute === path && S.renderedLang === S.lang && S.renderedSearch === location.search) { setTitle(); return; }
+  S.lastRoute = path;
+  renderPage(r);
 }
-function renderPage(h) {
-  const key = (h.replace('#/', '').split(/[/?]/)[0]) || 'home';
-  currentPage = key;
+function setTitle() { if (S.pageTitle) document.title = S.pageTitle; }
+function renderPage(r) {
+  r = r || { key: 'home' };
+  const key = r.key === 'guide' ? 'area' : r.key;
+  currentPage = key; S.renderedLang = S.lang; S.renderedSearch = location.search;
   $$('.nav a').forEach(a => { if (a.dataset.route === key) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  navLinks();
   $('#nav').classList.remove('open'); $('#menuBtn').setAttribute('aria-expanded', 'false');
   const main = $('#main');
   window.scrollTo(0, 0);
@@ -1836,12 +1898,12 @@ function renderPage(h) {
     case 'buy': main.innerHTML = pageBuy(); bindMortgage(null); bindForm($('#buyForm')); break;
     case 'sell': main.innerHTML = pageSell(); bindForm($('#sellForm')); break;
     case 'move': main.innerHTML = pageMove(); bindForm($('#moveForm')); break;
-    case 'news': pageNews(decodeURIComponent(h.split('/')[2] || '')); break;
-    case 'area': pageArea(decodeURIComponent((h.split('/')[2] || '').split('?')[0])); break;
+    case 'news': pageNews(r.arg || ''); break;
+    case 'area': pageArea(r.key === 'guide' ? r.arg : ''); break;
     case 'contact': main.innerHTML = pageContact(); bindForm($('#contactForm')); if ('IntersectionObserver' in window) { const o = new IntersectionObserver(es => { if (es[0].isIntersecting) { o.disconnect(); initMap(); } }, { rootMargin: '300px' }); o.observe($('#mapEl')); } else initMap(); break;
     case 'privacy': main.innerHTML = pagePrivacy(); break;
     case 'favorites': importFavs(); main.innerHTML = pageFavs(); bindFavMail(); break;
-    case 'team': location.replace('#/contact'); return;
+    case 'notfound': main.innerHTML = `<div class="empty"><h2>${S.lang === 'nl' ? 'Deze pagina bestaat niet (meer)' : 'This page does not exist'}</h2><p><a class="btn primary" href="${L('home')}">${t('see_all')}</a> <a class="btn ghost" href="${L('area')}">${t('nav_areas')}</a></p></div>`; break;
     default: currentPage = 'home'; renderHome();
   }
   if (key !== 'favorites') document.body.classList.remove('favmail-open');
@@ -1850,24 +1912,69 @@ function renderPage(h) {
   renderFooterStack();
   if (key !== 'home') hidePop();
   const names = { buy: 'nav_buy', sell: 'nav_sell', move: 'nav_move', area: 'nav_areas', news: 'nav_news', contact: 'nav_contact', favorites: 'fav_h', privacy: 'privacy' };
-  if (!(key === 'area' && h.split('/')[2])) document.title = key === 'home' || !names[key] ? 'Grupo Soltura · ' + t('hero_title') : `${t(names[key])} · Grupo Soltura`;
+  if (!((key === 'area' || key === 'news') && r.arg)) { S.pageTitle = key === 'home' || !names[key] ? 'Grupo Soltura · ' + t('hero_title') : `${t(names[key])} · Grupo Soltura`; document.title = S.pageTitle; }
   track('page', null, null, { p: key });
 }
-window.addEventListener('hashchange', route);
+// vaste links in kop en voet in de taal van de pagina
+function navLinks() {
+  $$('[data-route]').forEach(a => { a.href = L(a.dataset.route); });
+  $$('[data-href]').forEach(a => { a.href = L(a.dataset.href); });
+  $$('[data-guide]').forEach(a => { a.href = L('guide', a.dataset.guide); });
+}
+// interne links: zonder herladen navigeren (nieuwe tab, ctrl/cmd-klik en externe links blijven gewoon werken)
+document.addEventListener('click', e => {
+  if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  const a = e.target.closest('a[href]');
+  if (!a || (a.target && a.target !== '_self') || a.hasAttribute('download') || a.hasAttribute('data-scroll') || a.hasAttribute('data-cookie-settings')) return;
+  const href = a.getAttribute('href');
+  if (href.startsWith('#/')) { e.preventDefault(); go(R.fromHash(href, S.lang)); return; }
+  if (href.charAt(0) === '#') return;
+  let u; try { u = new URL(a.href); } catch { return; }
+  if (u.origin !== location.origin || !R.parse(u.pathname)) return;
+  e.preventDefault();
+  if (u.pathname + u.search === location.pathname + location.search && $('#sheet').hidden) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  go(u.pathname + u.search + u.hash);
+});
+addEventListener('popstate', () => {
+  const r = cur();
+  if (r.key !== 'property') S.sheetDepth = 0; else if (S.sheetDepth > 0) S.sheetDepth--;
+  route();
+});
+// een oude hash-link in de adresbalk of op de pagina (bv. #/home/RH550): omzetten naar het echte pad
+addEventListener('hashchange', () => { if (location.hash.startsWith('#/')) go(legacyUrl(), { replace: true }); });
+function legacyUrl() {
+  const qp = new URLSearchParams(location.search);
+  const lang = qp.get('lang') === 'nl' || qp.get('lang') === 'en' ? qp.get('lang') : S.lang;
+  qp.delete('lang');
+  const target = R.fromHash(location.hash, lang); // pad (+ eventuele ?add=... uit de hash)
+  const u = new URL(target, location.origin);
+  qp.forEach((v, k) => { if (!u.searchParams.has(k)) u.searchParams.set(k, v); });
+  return u.pathname + u.search;
+}
 
 // ---------- language, menu ----------
 function applyLang() {
   document.documentElement.lang = S.lang;
   $$('[data-t]').forEach(el => { el.textContent = t(el.dataset.t); });
   $$('.lang button').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === S.lang));
+  navLinks();
 }
-$$('.lang button').forEach(b => b.addEventListener('click', () => {
-  if (S.lang === b.dataset.lang) return;
-  S.lang = b.dataset.lang; ls.set('lang', S.lang); applyLang();
-  const open = location.hash.startsWith('#/home/');
-  renderPage(S.lastRoute);
-  if (open) openSheet(decodeURIComponent(location.hash.slice(7)));
-}));
+// taalwissel = naar de tegenhanger van deze pagina in de andere taal
+async function switchLang(to) {
+  const r = cur();
+  if (r.key === 'news' && r.arg) {
+    let path = R.href(to, 'news');
+    try {
+      const p = (await api(`web_blog_posts?select=group_id,lang&slug=eq.${encodeURIComponent(r.arg)}&limit=1`))[0];
+      if (p && p.lang === to) path = R.href(to, 'news', r.arg);
+      else if (p && p.group_id) { const sib = (await api(`web_blog_posts?select=slug&group_id=eq.${encodeURIComponent(p.group_id)}&lang=eq.${to}&limit=1`))[0]; if (sib) path = R.href(to, 'news', sib.slug); }
+    } catch {}
+    return go(path);
+  }
+  if (r.key === 'property') return go(R.href(to, 'property', S.byRef.get(r.arg) || r.arg), { replace: true });
+  go(canon(r.key === 'home' ? { key: 'home', lang: to } : r, to) + (r.key === 'favorites' ? location.search : ''));
+}
+$$('.lang button').forEach(b => b.addEventListener('click', () => { if (S.lang !== b.dataset.lang) switchLang(b.dataset.lang); }));
 $('#menuBtn').addEventListener('click', () => { const o = $('#nav').classList.toggle('open'); $('#menuBtn').setAttribute('aria-expanded', o); });
 $('#waFloat').addEventListener('click', () => track('whatsapp'));
 $$('.top [data-track]').forEach(a => a.addEventListener('click', () => track(a.dataset.track, null, null, { from: 'header' })));
@@ -1884,12 +1991,23 @@ $$('.top [data-track]').forEach(a => a.addEventListener('click', () => track(a.d
 
 // ---------- boot ----------
 async function boot() {
-  applyLang(); favCount();
+  // oude links: #/... -> echt pad; ?lang= op de startpagina -> /nl/ of /en/
   const qp = new URLSearchParams(location.search);
-  if (qp.get('lang') === 'nl' || qp.get('lang') === 'en') { S.lang = qp.get('lang'); applyLang(); }
+  if (location.hash.startsWith('#/')) history.replaceState(null, '', legacyUrl());
+  else if (location.pathname === '/' || location.pathname === '/index.html') {
+    const want = qp.get('lang') === 'nl' || qp.get('lang') === 'en' ? qp.get('lang') : S.lang;
+    qp.delete('lang'); const q = qp.toString() ? '?' + qp.toString() : '';
+    // '/' toont Engels (canonical /en/); wie Nederlands koos of een Nederlandse browser heeft, gaat naar /nl/
+    if (want === 'nl') history.replaceState(null, '', '/nl/' + q + location.hash);
+    else { S.lang = 'en'; if (location.search !== q) history.replaceState(null, '', '/' + q + location.hash); }
+  }
+  const r0 = R.parse(location.pathname);
+  if (r0 && r0.lang) S.lang = r0.lang;
+  ls.set('lang', S.lang);
+  applyLang(); favCount();
   consentBar();
   // installeerbaar als app (PWA): service worker voor snelle herstart en een offline-melding
-  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('/sw.js').catch(() => {});
   route();
   api('web_config?select=key,value').then(rows => rows.forEach(r => { S.cfg[r.key] = Number(r.value); })).catch(() => {});
   try {
@@ -1905,9 +2023,10 @@ async function boot() {
   S.favs = new Set([...S.favs].map(toId).filter(Boolean)); ls.set('favs', [...S.favs]); favCount();
   S.viewed = [...new Set(S.viewed.map(toId).filter(Boolean))]; ls.set('viewed', S.viewed);
   if (currentPage === 'home') { countUp(); renderBar(); renderFeed(); }
-  else renderPage(S.lastRoute);
-  const m = location.hash.match(/^#\/home\/(.+)$/);
-  if (m) openSheet(decodeURIComponent(m[1]));
+  else renderPage(R.parse(S.lastRoute));
+  const r = cur();
+  // woning-URL: nu de data er is, de sheet openen (bestaat de woning niet meer, dan toont de sheet dat met een link naar het aanbod)
+  if (r.key === 'property') route();
 }
 boot();
 })();
