@@ -161,6 +161,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .badge.drop{background:var(--salina);color:#fff}
 .badge.value{background:var(--lemon);color:var(--ink)}
 .badge.new{background:var(--sea-deep);color:#fff}
+.badge.fresh{background:#16a34a;color:#fff}
 .badge.offer{background:var(--ink);color:#fff}
 .heart{position:absolute;right:10px;top:10px;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.9);cursor:pointer;display:grid;place-items:center}
 .heart svg{width:20px;height:20px;fill:none;stroke:var(--ink);stroke-width:1.8;transition:transform .2s}

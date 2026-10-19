@@ -20,7 +20,7 @@ const OFFICE = 2;
 const PAGE = 24;
 const CAT_NL = { villa: 'Villa', apartment: 'Appartement', bungalow: 'Bungalow', detached: 'Vrijstaand huis', townhouse: 'Rijtjeshuis', penthouse: 'Penthouse', quadrant: 'Hoekwoning (quad)', duplex: 'Duplex', finca: 'Finca', 'semi-detached': 'Twee-onder-een-kap', commercial: 'Bedrijfspand', other: 'Woning', plot: 'Bouwgrond', attic: 'Penthouse' };
 const CAT_EN = { quadrant: 'Quad house', 'semi-detached': 'Semi-detached', attic: 'Penthouse', other: 'Home' };
-const LIST_COLS = 'id,wp_id,reference,category,is_newbuild,town,suburb,price,price_from,previous_price,price_changedate,bedrooms,bathrooms,build_area,plot_area,pool_private,pool_communal,dist_sea_m,label_exclusive,featured,under_offer,list_date,image,photo_count,market_deviation_pct,popularity,agent_wp_id,status,is_own';
+const LIST_COLS = 'id,wp_id,reference,category,is_newbuild,town,suburb,price,price_from,previous_price,price_changedate,bedrooms,bathrooms,build_area,plot_area,pool_private,pool_communal,dist_sea_m,label_exclusive,label_new,featured,under_offer,list_date,image,photo_count,market_deviation_pct,popularity,agent_wp_id,status,is_own';
 
 // ---------- state ----------
 const ls = {
@@ -318,6 +318,7 @@ const statusTag = (p, big) => isOpen(p) ? '' : `<span class="st st-${stOf(p)}${b
 function badges(p) {
   const b = [];
   if (stOf(p) === 'sold') return '';
+  if (p.label_new) b.push(`<span class="badge fresh">${t('just_listed')}</span>`); // eerste 7 dagen na publicatie (NEXUS)
   if (reduced(p)) b.push(`<span class="badge drop">${t('reduced')} −${dropPct(p)}%</span>`);
   if (belowMkt(p)) b.push(`<span class="badge value">${t('below_market', belowMkt(p))}</span>`);
   if (p.is_newbuild) b.push(`<span class="badge new">${t('new_badge')}</span>`);
