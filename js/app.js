@@ -11,10 +11,10 @@ const FN = SB + '/functions/v1/';
 const MEDIA = SB + '/storage/v1/object/public/web-media/';
 const VIDEO = { coast: MEDIA + 'hero-coast.mp4', village: MEDIA + 'village-life.mp4', villa: MEDIA + 'villa-terrace.mp4' };
 const AGENTS = {
-  2: { name: 'Rick van Hoeven', short: 'Rick', tel: '+34664414515', role: { en: 'Partner, Sales', nl: 'Partner, Sales' } },
-  3: { name: 'Marco Verschoor', short: 'Marco', tel: '+34670687341', role: { en: 'Partner, Sales', nl: 'Partner, Sales' } },
-  4: { name: 'Ingrid van Hoeven', short: 'Ingrid', tel: '+34664414668', role: { en: '(After) Sales', nl: '(After) Sales' } },
-  6: { name: 'Lisette Don', short: 'Lisette', tel: '+34662226338', role: { en: '(After) Sales', nl: '(After) Sales' } },
+  2: { name: 'Rick', short: 'Rick', tel: '+34664414515', role: { en: 'Partner, Sales', nl: 'Partner, Sales' } },
+  3: { name: 'Marco', short: 'Marco', tel: '+34670687341', role: { en: 'Partner, Sales', nl: 'Partner, Sales' } },
+  4: { name: 'Ingrid', short: 'Ingrid', tel: '+34664414668', role: { en: '(After) Sales', nl: '(After) Sales' } },
+  6: { name: 'Lisette', short: 'Lisette', tel: '+34662226338', role: { en: '(After) Sales', nl: '(After) Sales' } },
 };
 const OFFICE = 2;
 const PAGE = 24;

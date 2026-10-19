@@ -210,7 +210,7 @@ function bodyPrivacy(lang) {
   return `<div class="page-head"><p class="kicker">Grupo Soltura SL</p><h1>${c.h}</h1><p class="muted">${c.updated}</p></div>
   <div class="pg privacy"><div class="pv-body">${c.sections.map(([h, p], i) => `<section id="pv${i}"><h2>${h}</h2><p>${p}</p></section>`).join('')}</div></div>`;
 }
-const AGENTS = [['Rick van Hoeven', 'Partner, Sales', '+34664414515'], ['Marco Verschoor', 'Partner, Sales', '+34670687341'], ['Ingrid van Hoeven', '(After) Sales', '+34664414668'], ['Lisette Don', '(After) Sales', '+34662226338']];
+const AGENTS = [['Rick', 'Partner, Sales', '+34664414515'], ['Marco', 'Partner, Sales', '+34670687341'], ['Ingrid', '(After) Sales', '+34664414668'], ['Lisette', '(After) Sales', '+34662226338']];
 function bodyContact(lang) {
   const fmt = tel => tel.replace(/(\+34)(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4');
   return `<section class="page-hero contact-hero"><div><p class="kicker">${esc(T(lang, 'nav_contact'))}</p><h1>${esc(T(lang, 'contact_h'))}</h1><p>${esc(T(lang, 'contact_p'))}</p></div></section>
