@@ -75,7 +75,7 @@ const strip = h => String(h || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, '
 const fmtDate = (d, lang) => d ? new Date(d).toLocaleDateString(lang === 'nl' ? 'nl-NL' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 const render = (url, w) => url && url.includes('/storage/v1/object/public/') ? url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + `?width=${w}&quality=72&resize=contain` : url;
 // eenvoudige whitelist-sanitizer (zelfde tags als sanitizeRich in de app); inhoud komt uit onze eigen database
-function sanitize(html) {
+function sanitize(html, lang) {
   let h = String(html || '');
   h = h.replace(/<(script|style|iframe|object|embed|noscript|template|form|svg|math)\b[\s\S]*?<\/\1>/gi, '');
   h = h.replace(/<(input|button|link|meta)\b[^>]*>/gi, '');
@@ -87,6 +87,8 @@ function sanitize(html) {
     if (close) return `</${tag}>`;
     if (tag === 'a') {
       const href = (attrs.match(/\bhref\s*=\s*["']([^"']*)["']/i) || [])[1] || '';
+      const own = R.ownLink(href, lang || 'en', GUIDE_SLUGS); // oude eigen WordPress-links -> interne link
+      if (own) return `<a href="${esc(own)}">`;
       if (/^https?:/i.test(href)) return `<a href="${esc(href)}" target="_blank" rel="noopener nofollow">`;
       if (/^\/(en|nl)\//.test(href) || /^mailto:/i.test(href)) return `<a href="${esc(href)}">`;
       if (/^#\//.test(href)) return `<a href="${esc(R.fromHash(href, 'en'))}">`;
@@ -100,11 +102,13 @@ function sanitize(html) {
     return `<${tag}>`;
   });
 }
-function bodyHtml(body) {
+// woningomschrijving: opschonen, daarna de eerste vermelding van elke plaats linken naar de woonplaatsgids (R.linkTowns)
+const GUIDE_SLUGS = {}, LINK_GUIDES = { en: [], nl: [] };
+function bodyHtml(body, lang, guides) {
   if (!body) return '';
   body = body.replace(/&amp;(nbsp|amp|quot|apos|lt|gt|#\d+);/g, '&$1;');
   if (!/<(p|br|ul|ol|li|h[2-4])\b/i.test(body)) body = body.split(/\n\s*\n+/).map(x => x.trim()).filter(Boolean).map(x => `<p>${esc(x).replace(/\n/g, '<br>')}</p>`).join('');
-  return sanitize(body);
+  return R.linkTowns(sanitize(body, lang), guides, lang);
 }
 
 // ---------- domein: woningen, gidsen ----------
@@ -235,7 +239,7 @@ function bodyGuide(lang, g, guides, props) {
     <h1>${esc(g.title)}</h1>${g.lead ? `<p>${esc(g.lead)}</p>` : ''}</div></section>
   <div class="pg area-pg">
     ${(g.facts || []).length ? `<dl class="area-facts">${g.facts.map(f => `<div><dt>${esc(f.label)}</dt><dd>${esc(f.value)}</dd></div>`).join('')}</dl>` : ''}
-    <div class="post-body area-body">${secs.map(s => `<section id="sec-${esc(s.key)}"><h2 class="pg-h">${esc(s.heading)}</h2>${s.rows ? table(s) : sanitize(s.html)}</section>`).join('')}</div>
+    <div class="post-body area-body">${secs.map(s => `<section id="sec-${esc(s.key)}"><h2 class="pg-h">${esc(s.heading)}</h2>${s.rows ? table(s) : sanitize(s.html, lang)}</section>`).join('')}</div>
     ${near.length ? `<section class="area-near"><h2 class="pg-h">${nl ? 'In de buurt' : 'Nearby'}</h2><ul class="near-list">${near.map(x => `<li><a href="${R.href(lang, 'guide', x.g.slug)}">${esc(x.g.town)}</a> <small>${Math.round(x.km)} km</small></li>`).join('')}</ul></section>` : ''}
     <details class="area-src"><summary>${nl ? 'Bronnen en foto\'s' : 'Sources and photos'}</summary><ul>${(g.sources || []).filter(x => x && /^https?:/i.test(x.url || '')).map(x => `<li><a href="${esc(x.url)}" rel="noopener nofollow">${esc(x.title || new URL(x.url).hostname)}</a></li>`).join('')}</ul>
       ${photos.length ? `<p class="muted">${nl ? 'Foto\'s via Wikimedia Commons' : 'Photos via Wikimedia Commons'}: ${photos.map(ph => `${esc(ph.author || 'Wikimedia Commons')}, <a href="${esc(ph.page_url)}" rel="noopener nofollow">${esc(ph.license)}</a>`).join(' · ')}</p>` : ''}</details>
@@ -244,7 +248,7 @@ function bodyGuide(lang, g, guides, props) {
 }
 function bodyProperty(lang, p, guide) {
   const nl = lang === 'nl', t = title(p, lang), st = stOf(p);
-  const body = bodyHtml(nl ? (p.body_nl || p.body_en) : (p.body_en || p.body_nl)) || (p.summary_en ? `<p>${esc(nl ? (p.summary_nl || p.summary_en) : p.summary_en)}</p>` : '');
+  const body = bodyHtml(nl ? (p.body_nl || p.body_en) : (p.body_en || p.body_nl), lang, LINK_GUIDES[lang]) || (p.summary_en ? `<p>${esc(nl ? (p.summary_nl || p.summary_en) : p.summary_en)}</p>` : '');
   const facts = [[p.bedrooms, T(lang, 'sh_bed')], [p.bathrooms, T(lang, 'sh_bath')], [p.build_area && num(p.build_area, lang) + ' m²', T(lang, 'sh_built')], [p.plot_area && num(p.plot_area, lang) + ' m²', T(lang, 'sh_plot')], [p.year_built, T(lang, 'sh_year')], [p.energy_label && p.energy_label !== 'R' ? p.energy_label : null, T(lang, 'sh_energy')]].filter(x => x[0] != null && x[0] !== '');
   const feats = [];
   if (p.pool_private) feats.push(T(lang, 'pool_private')); if (p.pool_communal) feats.push(T(lang, 'pool_communal'));
@@ -273,7 +277,7 @@ function bodyPost(lang, r) {
   return `<article class="post"><p class="kicker"><a href="${R.href(lang, 'news')}">← ${esc(T(lang, 'nav_news'))}</a></p><h1>${esc(r.title)}</h1>
     <p class="post-meta muted"><time datetime="${esc(r.published_at || '')}">${fmtDate(r.published_at, lang)}</time>${r.source_name ? ' · ' + esc(r.source_name) : ''}</p>
     ${r.image_url ? `<figure class="post-img"><img src="${esc(r.image_url)}" alt="" referrerpolicy="no-referrer"></figure>` : ''}
-    ${r.excerpt ? `<p class="post-lead">${esc(r.excerpt)}</p>` : ''}<div class="post-body">${sanitize(r.body_html)}</div>
+    ${r.excerpt ? `<p class="post-lead">${esc(r.excerpt)}</p>` : ''}<div class="post-body">${sanitize(r.body_html, r.lang)}</div>
     ${r.source_url && /^https?:/i.test(r.source_url) ? `<p class="post-src">${nl ? 'Bron' : 'Source'}: <a href="${esc(r.source_url)}" rel="noopener nofollow">${esc(r.source_name || new URL(r.source_url).hostname)}</a></p>` : ''}</article>`;
 }
 
@@ -315,6 +319,7 @@ async function main() {
   if (prevN && props.length < prevN * 0.5) die(`${props.length} woningen is minder dan 50% van de vorige build (${prevN})`);
   const G = { en: allGuides.filter(g => g.lang === 'en'), nl: allGuides.filter(g => g.lang === 'nl') };
   if (!G.en.length || !G.nl.length) die('geen woonplaatsgidsen ontvangen');
+  for (const l of ['en', 'nl']) { LINK_GUIDES[l] = G[l]; G[l].forEach(g => { GUIDE_SLUGS[g.slug] = 1; }); }
   for (const l of ['en', 'nl']) FOOT_GUIDES[l] = G[l].map(g => `<a href="${R.href(l, 'guide', g.slug)}" data-guide="${esc(g.slug)}">${esc(g.town)}</a>`).join(' · ');
 
   copySite();

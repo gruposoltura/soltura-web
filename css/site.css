@@ -295,6 +295,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .mbar em{position:absolute;top:-30px;transform:translateX(-50%);font-style:normal;font-weight:700;font-size:13px;white-space:nowrap}
 .mlegend{display:flex;justify-content:space-between;color:var(--muted);font-size:13px}
 .desc{font:400 18px/1.62 var(--serif);color:var(--ink);max-width:68ch}
+.desc a,#desc a{color:var(--sea);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
 .desc p{margin:0 0 1em}
 .desc.clamp{max-height:16em;overflow:hidden;-webkit-mask-image:linear-gradient(#000 70%,transparent)}
 .feat ul{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:0;margin:0}

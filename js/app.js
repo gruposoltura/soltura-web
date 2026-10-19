@@ -213,9 +213,18 @@ function sanitize(html) {
   const doc = new DOMParser().parseFromString(String(html || ''), 'text/html');
   doc.querySelectorAll('script,style,iframe,object,embed,noscript,template').forEach(n => n.remove());
   const ok = new Set(['P', 'STRONG', 'B', 'EM', 'I', 'BR', 'UL', 'OL', 'LI', 'H2', 'H3', 'H4']);
+  let slugs = {}; try { slugs = Object.fromEntries((TG.list[S.lang] || []).map(g => [g.slug, 1])); } catch {}
   const walk = n => {
     [...n.children].forEach(c => {
       walk(c);
+      if (c.tagName === 'A') { // alleen interne links houden (oude eigen WordPress-links worden omgezet), de rest wordt platte tekst
+        const h = c.getAttribute('href') || '', own = /^\/(en|nl)\//.test(h) ? h : R.ownLink(h, S.lang, slugs);
+        if (!own) { c.replaceWith(...c.childNodes); return; }
+        const cls = c.getAttribute('class');
+        [...c.attributes].forEach(a => c.removeAttribute(a.name));
+        c.setAttribute('href', own); if (cls === 'town-link') c.className = cls;
+        return;
+      }
       if (!ok.has(c.tagName)) { c.replaceWith(...c.childNodes); return; }
       [...c.attributes].forEach(a => c.removeAttribute(a.name));
     });
@@ -1231,6 +1240,10 @@ function fillDetail(d) {
   const desc = $('#desc');
   if (body) {
     desc.innerHTML = `<h3>${t('desc_h')}</h3>` + sanitize(body);
+    // plaatsnamen linken naar de woonplaatsgids (zelfde regels als de statische pagina, R.linkTowns)
+    const lang = S.lang, raw = body, tok = String(d.id) + '|' + lang;
+    desc.dataset.tok = tok;
+    townGuides().then(list => { if (desc.dataset.tok === tok && S.lang === lang && list && list.length) { const h = desc.querySelector('h3'); desc.innerHTML = (h ? h.outerHTML : '') + R.linkTowns(sanitize(raw), list, lang); } }).catch(() => {});
     if (desc.textContent.length > 900) {
       desc.classList.add('clamp');
       desc.insertAdjacentHTML('afterend', `<button class="btn ghost" type="button" id="readMore" style="margin:6px 0 10px">${t('read_more')}</button>`);
