@@ -30,7 +30,7 @@
   };
   function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
   function catName(c, lang) { return (CAT[lang] || CAT.en)[c] || cap(c); }
-  function fold(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
+  function fold(s) { return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
   function slugify(s) { return fold(s).replace(/ /g, '-'); }
   // wijk alleen in de URL als die iets toevoegt (niet 'Town Center', niet gelijk aan de plaats)
   function placeOf(p) {

@@ -1616,7 +1616,7 @@ async function initMap() {
 }
 // ---------- woonplaatsen: gids per plaats (core.town_guides via web_town_guides) — #/area en #/area/<slug> ----------
 // Woningen horen bij een gids als hun plaats (of wijk) overeenkomt met de plaatsnaam of een alias van de gids.
-const fold = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+const fold = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 const TG = { list: {}, load: {} };
 function townGuides() {
   const lang = S.lang;
