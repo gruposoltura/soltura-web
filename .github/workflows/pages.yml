@@ -1,8 +1,18 @@
 name: Deploy to GitHub Pages
 
+# Bouwt de statische SEO-versie (scripts/build.mjs -> dist/) en publiceert die.
+# - push op main: na elke codewijziging
+# - schedule: elke nacht 01:30 UTC (03:30 Madrid zomertijd, 02:30 wintertijd) zodat aanbod, gidsen en nieuws actueel zijn
+# - repository_dispatch 'content-changed': vanuit n8n bij publicatie of statuswijziging van een woning
+# Faalt de build (Supabase onbereikbaar, < 50% van de woningen van de vorige build), dan wordt er niets gepubliceerd:
+# de vorige versie blijft live en Rick krijgt een Brevo-mail (secret BREVO_API_KEY).
 on:
   push:
     branches: [main]
+  schedule:
+    - cron: '30 1 * * *'
+  repository_dispatch:
+    types: [content-changed]
   workflow_dispatch:
 
 permissions:
@@ -12,19 +22,40 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build static pages
+        run: node scripts/build.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: dist
+      - name: Alert Rick (Brevo)
+        if: failure()
+        env:
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TRIGGER: ${{ github.event_name }}
+        run: |
+          if [ -z "$BREVO_API_KEY" ]; then echo "geen BREVO_API_KEY: alleen de GitHub-melding"; exit 0; fi
+          curl -sS -X POST https://api.brevo.com/v3/smtp/email \
+            -H "api-key: $BREVO_API_KEY" -H 'content-type: application/json' \
+            -d "{\"sender\":{\"name\":\"JARVIS\",\"email\":\"noreply@gruposoltura.com\"},\"to\":[{\"email\":\"rick@gruposoltura.com\"}],\"subject\":\"Website-build mislukt (gruposoltura.com)\",\"htmlContent\":\"<p>De build van gruposoltura.com is afgebroken (trigger: $TRIGGER). Er is niets gepubliceerd; de vorige versie staat nog live.</p><p><a href='$RUN_URL'>Bekijk de log</a></p>\"}"
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - id: deployment
         uses: actions/deploy-pages@v4

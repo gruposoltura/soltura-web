@@ -951,3 +951,22 @@ img,video,svg{max-width:100%}
 .area-side .btn.ghost{background:transparent;border-color:rgba(255,255,255,.4);color:#fff}
 .pg .area-grid{padding:20px 0 0}
 @media (max-width:900px){.area-grid2{grid-template-columns:1fr}.area-side{order:-1}}
+
+/* ---------- SEO-build (19-10-2026): woonplaatsen in de voet, "In de buurt", statische woningpagina ---------- */
+.foot-grid{grid-template-columns:1fr 1fr}
+.foot-areas{grid-column:1/-1;font-size:14.5px;line-height:1.9;border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:18px}
+.foot-areas p{margin:0}
+.foot-areas a{white-space:nowrap}
+.area-near{margin-top:24px}
+.near-list{list-style:none;padding:0;margin:.4em 0 0;display:flex;flex-wrap:wrap;gap:8px}
+.near-list li{background:var(--salt);border:1px solid var(--mist);border-radius:999px;padding:6px 14px}
+.near-list a{font-weight:600;color:var(--ink)}
+.near-list small{color:var(--muted)}
+.link-list{columns:2;padding-left:1.2em}
+.crumbs a{color:inherit}
+.prop-static{max-width:1100px;margin:0 auto;padding:24px var(--gutter)}
+.gal-static{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;margin:16px 0}
+.gal-static img{height:min(56vw,440px);width:auto;border-radius:12px;scroll-snap-align:start;flex:none}
+.prop-static .keyfacts{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.prop-static .keyfacts dt{color:var(--muted);font-size:13px}
+.prop-static .keyfacts dd{margin:0;font-weight:700}

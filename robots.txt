@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /redirects.json
+Disallow: /routes.json
+Disallow: /build.json
 
 Sitemap: https://gruposoltura.com/sitemap.xml
