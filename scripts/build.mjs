@@ -179,7 +179,10 @@ function cardHtml(p, lang) {
     <div class="ph">${p.image ? `<img src="${esc(render(p.image, 640))}" alt="${esc(t)}" loading="lazy" decoding="async">` : ''}<span class="ref-tag">${esc(p.reference)}</span>${st !== 'available' ? `<span class="st st-${st}"><i></i>${esc(T(lang, 'st_' + st))}</span>` : ''}</div>
     <div class="meta"><div class="price">${p.price == null ? tx({ en: 'Price on request', nl: 'Prijs op aanvraag', sv: 'Pris på förfrågan' }, lang) : (p.price_from ? `<small>${esc(T(lang, 'from'))}</small>` : '') + eur(p.price, lang)}</div><h3>${esc(t)}</h3><div class="specs">${esc(specs)}</div></div></a>`;
 }
-const order = props => [...props].sort((a, b) => ((a.is_own ? 0 : 1) - (b.is_own ? 0 : 1)) || ((b.featured ? 1 : 0) - (a.featured ? 1 : 0)) || String(b.list_date || '').localeCompare(String(a.list_date || '')));
+// zelfde standaardvolgorde als de app bij een eerste bezoek: beschikbaar vóór onder bod/gereserveerd/verkocht,
+// daarbinnen eigen woningen vooraan, dan van recent naar oud (list_date)
+const ST_RANK = { available: 0, under_offer: 1, reserved: 2, sold: 3 };
+const order = props => [...props].sort((a, b) => ((ST_RANK[stOf(a)] || 0) - (ST_RANK[stOf(b)] || 0)) || ((a.is_own ? 0 : 1) - (b.is_own ? 0 : 1)) || String(b.list_date || '').localeCompare(String(a.list_date || '')));
 const timeline = steps => `<ol class="tl">${steps.map(([h, p], i) => `<li><span class="tl-n">${i + 1}</span><div><h3>${h}</h3><p>${p}</p></div></li>`).join('')}</ol>`;
 const homesRail = (props, lang, h) => { const items = order(props.filter(p => p.image && stOf(p) === 'available')).slice(0, 12); return items.length ? `<section class="section"><h2>${esc(h || T(lang, 'home_rail'))}</h2><div class="rail">${items.map(p => cardHtml(p, lang)).join('')}</div><p><a class="btn ghost" href="${R.href(lang, 'home')}">${esc(T(lang, 'see_all'))}</a></p></section>` : ''; };
 

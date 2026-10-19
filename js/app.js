@@ -290,9 +290,12 @@ function match(p, f = S.f, type = S.type) {
 function computeOrder() {
   const pr = prefs();
   let list = S.all.filter(p => match(p));
+  const newest = (a, b) => new Date(b.list_date || 0) - new Date(a.list_date || 0);
   const by = {
-    foryou: (a, b) => score(b, pr) - score(a, pr),
-    newest: (a, b) => new Date(b.list_date || 0) - new Date(a.list_date || 0),
+    // eerste bezoek zonder input (nog geen bekeken woningen/favorieten): eigen woningen vooraan, van recent naar oud;
+    // pas zodra de bezoeker iets bekijkt of bewaart, wordt 'voor jou gekozen' gepersonaliseerd
+    foryou: pr ? (a, b) => score(b, pr) - score(a, pr) : newest,
+    newest,
     price_asc: (a, b) => (a.price || 9e9) - (b.price || 9e9),
     price_desc: (a, b) => (b.price || 0) - (a.price || 0),
     value: (a, b) => (a.is_newbuild || a.market_deviation_pct == null ? 99 : a.market_deviation_pct) - (b.is_newbuild || b.market_deviation_pct == null ? 99 : b.market_deviation_pct),
