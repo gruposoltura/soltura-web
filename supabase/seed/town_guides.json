@@ -4,11 +4,8 @@
   "lang": "nl",
   "town": "Rojales",
   "aliases": [
-   "Ciudad Quesada",
-   "Doña Pepa",
-   "Lo Marabú",
-   "La Marquesa",
-   "Las Heredades"
+   "Las Heredades",
+   "Rojales - Village"
   ],
   "title": "Wonen in Rojales",
   "lead": "Rojales is een oud huertadorp aan de rivier de Segura, met daarnaast de grote woonwijk Ciudad Quesada op de heuvels erboven. Het historische centrum is Spaans en rustig, terwijl Quesada en de omliggende urbanisaties sterk internationaal zijn. De zee bij Guardamar ligt op ongeveer tien minuten rijden.",
@@ -297,11 +294,8 @@
   "lang": "en",
   "town": "Rojales",
   "aliases": [
-   "Ciudad Quesada",
-   "Doña Pepa",
-   "Lo Marabú",
-   "La Marquesa",
-   "Las Heredades"
+   "Las Heredades",
+   "Rojales - Village"
   ],
   "title": "Living in Rojales",
   "lead": "Rojales is a historic farming village on the River Segura, with the large residential area of Ciudad Quesada on the hills above it. The old centre is Spanish and quiet, while Quesada and the surrounding urbanisations are very international. The beach at Guardamar is roughly ten minutes away by car.",
@@ -584,6 +578,546 @@
   ],
   "sort": 10,
   "review_notes": "1) Naam basisschool aan C/ Aitana 2 bevestigen bij de Conselleria (gemeente noemt 'C.P. Poeta Miguel Hernández', Buscocolegio 'Príncipe de España'); tekst nu generiek. 2) Aandeel buitenlanders is een cijfer van ca. 2018 (68%); INE-cijfer per nationaliteit 1-1-2025 opzoeken en invullen. 3) Afstanden en rijtijden zijn schattingen (wegafstand vanaf het dorpscentrum); graag met een routeplanner nalopen. 4) Datum en bestaan van Rodearte (Cuevas del Rodeo) bevestigen; nu weggelaten uit de feestenlijst. Ook nagaan of Ciudad Quesada een eigen weekmarkt heeft. 5) Foto's ontbreken nog (Commons niet bereikbaar); daarnaast namen van kleinere urbanisaties in Quesada (Pueblo Lucero, La Fiesta, Lo Pepín e.d.) bevestigen als je ze wilt noemen."
+ },
+ {
+  "slug": "ciudad-quesada",
+  "lang": "nl",
+  "town": "Ciudad Quesada",
+  "aliases": [
+   "Quesada",
+   "Central Quesada",
+   "Upper Quesada",
+   "Ciudad Quesada - Rojales",
+   "Ciudad Quesada - Town",
+   "La Marquesa",
+   "Golf La Marquesa (Ciudad Quesada)",
+   "Altos De La Marquesa",
+   "Upper Golf",
+   "Rojales Hills",
+   "Doña Pepa",
+   "Dona Pepa",
+   "Lo Marabú",
+   "Lo Marabu - Doña Pepa 2",
+   "Pueblo Bravo",
+   "Pueblo Lucero",
+   "La Fiesta",
+   "Lo Pepin",
+   "Atalaya Park",
+   "Airstrip",
+   "Urbanización Ciudad Quesada"
+  ],
+  "title": "Wonen in Ciudad Quesada",
+  "lead": "Ciudad Quesada is een grote, groene woonwijk op de heuvels ten zuiden van het dorp Rojales, met een sterk internationaal karakter. Je woont er in villa's, bungalows en appartementen, met winkels, restaurants, een golfbaan en een waterpark vlakbij. De zee bij Guardamar ligt op ongeveer tien minuten rijden.",
+  "facts": [
+   {
+    "label": "Inwoners",
+    "value": "ca. 12.000 (INE, 1-1-2025)"
+   },
+   {
+    "label": "Gemeente",
+    "value": "Rojales (Quesada is een woonkern, geen eigen gemeente)"
+   },
+   {
+    "label": "Afstand tot zee",
+    "value": "ca. 8 km (Guardamar del Segura)"
+   },
+   {
+    "label": "Luchthaven Alicante",
+    "value": "ca. 40 km, 30 min"
+   },
+   {
+    "label": "Dichtstbijzijnd ziekenhuis",
+    "value": "Hospital Universitario de Torrevieja, ca. 12 km"
+   },
+   {
+    "label": "Golfbaan",
+    "value": "La Marquesa, binnen de wijk"
+   }
+  ],
+  "sections": [
+   {
+    "key": "housing",
+    "heading": "Wonen en huisvesting",
+    "html": "<p>Ciudad Quesada werd vanaf de jaren zeventig aangelegd door ondernemer Justo Quesada en bestaat uit een reeks wijken met elk een eigen sfeer. Administratief valt alles onder de gemeente Rojales.</p><ul><li><strong>Central Quesada</strong>: rond de hoofdweg en de Plaza Blanca, met appartementen, bungalows en oudere villa's op loopafstand van winkels en horeca</li><li><strong>Upper Quesada</strong> en <strong>Rojales Hills</strong>: hoger gelegen, ruimere villa's en vaak uitzicht over de vallei en de zoutmeren</li><li><strong>La Marquesa</strong>, <strong>Altos de La Marquesa</strong> en <strong>Upper Golf</strong>: rond de golfbaan, veel villa's en nieuwbouw</li><li><strong>Doña Pepa</strong> en <strong>Lo Marabú</strong>: levendige wijken met appartementen, quads en bungalows, en eigen voorzieningen</li><li>Kleinere urbanisaties zoals <strong>Pueblo Bravo</strong>, <strong>Pueblo Lucero</strong>, <strong>La Fiesta</strong>, <strong>Lo Pepín</strong>, <strong>Atalaya Park</strong> en de buurt rond het oude vliegveldje (<strong>Airstrip</strong>)</li></ul><p>Veel complexen hebben een gemeenschappelijk zwembad. Er wordt nog steeds nieuw gebouwd. Het terrein is heuvelachtig, en zonder auto is het buiten het centrum lastig.</p>"
+   },
+   {
+    "key": "work",
+    "heading": "Werk en economie",
+    "html": "<p>Quesada is in de eerste plaats een woongebied. Het werk dat er is, zit vooral in diensten voor de bewoners: horeca, winkels, vastgoed, verhuur, bouw en renovatie, zwembad- en tuinonderhoud, zorg en schoonheidssalons. Engels kom je hier ver mee, en voor wie een eigen bedrijf wil starten in dienstverlening aan buitenlanders is er een grote klantenkring.</p><p>Voor werk buiten deze sectoren pendel je naar Torrevieja, Orihuela, Elche of Alicante. Het openbaar vervoer is beperkt, dus een eigen auto is in de praktijk nodig. Veel nieuwe bewoners werken op afstand; controleer per adres welke internetverbinding beschikbaar is.</p><p>Let op: buiten het seizoen is het in sommige wijken stiller, en een deel van de horeca past de openingstijden daarop aan.</p>"
+   },
+   {
+    "key": "population",
+    "heading": "Bevolking",
+    "html": "<p>Ciudad Quesada is geen zelfstandige gemeente maar een woonkern van <strong>Rojales</strong>. Het gemeentehuis staat in het dorp Rojales, en ook het padrón (inschrijving), belastingen en vergunningen lopen via de gemeente Rojales. In Quesada zelf zit wel een gemeentelijk servicecentrum aan de Plaza Blanca.</p><p>Volgens het INE woonden er op 1 januari 2025 ca. 12.000 ingeschreven inwoners, ruim twee derde van de gemeente. Rond 2010 waren dat er nog ca. 15.600; daarna daalde het aantal, deels doordat buitenlanders zich uitschreven, en sinds 2020 groeit het weer licht. Het werkelijke aantal bewoners ligt hoger, en in de zomer en rond de feestdagen loopt het flink op.</p><p>De bevolking is uitgesproken internationaal. Britten vormen de grootste groep, daarnaast wonen er onder meer Scandinaviërs en andere Noord-Europeanen, naast Spanjaarden. Een groot deel is gepensioneerd, maar er wonen ook steeds meer gezinnen.</p>"
+   },
+   {
+    "key": "education",
+    "heading": "Scholen en onderwijs",
+    "html": "<p>In Quesada zelf is geen openbare basisschool. Kinderen gaan naar de openbare scholen in het dorp Rojales, op ca. 4 km.</p><ul><li><strong>Kinderopvang</strong>: gemeentelijke Escuela Infantil Los Pasos in het dorp (0 tot 3 jaar)</li><li><strong>Basisschool</strong>: de openbare kleuter- en basisschool aan de Calle Aitana in Rojales (3 tot 12 jaar)</li><li><strong>Voortgezet onderwijs</strong>: IES La Encantá in Rojales</li><li><strong>Noorse school</strong>: Den Norske Skolen i Rojales-Ciudad Quesada, een particuliere school die er sinds 1993 is en sinds 2023 lesgeeft van basisschool tot en met Bachillerato</li></ul><p>Het openbare onderwijs is in het Spaans en Valenciaans, met Engels als vak. Wie Engelstalig onderwijs wil, vindt internationale scholen verder weg in de regio, vooral richting de kust; reken op een flinke rit. Aanmelden bij openbare scholen gaat via de jaarlijkse inschrijfperiode van de Conselleria d'Educació, meestal in het voorjaar.</p>"
+   },
+   {
+    "key": "distances",
+    "heading": "Afstanden vanaf het centrum",
+    "rows": [
+     [
+      "Supermarkt",
+      "ca. 0,5 km"
+     ],
+     [
+      "Consultorio Lo Marabú (openbare huisartsenpost)",
+      "ca. 2 km"
+     ],
+     [
+      "Apotheek",
+      "ca. 0,5 km"
+     ],
+     [
+      "Basisschool (Rojales dorp)",
+      "ca. 4 km, 7 min"
+     ],
+     [
+      "Strand (Guardamar del Segura)",
+      "ca. 8 km, 12 min"
+     ],
+     [
+      "Golfbaan (La Marquesa)",
+      "ca. 1,5 km"
+     ],
+     [
+      "Hospital Universitario de Torrevieja",
+      "ca. 12 km, 15 min"
+     ],
+     [
+      "Torrevieja (centrum)",
+      "ca. 13 km, 18 min"
+     ],
+     [
+      "Alicante (stad)",
+      "ca. 50 km, 40 min"
+     ],
+     [
+      "Luchthaven Alicante-Elche",
+      "ca. 40 km, 30 min"
+     ],
+     [
+      "Luchthaven Murcia (Corvera)",
+      "ca. 65 km, 45 min"
+     ]
+    ]
+   },
+   {
+    "key": "shops",
+    "heading": "Winkels en markten",
+    "html": "<p>Het commerciële hart van Quesada ligt langs de hoofdweg door de wijk en rond de Plaza Blanca. Daar en in de winkelstrips van Doña Pepa en Lo Marabú vind je supermarkten, bakkers, apotheken, banken, makelaars, kappers, dierenartsen en een groot aantal restaurants en bars. Je ziet er ook winkels die zich richten op Britse en Scandinavische klanten, met producten uit eigen land.</p><p>Voor een weekmarkt ga je naar het dorp Rojales, waar op <strong>donderdagochtend</strong> markt is, of naar een van de buurdorpen die elk een vaste marktdag hebben. Benijófar, direct naast Quesada, heeft zijn markt op dinsdagochtend.</p><p>Voor grotere aankopen, zoals meubels, elektronica of kleding, rijd je naar Torrevieja, Orihuela of de winkelcentra bij Elche en Alicante.</p>"
+   },
+   {
+    "key": "culture",
+    "heading": "Cultuur en bezienswaardigheden",
+    "html": "<p>Quesada is een vrij jonge wijk, dus het historische erfgoed vind je vooral in het dorp Rojales, op een paar minuten rijden: de stenen brug van Carlos III over de Segura, het waterrad, de grotwoningen van de Cuevas del Rodeo en de musea.</p><p>In Quesada zelf draait het culturele leven om de gemeenschap. Het <strong>Centro Cultural</strong> met de bibliotheek aan de Calle del Pino en het gemeentelijk centrum aan de <strong>Plaza Blanca</strong> zijn de vaste plekken voor cursussen, voorstellingen en bijeenkomsten. Daarnaast zijn er veel verenigingen van en voor internationale bewoners, van koren, toneel- en dansgroepen tot sportclubs en goede-doelenorganisaties. Ze wisselen regelmatig, dus vraag bij het gemeentelijk centrum wat er actueel is.</p><p>Vanaf de hoger gelegen straten heb je mooi uitzicht over de vallei van de Segura en de roze zoutmeren.</p>"
+   },
+   {
+    "key": "festivals",
+    "heading": "Lokale feesten",
+    "rows": [
+     [
+      "Fiesta de las Naciones",
+      "begin mei, rond Europadag (9 mei)",
+      "Driedaags feest op de Plaza Blanca met kramen, muziek en eten uit de landen waar de bewoners vandaan komen."
+     ],
+     [
+      "Fiestas de San Justo",
+      "eind juli tot begin augustus",
+      "De feestweek van Quesada met shows, een mis en processie, een grote paella, een zomercarnaval over de hoofdweg en vuurwerk ter afsluiting."
+     ],
+     [
+      "Fiestas de San Pedro en Moros y Cristianos (dorp Rojales)",
+      "eind juni, rond 29 juni",
+      "Het patroonsfeest van de gemeente, met optochten van Moren en Christenen in het dorp."
+     ],
+     [
+      "Romería de San Isidro (Rojales)",
+      "rond 15 mei",
+      "Bedevaart naar het park El Recorral met mis, spelen en een gezamenlijke paella."
+     ]
+    ]
+   },
+   {
+    "key": "health",
+    "heading": "Gezondheidszorg",
+    "html": "<p>Quesada valt onder het openbare zorgdepartement van Torrevieja, zorgzone Rojales. In de wijk zit het <strong>consultorio auxiliar Lo Marabú</strong>, een kleinere openbare huisartsenpost. Voor uitgebreidere zorg ga je naar het centro de salud in het dorp Rojales. Om gebruik te maken van de openbare zorg moet je ingeschreven zijn in het padrón en een SIP-kaart aanvragen.</p><p>Het dichtstbijzijnde openbare ziekenhuis is het <strong>Hospital Universitario de Torrevieja</strong>, op ca. 15 minuten rijden.</p><p>In Doña Pepa (Calle Mallorca) opende Ribera in 2023 de particuliere kliniek <strong>Ribera Ciudad Quesada</strong>, met meer dan twintig specialismen, een tandheelkundige afdeling, röntgen en een spoedpost op werkdagen van 9 tot 20 uur. De kliniek werkt met verschillende verzekeraars en er wordt in meerdere talen geholpen. Verder zijn er in Quesada apotheken, tandartsen, fysiotherapeuten en particuliere huisartsen.</p>"
+   },
+   {
+    "key": "outdoor",
+    "heading": "Buiten ontspannen",
+    "html": "<ul><li><strong>Golf La Marquesa</strong>: een 18-holesbaan, ontworpen door Justo Quesada, in het dal aan de rand van de wijk, met clubhuis, restaurant en zwembad</li><li><strong>Aquapark Rojales</strong>: een waterpark van ca. 21.000 m² aan de Calle del Norte, geopend in 1986, met glijbanen, wildwater en badjes voor kleine kinderen; alleen open in de zomermaanden</li><li><strong>Lagunas de La Mata y Torrevieja</strong>: het natuurpark met de zoutmeren en flamingo's ligt vlak ten zuiden van Quesada, goed voor wandelen en fietsen</li><li><strong>Stranden</strong>: Guardamar en La Mata liggen op 10 tot 15 minuten rijden</li><li><strong>Rivier de Segura</strong>: wandel- en fietspaden door de huerta, beneden het dorp Rojales</li></ul><p>In de zomer is het hier erg heet; plan buitenactiviteiten 's ochtends vroeg of in de avond.</p>"
+   },
+   {
+    "key": "indoor",
+    "heading": "Binnen ontspannen",
+    "html": "<p>Het binnenaanbod in Quesada is vooral sociaal. Er zijn veel restaurants, cafés en bars met een internationale keuken, waarvan een deel livemuziek, quizavonden of sportuitzendingen heeft. Verder vind je sportscholen, yoga- en danslessen en clubs van de internationale gemeenschap.</p><p>Het <strong>Centro Cultural</strong> aan de Calle del Pino heeft een bibliotheek en organiseert cursussen en activiteiten; het gemeentelijk centrum aan de Plaza Blanca is een tweede ontmoetingsplek. Voor theater en concerten ga je naar het Teatro Capitol in het dorp Rojales, waar onder meer een muziekreeks in het najaar en het liederenfestival in december plaatsvinden. Voor bioscoop en grote overdekte vrijetijdscentra rijd je naar Torrevieja, Orihuela of Alicante.</p>"
+   }
+  ],
+  "photos": [
+   {
+    "path": "towns/ciudad-quesada/1.jpg",
+    "author": "H.Helmlechner",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Ciudad_Quesada_01.jpg",
+    "alt": "Ciudad Quesada"
+   },
+   {
+    "path": "towns/ciudad-quesada/2.jpg",
+    "author": "H.Helmlechner",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Ciudad_Quesada_02.jpg",
+    "alt": "Wonen in Ciudad Quesada"
+   },
+   {
+    "path": "towns/ciudad-quesada/3.jpg",
+    "author": "H.Helmlechner",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Ciudad_Quesada_03.jpg",
+    "alt": "Ciudad Quesada, onderdeel van Rojales"
+   }
+  ],
+  "sources": [
+   {
+    "title": "INE nomenclátor 1 jan 2025 per kern, via City Population (Urbanización Ciudad Quesada)",
+    "url": "https://www.citypopulation.de/en/spain/localities/alicante/03113__rojales/"
+   },
+   {
+    "title": "Wikipedia EN: Ciudad Quesada, Alicante",
+    "url": "https://en.wikipedia.org/wiki/Ciudad_Quesada,_Alicante"
+   },
+   {
+    "title": "Ayuntamiento de Rojales: telefoons van belang (Centro Municipal Plaza Blanca, Centro Cultural en bibliotheek C/ del Pino)",
+    "url": "https://www.rojales.es/informacion/telefonos-de-interes/"
+   },
+   {
+    "title": "Ayuntamiento de Rojales: Fiesta de las Naciones",
+    "url": "https://www.rojales.es/fiestas/fiesta-de-las-naciones/"
+   },
+   {
+    "title": "Departament de Salut de Torrevieja (GVA): Memoria de gestión 2025, zona básica Rojales (C.A. Lo Marabú)",
+    "url": "https://torrevieja.san.gva.es/documents/d/guest/memoria_gestion2025"
+   },
+   {
+    "title": "Ribera Ciudad Quesada (C/ Mallorca 25, Doña Pepa)",
+    "url": "https://www.riberasalud.com/en/ciudad-quesada/"
+   },
+   {
+    "title": "Ribera: versterking spoed en huisartsgeneeskunde Ciudad Quesada (2023)",
+    "url": "https://www.riberasalud.com/en/ciudad-quesada/ribera-refuerza-el-servicio-de-urgencias-y-medicina-familiar-de-su-clinica-en-ciudad-quesada/"
+   },
+   {
+    "title": "Alicante Plaza: Ribera opent kliniek in Ciudad Quesada (2023)",
+    "url": "https://alicanteplaza.es/ribera-abre-una-clinica-en-ciudad-quesada-un-ano-despues-de-la-reversion-del-hospital-de-torrevieja"
+   },
+   {
+    "title": "Alicante Plaza: Noorse school in Rojales breidt uit tot Bachillerato (2023)",
+    "url": "https://alicanteplaza.es/alicanteplaza/una-escuela-noruega-en-rojales-triplica-sus-plazas-hasta-las-176-y-amplia-estudios-hasta-bachillerato"
+   },
+   {
+    "title": "Buscocolegio: onderwijsinstellingen Rojales",
+    "url": "https://www.buscocolegio.com/Comunidad-Valenciana/Alicante/buscar-Colegios-Rojales.jsp"
+   },
+   {
+    "title": "Comunitat Valenciana Turismo: La Marquesa Golf",
+    "url": "https://comunitatvalenciana.com/en/alacant-alicante/rojales/golf/la-marquesa-golf"
+   },
+   {
+    "title": "Comunitat Valenciana Turismo: Aquapark Rojales",
+    "url": "https://www.comunitatvalenciana.com/en/alacant-alicante/rojales/leisure-parks/aquapark"
+   },
+   {
+    "title": "Van Dam Estates: jaarlijkse feestweek en Fiesta de las Naciones in Quesada",
+    "url": "https://vandamestates.com/en/blog/annual-festival-week-in-quesada-178.html"
+   },
+   {
+    "title": "The Olive Press: geplande zorg- en sociale voorzieningen in Pueblo Bravo (2021)",
+    "url": "https://theolivepress.es/spain-news/2021/03/29/new-e10-million-medical-centre-for-elderly-and-those-with-mental-problems-planned-for-expat-town-on-spains-costa-blanca/"
+   },
+   {
+    "title": "Mercadillos.org: weekmarkt Rojales",
+    "url": "https://mercadillos.org/es/rojales/mercadillo-rojales"
+   }
+  ],
+  "coords": [
+   38.066,
+   -0.729
+  ],
+  "sort": 15,
+  "review_notes": "1) Of Ciudad Quesada een eigen weekmarkt heeft (bv. zaterdag) niet kunnen bevestigen; nu alleen Rojales (do) en Benijófar (di) genoemd. 2) Wijkindeling (welke urbanisatie bij Upper/Central Quesada hoort, Airstrip, Atalaya Park, Lo Pepín) en karakterbeschrijving per wijk graag lokaal nalopen. 3) Consultorio Lo Marabú: adres, openingstijden en of er in de zomer extra/spoedzorg is niet gevonden; ook of de Ribera-spoedpost nog dezelfde uren (ma-vr 9-20) heeft. 4) Fiesta de las Naciones: exacte opzet en of het nog jaarlijks rond 9 mei valt (gemeentepagina zonder tekst, alleen flyer); verenigingen/clubs bewust algemeen gehouden, concrete namen toevoegen. 5) Afstanden zijn schattingen vanaf de Plaza Blanca; nationaliteitenmix en aandeel buitenlanders in Quesada zonder officieel cijfer per kern (alleen kwalitatief)."
+ },
+ {
+  "slug": "ciudad-quesada",
+  "lang": "en",
+  "town": "Ciudad Quesada",
+  "aliases": [
+   "Quesada",
+   "Central Quesada",
+   "Upper Quesada",
+   "Ciudad Quesada - Rojales",
+   "Ciudad Quesada - Town",
+   "La Marquesa",
+   "Golf La Marquesa (Ciudad Quesada)",
+   "Altos De La Marquesa",
+   "Upper Golf",
+   "Rojales Hills",
+   "Doña Pepa",
+   "Dona Pepa",
+   "Lo Marabú",
+   "Lo Marabu - Doña Pepa 2",
+   "Pueblo Bravo",
+   "Pueblo Lucero",
+   "La Fiesta",
+   "Lo Pepin",
+   "Atalaya Park",
+   "Airstrip",
+   "Urbanización Ciudad Quesada"
+  ],
+  "title": "Living in Ciudad Quesada",
+  "lead": "Ciudad Quesada is a large, green residential area on the hills south of the village of Rojales, with a strongly international character. Homes are villas, bungalows and flats, with shops, restaurants, a golf course and a water park close by. The beach at Guardamar is about ten minutes away by car.",
+  "facts": [
+   {
+    "label": "Population",
+    "value": "approx. 12,000 (INE, 1 Jan 2025)"
+   },
+   {
+    "label": "Municipality",
+    "value": "Rojales (Quesada is a residential area, not a municipality)"
+   },
+   {
+    "label": "Distance to the sea",
+    "value": "approx. 8 km (Guardamar del Segura)"
+   },
+   {
+    "label": "Alicante Airport",
+    "value": "approx. 40 km, 30 min"
+   },
+   {
+    "label": "Nearest hospital",
+    "value": "Hospital Universitario de Torrevieja, approx. 12 km"
+   },
+   {
+    "label": "Golf course",
+    "value": "La Marquesa, within the area"
+   }
+  ],
+  "sections": [
+   {
+    "key": "housing",
+    "heading": "Housing",
+    "html": "<p>Ciudad Quesada was developed from the 1970s onwards by the entrepreneur Justo Quesada and is made up of a series of neighbourhoods, each with its own feel. Administratively, all of it belongs to the municipality of Rojales.</p><ul><li><strong>Central Quesada</strong>: around the main road and Plaza Blanca, with flats, bungalows and older villas within walking distance of shops and restaurants</li><li><strong>Upper Quesada</strong> and <strong>Rojales Hills</strong>: higher up, larger villas and often views over the valley and the salt lakes</li><li><strong>La Marquesa</strong>, <strong>Altos de La Marquesa</strong> and <strong>Upper Golf</strong>: around the golf course, many villas and new builds</li><li><strong>Doña Pepa</strong> and <strong>Lo Marabú</strong>: lively areas with flats, quads and bungalows, and their own amenities</li><li>Smaller urbanisations such as <strong>Pueblo Bravo</strong>, <strong>Pueblo Lucero</strong>, <strong>La Fiesta</strong>, <strong>Lo Pepín</strong>, <strong>Atalaya Park</strong> and the area around the old airstrip (<strong>Airstrip</strong>)</li></ul><p>Many developments share a communal pool. New homes are still being built. The terrain is hilly, and away from the centre life without a car is difficult.</p>"
+   },
+   {
+    "key": "work",
+    "heading": "Work and economy",
+    "html": "<p>Quesada is first and foremost a residential area. Local work is mostly in services for residents: hospitality, shops, property, rentals, building and renovation, pool and garden maintenance, care and beauty. English gets you a long way here, and anyone starting a business serving foreign residents has a large customer base.</p><p>For jobs outside these sectors, you commute to Torrevieja, Orihuela, Elche or Alicante. Public transport is limited, so in practice you need a car. Many newcomers work remotely; check which internet connection is available at each address.</p><p>Bear in mind that some neighbourhoods are quieter out of season, and some bars and restaurants shorten their opening hours accordingly.</p>"
+   },
+   {
+    "key": "population",
+    "heading": "Population",
+    "html": "<p>Ciudad Quesada is not a municipality in its own right but a residential area of <strong>Rojales</strong>. The town hall is in the village of Rojales, and the padrón (registration), local taxes and permits are all handled by Rojales council. Quesada does have a municipal service centre on Plaza Blanca.</p><p>According to the INE, approximately 12,000 registered residents lived here on 1 January 2025, more than two thirds of the municipality. Around 2010 the figure was about 15,600; it then fell, partly because foreign residents deregistered, and since 2020 it has been rising slightly again. The real number of people living here is higher, and it rises sharply in summer and over the holidays.</p><p>The population is very international. The British are the largest group, alongside Scandinavians and other northern Europeans, as well as Spaniards. Many residents are retired, but more and more families are moving in.</p>"
+   },
+   {
+    "key": "education",
+    "heading": "Schools and education",
+    "html": "<p>There is no state primary school in Quesada itself. Children attend the state schools in the village of Rojales, approximately 4 km away.</p><ul><li><strong>Nursery</strong>: the municipal Escuela Infantil Los Pasos in the village (ages 0 to 3)</li><li><strong>Primary</strong>: the state infant and primary school on Calle Aitana in Rojales (ages 3 to 12)</li><li><strong>Secondary</strong>: IES La Encantá in Rojales</li><li><strong>Norwegian school</strong>: Den Norske Skolen i Rojales-Ciudad Quesada, a private school open since 1993 that since 2023 has taught from primary through to Bachillerato</li></ul><p>State schools teach in Spanish and Valencian, with English as a subject. If you want English-language schooling, international schools are further afield in the region, mainly towards the coast, so allow for a longer drive. Applications for state school places go through the Conselleria d'Educació's annual enrolment window, usually in spring.</p>"
+   },
+   {
+    "key": "distances",
+    "heading": "Distances from the centre",
+    "rows": [
+     [
+      "Supermarket",
+      "approx. 0.5 km"
+     ],
+     [
+      "Consultorio Lo Marabú (public GP surgery)",
+      "approx. 2 km"
+     ],
+     [
+      "Pharmacy",
+      "approx. 0.5 km"
+     ],
+     [
+      "Primary school (Rojales village)",
+      "approx. 4 km, 7 min"
+     ],
+     [
+      "Beach (Guardamar del Segura)",
+      "approx. 8 km, 12 min"
+     ],
+     [
+      "Golf course (La Marquesa)",
+      "approx. 1.5 km"
+     ],
+     [
+      "Hospital Universitario de Torrevieja",
+      "approx. 12 km, 15 min"
+     ],
+     [
+      "Torrevieja (centre)",
+      "approx. 13 km, 18 min"
+     ],
+     [
+      "Alicante (city)",
+      "approx. 50 km, 40 min"
+     ],
+     [
+      "Alicante-Elche Airport",
+      "approx. 40 km, 30 min"
+     ],
+     [
+      "Murcia Airport (Corvera)",
+      "approx. 65 km, 45 min"
+     ]
+    ]
+   },
+   {
+    "key": "shops",
+    "heading": "Shops and markets",
+    "html": "<p>Quesada's commercial heart runs along the main road through the area and around Plaza Blanca. There, and in the shopping parades of Doña Pepa and Lo Marabú, you will find supermarkets, bakeries, pharmacies, banks, estate agents, hairdressers, vets and a large number of restaurants and bars. There are also shops aimed at British and Scandinavian customers, stocking products from home.</p><p>For a street market, head to the village of Rojales, which holds its market on <strong>Thursday mornings</strong>, or to one of the neighbouring villages, each of which has a fixed market day. Benijófar, right next to Quesada, has its market on Tuesday mornings.</p><p>For larger purchases such as furniture, electronics or clothing, drive to Torrevieja, Orihuela or the shopping centres near Elche and Alicante.</p>"
+   },
+   {
+    "key": "culture",
+    "heading": "Culture and sights",
+    "html": "<p>Quesada is a fairly young development, so most historic heritage is in the village of Rojales, a few minutes' drive away: the Carlos III stone bridge over the Segura, the waterwheel, the Cuevas del Rodeo cave dwellings and the museums.</p><p>In Quesada itself, cultural life revolves around the community. The <strong>Centro Cultural</strong> with its library on Calle del Pino and the municipal centre on <strong>Plaza Blanca</strong> are the usual venues for courses, performances and meetings. There are also many associations run by and for international residents, from choirs, drama and dance groups to sports clubs and charities. These change over time, so ask at the municipal centre what is currently running.</p><p>From the higher streets you get fine views over the Segura valley and the pink salt lakes.</p>"
+   },
+   {
+    "key": "festivals",
+    "heading": "Local festivals",
+    "rows": [
+     [
+      "Fiesta de las Naciones",
+      "early May, around Europe Day (9 May)",
+      "A three-day festival on Plaza Blanca with stalls, music and food from the residents' home countries."
+     ],
+     [
+      "Fiestas de San Justo",
+      "late July to early August",
+      "Quesada's festival week, with shows, a mass and procession, a giant paella, a summer carnival along the main road and closing fireworks."
+     ],
+     [
+      "Fiestas de San Pedro and Moros y Cristianos (Rojales village)",
+      "late June, around 29 June",
+      "The municipality's patron saint festivities, with Moors and Christians parades in the village."
+     ],
+     [
+      "Romería de San Isidro (Rojales)",
+      "around 15 May",
+      "A pilgrimage to El Recorral park with a mass, games and a shared paella."
+     ]
+    ]
+   },
+   {
+    "key": "health",
+    "heading": "Healthcare",
+    "html": "<p>Quesada falls under the Torrevieja public health department, Rojales health zone. Within the area is the <strong>consultorio auxiliar Lo Marabú</strong>, a smaller public GP surgery. For a wider range of services you go to the centro de salud in the village of Rojales. To use public healthcare you need to be on the padrón and apply for a SIP card.</p><p>The nearest public hospital is <strong>Hospital Universitario de Torrevieja</strong>, about 15 minutes' drive away.</p><p>In 2023 Ribera opened the private clinic <strong>Ribera Ciudad Quesada</strong> in Doña Pepa (Calle Mallorca), with more than twenty specialities, a dental unit, X-ray facilities and an urgent care service on weekdays from 9am to 8pm. The clinic works with several insurers and staff speak a number of languages. Quesada also has pharmacies, dentists, physiotherapists and private GPs.</p>"
+   },
+   {
+    "key": "outdoor",
+    "heading": "Outdoor leisure",
+    "html": "<ul><li><strong>La Marquesa Golf</strong>: an 18-hole course designed by Justo Quesada, in the valley on the edge of the area, with clubhouse, restaurant and pool</li><li><strong>Aquapark Rojales</strong>: a water park of approximately 21,000 m² on Calle del Norte, open since 1986, with slides, rapids and pools for small children; open in the summer months only</li><li><strong>Lagunas de La Mata y Torrevieja</strong>: the natural park with its salt lakes and flamingos lies just south of Quesada, ideal for walking and cycling</li><li><strong>Beaches</strong>: Guardamar and La Mata are 10 to 15 minutes' drive away</li><li><strong>River Segura</strong>: walking and cycling paths through the farmland below Rojales village</li></ul><p>Summers here are very hot, so plan outdoor activities for early morning or evening.</p>"
+   },
+   {
+    "key": "indoor",
+    "heading": "Indoor leisure",
+    "html": "<p>Indoor life in Quesada is mostly social. There are plenty of restaurants, cafés and bars serving international food, some with live music, quiz nights or televised sport. You will also find gyms, yoga and dance classes and clubs run by the international community.</p><p>The <strong>Centro Cultural</strong> on Calle del Pino has a library and runs courses and activities, and the municipal centre on Plaza Blanca is a second meeting place. For theatre and concerts, head to the Teatro Capitol in Rojales village, which hosts an autumn music series and the song festival in December. For cinemas and large indoor leisure centres, drive to Torrevieja, Orihuela or Alicante.</p>"
+   }
+  ],
+  "photos": [
+   {
+    "path": "towns/ciudad-quesada/1.jpg",
+    "author": "H.Helmlechner",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Ciudad_Quesada_01.jpg",
+    "alt": "Ciudad Quesada"
+   },
+   {
+    "path": "towns/ciudad-quesada/2.jpg",
+    "author": "H.Helmlechner",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Ciudad_Quesada_02.jpg",
+    "alt": "Living in Ciudad Quesada"
+   },
+   {
+    "path": "towns/ciudad-quesada/3.jpg",
+    "author": "H.Helmlechner",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Ciudad_Quesada_03.jpg",
+    "alt": "Ciudad Quesada, part of Rojales"
+   }
+  ],
+  "sources": [
+   {
+    "title": "INE nomenclátor 1 jan 2025 per kern, via City Population (Urbanización Ciudad Quesada)",
+    "url": "https://www.citypopulation.de/en/spain/localities/alicante/03113__rojales/"
+   },
+   {
+    "title": "Wikipedia EN: Ciudad Quesada, Alicante",
+    "url": "https://en.wikipedia.org/wiki/Ciudad_Quesada,_Alicante"
+   },
+   {
+    "title": "Ayuntamiento de Rojales: telefoons van belang (Centro Municipal Plaza Blanca, Centro Cultural en bibliotheek C/ del Pino)",
+    "url": "https://www.rojales.es/informacion/telefonos-de-interes/"
+   },
+   {
+    "title": "Ayuntamiento de Rojales: Fiesta de las Naciones",
+    "url": "https://www.rojales.es/fiestas/fiesta-de-las-naciones/"
+   },
+   {
+    "title": "Departament de Salut de Torrevieja (GVA): Memoria de gestión 2025, zona básica Rojales (C.A. Lo Marabú)",
+    "url": "https://torrevieja.san.gva.es/documents/d/guest/memoria_gestion2025"
+   },
+   {
+    "title": "Ribera Ciudad Quesada (C/ Mallorca 25, Doña Pepa)",
+    "url": "https://www.riberasalud.com/en/ciudad-quesada/"
+   },
+   {
+    "title": "Ribera: versterking spoed en huisartsgeneeskunde Ciudad Quesada (2023)",
+    "url": "https://www.riberasalud.com/en/ciudad-quesada/ribera-refuerza-el-servicio-de-urgencias-y-medicina-familiar-de-su-clinica-en-ciudad-quesada/"
+   },
+   {
+    "title": "Alicante Plaza: Ribera opent kliniek in Ciudad Quesada (2023)",
+    "url": "https://alicanteplaza.es/ribera-abre-una-clinica-en-ciudad-quesada-un-ano-despues-de-la-reversion-del-hospital-de-torrevieja"
+   },
+   {
+    "title": "Alicante Plaza: Noorse school in Rojales breidt uit tot Bachillerato (2023)",
+    "url": "https://alicanteplaza.es/alicanteplaza/una-escuela-noruega-en-rojales-triplica-sus-plazas-hasta-las-176-y-amplia-estudios-hasta-bachillerato"
+   },
+   {
+    "title": "Buscocolegio: onderwijsinstellingen Rojales",
+    "url": "https://www.buscocolegio.com/Comunidad-Valenciana/Alicante/buscar-Colegios-Rojales.jsp"
+   },
+   {
+    "title": "Comunitat Valenciana Turismo: La Marquesa Golf",
+    "url": "https://comunitatvalenciana.com/en/alacant-alicante/rojales/golf/la-marquesa-golf"
+   },
+   {
+    "title": "Comunitat Valenciana Turismo: Aquapark Rojales",
+    "url": "https://www.comunitatvalenciana.com/en/alacant-alicante/rojales/leisure-parks/aquapark"
+   },
+   {
+    "title": "Van Dam Estates: jaarlijkse feestweek en Fiesta de las Naciones in Quesada",
+    "url": "https://vandamestates.com/en/blog/annual-festival-week-in-quesada-178.html"
+   },
+   {
+    "title": "The Olive Press: geplande zorg- en sociale voorzieningen in Pueblo Bravo (2021)",
+    "url": "https://theolivepress.es/spain-news/2021/03/29/new-e10-million-medical-centre-for-elderly-and-those-with-mental-problems-planned-for-expat-town-on-spains-costa-blanca/"
+   },
+   {
+    "title": "Mercadillos.org: weekmarkt Rojales",
+    "url": "https://mercadillos.org/es/rojales/mercadillo-rojales"
+   }
+  ],
+  "coords": [
+   38.066,
+   -0.729
+  ],
+  "sort": 15,
+  "review_notes": "1) Of Ciudad Quesada een eigen weekmarkt heeft (bv. zaterdag) niet kunnen bevestigen; nu alleen Rojales (do) en Benijófar (di) genoemd. 2) Wijkindeling (welke urbanisatie bij Upper/Central Quesada hoort, Airstrip, Atalaya Park, Lo Pepín) en karakterbeschrijving per wijk graag lokaal nalopen. 3) Consultorio Lo Marabú: adres, openingstijden en of er in de zomer extra/spoedzorg is niet gevonden; ook of de Ribera-spoedpost nog dezelfde uren (ma-vr 9-20) heeft. 4) Fiesta de las Naciones: exacte opzet en of het nog jaarlijks rond 9 mei valt (gemeentepagina zonder tekst, alleen flyer); verenigingen/clubs bewust algemeen gehouden, concrete namen toevoegen. 5) Afstanden zijn schattingen vanaf de Plaza Blanca; nationaliteitenmix en aandeel buitenlanders in Quesada zonder officieel cijfer per kern (alleen kwalitatief)."
  },
  {
   "slug": "benijofar",
@@ -5164,5 +5698,2723 @@
   ],
   "sort": 100,
   "review_notes": "(1) Foto's ontbreken nog: drie Commons-foto's met gecontroleerde licentie toevoegen (bv. Category:Dolores, Alicante). (2) Inwonertal: INE-cijfer per 1-1-2025 (vermoedelijk ca. 8.300) en het actuele aandeel buitenlanders bevestigen; nu INE 2024 en geboorteland 2022. (3) Afstanden en reistijden zijn geschat op basis van de ligging; vooral ziekenhuis, golfbaan en luchthavens even narijden. (4) Data van Alcachofa-feest en Medio Año Festero, en of er naast de vrijdagmarkt nog een tweede markt is, bij de gemeente navragen. (5) Bestaan sportcomplex, bibliotheek en Museo de la Huerta in de genoemde vorm, en heeft IES San Pascual ook bachillerato?"
+ },
+ {
+  "slug": "algorfa",
+  "lang": "nl",
+  "town": "Algorfa",
+  "aliases": [
+   "La Finca Golf",
+   "La Finca Golf Resort",
+   "La Finca",
+   "Montebello",
+   "Monte Bello",
+   "Montemar",
+   "Castillo de Montemar",
+   "Lomas de La Juliana",
+   "Lo Crispin",
+   "Lo Crispín",
+   "Fontana"
+  ],
+  "title": "Wonen in Algorfa",
+  "lead": "Algorfa is een klein dorp aan de rechteroever van de Segura, tussen de citrusboomgaarden van de Vega Baja en de heuvels richting de AP-7. Rond de oude kern zijn grote urbanisaties ontstaan, met als bekendste het golfresort La Finca. Het is een rustige plek om het hele jaar te wonen, op een kwartier rijden van de kust.",
+  "facts": [
+   {
+    "label": "Inwoners",
+    "value": "ca. 3.800 (INE, 1-1-2025)"
+   },
+   {
+    "label": "Buitenlandse inwoners",
+    "value": "ca. 59% (INE, 2022), vooral Britten"
+   },
+   {
+    "label": "Oppervlakte",
+    "value": "ca. 18 km²"
+   },
+   {
+    "label": "Afstand tot zee",
+    "value": "ca. 15 km (Guardamar del Segura)"
+   },
+   {
+    "label": "Luchthaven Alicante",
+    "value": "ca. 45 km, 35 min"
+   },
+   {
+    "label": "Dichtstbijzijnd ziekenhuis",
+    "value": "Hospital Vega Baja (Orihuela), ca. 15 km"
+   }
+  ],
+  "sections": [
+   {
+    "key": "housing",
+    "heading": "Wonen en huisvesting",
+    "html": "<p>In de oude kern rond de Plaza de España staan dorpshuizen, rijtjeshuizen en kleinere appartementengebouwen. Je woont hier tussen Spaanse buren, met winkels, school en markt op loopafstand.</p><p>Buiten de kern liggen de urbanisaties, elk met een eigen karakter:</p><ul><li><strong>La Finca Golf Resort</strong>: villa's, geschakelde woningen en appartementen rond de golfbaan, voor een groot deel nieuwbouw en vaak in afgesloten complexen met zwembad.</li><li><strong>Lo Crispín</strong>: urbanisatie in de buurt van La Finca met vooral rijtjeshuizen, bungalows en appartementen.</li><li><strong>Montebello</strong> en <strong>Castillo de Montemar</strong>: oudere villawijken op de heuvels, met ruimere kavels en uitzicht over de Vega.</li><li><strong>Fontana</strong>: een afgesloten appartementencomplex dicht bij de voorzieningen van het dorp.</li><li><strong>Lomas de La Juliana</strong>: heuvelgebied op de grens met Almoradí, met verspreide villa's.</li></ul><p>In de urbanisaties ben je voor bijna alles op de auto aangewezen. Omdat sommige wijken tegen de grens met Almoradí, Rojales of Benijófar liggen, loont het om per adres te controleren in welke gemeente een woning valt.</p>"
+   },
+   {
+    "key": "work",
+    "heading": "Werk en economie",
+    "html": "<p>Algorfa was lang een landbouwdorp, met sinaasappels, citroenen en artisjokken op de bevloeide gronden langs de Segura. Die landbouw is er nog, maar de economie draait nu vooral op diensten, bouw en toerisme.</p><p>Het golfresort met hotel, de horeca, onderhoud van woningen en tuinen, vastgoed en de bouw van nieuwe urbanisaties zorgen voor werk. Er is ook een klein bedrijventerrein.</p><p>Voor de meeste banen rijd je naar Almoradí, Orihuela, Torrevieja of verder naar Elche en Alicante. Openbaar vervoer is beperkt, dus een auto is voor woon-werkverkeer vrijwel onmisbaar. Voor wie op afstand werkt is het dorp rustig en goed bereikbaar via de AP-7 en de CV-95.</p>"
+   },
+   {
+    "key": "population",
+    "heading": "Bevolking",
+    "html": "<p>Volgens het INE telde Algorfa op 1 januari 2025 ongeveer 3.800 inwoners. Het aantal groeit al jaren, vooral door nieuwe bewoners in de urbanisaties.</p><p>Een meerderheid van de inwoners heeft een buitenlandse nationaliteit: in 2022 ging het om ongeveer 59%. De Britten vormen veruit de grootste groep, met ongeveer zeven op de tien buitenlandse inwoners; daarnaast wonen er andere Europeanen. In de dorpskern hoor je vooral Spaans, in de urbanisaties vaak Engels.</p><p>Veel buitenlandse bewoners zijn gepensioneerd of hebben hier een tweede woning. Daardoor is het in de zomer en rond de feestdagen drukker dan in de winter. Gezinnen met kinderen vind je vooral in en rond het dorp zelf.</p>"
+   },
+   {
+    "key": "education",
+    "heading": "Scholen en onderwijs",
+    "html": "<p>Algorfa heeft één openbare basisschool, het <strong>CEIP Miguel de Cervantes</strong>, voor kinderen van 3 tot 12 jaar. Het onderwijs is in het Spaans, met Valenciaans en Engels als vakken. Voor de allerkleinsten is er opvang in het dorp.</p><p>Voor het voortgezet onderwijs (ESO en bachillerato) gaan leerlingen naar Almoradí; de basisschool van Algorfa is gekoppeld aan het <strong>IES Azud de Alfeitamí</strong> daar, op ongeveer vijf kilometer.</p><p>Wie liever internationaal onderwijs in het Engels wil, vindt particuliere internationale scholen in de omgeving van Rojales, Torrevieja en Orihuela Costa. Daar betaal je schoolgeld en is vervoer meestal een kwestie van zelf brengen of een schoolbus.</p>"
+   },
+   {
+    "key": "distances",
+    "heading": "Afstanden vanaf het centrum",
+    "rows": [
+     [
+      "Supermarkt",
+      "in het dorp, ca. 0,5 km"
+     ],
+     [
+      "Consultorio (huisartsenpost)",
+      "in het dorp, ca. 0,5 km"
+     ],
+     [
+      "Apotheek",
+      "in het dorp, ca. 0,5 km"
+     ],
+     [
+      "Basisschool (CEIP Miguel de Cervantes)",
+      "ca. 0,5 km"
+     ],
+     [
+      "Middelbare school (IES Azud de Alfeitamí, Almoradí)",
+      "ca. 5 km, 8 min"
+     ],
+     [
+      "Strand (Guardamar del Segura)",
+      "ca. 15 km, 15 min"
+     ],
+     [
+      "Golfbaan (La Finca)",
+      "ca. 3 km, 5 min"
+     ],
+     [
+      "Ziekenhuis (Hospital Vega Baja, Orihuela)",
+      "ca. 15 km, 18 min"
+     ],
+     [
+      "Torrevieja (centrum)",
+      "ca. 20 km, 22 min"
+     ],
+     [
+      "Alicante (stad)",
+      "ca. 55 km, 45 min"
+     ],
+     [
+      "Luchthaven Alicante-Elche",
+      "ca. 45 km, 35 min"
+     ],
+     [
+      "Luchthaven Murcia (Corvera)",
+      "ca. 60 km, 45 min"
+     ]
+    ]
+   },
+   {
+    "key": "shops",
+    "heading": "Winkels en markten",
+    "html": "<p>In de dorpskern vind je de dagelijkse boodschappen: kleine supermarkten, een bakker, slager, apotheek, kappers en een paar winkels voor huishouden en kleding. Voor grotere supermarkten rij je naar Almoradí of Rojales, en voor een groot winkelcentrum naar La Zenia aan de kust of naar Torrevieja.</p><p>Er zijn twee markten:</p><ul><li><strong>Weekmarkt</strong>: elke woensdagochtend (ca. 8.00 tot 13.00 uur) in de Calle Fernando de Rojas in het dorp.</li><li><strong>El Zoco</strong>: een grote zondagsmarkt (ca. 8.00 tot 14.00 uur) buiten het dorp, aan de weg richting San Miguel de Salinas vlak bij de AP-7, met zo'n tweehonderd kramen, veel parkeerruimte en eetgelegenheden.</li></ul><p>El Zoco trekt op zondag bezoekers uit de hele regio, dus reken op druk verkeer rond de ingang.</p>"
+   },
+   {
+    "key": "culture",
+    "heading": "Cultuur en bezienswaardigheden",
+    "html": "<p>Algorfa ontstond rond een landgoed en kreeg in 1762 een markiezaat. In 1790 werd het een zelfstandige gemeente, na een lang conflict met Almoradí en Rojales. Uit die tijd stammen de belangrijkste gebouwen:</p><ul><li><strong>Parochiekerk Nuestra Señora del Carmen</strong> aan de Plaza de España, het hart van het dorp, naast het gemeentehuis en het cultuurhuis.</li><li><strong>Ermita del Marqués</strong>: een kapel uit het begin van de twintigste eeuw op een heuveltje net buiten de kern, gebouwd met steen uit de plaatselijke groeve, naast het oude paleisje van de markies en een oude oliemolen.</li><li><strong>Castillo de Montemar</strong>: geen verdedigingsburcht maar een herenhuis met torens uit de late achttiende eeuw, vroeger gebruikt als zomerverblijf. De urbanisatie eromheen draagt dezelfde naam.</li></ul><p>Het is een klein dorp; de bezienswaardigheden zie je in een ochtend.</p>"
+   },
+   {
+    "key": "festivals",
+    "heading": "Lokale feesten",
+    "rows": [
+     [
+      "Fiestas patronales (Virgen del Carmen)",
+      "eerste helft juli, rond 16 juli",
+      "De belangrijkste feestweken van het dorp ter ere van de patrones, met muziek, activiteiten op straat en een processie."
+     ],
+     [
+      "Feria de Abril",
+      "april",
+      "Een voorjaarsfeest in Andalusische stijl met muziek, dans en eten en drinken op straat."
+     ]
+    ]
+   },
+   {
+    "key": "health",
+    "heading": "Gezondheidszorg",
+    "html": "<p>Algorfa heeft een <strong>consultorio</strong> (huisartsenpost) in het dorp. Die is te klein geworden voor het groeiende aantal inwoners; de gemeente heeft grond beschikbaar gesteld voor een nieuw gezondheidscentrum, waarvan het ontwerp in 2023 is aanbesteed. Wanneer het opengaat, is nog niet zeker.</p><p>Het dorp valt onder het <strong>Departamento de Salud de Orihuela</strong>. Het bijbehorende ziekenhuis is het <strong>Hospital Vega Baja</strong> bij Orihuela, op ongeveer een kwartier rijden. Voor spoedgevallen buiten de openingstijden van de consultorio ga je naar een centro de salud in de buurt of naar de spoedeisende hulp van het ziekenhuis.</p><p>Particuliere klinieken met Engels- en soms Nederlandstalig personeel vind je in Torrevieja, Rojales en aan de Orihuela Costa.</p>"
+   },
+   {
+    "key": "outdoor",
+    "heading": "Buiten ontspannen",
+    "html": "<p>De bekendste plek om buiten te zijn is <strong>La Finca Golf</strong>, een 18-holesbaan (par 72) van ontwerper Pepe Gancedo, geopend in 2002. In de omgeving liggen nog meer banen, zoals La Marquesa bij Ciudad Quesada.</p><p>Rond het dorp wissel je makkelijk tussen de vlakke huerta met citrusboomgaarden langs de Segura en de droge heuvels aan de zuidkant. Dat maakt Algorfa geschikt om te wandelen, fietsen en mountainbiken, al is het in juli en augustus overdag vaak te heet.</p><p>De stranden van Guardamar del Segura liggen op ongeveer een kwartier rijden, de zoutmeren van Torrevieja en La Mata iets verder. Het dorp heeft gemeentelijke sportvoorzieningen en organiseert jaarlijks een hardloopwedstrijd over 5 en 10 kilometer.</p>"
+   },
+   {
+    "key": "indoor",
+    "heading": "Binnen ontspannen",
+    "html": "<p>In het dorp zelf is het aanbod bescheiden. Het cultuurhuis aan de Plaza de España en de bibliotheek organiseren activiteiten, cursussen en voorstellingen, en het gemeentelijk programma is vooral in de zomer en rond de feesten gevuld.</p><p>Bij het golfresort ligt een hotel met spa en restaurants. In het dorp zijn bars en restaurants waar je Spaans en internationaal kunt eten.</p><p>Voor bioscopen, grote winkelcentra en een uitgebreider cultureel aanbod rij je naar Torrevieja, La Zenia, Orihuela of Elche. Alicante en Murcia, met theaters en musea, liggen allebei op ongeveer drie kwartier.</p>"
+   }
+  ],
+  "photos": [
+   {
+    "path": "towns/algorfa/1.jpg",
+    "author": "19Tarrestnom65",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Iglesia_del_Carmen_de_Algorfa_03.jpg",
+    "alt": "De kerk Nuestra Señora del Carmen"
+   },
+   {
+    "path": "towns/algorfa/2.jpg",
+    "author": "19Tarrestnom65",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Casa_Palacio_del_Marqués_en_Algorfa_08.jpg",
+    "alt": "Het paleis van de markies in het dorp"
+   },
+   {
+    "path": "towns/algorfa/3.jpg",
+    "author": "19Tarrestnom65",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Casa_Consistorial_de_Algorfa_01.jpg",
+    "alt": "Het gemeentehuis van Algorfa"
+   }
+  ],
+  "sources": [
+   {
+    "title": "Wikipedia (EN) – Algorfa (INE 1 jan 2025, urbanisaties, weekmarkt)",
+    "url": "https://en.wikipedia.org/wiki/Algorfa"
+   },
+   {
+    "title": "Wikipedia (ES) – Algorfa (geschiedenis, monumenten, feesten, nationaliteit INE)",
+    "url": "https://es.wikipedia.org/wiki/Algorfa"
+   },
+   {
+    "title": "Ayuntamiento de Algorfa",
+    "url": "https://www.algorfa.es/"
+   },
+   {
+    "title": "Acadèmia Valenciana de la Llengua – toponiemen Algorfa (urbanisaties, partidas)",
+    "url": "https://www.avl.gva.es/documents/31987/58697/ALGORFA_TPV.pdf"
+   },
+   {
+    "title": "Mercadillos.org – markten in Algorfa (woensdagmarkt, El Zoco)",
+    "url": "https://mercadillos.org/es/algorfa"
+   },
+   {
+    "title": "Mercadillos.org – Mercadillo El Zoco",
+    "url": "https://mercadillos.org/es/algorfa/mercadillo-el-zoco"
+   },
+   {
+    "title": "CEIP Miguel de Cervantes, Algorfa (portal Conselleria)",
+    "url": "https://portal.edu.gva.es/colegiodealgorfa/"
+   },
+   {
+    "title": "IES Azud de Alfeitamí – overgangsproject primair-secundair (adscripción CEIP Algorfa)",
+    "url": "https://portal.edu.gva.es/iesazud/wp-content/uploads/sites/537/2020/12/2018_04_12_PROYECTO_DE_TRANSICION_PRIMARIA_A_SECUNDARIA_AZUD.pdf"
+   },
+   {
+    "title": "Alicante Plaza – nieuw gezondheidscentrum Algorfa (Departamento de Salud Orihuela, 2023)",
+    "url": "https://alicanteplaza.es/alicanteplaza/sanidad-licita-de-nuevo-el-proyecto-del-centro-de-salud-de-algorfa-tras-subsanar-errores-en-el-pliego"
+   },
+   {
+    "title": "1golf.eu – La Finca Golf",
+    "url": "https://www.1golf.eu/en/club/la-finca-golf/"
+   }
+  ],
+  "coords": [
+   38.086,
+   -0.796
+  ],
+  "sort": 110,
+  "review_notes": "1) Lomas de La Juliana: de heuvels liggen deels in Algorfa (AVL-toponiemen) en deels in Almoradí (MARQ, alias ook in almoradi.json); per adres gemeente controleren. Fontana is alleen via woningadvertenties als complex in Algorfa bevestigd; 'Pueblo' is een generieke alias en kan ook woningen in andere gemeenten matchen. 2) Feesten: Virgen del Carmen (rond 16 juli) uit Wikipedia ES; het Libro de Fiestas 2026 van de gemeente kon niet worden gelezen. Feria de Abril alleen via een nieuwsbericht 2026; data en inhoud van beide nalopen. 3) El Zoco (zondag): ligging en precieze gemeente (adres 'Carretera de San Miguel de Salinas') bevestigen; woensdagmarkt Calle Fernando de Rojas staat bij mercadillos.org en Wikipedia EN. 4) Zorg: Departamento de Salud Orihuela (Hospital Vega Baja) volgt uit een artikel van 2023; status nieuw centro de salud en apotheek/opvang in het dorp controleren. Adscripción IES Azud de Alfeitamí komt uit een document van 2018. 5) Aandeel buitenlanders is INE 2022; afstanden en rijtijden zijn schattingen, graag met routeplanner nalopen."
+ },
+ {
+  "slug": "algorfa",
+  "lang": "en",
+  "town": "Algorfa",
+  "aliases": [
+   "La Finca Golf",
+   "La Finca Golf Resort",
+   "La Finca",
+   "Montebello",
+   "Monte Bello",
+   "Montemar",
+   "Castillo de Montemar",
+   "Lomas de La Juliana",
+   "Lo Crispin",
+   "Lo Crispín",
+   "Fontana"
+  ],
+  "title": "Living in Algorfa",
+  "lead": "Algorfa is a small village on the right bank of the Segura, between the citrus groves of the Vega Baja and the hills towards the AP-7. Large urbanisations have grown up around the old centre, the best known being the La Finca golf resort. It is a quiet place to live all year round, about fifteen minutes by car from the coast.",
+  "facts": [
+   {
+    "label": "Population",
+    "value": "approx. 3,800 (INE, 1 Jan 2025)"
+   },
+   {
+    "label": "Foreign residents",
+    "value": "approx. 59% (INE, 2022), mainly British"
+   },
+   {
+    "label": "Area",
+    "value": "approx. 18 km²"
+   },
+   {
+    "label": "Distance to the sea",
+    "value": "approx. 15 km (Guardamar del Segura)"
+   },
+   {
+    "label": "Alicante Airport",
+    "value": "approx. 45 km, 35 min"
+   },
+   {
+    "label": "Nearest hospital",
+    "value": "Hospital Vega Baja (Orihuela), approx. 15 km"
+   }
+  ],
+  "sections": [
+   {
+    "key": "housing",
+    "heading": "Housing",
+    "html": "<p>The old centre around Plaza de España has village houses, terraced houses and small apartment blocks. You live among Spanish neighbours, with shops, school and market within walking distance.</p><p>Outside the centre lie the urbanisations, each with its own character:</p><ul><li><strong>La Finca Golf Resort</strong>: villas, linked houses and apartments around the golf course, much of it new build and often in gated complexes with a pool.</li><li><strong>Lo Crispín</strong>: an urbanisation near La Finca with mostly townhouses, bungalows and apartments.</li><li><strong>Montebello</strong> and <strong>Castillo de Montemar</strong>: older villa areas on the hills, with larger plots and views over the Vega.</li><li><strong>Fontana</strong>: a gated apartment complex close to the village amenities.</li><li><strong>Lomas de La Juliana</strong>: a hilly area on the boundary with Almoradí, with scattered villas.</li></ul><p>In the urbanisations you will need a car for almost everything. As some areas border Almoradí, Rojales or Benijófar, it is worth checking for each address which municipality a property belongs to.</p>"
+   },
+   {
+    "key": "work",
+    "heading": "Work and economy",
+    "html": "<p>Algorfa was long a farming village, growing oranges, lemons and artichokes on the irrigated land along the Segura. That farming still exists, but the economy now relies mainly on services, construction and tourism.</p><p>The golf resort and its hotel, bars and restaurants, home and garden maintenance, property and the building of new urbanisations all provide work. There is also a small industrial estate.</p><p>For most jobs you will drive to Almoradí, Orihuela, Torrevieja or further to Elche and Alicante. Public transport is limited, so a car is practically essential for commuting. For remote workers the village is quiet and well connected via the AP-7 and the CV-95.</p>"
+   },
+   {
+    "key": "population",
+    "heading": "Population",
+    "html": "<p>According to the INE, Algorfa had around 3,800 residents on 1 January 2025. The number has been rising for years, mainly because of new residents in the urbanisations.</p><p>A majority of residents hold a foreign nationality: in 2022 this was about 59%. The British are by far the largest group, at around seven in ten foreign residents, alongside other Europeans. In the village centre you mostly hear Spanish; in the urbanisations, English is common.</p><p>Many foreign residents are retired or own a second home here, so the area is busier in summer and around the holidays than in winter. Families with children tend to live in and around the village itself.</p>"
+   },
+   {
+    "key": "education",
+    "heading": "Schools and education",
+    "html": "<p>Algorfa has one state primary school, <strong>CEIP Miguel de Cervantes</strong>, for children aged 3 to 12. Teaching is in Spanish, with Valencian and English as subjects. There is also childcare for the youngest children in the village.</p><p>For secondary education (ESO and bachillerato) pupils go to Almoradí; Algorfa's primary school is linked to <strong>IES Azud de Alfeitamí</strong> there, about five kilometres away.</p><p>If you prefer international education in English, there are private international schools around Rojales, Torrevieja and Orihuela Costa. These charge fees, and transport usually means driving your children yourself or using a school bus.</p>"
+   },
+   {
+    "key": "distances",
+    "heading": "Distances from the centre",
+    "rows": [
+     [
+      "Supermarket",
+      "in the village, approx. 0.5 km"
+     ],
+     [
+      "Consultorio (local GP clinic)",
+      "in the village, approx. 0.5 km"
+     ],
+     [
+      "Pharmacy",
+      "in the village, approx. 0.5 km"
+     ],
+     [
+      "Primary school (CEIP Miguel de Cervantes)",
+      "approx. 0.5 km"
+     ],
+     [
+      "Secondary school (IES Azud de Alfeitamí, Almoradí)",
+      "approx. 5 km, 8 min"
+     ],
+     [
+      "Beach (Guardamar del Segura)",
+      "approx. 15 km, 15 min"
+     ],
+     [
+      "Golf course (La Finca)",
+      "approx. 3 km, 5 min"
+     ],
+     [
+      "Hospital (Hospital Vega Baja, Orihuela)",
+      "approx. 15 km, 18 min"
+     ],
+     [
+      "Torrevieja (centre)",
+      "approx. 20 km, 22 min"
+     ],
+     [
+      "Alicante (city)",
+      "approx. 55 km, 45 min"
+     ],
+     [
+      "Alicante-Elche Airport",
+      "approx. 45 km, 35 min"
+     ],
+     [
+      "Murcia Airport (Corvera)",
+      "approx. 60 km, 45 min"
+     ]
+    ]
+   },
+   {
+    "key": "shops",
+    "heading": "Shops and markets",
+    "html": "<p>The village centre covers your daily shopping: small supermarkets, a baker, a butcher, a pharmacy, hairdressers and a few shops for household goods and clothing. For larger supermarkets you drive to Almoradí or Rojales, and for a big shopping centre to La Zenia on the coast or to Torrevieja.</p><p>There are two markets:</p><ul><li><strong>Weekly market</strong>: every Wednesday morning (roughly 8am to 1pm) in Calle Fernando de Rojas in the village.</li><li><strong>El Zoco</strong>: a large Sunday market (roughly 8am to 2pm) outside the village, on the road towards San Miguel de Salinas near the AP-7, with around two hundred stalls, plenty of parking and places to eat.</li></ul><p>El Zoco draws visitors from the whole region on Sundays, so expect heavy traffic around the entrance.</p>"
+   },
+   {
+    "key": "culture",
+    "heading": "Culture and sights",
+    "html": "<p>Algorfa grew up around a country estate and became a marquisate in 1762. In 1790 it became an independent municipality after a long dispute with Almoradí and Rojales. The main buildings date from that period:</p><ul><li><strong>Parish church of Nuestra Señora del Carmen</strong> on Plaza de España, the heart of the village, next to the town hall and the cultural centre.</li><li><strong>Ermita del Marqués</strong>: an early twentieth-century chapel on a small hill just outside the centre, built with stone from the local quarry, beside the marquis's former small palace and an old olive mill.</li><li><strong>Castillo de Montemar</strong>: not a fortress but a late eighteenth-century manor house with towers, once used as a summer residence. The surrounding urbanisation shares its name.</li></ul><p>It is a small village; you can see the sights in a morning.</p>"
+   },
+   {
+    "key": "festivals",
+    "heading": "Local festivals",
+    "rows": [
+     [
+      "Fiestas patronales (Virgen del Carmen)",
+      "first half of July, around 16 July",
+      "The village's main festival weeks in honour of its patron, with music, street activities and a procession."
+     ],
+     [
+      "Feria de Abril",
+      "April",
+      "An Andalusian-style spring fair with music, dancing, and food and drink in the street."
+     ]
+    ]
+   },
+   {
+    "key": "health",
+    "heading": "Healthcare",
+    "html": "<p>Algorfa has a <strong>consultorio</strong> (local GP clinic) in the village. It has become too small for the growing population; the council has provided land for a new health centre, whose design was put out to tender in 2023. When it will open is not yet certain.</p><p>The village belongs to the <strong>Departamento de Salud de Orihuela</strong>. Its hospital is <strong>Hospital Vega Baja</strong> near Orihuela, about a quarter of an hour by car. For urgent care outside the consultorio's opening hours you go to a nearby health centre or to the hospital's A&amp;E.</p><p>Private clinics with English-speaking, and sometimes Dutch-speaking, staff can be found in Torrevieja, Rojales and on the Orihuela Costa.</p>"
+   },
+   {
+    "key": "outdoor",
+    "heading": "Outdoor leisure",
+    "html": "<p>The best-known place to spend time outdoors is <strong>La Finca Golf</strong>, an 18-hole course (par 72) designed by Pepe Gancedo and opened in 2002. There are more courses nearby, such as La Marquesa near Ciudad Quesada.</p><p>Around the village you can easily switch between the flat huerta with citrus groves along the Segura and the dry hills to the south. That makes Algorfa good for walking, cycling and mountain biking, although in July and August it is often too hot during the day.</p><p>The beaches of Guardamar del Segura are about fifteen minutes away by car, and the salt lakes of Torrevieja and La Mata a little further. The village has municipal sports facilities and holds an annual 5 km and 10 km running race.</p>"
+   },
+   {
+    "key": "indoor",
+    "heading": "Indoor leisure",
+    "html": "<p>In the village itself the choice is modest. The cultural centre on Plaza de España and the library organise activities, courses and performances, and the council's programme is busiest in summer and around the fiestas.</p><p>The golf resort has a hotel with a spa and restaurants. In the village there are bars and restaurants serving Spanish and international food.</p><p>For cinemas, large shopping centres and a wider cultural offer you drive to Torrevieja, La Zenia, Orihuela or Elche. Alicante and Murcia, with theatres and museums, are both about 45 minutes away.</p>"
+   }
+  ],
+  "photos": [
+   {
+    "path": "towns/algorfa/1.jpg",
+    "author": "19Tarrestnom65",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Iglesia_del_Carmen_de_Algorfa_03.jpg",
+    "alt": "The church of Nuestra Señora del Carmen"
+   },
+   {
+    "path": "towns/algorfa/2.jpg",
+    "author": "19Tarrestnom65",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Casa_Palacio_del_Marqués_en_Algorfa_08.jpg",
+    "alt": "The Marquis's palace in the village"
+   },
+   {
+    "path": "towns/algorfa/3.jpg",
+    "author": "19Tarrestnom65",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Casa_Consistorial_de_Algorfa_01.jpg",
+    "alt": "Algorfa town hall"
+   }
+  ],
+  "sources": [
+   {
+    "title": "Wikipedia (EN) – Algorfa (INE 1 jan 2025, urbanisaties, weekmarkt)",
+    "url": "https://en.wikipedia.org/wiki/Algorfa"
+   },
+   {
+    "title": "Wikipedia (ES) – Algorfa (geschiedenis, monumenten, feesten, nationaliteit INE)",
+    "url": "https://es.wikipedia.org/wiki/Algorfa"
+   },
+   {
+    "title": "Ayuntamiento de Algorfa",
+    "url": "https://www.algorfa.es/"
+   },
+   {
+    "title": "Acadèmia Valenciana de la Llengua – toponiemen Algorfa (urbanisaties, partidas)",
+    "url": "https://www.avl.gva.es/documents/31987/58697/ALGORFA_TPV.pdf"
+   },
+   {
+    "title": "Mercadillos.org – markten in Algorfa (woensdagmarkt, El Zoco)",
+    "url": "https://mercadillos.org/es/algorfa"
+   },
+   {
+    "title": "Mercadillos.org – Mercadillo El Zoco",
+    "url": "https://mercadillos.org/es/algorfa/mercadillo-el-zoco"
+   },
+   {
+    "title": "CEIP Miguel de Cervantes, Algorfa (portal Conselleria)",
+    "url": "https://portal.edu.gva.es/colegiodealgorfa/"
+   },
+   {
+    "title": "IES Azud de Alfeitamí – overgangsproject primair-secundair (adscripción CEIP Algorfa)",
+    "url": "https://portal.edu.gva.es/iesazud/wp-content/uploads/sites/537/2020/12/2018_04_12_PROYECTO_DE_TRANSICION_PRIMARIA_A_SECUNDARIA_AZUD.pdf"
+   },
+   {
+    "title": "Alicante Plaza – nieuw gezondheidscentrum Algorfa (Departamento de Salud Orihuela, 2023)",
+    "url": "https://alicanteplaza.es/alicanteplaza/sanidad-licita-de-nuevo-el-proyecto-del-centro-de-salud-de-algorfa-tras-subsanar-errores-en-el-pliego"
+   },
+   {
+    "title": "1golf.eu – La Finca Golf",
+    "url": "https://www.1golf.eu/en/club/la-finca-golf/"
+   }
+  ],
+  "coords": [
+   38.086,
+   -0.796
+  ],
+  "sort": 110,
+  "review_notes": "1) Lomas de La Juliana: de heuvels liggen deels in Algorfa (AVL-toponiemen) en deels in Almoradí (MARQ, alias ook in almoradi.json); per adres gemeente controleren. Fontana is alleen via woningadvertenties als complex in Algorfa bevestigd; 'Pueblo' is een generieke alias en kan ook woningen in andere gemeenten matchen. 2) Feesten: Virgen del Carmen (rond 16 juli) uit Wikipedia ES; het Libro de Fiestas 2026 van de gemeente kon niet worden gelezen. Feria de Abril alleen via een nieuwsbericht 2026; data en inhoud van beide nalopen. 3) El Zoco (zondag): ligging en precieze gemeente (adres 'Carretera de San Miguel de Salinas') bevestigen; woensdagmarkt Calle Fernando de Rojas staat bij mercadillos.org en Wikipedia EN. 4) Zorg: Departamento de Salud Orihuela (Hospital Vega Baja) volgt uit een artikel van 2023; status nieuw centro de salud en apotheek/opvang in het dorp controleren. Adscripción IES Azud de Alfeitamí komt uit een document van 2018. 5) Aandeel buitenlanders is INE 2022; afstanden en rijtijden zijn schattingen, graag met routeplanner nalopen."
+ },
+ {
+  "slug": "orihuela-costa",
+  "lang": "nl",
+  "town": "Orihuela Costa",
+  "aliases": [
+   "Orihuela Costa",
+   "Orihuela costa",
+   "Playa Flamenca",
+   "La Zenia",
+   "Zenia",
+   "Punta Prima",
+   "Cabo Roig",
+   "Lomas de Cabo Roig",
+   "Los Dolses",
+   "Villamartín",
+   "Villamartin",
+   "Las Filipinas",
+   "Campoamor",
+   "Dehesa de Campoamor",
+   "Lomas de Campoamor",
+   "PAU 26",
+   "El Barranco",
+   "Las Colinas Golf",
+   "Las Colinas Golf Resort",
+   "Aguamarina",
+   "Las Ramblas",
+   "Blue Lagoon",
+   "Villacosta",
+   "La Florida",
+   "Villa Rosa",
+   "Lomas de Don Juan",
+   "Montezenia",
+   "Lagosol",
+   "Alameda del Mar"
+  ],
+  "title": "Wonen in Orihuela Costa",
+  "lead": "Orihuela Costa is geen eigen gemeente, maar de ca. 16 km lange kuststrook van de gemeente Orihuela, waarvan de stad zelf zo'n 30 km landinwaarts ligt. Het is een aaneengesloten reeks urbanisaties tussen Torrevieja en Pilar de la Horadada, met calas, golfbanen en een groot winkelcentrum. Je woont er internationaal en met veel voorzieningen dichtbij, maar ook in een gebied dat in de zomer vol raakt en waar zorg en scholen de groei maar net bijhouden.",
+  "facts": [
+   {
+    "label": "Inwoners",
+    "value": "ca. 30.200 (gemeentelijk register, eind 2025)"
+   },
+   {
+    "label": "Gemeente",
+    "value": "Orihuela (stad ca. 35 km landinwaarts)"
+   },
+   {
+    "label": "Buitenlandse inwoners",
+    "value": "ruime meerderheid; Britten grootste groep (2025)"
+   },
+   {
+    "label": "Kust",
+    "value": "ca. 16 km, minstens negen stranden en calas met Blauwe Vlag (2026)"
+   },
+   {
+    "label": "Luchthaven Alicante",
+    "value": "ca. 60 km, 45 min"
+   },
+   {
+    "label": "Dichtstbijzijnd ziekenhuis",
+    "value": "Hospital Universitario de Torrevieja, ca. 12 km"
+   }
+  ],
+  "sections": [
+   {
+    "key": "housing",
+    "heading": "Wonen en huisvesting",
+    "html": "<p>Orihuela Costa bestaat uit tientallen urbanisaties die vanaf de jaren zestig en vooral na 1990 zijn gebouwd. Een echt dorpscentrum ontbreekt; het leven speelt zich af rond de N-332, Zenia Boulevard en de kleine pleinen per wijk.</p><ul><li><strong>Punta Prima, Playa Flamenca, La Zenia en Cabo Roig</strong> liggen aan of vlak bij zee: veel appartementen, bungalows en rijtjeshuizen, vaak in complexen met gemeenschappelijk zwembad.</li><li><strong>Dehesa de Campoamor</strong> is ouder en ruimer opgezet, met villa's op grotere kavels en een jachthaven.</li><li><strong>Los Dolses, Villamartín, Las Filipinas, Lomas de Cabo Roig en Lomas de Campoamor</strong> liggen landinwaarts rond de golfbanen, met geschakelde woningen, appartementen en villa's.</li><li><strong>PAU 26, El Barranco en Las Colinas Golf</strong> zijn nieuwere gebieden met veel nieuwbouw; Las Colinas is een afgesloten golfresort met villa's en appartementen.</li></ul><p>Veel woningen worden als vakantiewoning verhuurd, dus de sfeer verschilt sterk per complex en per seizoen.</p>"
+   },
+   {
+    "key": "work",
+    "heading": "Werk en economie",
+    "html": "<p>De economie draait vrijwel volledig om toerisme en wonen: horeca, detailhandel, vastgoed, bouw, onderhoud van tuinen en zwembaden, verhuur en de golfbanen. Zenia Boulevard is een van de grootste werkgevers in de omgeving.</p><p>Omdat zoveel inwoners uit het buitenland komen, zijn Engels en andere talen in veel banen een pluspunt. Veel werk is wel seizoensgebonden en de lonen in toerisme en handel zijn bescheiden. Voor kantoor-, industrie- of overheidsbanen rijden mensen meestal naar Torrevieja, Orihuela, Murcia, Elche of Alicante. Werken op afstand is gangbaar; vraag per adres na welke glasvezelverbinding er is, want dat verschilt tussen de urbanisaties.</p>"
+   },
+   {
+    "key": "population",
+    "heading": "Bevolking",
+    "html": "<p>Volgens het eigen register van de gemeente Orihuela woonden er eind 2025 ca. 30.200 mensen ingeschreven aan de kust, ca. 8% meer dan een jaar eerder. Daarmee is Orihuela Costa ongeveer even groot als de stad Orihuela zelf en het snelst groeiende deel van de gemeente. Het INE telt de kust niet als één kern maar als tientallen afzonderlijke urbanisaties.</p><p>De Britten vormen de grootste groep, vóór de Spanjaarden en de Oekraïners; daarnaast wonen er veel Marokkanen, Russen, Colombianen en Noord- en West-Europeanen, onder wie Scandinaviërs, Belgen en Nederlanders. Een deel woont er alleen in de winter of zomer. In het hoogseizoen ligt het werkelijke aantal mensen aan de kust daardoor een veelvoud hoger dan het register laat zien.</p>"
+   },
+   {
+    "key": "education",
+    "heading": "Scholen en onderwijs",
+    "html": "<p>Het openbare aanbod is krap voor zo'n snel groeiend gebied. Er zijn twee vaste openbare basisscholen, <strong>CEIP Playas de Orihuela</strong> en <strong>CEIP Los Dolses</strong>. Om de drukte op te vangen is een derde school (bekend als colegio nº 20) gestart in noodlokalen in Los Dolses; voor een definitief gebouw zocht de gemeente eind 2025 nog grond. Voortgezet onderwijs is er openbaar op één plek: <strong>IES Playa Flamenca</strong>. Het onderwijs is in het Spaans, met Valenciaans als vak.</p><p>Particulier is er <strong>El Limonar International School Villamartín</strong> (onderdeel van Cognita), aan de rand van Villamartín bij Blue Lagoon. De school volgt het Engelse curriculum voor leerlingen van 3 tot 18 jaar, met de mogelijkheid tot het Spaanse bachillerato. Meer internationale en particuliere scholen vind je in de omgeving van Torrevieja en San Miguel de Salinas.</p>"
+   },
+   {
+    "key": "distances",
+    "heading": "Afstanden vanaf het centrum (Playa Flamenca)",
+    "rows": [
+     [
+      "Supermarkt",
+      "ca. 1 km"
+     ],
+     [
+      "Gezondheidscentrum (Aguamarina)",
+      "ca. 5 km, 8 min"
+     ],
+     [
+      "Apotheek",
+      "ca. 1 km"
+     ],
+     [
+      "Basisschool",
+      "ca. 2 km"
+     ],
+     [
+      "Strand (Playa Flamenca)",
+      "ca. 1 km"
+     ],
+     [
+      "Golfbaan (Villamartín)",
+      "ca. 4 km, 8 min"
+     ],
+     [
+      "Ziekenhuis (Hospital Universitario de Torrevieja)",
+      "ca. 12 km, 15 min"
+     ],
+     [
+      "Torrevieja",
+      "ca. 10 km, 15 min"
+     ],
+     [
+      "Orihuela (stad, gemeentehuis)",
+      "ca. 35 km, 30 min"
+     ],
+     [
+      "Alicante (stad)",
+      "ca. 65 km, 50 min"
+     ],
+     [
+      "Luchthaven Alicante-Elche",
+      "ca. 60 km, 45 min"
+     ],
+     [
+      "Luchthaven Murcia (Corvera)",
+      "ca. 55 km, 40 min"
+     ]
+    ]
+   },
+   {
+    "key": "shops",
+    "heading": "Winkels en markten",
+    "html": "<p><strong>Zenia Boulevard</strong>, geopend in september 2012, is met zo'n 150 winkels en tientallen restaurants een van de grootste winkelcentra van de provincie Alicante. Het trekt bezoekers uit de hele regio en zorgt in het weekend en in de zomer voor drukte op de wegen eromheen.</p><ul><li><strong>Weekmarkt Playa Flamenca/La Zenia</strong>: zaterdagochtend (ca. 8.00 tot 14.00 uur) in Calle Nicolás de Bussi, met kraampjes over ruim een kilometer.</li><li><strong>Weekmarkt Campoamor/Cabo Roig</strong>: donderdagochtend in Calle Fuego, Aguamarina.</li></ul><p>Daarnaast heeft vrijwel elke urbanisatie een supermarkt of een klein commercieel centrum met bakker, apotheek en bars. Grote supermarktketens liggen langs de N-332 en bij Zenia Boulevard. Voor een overdekte versmarkt of speciaalzaken rijd je naar Torrevieja.</p>"
+   },
+   {
+    "key": "culture",
+    "heading": "Cultuur en bezienswaardigheden",
+    "html": "<p>Orihuela Costa is een betrekkelijk jong woongebied en heeft weinig historische monumenten. Langs de kust staan nog enkele oude wachttorens, waaronder die bij Cabo Roig, en de jachthavens van Cabo Roig en Campoamor zijn prettige plekken om te wandelen of te eten. Dehesa de Campoamor dankt zijn naam aan de negentiende-eeuwse dichter Ramón de Campoamor.</p><p>Voor cultuur in de klassieke zin rijd je naar de stad Orihuela, zo'n half uur landinwaarts. Daar vind je een kathedraal, het voormalige universiteitsgebouw Colegio de Santo Domingo, kerken, musea en het geboortehuis van de dichter Miguel Hernández. Ook gemeentelijke zaken die niet aan de kust geregeld kunnen worden, handel je daar af. Torrevieja ligt dichterbij voor theater, concerten en musea.</p>"
+   },
+   {
+    "key": "festivals",
+    "heading": "Lokale feesten",
+    "rows": [
+     [
+      "Carnaval Orihuela Costa",
+      "eind februari of begin maart",
+      "Optocht met dansgroepen in kostuums door Playa Flamenca, met muziek en eten op straat."
+     ],
+     [
+      "Virgen de la Asunción (La Zenia)",
+      "rond 15 augustus",
+      "Mis, processie met het Mariabeeld naar het strand van La Zenia en vuurwerk."
+     ],
+     [
+      "Mercado Medieval (Orihuela-stad)",
+      "eind januari of begin februari",
+      "Grote middeleeuwse markt in de historische binnenstad van Orihuela."
+     ],
+     [
+      "Semana Santa (Orihuela-stad)",
+      "maart of april",
+      "Processies door de oude stad; een van de bekendste Goede Weken van de regio."
+     ],
+     [
+      "Moros y Cristianos (Orihuela-stad)",
+      "tweede helft juli",
+      "Optochten van Moorse en christelijke groepen ter herinnering aan de herovering van de stad."
+     ]
+    ]
+   },
+   {
+    "key": "health",
+    "heading": "Gezondheidszorg",
+    "html": "<p>Voor huisarts en verpleging is er één openbaar gezondheidscentrum, het <strong>Centro de Salud Orihuela Costa</strong> in Aguamarina bij Cabo Roig. Het valt onder het gezondheidsdepartement Torrevieja en is te klein voor het aantal inwoners; bewoners rijden voor onderzoek, specialisten en revalidatie vaak naar elders. Een tweede centrum met een spoedpost (PAC) is gepland in Villa Rosa, maar een openingsdatum is er nog niet. Bewonersgroepen pleiten bovendien voor een eigen gezondheidszone.</p><p>Het dichtstbijzijnde openbare ziekenhuis is het <strong>Hospital Universitario de Torrevieja</strong>, ca. 12 km en een kwartier rijden. Aan de kust zelf zijn veel apotheken, tandartsen en particuliere klinieken, vaak met Engelssprekend personeel. Schrijf je in op het padrón en vraag een SIP-kaart aan om toegang te krijgen tot de openbare zorg.</p>"
+   },
+   {
+    "key": "outdoor",
+    "heading": "Buiten ontspannen",
+    "html": "<p>De kust bestaat uit korte zandstranden en kleine calas tussen lage rotsen. In 2026 hadden onder meer Punta Prima, Cala Cerrada, Cala Capitán, La Zenia-Cala Bosque, Cabo Roig-La Caleta, Barranco Rubio, Aguamarina en Campoamor-La Glea een Blauwe Vlag. Tussen een aantal calas loopt een kustpad waar je goed kunt wandelen of joggen.</p><ul><li>Vier golfbanen met 18 holes: <strong>Villamartín, Las Ramblas, Real Club de Golf Campoamor en Las Colinas Golf</strong>.</li><li>Zeilen, duiken en paddleboarden vanuit de jachthavens van Cabo Roig en Campoamor.</li><li>Padel en tennis bij de golfclubs en sportparken.</li></ul><p>In juli en augustus zijn de stranden en parkeerplaatsen erg vol en is het warm; voorjaar en najaar zijn ideaal om buiten te zijn.</p>"
+   },
+   {
+    "key": "indoor",
+    "heading": "Binnen ontspannen",
+    "html": "<p>Zenia Boulevard is de belangrijkste plek voor binnenactiviteiten: winkelen, eten en een trampolinepark voor kinderen. Verder zijn er sportscholen, yoga- en danslessen en veel clubs en verenigingen van en voor internationale bewoners, van bridge tot koren.</p><p>Bars en restaurants zijn er in overvloed, vooral rond het plein van Villamartín, Playa Flamenca en de jachthaven van Cabo Roig. Voor bioscoop, theater en musea ga je meestal naar Torrevieja of naar de stad Orihuela. Buiten het hoogseizoen zijn sommige zaken in de meest toeristische urbanisaties beperkt open of tijdelijk dicht.</p>"
+   }
+  ],
+  "photos": [
+   {
+    "path": "towns/orihuela-costa/1.jpg",
+    "author": "Ximonic (Simo Räsänen)",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Beach_in_Cala_Capitán_in_Cabo_Roig_in_Orihuela_Costa,_Orihuela,_Alicante,_Spain,_2022_January.jpg",
+    "alt": "Strandje Cala Capitán bij Cabo Roig"
+   },
+   {
+    "path": "towns/orihuela-costa/2.jpg",
+    "author": "Ximonic (Simo Räsänen)",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Coastal_walking_path_in_Cabo_Roig_in_Orihuela_Costa,_Orihuela,_Alicante,_Spain,_2022_January.jpg",
+    "alt": "Het kustpad bij Cabo Roig"
+   },
+   {
+    "path": "towns/orihuela-costa/3.jpg",
+    "author": "Kent Wang",
+    "license": "CC BY-SA 2.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:La_Zenia_Boulevard_(49287363646).jpg",
+    "alt": "Winkelcentrum La Zenia Boulevard"
+   }
+  ],
+  "sources": [
+   {
+    "title": "Alicante Plaza (15-1-2026): padrón Orihuela eind 2025, Orihuela Costa 30.171 inwoners",
+    "url": "https://alicanteplaza.es/alicanteplaza/orihuela1/orihuela-cierra-2025-rozando-los-89000-habitantes-crece-un-37-con-la-costa-como-motor"
+   },
+   {
+    "title": "Murcia Today (16-1-2026): Britten grootste groep in Orihuela Costa",
+    "url": "https://m.murciatoday.com/orihuela-costa-drives-population-boom-as-british-remain-largest-foreign-group_1000256516-a.html?region=65"
+   },
+   {
+    "title": "Murcia Today (15-1-2025): Orihuela Costa 27.929 inwoners eind 2024, nationaliteiten",
+    "url": "https://m.murciatoday.com/orihuela-costa-the-driving-force-behind-population-growth-in-the-municipality_1000182706-a.html"
+   },
+   {
+    "title": "Hispanopedia/Wikipedia ES: Orihuela Costa (INE-entiteiten 2018, stranden, scholen)",
+    "url": "https://es.hispanopedia.com/wiki/Orihuela_Costa"
+   },
+   {
+    "title": "Support in Spain: gemeentekantoor Orihuela Costa, Plaza del Oriol 1, Playa Flamenca",
+    "url": "https://www.supportinspain.info/?p=13341"
+   },
+   {
+    "title": "Valencia Bonita (5-5-2026): Blauwe Vlaggen Comunitat Valenciana 2026",
+    "url": "https://www.valenciabonita.es/2026/05/05/banderas-azules-comunitat-valenciana-2026/"
+   },
+   {
+    "title": "El Español (6-5-2026): Orihuela, Blauwe Vlaggen en 16 km kust",
+    "url": "https://www.elespanol.com/alacant/viure/20260506/pueblo-alicante-banderas-azules-playas-km-costa-conjunto-historico-artistico-trt/1003744235442_0.html"
+   },
+   {
+    "title": "Mercadillos.org: markt Playa Flamenca en La Zenia (zaterdag)",
+    "url": "https://mercadillos.org/es/orihuela-costa/mercadillo-playa-flamenca"
+   },
+   {
+    "title": "Mercadillos.org: markt Campoamor / Cabo Roig (donderdag)",
+    "url": "https://mercadillos.org/es/orihuela-costa/mercadillo-campoamor"
+   },
+   {
+    "title": "Alicante Plaza: Zenia Boulevard zes jaar open (sinds september 2012)",
+    "url": "https://alicanteplaza.es/zenia-boulevard-celebra-seis-anos-de-apertura-con-planes-de-nuevas-incorporaciones"
+   },
+   {
+    "title": "1golf.eu: golfbanen in Orihuela",
+    "url": "https://www.1golf.eu/es/campos-de-golf/espana/ciudades/orihuela/"
+   },
+   {
+    "title": "Alicante Plaza (14-8-2025): plan tweede gezondheidscentrum Orihuela Costa met PAC",
+    "url": "https://alicanteplaza.es/alicanteplaza/orihuela1/el-nuevo-centro-de-salud-orihuela-costa-2-parcela-de-12000-metros-y-servicio-de-urgencias"
+   },
+   {
+    "title": "Murcia Today: enige gezondheidscentrum in Aguamarina (Cabo Roig)",
+    "url": "https://murciatoday.com/orihuela-costa-residents-teased-with-details-of-new-health-centre-that-is-years-away-from-opening_1000229871-a.html"
+   },
+   {
+    "title": "Murcia Today (13-3-2026): campagne voor eigen gezondheidszone",
+    "url": "https://m.murciatoday.com/campaigners-demand-orihuela-costa-gets-its-own-health-zone-as-healthcare-pressure-mounts_1000264678-a.html"
+   },
+   {
+    "title": "Ayuntamiento de Orihuela (18-12-2024): noodlokalen colegio nº 20 in PAU-4 Los Dolses",
+    "url": "https://www.orihuela.es/?p=91817"
+   },
+   {
+    "title": "Alicante Plaza (21-11-2025): gemeente biedt grond aan voor CEIP nº 20",
+    "url": "https://alicanteplaza.es/alicanteplaza/orihuela1/orihuela-ofrece-500000-metros-de-suelo-dotacional-en-la-costa-para-acelerar-la-construccion-del-ceip-n-20"
+   },
+   {
+    "title": "Cognita: El Limonar International School Villamartín",
+    "url": "https://www.cognita.com/school/el-limonar-international-school-villamartin/"
+   },
+   {
+    "title": "Murcia Today: carnaval Orihuela Costa in Playa Flamenca",
+    "url": "https://m.murciatoday.com/february-28-orihuela-costa-carnival-returns-to-playa-flamenca_1000262652-a.html"
+   },
+   {
+    "title": "Ayuntamiento de Orihuela: fiestas Virgen de la Asunción in La Zenia (2016)",
+    "url": "https://www.orihuela.es/?p=83047"
+   }
+  ],
+  "coords": [
+   37.933,
+   -0.73
+  ],
+  "sort": 120,
+  "review_notes": "1) BEVOLKING: ca. 30.200 is het gemeentelijk register (eind 2025), geen INE-cijfer; de INE-nomenclátor (losse entiteiten per urbanisatie, 1-1-2025) niet kunnen ophalen en optellen. Aandeel buitenlanders aan de kust niet officieel gevonden ('ruime meerderheid' is afgeleid uit cijfers per nationaliteit). 2) GRENZEN: Los Altos en Los Balcones weggelaten (staan al bij Torrevieja), hoewel het INE ook in Orihuela een kleine entiteit 'Los Balcones y Los Altos' telt; Mil Palmeras weggelaten (strand staat in 2026 bij zowel Orihuela als Pilar met Blauwe Vlag). Extra aliassen (Aguamarina, Las Ramblas, Blue Lagoon, Villacosta, La Florida, Villa Rosa, Lomas de Don Juan, Montezenia, Lagosol, Alameda del Mar) komen uit de INE-entiteitenlijst 2018. 3) SCHOLEN: of colegio nº 20 nu in de noodlokalen in Los Dolses draait en onder welke naam; El Limonar heeft postadres San Miguel de Salinas (Urb. Blue Lagoon) maar ligt bij Villamartín. 4) FEESTEN: Virgen de la Asunción in La Zenia komt uit een bron van 2016; nagaan of het nog zo gevierd wordt en of er een Virgen del Carmen-processie bij Cabo Roig/Campoamor is (niet bevestigd, weggelaten). 5) AFSTANDEN en de locatie van het gezondheidscentrum (Aguamarina) vanaf Playa Flamenca nalopen; wachttoren Cabo Roig en kustpad ter plekke bevestigen."
+ },
+ {
+  "slug": "orihuela-costa",
+  "lang": "en",
+  "town": "Orihuela Costa",
+  "aliases": [
+   "Orihuela Costa",
+   "Orihuela costa",
+   "Playa Flamenca",
+   "La Zenia",
+   "Zenia",
+   "Punta Prima",
+   "Cabo Roig",
+   "Lomas de Cabo Roig",
+   "Los Dolses",
+   "Villamartín",
+   "Villamartin",
+   "Las Filipinas",
+   "Campoamor",
+   "Dehesa de Campoamor",
+   "Lomas de Campoamor",
+   "PAU 26",
+   "El Barranco",
+   "Las Colinas Golf",
+   "Las Colinas Golf Resort",
+   "Aguamarina",
+   "Las Ramblas",
+   "Blue Lagoon",
+   "Villacosta",
+   "La Florida",
+   "Villa Rosa",
+   "Lomas de Don Juan",
+   "Montezenia",
+   "Lagosol",
+   "Alameda del Mar"
+  ],
+  "title": "Living in Orihuela Costa",
+  "lead": "Orihuela Costa is not a municipality in its own right but the 16 km coastal strip of the municipality of Orihuela, whose town lies some 30 km inland. It is a continuous chain of urbanisations between Torrevieja and Pilar de la Horadada, with coves, golf courses and a large shopping centre. Life here is international and well served, but the area gets very busy in summer and healthcare and schools are struggling to keep pace with growth.",
+  "facts": [
+   {
+    "label": "Population",
+    "value": "approx. 30,200 (municipal register, end of 2025)"
+   },
+   {
+    "label": "Municipality",
+    "value": "Orihuela (town approx. 35 km inland)"
+   },
+   {
+    "label": "Foreign residents",
+    "value": "a clear majority; British the largest group (2025)"
+   },
+   {
+    "label": "Coastline",
+    "value": "approx. 16 km, at least nine Blue Flag beaches and coves (2026)"
+   },
+   {
+    "label": "Alicante Airport",
+    "value": "approx. 60 km, 45 min"
+   },
+   {
+    "label": "Nearest hospital",
+    "value": "Hospital Universitario de Torrevieja, approx. 12 km"
+   }
+  ],
+  "sections": [
+   {
+    "key": "housing",
+    "heading": "Housing",
+    "html": "<p>Orihuela Costa is made up of dozens of urbanisations built from the 1960s onwards, most of them after 1990. There is no real village centre; daily life revolves around the N-332, Zenia Boulevard and the small squares in each area.</p><ul><li><strong>Punta Prima, Playa Flamenca, La Zenia and Cabo Roig</strong> are on or near the sea: lots of flats, bungalows and townhouses, often on complexes with a communal pool.</li><li><strong>Dehesa de Campoamor</strong> is older and more spacious, with villas on larger plots and a marina.</li><li><strong>Los Dolses, Villamartín, Las Filipinas, Lomas de Cabo Roig and Lomas de Campoamor</strong> lie inland around the golf courses, with linked houses, flats and villas.</li><li><strong>PAU 26, El Barranco and Las Colinas Golf</strong> are newer areas with plenty of new builds; Las Colinas is a gated golf resort with villas and apartments.</li></ul><p>Many properties are let as holiday homes, so the atmosphere varies a great deal by complex and by season.</p>"
+   },
+   {
+    "key": "work",
+    "heading": "Work and economy",
+    "html": "<p>The local economy depends almost entirely on tourism and housing: hospitality, retail, property, construction, garden and pool maintenance, rentals and the golf courses. Zenia Boulevard is one of the largest employers in the area.</p><p>With so many residents from abroad, English and other languages are an advantage in many jobs. Much of the work is seasonal, however, and wages in tourism and retail are modest. For office, industrial or public-sector jobs people usually commute to Torrevieja, Orihuela, Murcia, Elche or Alicante. Remote working is common; check which fibre connection is available at a given address, as this differs between urbanisations.</p>"
+   },
+   {
+    "key": "population",
+    "heading": "Population",
+    "html": "<p>According to Orihuela council's own register, around 30,200 people were registered on the coast at the end of 2025, about 8% more than a year earlier. That makes Orihuela Costa roughly the same size as the town of Orihuela itself and the fastest-growing part of the municipality. The INE does not count the coast as a single settlement but as dozens of separate urbanisations.</p><p>British nationals form the largest group, ahead of Spaniards and Ukrainians; there are also many Moroccans, Russians, Colombians and northern and western Europeans, including Scandinavians, Belgians and Dutch. Some only live here in winter or summer. In high season the real number of people on the coast is therefore several times higher than the register shows.</p>"
+   },
+   {
+    "key": "education",
+    "heading": "Schools and education",
+    "html": "<p>State provision is tight for such a fast-growing area. There are two permanent state primary schools, <strong>CEIP Playas de Orihuela</strong> and <strong>CEIP Los Dolses</strong>. To ease the pressure, a third school (known as colegio nº 20) started in temporary classrooms in Los Dolses; at the end of 2025 the council was still looking for land for a permanent building. There is one state secondary school: <strong>IES Playa Flamenca</strong>. Teaching is in Spanish, with Valencian as a subject.</p><p>In the private sector there is <strong>El Limonar International School Villamartín</strong> (part of Cognita), on the edge of Villamartín near Blue Lagoon. It follows the English curriculum for pupils aged 3 to 18, with the option of the Spanish bachillerato. More international and private schools can be found around Torrevieja and San Miguel de Salinas.</p>"
+   },
+   {
+    "key": "distances",
+    "heading": "Distances from the centre (Playa Flamenca)",
+    "rows": [
+     [
+      "Supermarket",
+      "approx. 1 km"
+     ],
+     [
+      "Health centre (Aguamarina)",
+      "approx. 5 km, 8 min"
+     ],
+     [
+      "Pharmacy",
+      "approx. 1 km"
+     ],
+     [
+      "Primary school",
+      "approx. 2 km"
+     ],
+     [
+      "Beach (Playa Flamenca)",
+      "approx. 1 km"
+     ],
+     [
+      "Golf course (Villamartín)",
+      "approx. 4 km, 8 min"
+     ],
+     [
+      "Hospital (Hospital Universitario de Torrevieja)",
+      "approx. 12 km, 15 min"
+     ],
+     [
+      "Torrevieja",
+      "approx. 10 km, 15 min"
+     ],
+     [
+      "Orihuela (town, town hall)",
+      "approx. 35 km, 30 min"
+     ],
+     [
+      "Alicante (city)",
+      "approx. 65 km, 50 min"
+     ],
+     [
+      "Alicante-Elche Airport",
+      "approx. 60 km, 45 min"
+     ],
+     [
+      "Murcia Airport (Corvera)",
+      "approx. 55 km, 40 min"
+     ]
+    ]
+   },
+   {
+    "key": "shops",
+    "heading": "Shops and markets",
+    "html": "<p><strong>Zenia Boulevard</strong>, opened in September 2012, has around 150 shops and dozens of restaurants, making it one of the largest shopping centres in the province of Alicante. It draws visitors from across the region and brings heavy traffic to the surrounding roads at weekends and in summer.</p><ul><li><strong>Playa Flamenca/La Zenia weekly market</strong>: Saturday mornings (roughly 8am to 2pm) on Calle Nicolás de Bussi, with stalls stretching for over a kilometre.</li><li><strong>Campoamor/Cabo Roig weekly market</strong>: Thursday mornings on Calle Fuego, Aguamarina.</li></ul><p>Almost every urbanisation also has a supermarket or a small commercial centre with a baker, pharmacy and bars. The large supermarket chains are along the N-332 and near Zenia Boulevard. For a covered fresh food market or specialist shops, head to Torrevieja.</p>"
+   },
+   {
+    "key": "culture",
+    "heading": "Culture and sights",
+    "html": "<p>Orihuela Costa is a fairly young residential area with few historic monuments. A handful of old watchtowers still stand along the coast, including one near Cabo Roig, and the marinas at Cabo Roig and Campoamor are pleasant places for a stroll or a meal. Dehesa de Campoamor takes its name from the nineteenth-century poet Ramón de Campoamor.</p><p>For culture in the traditional sense, drive to the town of Orihuela, about half an hour inland. There you will find a cathedral, the former university building Colegio de Santo Domingo, churches, museums and the birthplace of the poet Miguel Hernández. Council matters that cannot be handled on the coast are also dealt with there. Torrevieja is closer for theatre, concerts and museums.</p>"
+   },
+   {
+    "key": "festivals",
+    "heading": "Local festivals",
+    "rows": [
+     [
+      "Orihuela Costa Carnival",
+      "late February or early March",
+      "A parade of costumed dance troupes through Playa Flamenca, with music and street food."
+     ],
+     [
+      "Virgen de la Asunción (La Zenia)",
+      "around 15 August",
+      "Mass, a procession carrying the statue of the Virgin to La Zenia beach, and fireworks."
+     ],
+     [
+      "Mercado Medieval (Orihuela town)",
+      "late January or early February",
+      "A large medieval market in the historic centre of Orihuela."
+     ],
+     [
+      "Semana Santa (Orihuela town)",
+      "March or April",
+      "Processions through the old town; one of the best-known Holy Weeks in the region."
+     ],
+     [
+      "Moros y Cristianos (Orihuela town)",
+      "second half of July",
+      "Parades of Moorish and Christian troupes commemorating the reconquest of the town."
+     ]
+    ]
+   },
+   {
+    "key": "health",
+    "heading": "Healthcare",
+    "html": "<p>For GP and nursing care there is one public health centre, the <strong>Centro de Salud Orihuela Costa</strong> in Aguamarina near Cabo Roig. It belongs to the Torrevieja health department and is too small for the number of residents; people often travel elsewhere for tests, specialists and rehabilitation. A second centre with an urgent care point (PAC) is planned in Villa Rosa, but there is no opening date yet. Residents' groups are also campaigning for the coast to become a health zone of its own.</p><p>The nearest public hospital is <strong>Hospital Universitario de Torrevieja</strong>, approx. 12 km or a quarter of an hour by car. On the coast itself there are plenty of pharmacies, dentists and private clinics, often with English-speaking staff. Register on the padrón and apply for a SIP card to access public healthcare.</p>"
+   },
+   {
+    "key": "outdoor",
+    "heading": "Outdoor leisure",
+    "html": "<p>The coastline consists of short sandy beaches and small coves between low rocks. In 2026 Punta Prima, Cala Cerrada, Cala Capitán, La Zenia-Cala Bosque, Cabo Roig-La Caleta, Barranco Rubio, Aguamarina and Campoamor-La Glea were among those flying a Blue Flag. A coastal path links several of the coves and is good for walking or running.</p><ul><li>Four 18-hole golf courses: <strong>Villamartín, Las Ramblas, Real Club de Golf Campoamor and Las Colinas Golf</strong>.</li><li>Sailing, diving and paddleboarding from the marinas at Cabo Roig and Campoamor.</li><li>Padel and tennis at the golf clubs and sports grounds.</li></ul><p>In July and August the beaches and car parks are very crowded and it is hot; spring and autumn are ideal for being outdoors.</p>"
+   },
+   {
+    "key": "indoor",
+    "heading": "Indoor leisure",
+    "html": "<p>Zenia Boulevard is the main place for indoor activities: shopping, eating out and a trampoline park for children. There are also gyms, yoga and dance classes, and many clubs and associations run by and for international residents, from bridge to choirs.</p><p>Bars and restaurants are plentiful, especially around the square in Villamartín, Playa Flamenca and the Cabo Roig marina. For cinema, theatre and museums, people usually go to Torrevieja or the town of Orihuela. Outside the high season some businesses in the most touristy urbanisations open shorter hours or close for a while.</p>"
+   }
+  ],
+  "photos": [
+   {
+    "path": "towns/orihuela-costa/1.jpg",
+    "author": "Ximonic (Simo Räsänen)",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Beach_in_Cala_Capitán_in_Cabo_Roig_in_Orihuela_Costa,_Orihuela,_Alicante,_Spain,_2022_January.jpg",
+    "alt": "Cala Capitán beach at Cabo Roig"
+   },
+   {
+    "path": "towns/orihuela-costa/2.jpg",
+    "author": "Ximonic (Simo Räsänen)",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Coastal_walking_path_in_Cabo_Roig_in_Orihuela_Costa,_Orihuela,_Alicante,_Spain,_2022_January.jpg",
+    "alt": "The coastal path at Cabo Roig"
+   },
+   {
+    "path": "towns/orihuela-costa/3.jpg",
+    "author": "Kent Wang",
+    "license": "CC BY-SA 2.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:La_Zenia_Boulevard_(49287363646).jpg",
+    "alt": "La Zenia Boulevard shopping centre"
+   }
+  ],
+  "sources": [
+   {
+    "title": "Alicante Plaza (15-1-2026): padrón Orihuela eind 2025, Orihuela Costa 30.171 inwoners",
+    "url": "https://alicanteplaza.es/alicanteplaza/orihuela1/orihuela-cierra-2025-rozando-los-89000-habitantes-crece-un-37-con-la-costa-como-motor"
+   },
+   {
+    "title": "Murcia Today (16-1-2026): Britten grootste groep in Orihuela Costa",
+    "url": "https://m.murciatoday.com/orihuela-costa-drives-population-boom-as-british-remain-largest-foreign-group_1000256516-a.html?region=65"
+   },
+   {
+    "title": "Murcia Today (15-1-2025): Orihuela Costa 27.929 inwoners eind 2024, nationaliteiten",
+    "url": "https://m.murciatoday.com/orihuela-costa-the-driving-force-behind-population-growth-in-the-municipality_1000182706-a.html"
+   },
+   {
+    "title": "Hispanopedia/Wikipedia ES: Orihuela Costa (INE-entiteiten 2018, stranden, scholen)",
+    "url": "https://es.hispanopedia.com/wiki/Orihuela_Costa"
+   },
+   {
+    "title": "Support in Spain: gemeentekantoor Orihuela Costa, Plaza del Oriol 1, Playa Flamenca",
+    "url": "https://www.supportinspain.info/?p=13341"
+   },
+   {
+    "title": "Valencia Bonita (5-5-2026): Blauwe Vlaggen Comunitat Valenciana 2026",
+    "url": "https://www.valenciabonita.es/2026/05/05/banderas-azules-comunitat-valenciana-2026/"
+   },
+   {
+    "title": "El Español (6-5-2026): Orihuela, Blauwe Vlaggen en 16 km kust",
+    "url": "https://www.elespanol.com/alacant/viure/20260506/pueblo-alicante-banderas-azules-playas-km-costa-conjunto-historico-artistico-trt/1003744235442_0.html"
+   },
+   {
+    "title": "Mercadillos.org: markt Playa Flamenca en La Zenia (zaterdag)",
+    "url": "https://mercadillos.org/es/orihuela-costa/mercadillo-playa-flamenca"
+   },
+   {
+    "title": "Mercadillos.org: markt Campoamor / Cabo Roig (donderdag)",
+    "url": "https://mercadillos.org/es/orihuela-costa/mercadillo-campoamor"
+   },
+   {
+    "title": "Alicante Plaza: Zenia Boulevard zes jaar open (sinds september 2012)",
+    "url": "https://alicanteplaza.es/zenia-boulevard-celebra-seis-anos-de-apertura-con-planes-de-nuevas-incorporaciones"
+   },
+   {
+    "title": "1golf.eu: golfbanen in Orihuela",
+    "url": "https://www.1golf.eu/es/campos-de-golf/espana/ciudades/orihuela/"
+   },
+   {
+    "title": "Alicante Plaza (14-8-2025): plan tweede gezondheidscentrum Orihuela Costa met PAC",
+    "url": "https://alicanteplaza.es/alicanteplaza/orihuela1/el-nuevo-centro-de-salud-orihuela-costa-2-parcela-de-12000-metros-y-servicio-de-urgencias"
+   },
+   {
+    "title": "Murcia Today: enige gezondheidscentrum in Aguamarina (Cabo Roig)",
+    "url": "https://murciatoday.com/orihuela-costa-residents-teased-with-details-of-new-health-centre-that-is-years-away-from-opening_1000229871-a.html"
+   },
+   {
+    "title": "Murcia Today (13-3-2026): campagne voor eigen gezondheidszone",
+    "url": "https://m.murciatoday.com/campaigners-demand-orihuela-costa-gets-its-own-health-zone-as-healthcare-pressure-mounts_1000264678-a.html"
+   },
+   {
+    "title": "Ayuntamiento de Orihuela (18-12-2024): noodlokalen colegio nº 20 in PAU-4 Los Dolses",
+    "url": "https://www.orihuela.es/?p=91817"
+   },
+   {
+    "title": "Alicante Plaza (21-11-2025): gemeente biedt grond aan voor CEIP nº 20",
+    "url": "https://alicanteplaza.es/alicanteplaza/orihuela1/orihuela-ofrece-500000-metros-de-suelo-dotacional-en-la-costa-para-acelerar-la-construccion-del-ceip-n-20"
+   },
+   {
+    "title": "Cognita: El Limonar International School Villamartín",
+    "url": "https://www.cognita.com/school/el-limonar-international-school-villamartin/"
+   },
+   {
+    "title": "Murcia Today: carnaval Orihuela Costa in Playa Flamenca",
+    "url": "https://m.murciatoday.com/february-28-orihuela-costa-carnival-returns-to-playa-flamenca_1000262652-a.html"
+   },
+   {
+    "title": "Ayuntamiento de Orihuela: fiestas Virgen de la Asunción in La Zenia (2016)",
+    "url": "https://www.orihuela.es/?p=83047"
+   }
+  ],
+  "coords": [
+   37.933,
+   -0.73
+  ],
+  "sort": 120,
+  "review_notes": "1) BEVOLKING: ca. 30.200 is het gemeentelijk register (eind 2025), geen INE-cijfer; de INE-nomenclátor (losse entiteiten per urbanisatie, 1-1-2025) niet kunnen ophalen en optellen. Aandeel buitenlanders aan de kust niet officieel gevonden ('ruime meerderheid' is afgeleid uit cijfers per nationaliteit). 2) GRENZEN: Los Altos en Los Balcones weggelaten (staan al bij Torrevieja), hoewel het INE ook in Orihuela een kleine entiteit 'Los Balcones y Los Altos' telt; Mil Palmeras weggelaten (strand staat in 2026 bij zowel Orihuela als Pilar met Blauwe Vlag). Extra aliassen (Aguamarina, Las Ramblas, Blue Lagoon, Villacosta, La Florida, Villa Rosa, Lomas de Don Juan, Montezenia, Lagosol, Alameda del Mar) komen uit de INE-entiteitenlijst 2018. 3) SCHOLEN: of colegio nº 20 nu in de noodlokalen in Los Dolses draait en onder welke naam; El Limonar heeft postadres San Miguel de Salinas (Urb. Blue Lagoon) maar ligt bij Villamartín. 4) FEESTEN: Virgen de la Asunción in La Zenia komt uit een bron van 2016; nagaan of het nog zo gevierd wordt en of er een Virgen del Carmen-processie bij Cabo Roig/Campoamor is (niet bevestigd, weggelaten). 5) AFSTANDEN en de locatie van het gezondheidscentrum (Aguamarina) vanaf Playa Flamenca nalopen; wachttoren Cabo Roig en kustpad ter plekke bevestigen."
+ },
+ {
+  "slug": "san-miguel-de-salinas",
+  "lang": "nl",
+  "town": "San Miguel de Salinas",
+  "aliases": [
+   "San Miguel",
+   "Cerro Del Sol",
+   "La Cañada",
+   "Ciudad De Las Comunicaciones",
+   "Blue Lagoon",
+   "Las Filipinas",
+   "Lomas del Golf",
+   "Blue Hill",
+   "Eagles Nest",
+   "El Galán",
+   "Aldea del Monte",
+   "Balcón de la Costa Blanca",
+   "Mirador del Mediterráneo",
+   "Lakeview Mansions",
+   "Lo Rufete"
+  ],
+  "title": "Wonen in San Miguel de Salinas",
+  "lead": "San Miguel de Salinas is een heuveldorp in het zuiden van de Vega Baja, met uitzicht over de roze zoutlagune van Torrevieja. Rond de oude kern liggen veel urbanisaties waar een groot deel van de inwoners uit het buitenland komt. De kust ligt op een kwartier rijden, de natuur van de Sierra Escalona begint bijna achter de deur.",
+  "facts": [
+   {
+    "label": "Inwoners",
+    "value": "ca. 7.000 (INE, 2024)"
+   },
+   {
+    "label": "Buiten Spanje geboren",
+    "value": "ca. 54% (2022), vooral Britten"
+   },
+   {
+    "label": "Oppervlakte",
+    "value": "ca. 55 km²"
+   },
+   {
+    "label": "Afstand tot zee",
+    "value": "ca. 12 km (Torrevieja of Orihuela Costa)"
+   },
+   {
+    "label": "Luchthaven Alicante",
+    "value": "ca. 55 km, 40 min"
+   },
+   {
+    "label": "Dichtstbijzijnd ziekenhuis",
+    "value": "Hospital Universitario de Torrevieja, ca. 9 km"
+   },
+   {
+    "label": "Zelfstandige gemeente sinds",
+    "value": "1836 (daarvoor deel van Orihuela)"
+   }
+  ],
+  "sections": [
+   {
+    "key": "housing",
+    "heading": "Wonen en huisvesting",
+    "html": "<p>De gemeente bestaat uit twee werelden. In het dorp zelf, door makelaars vaak <strong>Pueblo</strong> genoemd, woon je in dorpshuizen, rijtjeshuizen en kleine appartementencomplexen, met winkels, scholen en het gezondheidscentrum op loopafstand. De laatste jaren zijn aan de randen van het dorp ook nieuwbouwprojecten verrezen.</p><p>Daaromheen liggen de urbanisaties, elk met een eigen karakter:</p><ul><li><strong>Cerro del Sol</strong> en <strong>La Cañada</strong>: rustige wijken vlak bij het dorp, met bungalows, geschakelde woningen en vrijstaande villa's, vaak met gemeenschappelijk zwembad</li><li><strong>Ciudad de las Comunicaciones</strong>: ruim opgezette villawijk ten zuiden van het dorp</li><li><strong>Blue Lagoon</strong> en <strong>Las Filipinas</strong>: aan de kant van Villamartín, met appartementen, bungalows en villa's dicht bij golf en winkels</li><li>Kleinere wijken zoals Lomas del Golf, Balcón de la Costa Blanca, Mirador del Mediterráneo en Eagles Nest</li></ul><p>Let op: Villamartín, Las Colinas, Las Ramblas en Vistabella liggen net over de grens, in de gemeente Orihuela. In de urbanisaties ben je voor bijna alles op de auto aangewezen.</p>"
+   },
+   {
+    "key": "work",
+    "heading": "Werk en economie",
+    "html": "<p>Van oudsher draait San Miguel de Salinas op landbouw, en in het buitengebied zie je nog altijd citrusboomgaarden en akkers. Sinds de bouwgolf van de jaren negentig en tweeduizend zijn bouw, onderhoud van woningen en tuinen, vastgoed en dienstverlening voor de vele buitenlandse bewoners belangrijke werkgevers geworden.</p><p>Het grootste deel van het werk in horeca, zorg, onderwijs en handel vind je in Torrevieja, aan de kust van Orihuela Costa of bij de golfresorts in de omgeving. De internationale scholen in de gemeente bieden daarnaast werk voor Engelstalige docenten. Openbaar vervoer is beperkt, dus reken op dagelijks pendelen met de auto. Voor thuiswerkers is het rustig wonen; controleer wel per adres de glasvezeldekking, want die verschilt tussen dorp en urbanisaties.</p>"
+   },
+   {
+    "key": "population",
+    "heading": "Bevolking",
+    "html": "<p>Volgens het INE telde San Miguel de Salinas op 1 januari 2024 bijna 7.000 inwoners. Na een dip rond 2017 groeit het aantal weer elk jaar. Het werkelijke aantal mensen dat er woont ligt volgens de gemeente flink hoger, omdat lang niet iedereen zich inschrijft in het padrón.</p><p>San Miguel is een van de meest internationale gemeenten van de regio. In 2022 was ruim de helft van de inwoners in het buitenland geboren, met de Britten als verreweg grootste groep, gevolgd door Duitsers en Marokkanen. De Noord-Europeanen wonen vooral in de urbanisaties; in het dorp zelf overheerst het Spaanse dagelijks leven, met een actieve muziekvereniging en veel familiebanden. Inschrijven in het padrón loont, want het bepaalt mee hoeveel artsen en voorzieningen de gemeente krijgt.</p>"
+   },
+   {
+    "key": "education",
+    "heading": "Scholen en onderwijs",
+    "html": "<p>Voor een gemeente van deze omvang is de keuze groot, vooral door twee internationale privéscholen.</p><ul><li><strong>Escuela Infantil Maestro Enrique</strong>: openbare kinderopvang voor de jongste kinderen; daarnaast zijn er particuliere kinderdagverblijven</li><li><strong>CEIP Gloria Fuertes</strong>: openbare kleuter- en basisschool in het dorp</li><li><strong>IES Los Alcores</strong>: openbare middelbare school</li><li><strong>El Limonar International School Villamartín</strong>: Britse privéschool voor 3 tot 18 jaar, in urbanisatie Blue Lagoon</li><li><strong>Phoenix International School</strong>: privéschool met Engels als voertaal, van kleuter tot bachillerato</li><li>Gemeentelijk centrum voor volwassenenonderwijs</li></ul><p>Op de openbare scholen is Spaans de voertaal, met Valenciaans en Engels als vakken. Kinderen die jong instromen, pikken het Spaans meestal snel op.</p>"
+   },
+   {
+    "key": "distances",
+    "heading": "Afstanden vanaf het centrum",
+    "rows": [
+     [
+      "Supermarkt",
+      "in het dorp, ca. 0,5 km"
+     ],
+     [
+      "Gezondheidscentrum San Miguel de Salinas",
+      "in het dorp, ca. 0,5 km"
+     ],
+     [
+      "Apotheek",
+      "ca. 0,3 km"
+     ],
+     [
+      "Basisschool (CEIP Gloria Fuertes)",
+      "ca. 0,5 km"
+     ],
+     [
+      "Middelbare school (IES Los Alcores)",
+      "ca. 1 km"
+     ],
+     [
+      "Strand (Torrevieja of La Zenia)",
+      "ca. 12 tot 14 km, 15 min"
+     ],
+     [
+      "Golfbaan (Villamartín, Las Ramblas, Las Colinas)",
+      "ca. 5 tot 9 km, 8 tot 12 min"
+     ],
+     [
+      "Ziekenhuis (Hospital Universitario de Torrevieja)",
+      "ca. 9 km, 12 min"
+     ],
+     [
+      "Torrevieja (centrum)",
+      "ca. 13 km, 15 min"
+     ],
+     [
+      "Orihuela",
+      "ca. 30 km, 30 min"
+     ],
+     [
+      "Alicante (stad)",
+      "ca. 65 km, 45 min"
+     ],
+     [
+      "Luchthaven Alicante-Elche",
+      "ca. 55 km, 40 min"
+     ],
+     [
+      "Luchthaven Murcia (Corvera)",
+      "ca. 55 km, 40 min"
+     ]
+    ]
+   },
+   {
+    "key": "shops",
+    "heading": "Winkels en markten",
+    "html": "<p>In het dorp vind je de dagelijkse voorzieningen: supermarkten, bakkers, slagers, apotheken, banken en een reeks cafés en restaurants rond het centrum. Ook in en bij de grotere urbanisaties, zoals Blue Lagoon, zijn kleine winkelcentra met supermarkt en horeca.</p><p>Op <strong>woensdagochtend</strong> is er een grote weekmarkt in de Calle Juan XXIII, met ruim honderd kramen. Je koopt er groente, fruit, olijven, kleding en huishoudspullen.</p><p>In de omgeving zijn nog meer markten, onder meer op vrijdagmiddag in Los Montesinos en op zaterdag in Playa Flamenca. Voor winkelcentra, bouwmarkten en grote ketens rijd je naar Torrevieja of naar La Zenia aan de kust van Orihuela Costa, beide op een kwartier.</p>"
+   },
+   {
+    "key": "culture",
+    "heading": "Cultuur en bezienswaardigheden",
+    "html": "<p>De geschiedenis van San Miguel gaat terug tot een kleine nederzetting rond 1600, al zijn in de omgeving ook oudere sporen gevonden. Het dorp kreeg in 1813 voor het eerst een eigen bestuur, raakte dat een paar keer kwijt en werd in 1836 definitief zelfstandig van Orihuela. De aardbeving van 1829 legde het dorp grotendeels in puin.</p><ul><li><strong>Iglesia Parroquial de San Miguel Arcángel</strong>, de parochiekerk uit het begin van de 18e eeuw, met een beschermde status</li><li>Archeologische resten bij <strong>La Zahurda</strong></li><li><strong>Los Alcores</strong>, een landschap van zandsteenrichels ten westen van het dorp</li><li>Oude landhuizen zoals Casa Lo Meca en Casas Nuevas in het buitengebied</li></ul><p>Vanaf de hoger gelegen delen van het dorp kijk je uit over de zoutlagune van Torrevieja, vooral mooi bij zonsondergang.</p>"
+   },
+   {
+    "key": "festivals",
+    "heading": "Lokale feesten",
+    "rows": [
+     [
+      "Carnaval",
+      "februari of maart",
+      "Optocht met praalwagens en verkleedwedstrijd door het dorp."
+     ],
+     [
+      "Semana Santa",
+      "week voor Pasen",
+      "Processies met onder meer een opvoering van het lijdensverhaal en een Romeinse centuria."
+     ],
+     [
+      "Fiestas Patronales San Miguel Arcángel",
+      "tweede helft september, hoogtepunt 29 september",
+      "Het belangrijkste feest: optochten, muziek, buurtdiners, een kindervuurwerk en de processie op de dag van de patroonheilige; het programma loopt door tot rond 7 oktober (Virgen del Rosario)."
+     ],
+     [
+      "Santa Cecilia",
+      "rond 22 november",
+      "De muziekvereniging viert haar patroonheilige met concerten en een optocht waarbij nieuwe muzikanten worden voorgesteld."
+     ]
+    ]
+   },
+   {
+    "key": "health",
+    "heading": "Gezondheidszorg",
+    "html": "<p>In het dorp zit het <strong>gezondheidscentrum van San Miguel de Salinas</strong>, het centrum van een zorgzone binnen het Departamento de Salud de Torrevieja. Het bedient naast San Miguel ook Los Montesinos, Torremendo en Entrenaranjos. Je schrijft je hier in voor de huisarts, de kinderarts en de verpleegkundige.</p><p>Eerlijk is eerlijk: het centrum is druk. Officieel valt het onder ca. 15.500 inwoners, maar in werkelijkheid wonen er veel meer mensen, en in 2025 nam het aantal consulten sterk toe. Een uitbreiding staat al langer op de agenda.</p><p>Voor röntgenfoto's, specialisten, revalidatie en spoedeisende hulp ga je naar het <strong>Hospital Universitario de Torrevieja</strong>, ca. 9 km en een kwartier rijden. Apotheken zijn er in het dorp en bij de grote urbanisaties.</p>"
+   },
+   {
+    "key": "outdoor",
+    "heading": "Buiten ontspannen",
+    "html": "<p>Wie van wandelen of fietsen houdt, zit hier goed. Ten zuiden en westen van het dorp ligt de <strong>Sierra Escalona</strong>, een beschermd heuvelgebied met dennenbossen, ravijnen en zeldzame roofvogels zoals de havikarend. Het gebied valt deels onder San Miguel, deels onder Orihuela en Pilar de la Horadada.</p><ul><li>Wandel- en fietsroutes door Los Alcores en de Sierra Escalona</li><li>De zoutlagune van Torrevieja met zijn roze kleur en flamingo's, op korte afstand</li><li>Golfbanen in Villamartín, Las Ramblas, Las Colinas en Vistabella, alle binnen ca. 10 km</li><li>Stranden en boulevards van Torrevieja en Orihuela Costa op een kwartier</li></ul><p>In juli en augustus is het overdag erg heet; plan wandelingen dan vroeg in de ochtend.</p>"
+   },
+   {
+    "key": "indoor",
+    "heading": "Binnen ontspannen",
+    "html": "<p>Het culturele leven in het dorp draait om de <strong>Casa de Cultura</strong> aan de Plaza Jaime I en de gemeentelijke bibliotheek. Er zijn voorstellingen, exposities en cursussen, en de muziekvereniging geeft regelmatig concerten. De gemeente heeft ook een eigen lokale radiozender.</p><p>Sportief binnen bezig zijn kan in de gemeentelijke sportvoorzieningen; in de urbanisaties zijn daarnaast particuliere sportscholen en clubs, vaak met Engelstalige lessen. Veel buitenlandse bewoners zijn actief in verenigingen rond kaarten, quiz, dans of vrijwilligerswerk.</p><p>Voor bioscoop, grotere winkelcentra, theater en een breder horeca-aanbod rijd je naar Torrevieja of La Zenia aan de kust. Op regenachtige dagen, die hier zeldzaam zijn, is dat de logische uitvlucht.</p>"
+   }
+  ],
+  "photos": [
+   {
+    "path": "towns/san-miguel-de-salinas/1.jpg",
+    "author": "Ximonic (Simo Räsänen)",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Plaza_de_la_Libertad_and_Parroquia_de_San_Miguel_Arcángel_in_San_Miguel_de_Salinas,_Alicante,_Spain,_2025_February.jpg",
+    "alt": "Plaza de la Libertad met de parochiekerk"
+   },
+   {
+    "path": "towns/san-miguel-de-salinas/2.jpg",
+    "author": "Ximonic (Simo Räsänen)",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Castillo_de_San_Miguel_in_San_Miguel_de_Salinas,_Alicante,_Spain,_2025_February.jpg",
+    "alt": "Het Castillo de San Miguel"
+   },
+   {
+    "path": "towns/san-miguel-de-salinas/3.jpg",
+    "author": "19Tarrestnom65",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Vista_general_de_San_Miguel_de_Salinas.jpg",
+    "alt": "Zicht op San Miguel de Salinas"
+   }
+  ],
+  "sources": [
+   {
+    "title": "Wikipedia (ES): San Miguel de Salinas (geschiedenis, urbanisaties, feesten)",
+    "url": "https://es.wikipedia.org/wiki/San_Miguel_de_Salinas"
+   },
+   {
+    "title": "Wikipedia (EN): San Miguel de Salinas (INE 1 jan 2024, oppervlakte)",
+    "url": "https://en.wikipedia.org/wiki/San_Miguel_de_Salinas"
+   },
+   {
+    "title": "Foro-ciudad: bevolking San Miguel de Salinas (INE-reeks, geboorteland 2022)",
+    "url": "https://www.foro-ciudad.com/alicante/san-miguel-de-salinas/habitantes.html"
+   },
+   {
+    "title": "Ayuntamiento de San Miguel de Salinas, fiestas",
+    "url": "https://www.sanmigueldesalinas.es/category/festivities/"
+   },
+   {
+    "title": "Ayuntamiento de San Miguel de Salinas, gemeentelijke voorzieningen",
+    "url": "https://www.sanmigueldesalinas.es/city-hall/government-equipment/"
+   },
+   {
+    "title": "Festivales de España: Fiestas Patronales San Miguel Arcángel 2025",
+    "url": "https://www.festivalesdeespana.com/festival/fiestas-patronales-san-miguel-arcangel-san-miguel-salinas/2025"
+   },
+   {
+    "title": "Mercadillos.org: mercadillo de San Miguel de Salinas",
+    "url": "https://mercadillos.org/es/san-miguel-de-salinas/mercadillo-san-miguel-de-salinas"
+   },
+   {
+    "title": "Micole: scholen in San Miguel de Salinas",
+    "url": "https://www.micole.net/buscador/alicante-san-miguel-de-salinas"
+   },
+   {
+    "title": "Micole: Phoenix International School",
+    "url": "https://www.micole.net/alicante/san-miguel-de-salinas/colegio-phoenix-international-school"
+   },
+   {
+    "title": "International Schools Search: El Limonar International School Villamartín (Urb. Blue Lagoon)",
+    "url": "https://www.internationalschoolsearch.com/listing/el-limonar-international-school-elis-villamartin-spain"
+   },
+   {
+    "title": "Alicante Plaza: zona básica de salud San Miguel de Salinas (mei 2025)",
+    "url": "https://alicanteplaza.es/alicanteplaza/orihuela1/san-miguel-de-salinas-se-concentra-por-las-sanidad-hay-un-medico-cada-1900-pacientes"
+   },
+   {
+    "title": "Alicante Plaza: drukte gezondheidscentrum en uitbreiding (mei 2026)",
+    "url": "https://alicanteplaza.es/alicanteplaza/orihuela1/san-miguel-de-salinas-denuncia-un-aumento-del-66-en-las-consultas-sanitarias-mientras-sigue-bloqueada-la-ampliacion-del-centro-de-salud"
+   },
+   {
+    "title": "Valencia Bonita: Sierra Escalona (gemeenten Orihuela, Pilar de la Horadada, San Miguel de Salinas)",
+    "url": "https://www.valenciabonita.es/2018/10/30/sierra-escalona/"
+   },
+   {
+    "title": "Murcia Today: golfbaan Las Ramblas (gemeente Orihuela)",
+    "url": "https://murciatoday.com/club-de-golf-las-ramblas-orihuela_1572290-a.html"
+   }
+  ],
+  "coords": [
+   37.981,
+   -0.79
+  ],
+  "sort": 130,
+  "review_notes": "1) Aliassen: Cerro del Sol en La Cañada komen uit ons aanbod maar zijn niet in een officiële bron als San Miguel bevestigd; Blue Lagoon, Las Filipinas, Ciudad de las Comunicaciones e.a. wel (Wikipedia ES). Las Ramblas, Vistabella, Entrenaranjos, Villamartín en Las Colinas liggen in Orihuela en zijn bewust NIET opgenomen. 2) Inwoners: alleen INE 1-1-2024 (6.976) gevonden; INE 2025 en het actuele buitenlandse aandeel (2022-cijfer, naar geboorteland) nog checken. 3) Scholen: IES Los Alcores (welke niveaus, ligging/afstand) en of Phoenix International School echt in de gemeente ligt (adres Calle Albacete, 03193) en welk curriculum (micole noemt IB). 4) Weekmarkt woensdagochtend Calle Juan XXIII alleen via mercadillos.org; Feria de agosto (eerste week augustus volgens Wikipedia ES) weggelaten, bestaat die nog? 5) Gezondheidscentrum: openingstijden en waar men 's avonds/weekend voor spoed terechtkan (PAC in San Miguel of alleen Torrevieja); wegafstanden zijn schattingen, ook of Sierra Escalona inmiddels formeel natuurpark is (2026)."
+ },
+ {
+  "slug": "san-miguel-de-salinas",
+  "lang": "en",
+  "town": "San Miguel de Salinas",
+  "aliases": [
+   "San Miguel",
+   "Cerro Del Sol",
+   "La Cañada",
+   "Ciudad De Las Comunicaciones",
+   "Blue Lagoon",
+   "Las Filipinas",
+   "Lomas del Golf",
+   "Blue Hill",
+   "Eagles Nest",
+   "El Galán",
+   "Aldea del Monte",
+   "Balcón de la Costa Blanca",
+   "Mirador del Mediterráneo",
+   "Lakeview Mansions",
+   "Lo Rufete"
+  ],
+  "title": "Living in San Miguel de Salinas",
+  "lead": "San Miguel de Salinas is a hilltop town in the south of the Vega Baja, looking out over the pink salt lagoon of Torrevieja. Around the old centre lie many urbanisations where a large share of residents come from abroad. The coast is about a quarter of an hour away, and the countryside of the Sierra Escalona starts almost on the doorstep.",
+  "facts": [
+   {
+    "label": "Population",
+    "value": "approx. 7,000 (INE, 2024)"
+   },
+   {
+    "label": "Born outside Spain",
+    "value": "approx. 54% (2022), mainly British"
+   },
+   {
+    "label": "Area",
+    "value": "approx. 55 km²"
+   },
+   {
+    "label": "Distance to the sea",
+    "value": "approx. 12 km (Torrevieja or Orihuela Costa)"
+   },
+   {
+    "label": "Alicante airport",
+    "value": "approx. 55 km, 40 min"
+   },
+   {
+    "label": "Nearest hospital",
+    "value": "Hospital Universitario de Torrevieja, approx. 9 km"
+   },
+   {
+    "label": "Independent municipality since",
+    "value": "1836 (previously part of Orihuela)"
+   }
+  ],
+  "sections": [
+   {
+    "key": "housing",
+    "heading": "Housing",
+    "html": "<p>The municipality is really two worlds. In the town itself, often called <strong>Pueblo</strong> by estate agents, you live in village houses, terraced homes and small apartment blocks, with shops, schools and the health centre within walking distance. In recent years new developments have also gone up on the edge of town.</p><p>Around it lie the urbanisations, each with its own character:</p><ul><li><strong>Cerro del Sol</strong> and <strong>La Cañada</strong>: quiet areas close to the town, with bungalows, linked houses and detached villas, often with a communal pool</li><li><strong>Ciudad de las Comunicaciones</strong>: a spacious villa area south of the town</li><li><strong>Blue Lagoon</strong> and <strong>Las Filipinas</strong>: on the Villamartín side, with apartments, bungalows and villas close to golf and shops</li><li>Smaller areas such as Lomas del Golf, Balcón de la Costa Blanca, Mirador del Mediterráneo and Eagles Nest</li></ul><p>Note that Villamartín, Las Colinas, Las Ramblas and Vistabella lie just across the boundary, in the municipality of Orihuela. In the urbanisations you will need a car for almost everything.</p>"
+   },
+   {
+    "key": "work",
+    "heading": "Work and economy",
+    "html": "<p>Traditionally San Miguel de Salinas lived from farming, and the countryside still has citrus groves and fields. Since the building boom of the 1990s and 2000s, construction, property and garden maintenance, estate agency and services for the many foreign residents have become major employers.</p><p>Most jobs in hospitality, healthcare, education and retail are in Torrevieja, along the Orihuela Costa or at the golf resorts nearby. The international schools in the municipality also employ English-speaking teachers. Public transport is limited, so expect to commute by car every day. Remote workers will find it peaceful; do check fibre coverage for each address, as it varies between the town and the urbanisations.</p>"
+   },
+   {
+    "key": "population",
+    "heading": "Population",
+    "html": "<p>According to the INE, San Miguel de Salinas had almost 7,000 registered residents on 1 January 2024. After a dip around 2017 the number has risen every year since. The town hall says the real number of people living here is considerably higher, because many residents never register on the padrón.</p><p>San Miguel is one of the most international municipalities in the area. In 2022 just over half of residents had been born abroad, with the British by far the largest group, followed by Germans and Moroccans. Northern Europeans mostly live in the urbanisations, while the town centre keeps a Spanish rhythm, with an active music society and close family ties. Registering on the padrón is worth it, as it helps decide how many doctors and services the town receives.</p>"
+   },
+   {
+    "key": "education",
+    "heading": "Schools and education",
+    "html": "<p>For a municipality of this size there is a wide choice, largely thanks to two international private schools.</p><ul><li><strong>Escuela Infantil Maestro Enrique</strong>: public nursery for the youngest children; there are also private nurseries</li><li><strong>CEIP Gloria Fuertes</strong>: public infant and primary school in the town</li><li><strong>IES Los Alcores</strong>: public secondary school</li><li><strong>El Limonar International School Villamartín</strong>: British private school for ages 3 to 18, in the Blue Lagoon urbanisation</li><li><strong>Phoenix International School</strong>: private school teaching in English, from nursery to bachillerato</li><li>Municipal adult education centre</li></ul><p>State schools teach in Spanish, with Valencian and English as subjects. Children who start young usually pick up Spanish quickly.</p>"
+   },
+   {
+    "key": "distances",
+    "heading": "Distances from the centre",
+    "rows": [
+     [
+      "Supermarket",
+      "in town, approx. 0.5 km"
+     ],
+     [
+      "San Miguel de Salinas health centre",
+      "in town, approx. 0.5 km"
+     ],
+     [
+      "Pharmacy",
+      "approx. 0.3 km"
+     ],
+     [
+      "Primary school (CEIP Gloria Fuertes)",
+      "approx. 0.5 km"
+     ],
+     [
+      "Secondary school (IES Los Alcores)",
+      "approx. 1 km"
+     ],
+     [
+      "Beach (Torrevieja or La Zenia)",
+      "approx. 12 to 14 km, 15 min"
+     ],
+     [
+      "Golf course (Villamartín, Las Ramblas, Las Colinas)",
+      "approx. 5 to 9 km, 8 to 12 min"
+     ],
+     [
+      "Hospital (Hospital Universitario de Torrevieja)",
+      "approx. 9 km, 12 min"
+     ],
+     [
+      "Torrevieja (centre)",
+      "approx. 13 km, 15 min"
+     ],
+     [
+      "Orihuela",
+      "approx. 30 km, 30 min"
+     ],
+     [
+      "Alicante (city)",
+      "approx. 65 km, 45 min"
+     ],
+     [
+      "Alicante-Elche airport",
+      "approx. 55 km, 40 min"
+     ],
+     [
+      "Murcia airport (Corvera)",
+      "approx. 55 km, 40 min"
+     ]
+    ]
+   },
+   {
+    "key": "shops",
+    "heading": "Shops and markets",
+    "html": "<p>The town has everything for daily life: supermarkets, bakeries, butchers, pharmacies, banks and a good number of cafés and restaurants around the centre. The larger urbanisations, such as Blue Lagoon, also have small commercial centres with a supermarket, bars and restaurants.</p><p>On <strong>Wednesday mornings</strong> a large weekly market of more than a hundred stalls is held in Calle Juan XXIII. You can buy fruit and vegetables, olives, clothing and household goods.</p><p>There are more markets nearby, including Friday afternoons in Los Montesinos and Saturdays in Playa Flamenca. For shopping centres, DIY stores and big chains, head to Torrevieja or La Zenia on the Orihuela Costa, both about fifteen minutes away.</p>"
+   },
+   {
+    "key": "culture",
+    "heading": "Culture and sights",
+    "html": "<p>San Miguel's history goes back to a small settlement around 1600, although older traces have been found in the area. The town first gained its own council in 1813, lost it a few times, and became permanently independent of Orihuela in 1836. The earthquake of 1829 left much of the town in ruins.</p><ul><li><strong>Iglesia Parroquial de San Miguel Arcángel</strong>, the parish church from the early 18th century, with protected status</li><li>Archaeological remains at <strong>La Zahurda</strong></li><li><strong>Los Alcores</strong>, a landscape of sandstone ridges west of the town</li><li>Old country houses such as Casa Lo Meca and Casas Nuevas</li></ul><p>From the higher parts of town you look out over the Torrevieja salt lagoon, a lovely sight at sunset.</p>"
+   },
+   {
+    "key": "festivals",
+    "heading": "Local festivals",
+    "rows": [
+     [
+      "Carnival",
+      "February or March",
+      "A parade of floats and a fancy dress competition through the town."
+     ],
+     [
+      "Semana Santa (Holy Week)",
+      "week before Easter",
+      "Processions, including a staging of the Passion and a Roman centurion guard."
+     ],
+     [
+      "Fiestas Patronales San Miguel Arcángel",
+      "second half of September, main day 29 September",
+      "The main festival, with parades, music, neighbourhood dinners, a children's mascletà and the procession on the patron saint's day; the programme runs on to around 7 October (Virgen del Rosario)."
+     ],
+     [
+      "Santa Cecilia",
+      "around 22 November",
+      "The music society celebrates its patron saint with concerts and a parade introducing new musicians."
+     ]
+    ]
+   },
+   {
+    "key": "health",
+    "heading": "Healthcare",
+    "html": "<p>The town has the <strong>San Miguel de Salinas health centre</strong>, the hub of a health zone within the Torrevieja Health Department. Besides San Miguel it serves Los Montesinos, Torremendo and Entrenaranjos. This is where you register with a GP, paediatrician and practice nurse.</p><p>To be honest, the centre is busy. Officially it covers about 15,500 residents, but far more people actually live in the area, and consultations rose sharply in 2025. An extension has been under discussion for some time.</p><p>For X-rays, specialists, rehabilitation and A&amp;E you go to <strong>Hospital Universitario de Torrevieja</strong>, about 9 km or a quarter of an hour by car. There are pharmacies in the town and near the larger urbanisations.</p>"
+   },
+   {
+    "key": "outdoor",
+    "heading": "Outdoor leisure",
+    "html": "<p>If you enjoy walking or cycling, this is a good base. South and west of the town lies the <strong>Sierra Escalona</strong>, a protected range of hills with pine woods, gullies and rare birds of prey such as Bonelli's eagle. The area is shared between San Miguel, Orihuela and Pilar de la Horadada.</p><ul><li>Walking and cycling routes through Los Alcores and the Sierra Escalona</li><li>The pink Torrevieja salt lagoon with its flamingos, a short drive away</li><li>Golf courses at Villamartín, Las Ramblas, Las Colinas and Vistabella, all within about 10 km</li><li>Beaches and promenades of Torrevieja and the Orihuela Costa about fifteen minutes away</li></ul><p>In July and August the daytime heat is intense, so walk early in the morning.</p>"
+   },
+   {
+    "key": "indoor",
+    "heading": "Indoor leisure",
+    "html": "<p>Cultural life in the town centres on the <strong>Casa de Cultura</strong> in Plaza Jaime I and the municipal library. There are performances, exhibitions and courses, and the music society gives regular concerts. The town also has its own local radio station.</p><p>For indoor sport there are municipal sports facilities, and the urbanisations have private gyms and clubs, often with classes in English. Many foreign residents are active in clubs for cards, quizzes, dancing or volunteering.</p><p>For cinema, larger shopping centres, theatre and a wider choice of restaurants, drive to Torrevieja or La Zenia on the coast. On the rare rainy day, that is the obvious escape.</p>"
+   }
+  ],
+  "photos": [
+   {
+    "path": "towns/san-miguel-de-salinas/1.jpg",
+    "author": "Ximonic (Simo Räsänen)",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Plaza_de_la_Libertad_and_Parroquia_de_San_Miguel_Arcángel_in_San_Miguel_de_Salinas,_Alicante,_Spain,_2025_February.jpg",
+    "alt": "Plaza de la Libertad and the parish church"
+   },
+   {
+    "path": "towns/san-miguel-de-salinas/2.jpg",
+    "author": "Ximonic (Simo Räsänen)",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Castillo_de_San_Miguel_in_San_Miguel_de_Salinas,_Alicante,_Spain,_2025_February.jpg",
+    "alt": "The Castillo de San Miguel"
+   },
+   {
+    "path": "towns/san-miguel-de-salinas/3.jpg",
+    "author": "19Tarrestnom65",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Vista_general_de_San_Miguel_de_Salinas.jpg",
+    "alt": "View of San Miguel de Salinas"
+   }
+  ],
+  "sources": [
+   {
+    "title": "Wikipedia (ES): San Miguel de Salinas (geschiedenis, urbanisaties, feesten)",
+    "url": "https://es.wikipedia.org/wiki/San_Miguel_de_Salinas"
+   },
+   {
+    "title": "Wikipedia (EN): San Miguel de Salinas (INE 1 jan 2024, oppervlakte)",
+    "url": "https://en.wikipedia.org/wiki/San_Miguel_de_Salinas"
+   },
+   {
+    "title": "Foro-ciudad: bevolking San Miguel de Salinas (INE-reeks, geboorteland 2022)",
+    "url": "https://www.foro-ciudad.com/alicante/san-miguel-de-salinas/habitantes.html"
+   },
+   {
+    "title": "Ayuntamiento de San Miguel de Salinas, fiestas",
+    "url": "https://www.sanmigueldesalinas.es/category/festivities/"
+   },
+   {
+    "title": "Ayuntamiento de San Miguel de Salinas, gemeentelijke voorzieningen",
+    "url": "https://www.sanmigueldesalinas.es/city-hall/government-equipment/"
+   },
+   {
+    "title": "Festivales de España: Fiestas Patronales San Miguel Arcángel 2025",
+    "url": "https://www.festivalesdeespana.com/festival/fiestas-patronales-san-miguel-arcangel-san-miguel-salinas/2025"
+   },
+   {
+    "title": "Mercadillos.org: mercadillo de San Miguel de Salinas",
+    "url": "https://mercadillos.org/es/san-miguel-de-salinas/mercadillo-san-miguel-de-salinas"
+   },
+   {
+    "title": "Micole: scholen in San Miguel de Salinas",
+    "url": "https://www.micole.net/buscador/alicante-san-miguel-de-salinas"
+   },
+   {
+    "title": "Micole: Phoenix International School",
+    "url": "https://www.micole.net/alicante/san-miguel-de-salinas/colegio-phoenix-international-school"
+   },
+   {
+    "title": "International Schools Search: El Limonar International School Villamartín (Urb. Blue Lagoon)",
+    "url": "https://www.internationalschoolsearch.com/listing/el-limonar-international-school-elis-villamartin-spain"
+   },
+   {
+    "title": "Alicante Plaza: zona básica de salud San Miguel de Salinas (mei 2025)",
+    "url": "https://alicanteplaza.es/alicanteplaza/orihuela1/san-miguel-de-salinas-se-concentra-por-las-sanidad-hay-un-medico-cada-1900-pacientes"
+   },
+   {
+    "title": "Alicante Plaza: drukte gezondheidscentrum en uitbreiding (mei 2026)",
+    "url": "https://alicanteplaza.es/alicanteplaza/orihuela1/san-miguel-de-salinas-denuncia-un-aumento-del-66-en-las-consultas-sanitarias-mientras-sigue-bloqueada-la-ampliacion-del-centro-de-salud"
+   },
+   {
+    "title": "Valencia Bonita: Sierra Escalona (gemeenten Orihuela, Pilar de la Horadada, San Miguel de Salinas)",
+    "url": "https://www.valenciabonita.es/2018/10/30/sierra-escalona/"
+   },
+   {
+    "title": "Murcia Today: golfbaan Las Ramblas (gemeente Orihuela)",
+    "url": "https://murciatoday.com/club-de-golf-las-ramblas-orihuela_1572290-a.html"
+   }
+  ],
+  "coords": [
+   37.981,
+   -0.79
+  ],
+  "sort": 130,
+  "review_notes": "1) Aliassen: Cerro del Sol en La Cañada komen uit ons aanbod maar zijn niet in een officiële bron als San Miguel bevestigd; Blue Lagoon, Las Filipinas, Ciudad de las Comunicaciones e.a. wel (Wikipedia ES). Las Ramblas, Vistabella, Entrenaranjos, Villamartín en Las Colinas liggen in Orihuela en zijn bewust NIET opgenomen. 2) Inwoners: alleen INE 1-1-2024 (6.976) gevonden; INE 2025 en het actuele buitenlandse aandeel (2022-cijfer, naar geboorteland) nog checken. 3) Scholen: IES Los Alcores (welke niveaus, ligging/afstand) en of Phoenix International School echt in de gemeente ligt (adres Calle Albacete, 03193) en welk curriculum (micole noemt IB). 4) Weekmarkt woensdagochtend Calle Juan XXIII alleen via mercadillos.org; Feria de agosto (eerste week augustus volgens Wikipedia ES) weggelaten, bestaat die nog? 5) Gezondheidscentrum: openingstijden en waar men 's avonds/weekend voor spoed terechtkan (PAC in San Miguel of alleen Torrevieja); wegafstanden zijn schattingen, ook of Sierra Escalona inmiddels formeel natuurpark is (2026)."
+ },
+ {
+  "slug": "catral",
+  "lang": "nl",
+  "town": "Catral",
+  "aliases": [
+   "Catral - Country"
+  ],
+  "title": "Wonen in Catral",
+  "lead": "Catral is een agrarisch dorp van ruim 9.000 inwoners in het vlakke land van de Vega Baja, met boomgaarden en moestuinen tot aan de rand van natuurpark El Hondo. Het dorp zelf heeft de voorzieningen voor het dagelijks leven, inclusief een middelbare school en een gezondheidscentrum. Rond het dorp staan veel landelijke woningen en fincas; de kust ligt op ongeveer twintig minuten rijden.",
+  "facts": [
+   {
+    "label": "Inwoners",
+    "value": "ca. 9.400 (INE, 1-1-2024)"
+   },
+   {
+    "label": "In het buitenland geboren",
+    "value": "ca. 25% (2022)"
+   },
+   {
+    "label": "Oppervlakte",
+    "value": "ca. 19 km²"
+   },
+   {
+    "label": "Afstand tot zee",
+    "value": "ca. 20 km (Guardamar del Segura)"
+   },
+   {
+    "label": "Luchthaven Alicante",
+    "value": "ca. 35 km, 30 min"
+   },
+   {
+    "label": "Dichtstbijzijnd ziekenhuis",
+    "value": "Hospital Vega Baja (Orihuela), ca. 12 km"
+   }
+  ],
+  "sections": [
+   {
+    "key": "housing",
+    "heading": "Wonen en huisvesting",
+    "html": "<p>Catral is een langgerekt dorp dat is gegroeid langs een oud irrigatiekanaal en de doorgaande weg. Grote toeristische urbanisaties zoals aan de kust zijn er niet; het woningaanbod valt grofweg in twee delen uiteen.</p><ul><li><strong>Het dorp (pueblo):</strong> traditionele dorpshuizen, vaak met binnenplaats of dakterras, rijtjeshuizen en kleinere appartementencomplexen. Aan de randen staan nieuwere rijtjeshuizen en wat vrijstaande woningen.</li><li><strong>Het buitengebied (campo):</strong> verspreide landhuizen en fincas tussen citrusboomgaarden en groentevelden, vaak met een flink stuk grond. Hier wonen relatief veel Britse en andere Noord-Europese eigenaren.</li></ul><p>Een finca geeft ruimte en rust, maar je bent wel overal op de auto aangewezen. Controleer bij een landelijke woning de legale status van bebouwing en aansluitingen (water, riolering, elektriciteit). De Vega Baja is laag en vlak; vraag ook naar het overstromingsrisico van het perceel, zeker na de zware regenval van 2019.</p>"
+   },
+   {
+    "key": "work",
+    "heading": "Werk en economie",
+    "html": "<p>Landbouw is nog altijd de ruggengraat: citrus, artisjokken, groenten, granen en olijven. Daarnaast heeft Catral twee bedrijventerreinen met onder meer meubelmakers, textiel, bouw, voedingsmiddelen en logistiek. Bij de aansluiting op de AP-7 zit een groot distributiecentrum.</p><p>Wie in loondienst werkt, pendelt vaak naar Elche, Orihuela, Almoradí of Alicante. De ligging dicht bij de AP-7 maakt dat redelijk vlot, maar let op dat dit deel van de snelweg tolplichtig is. Het openbaar vervoer is beperkt tot enkele busverbindingen, dus reken op een eigen auto. Veel buitenlandse bewoners zijn met pensioen of werken op afstand; vraag bij een finca na hoe goed internet er is (glasvezel of alleen via de ether).</p>"
+   },
+   {
+    "key": "population",
+    "heading": "Bevolking",
+    "html": "<p>Catral telde begin 2024 ongeveer 9.400 inwoners, en de bevolking groeit langzaam maar gestaag. Het dorp kocht zich in 1741 los van Orihuela en kreeg toen de titel <strong>villa</strong>. De inwoners heten <strong>catralenses</strong>.</p><p>Ongeveer een kwart van de inwoners is in het buitenland geboren (ca. 25% in 2022). De grootste groepen komen uit het Verenigd Koninkrijk en Marokko, gevolgd door Frankrijk. Veel Britten wonen in het buitengebied, terwijl het dorpsleven zelf duidelijk Spaans is. Met wat Spaans kom je in winkels, op school en bij de gemeente een stuk verder.</p>"
+   },
+   {
+    "key": "education",
+    "heading": "Scholen en onderwijs",
+    "html": "<p>Catral heeft eigen scholen voor alle leeftijden tot 18 jaar:</p><ul><li><strong>CEIP Azorín:</strong> openbare kleuter- en basisschool (3 tot 12 jaar).</li><li><strong>Tweede openbare basisschool:</strong> nieuw gebouwd aan de Avenida Comunitat Valenciana; de naam wordt in het najaar van 2026 gekozen en de school gaat binnenkort open.</li><li><strong>IES Catral:</strong> openbare middelbare school met ESO en bachillerato.</li><li><strong>Kinderopvang:</strong> een gemeentelijke escuela infantil en een particuliere crèche.</li></ul><p>Verder zijn er een conservatorium voor muziek en dans en een muziekschool, en een gemeentelijk centrum voor volwassenenonderwijs. Internationale of Engelstalige scholen zijn er niet in het dorp; daarvoor rijd je richting de kust, Elche of Alicante. Op school leren kinderen naast Spaans ook Valenciaans.</p>"
+   },
+   {
+    "key": "distances",
+    "heading": "Afstanden vanaf het centrum",
+    "rows": [
+     [
+      "Supermarkt",
+      "in het dorp, ca. 0,5–1 km"
+     ],
+     [
+      "Gezondheidscentrum (Centro de Salud Catral)",
+      "in het dorp, ca. 0,5 km"
+     ],
+     [
+      "Apotheek",
+      "in het dorp, ca. 0,5 km"
+     ],
+     [
+      "Basisschool (CEIP Azorín)",
+      "in het dorp, ca. 0,5 km"
+     ],
+     [
+      "Middelbare school (IES Catral)",
+      "in het dorp, ca. 1 km"
+     ],
+     [
+      "Strand (Guardamar)",
+      "ca. 20 km, 20 min"
+     ],
+     [
+      "Golfbaan (La Marquesa, Ciudad Quesada)",
+      "ca. 15 km, 17 min"
+     ],
+     [
+      "Ziekenhuis (Hospital Vega Baja, Orihuela)",
+      "ca. 12 km, 15 min"
+     ],
+     [
+      "Torrevieja",
+      "ca. 30 km, 30 min"
+     ],
+     [
+      "Elche",
+      "ca. 25 km, 25 min"
+     ],
+     [
+      "Alicante (stad)",
+      "ca. 45 km, 35 min"
+     ],
+     [
+      "Luchthaven Alicante-Elche",
+      "ca. 35 km, 30 min"
+     ],
+     [
+      "Luchthaven Murcia (Corvera)",
+      "ca. 75 km, 50 min"
+     ]
+    ]
+   },
+   {
+    "key": "shops",
+    "heading": "Winkels en markten",
+    "html": "<p>Voor de dagelijkse boodschappen kun je in het dorp terecht: er zijn supermarkten, bakkers, slagers, apotheken en kleine speciaalzaken, plus bars en restaurants. Voor grotere aankopen, kleding of elektronica rijd je naar Almoradí, Orihuela of de winkelcentra bij Elche en Torrevieja.</p><p>De <strong>weekmarkt</strong> is op <strong>zaterdagochtend</strong> (ca. 8.00 tot 13.00 uur) in de Calle Óscar Esplá, met groente, fruit, kleding en huishoudartikelen. Rond de feesten van La Purísima in december en met kerst worden er gelegenheidsmarkten gehouden. De markt in het naburige Dolores ligt ook op korte afstand voor wie een extra marktdag wil.</p>"
+   },
+   {
+    "key": "culture",
+    "heading": "Cultuur en bezienswaardigheden",
+    "html": "<p>Het dorpsbeeld wordt bepaald door de parochiekerk <strong>Los Santos Juanes</strong>, met gotische wortels en een barokke afwerking die rond 1800 klaar was. Verder zijn er enkele kluizen (ermitas) die het bekijken waard zijn:</p><ul><li><strong>Ermita de la Purísima</strong> uit de 16e eeuw.</li><li><strong>Ermita de Santa Águeda</strong>, een opvallend ronde kapel in de gelijknamige wijk.</li><li><strong>La Cruz de Piedra</strong>, een oud stenen kruis.</li></ul><p>De <strong>Casa de Cultura</strong> organiseert concerten, voorstellingen en tentoonstellingen. Muziek speelt een grote rol: het dorp heeft een eigen muziekvereniging met harmonie en een conservatorium. Catral heeft sinds 2014 de status van toeristische gemeente, al blijft het toerisme kleinschalig.</p>"
+   },
+   {
+    "key": "festivals",
+    "heading": "Lokale feesten",
+    "rows": [
+     [
+      "Romería de Santa Águeda",
+      "begin februari, rond 5 februari",
+      "Bedevaart en dorpsfeest rond de ronde kapel van Santa Águeda, met kraampjes en kaarsen; erkend als feest van provinciaal toeristisch belang."
+     ],
+     [
+      "Carnaval",
+      "februari",
+      "Verkleedoptocht door het dorp."
+     ],
+     [
+      "Semana Santa",
+      "maart/april, Goede Week",
+      "Processies, waaronder die van de Virgen de la Soledad op Goede Vrijdag, en een concours voor muziekkorpsen."
+     ],
+     [
+      "Fiestas patronales San Juan Bautista",
+      "tweede helft juni, rond 24 juni",
+      "Ruim een week feest met processie vanuit de kerk, optochten, verbenas, concerten en vuurwerk."
+     ],
+     [
+      "La Banderita",
+      "eind juni, na San Juan",
+      "Traditioneel muziekfeest dat de zomerfeesten afsluit."
+     ],
+     [
+      "Romería del Pilar (de las Cañas)",
+      "12 oktober",
+      "Bedevaart naar het buitengebied met een feestelijke dag in het groen."
+     ],
+     [
+      "Rosario de la Aurora (auroros)",
+      "zondagen in oktober",
+      "Zangers trekken vroeg in de ochtend door de straten met eeuwenoude gezangen."
+     ],
+     [
+      "La Purísima",
+      "7 en 8 december",
+      "Feest ter ere van de Purísima, met processie en een gelegenheidsmarkt."
+     ]
+    ]
+   },
+   {
+    "key": "health",
+    "heading": "Gezondheidszorg",
+    "html": "<p>Catral heeft een eigen <strong>centro de salud</strong> (gezondheidscentrum) voor de huisarts, kinderarts en verpleging. Je schrijft je in met je SIP-kaart van de Valenciaanse gezondheidszorg, waarna je afspraken online of telefonisch kunt maken. Er zijn meerdere apotheken in het dorp.</p><p>Het dorp valt onder het gezondheidsdepartement Orihuela. Het bijbehorende ziekenhuis is het <strong>Hospital Vega Baja</strong> bij Orihuela, op ongeveer een kwartier rijden. Voor sommige specialismen word je doorverwezen naar Elche of Alicante. Particuliere klinieken vind je onder meer in Orihuela, Elche en Torrevieja. Houd er rekening mee dat het ziekenhuis van de Vega Baja in drukke periodes lange wachttijden kent.</p>"
+   },
+   {
+    "key": "outdoor",
+    "heading": "Buiten ontspannen",
+    "html": "<p>Ten oosten van het dorp ligt natuurpark <strong>El Hondo</strong>, een groot wetland met twee stuwmeren, zoutvlakten en rietvelden. Het park ligt vooral op grondgebied van Elche en Crevillent, maar grenst aan Catral en Dolores. Het is een van de belangrijkste vogelgebieden van de regio, met onder meer flamingo's, reigers en zeldzame eenden. Catral heeft in de beschermingszone een eigen natuurcentrum (Aula de la Naturaleza) met observatietorens; het officiële bezoekerscentrum en de wandelroutes vertrek je vanaf de kant van Crevillent.</p><p>Het vlakke land met landbouwweggetjes is ideaal om te fietsen en te wandelen. Er zijn een sportcomplex en een gemeentelijk zwembad. De stranden van Guardamar en de duinbossen liggen op ongeveer twintig minuten. In de zomer kan het landinwaarts flink warm worden, en bij de lagunes zijn muggen in de warme maanden een bekend ongemak.</p>"
+   },
+   {
+    "key": "indoor",
+    "heading": "Binnen ontspannen",
+    "html": "<p>Binnen draait het vooral om de <strong>Casa de Cultura</strong>, met concerten van de plaatselijke harmonie, theater en tentoonstellingen, en de openbare bibliotheek. Het conservatorium en de muziekschool bieden lessen voor kinderen en volwassenen. Er is een sporthal voor binnensporten.</p><p>Het sociale leven speelt zich verder af in de bars en restaurants van het dorp; in het najaar is er een tapasroute. Voor bioscoop, grote winkelcentra of musea rijd je naar Elche, Orihuela of Alicante, alle drie binnen een halfuur tot drie kwartier.</p>"
+   }
+  ],
+  "photos": [
+   {
+    "path": "towns/catral/1.jpg",
+    "author": "19Tarrestnom65",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Casa_consistorial_de_Catral_02.jpg",
+    "alt": "Het gemeentehuis van Catral"
+   },
+   {
+    "path": "towns/catral/2.jpg",
+    "author": "fred adam",
+    "license": "CC BY-SA 3.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Catral,_vista_hacía_Callosa_de_Segura_-_panoramio.jpg",
+    "alt": "Zicht vanaf Catral richting Callosa de Segura"
+   },
+   {
+    "path": "towns/catral/3.jpg",
+    "author": "Asociación de Vecinos La Replaseta",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Ermita_de_Santa_Águeda.jpg",
+    "alt": "De kapel van Santa Águeda"
+   }
+  ],
+  "sources": [
+   {
+    "title": "Ayuntamiento de Catral",
+    "url": "https://www.catral.es"
+   },
+   {
+    "title": "Ayuntamiento de Catral - Teléfonos de interés (centro de salud, scholen)",
+    "url": "https://www.catral.es/servicios/telefonos-de-interes/"
+   },
+   {
+    "title": "Ayuntamiento de Catral - Concejalía de Educación",
+    "url": "https://www.catral.es/concejalias/concejalia-de-educacion/"
+   },
+   {
+    "title": "Ayuntamiento de Catral - Fiestas",
+    "url": "https://www.catral.es/turismo/fiestas/"
+   },
+   {
+    "title": "Ayuntamiento de Catral - Aula de la Naturaleza El Hondo",
+    "url": "https://www.catral.es/turismo/parque-natural-el-hondo-aula-de-la-naturaleza/"
+   },
+   {
+    "title": "Wikipedia (ES) - Catral (INE 2024)",
+    "url": "https://es.wikipedia.org/wiki/Catral"
+   },
+   {
+    "title": "Wikipedia (EN) - Catral",
+    "url": "https://en.wikipedia.org/wiki/Catral"
+   },
+   {
+    "title": "INE padrón en geboorteland 2022 (via Foro-ciudad)",
+    "url": "https://www.foro-ciudad.com/alicante/catral/habitantes.html"
+   },
+   {
+    "title": "Comunitat Valenciana Turismo - Romería de Santa Águeda",
+    "url": "https://www.comunitatvalenciana.com/es/alacant-alicante/catral/fiestas/romeria-de-santa-agueda"
+   },
+   {
+    "title": "Comunitat Valenciana Turismo - Parque Natural El Hondo",
+    "url": "https://www.comunitatvalenciana.com/es/alacant-alicante/crevillent/espacios-naturales/parque-natural-el-fondo"
+   },
+   {
+    "title": "Festivales de España - Fiestas Patronales San Juan Bautista Catral 2025",
+    "url": "https://www.festivalesdeespana.com/festival/fiestas-patronales-catral-san-juan-bautista/2025"
+   },
+   {
+    "title": "Mercadillos.org - weekmarkt Catral",
+    "url": "https://mercadillos.org/es/catral/mercadillo-catral"
+   },
+   {
+    "title": "Alicante Plaza - bouw CEIP nr. 2 Catral (juli 2024)",
+    "url": "https://alicanteplaza.es/alicanteplaza/arrancan-las-obras-del-ceip-numero-2-de-catral-con-una-inversion-de-8-7-millones-del-plan-edificant"
+   },
+   {
+    "title": "Alicante Plaza - naamkeuze nieuw colegio Catral (okt 2026)",
+    "url": "https://alicanteplaza.es/alicanteplaza/orihuela1/catral-deja-en-manos-de-los-vecinos-el-nombre-de-su-nuevo-colegio-publico-tres-opciones-a-elegir"
+   },
+   {
+    "title": "Micole - IES Catral",
+    "url": "https://www.micole.net/alicante/catral/instituto-catral"
+   }
+  ],
+  "coords": [
+   38.1594,
+   -0.805
+  ],
+  "sort": 140,
+  "review_notes": "1) Inwonertal is INE 1-1-2024 (ca. 9.400); padrón 1-1-2025 niet gevonden, graag bijwerken. 2) Moros y Cristianos alleen genoemd door een aggregator (festivalesdeespana), niet door de gemeente: daarom weggelaten; lokaal checken. 3) Tweede basisschool (CEIP nr. 2, naam in keuze okt 2026): openingsdatum onbekend; ook naam van de gemeentelijke escuela infantil ('Ángel de la Guarda') en de particuliere ('El Camino') niet opgenomen, graag bevestigen. 4) Afstanden zijn schattingen (o.a. Guardamar ca. 20 km, Hospital Vega Baja ca. 12 km, golfbaan La Marquesa); gemeentelijk zwembad, tapasroute en tolstatus AP-7 kort controleren. 5) Aliases 'Pueblo' en 'Catral - Country' uit eigen aanbod; oudere bronnen noemen gehuchten (Hornos, Madriguera, Nonduermas, Palomar) die niet als alias zijn opgenomen omdat ze niet bevestigd zijn."
+ },
+ {
+  "slug": "catral",
+  "lang": "en",
+  "town": "Catral",
+  "aliases": [
+   "Catral - Country"
+  ],
+  "title": "Living in Catral",
+  "lead": "Catral is a farming town of just over 9,000 people on the flat plain of the Vega Baja, where orchards and vegetable plots run up to the edge of the El Hondo nature park. The town covers everyday needs, including a secondary school and a health centre. Many rural homes and fincas are scattered around it, and the coast is about twenty minutes by car.",
+  "facts": [
+   {
+    "label": "Population",
+    "value": "approx. 9,400 (INE, 1 Jan 2024)"
+   },
+   {
+    "label": "Born abroad",
+    "value": "approx. 25% (2022)"
+   },
+   {
+    "label": "Area",
+    "value": "approx. 19 km²"
+   },
+   {
+    "label": "Distance to the sea",
+    "value": "approx. 20 km (Guardamar del Segura)"
+   },
+   {
+    "label": "Alicante airport",
+    "value": "approx. 35 km, 30 min"
+   },
+   {
+    "label": "Nearest hospital",
+    "value": "Hospital Vega Baja (Orihuela), approx. 12 km"
+   }
+  ],
+  "sections": [
+   {
+    "key": "housing",
+    "heading": "Housing",
+    "html": "<p>Catral is a long, narrow town that grew up along an old irrigation channel and the main road. There are no large tourist estates like those on the coast, and the housing roughly falls into two groups.</p><ul><li><strong>The town (pueblo):</strong> traditional town houses, often with a patio or roof terrace, terraced houses and small blocks of flats. Newer terraced houses and some detached homes sit on the edges.</li><li><strong>The countryside (campo):</strong> scattered country houses and fincas among citrus groves and vegetable fields, often with a good-sized plot. A fair number of British and other northern European owners live here.</li></ul><p>A finca gives you space and quiet, but you will need a car for everything. With a rural property, check the legal status of the buildings and the utility connections (water, drainage, electricity). The Vega Baja is low-lying and flat, so ask about the flood risk of the plot as well, especially after the heavy rain of 2019.</p>"
+   },
+   {
+    "key": "work",
+    "heading": "Work and economy",
+    "html": "<p>Farming is still the backbone: citrus, artichokes, vegetables, cereals and olives. Catral also has two industrial estates with furniture makers, textiles, construction, food production and logistics, and a large distribution centre sits by the AP-7 junction.</p><p>People in employment often commute to Elche, Orihuela, Almoradí or Alicante. The nearby AP-7 makes that fairly quick, although this stretch of motorway is tolled. Public transport is limited to a few bus routes, so plan on having your own car. Many foreign residents are retired or work remotely; if you are looking at a finca, ask how good the internet connection is (fibre or wireless only).</p>"
+   },
+   {
+    "key": "population",
+    "heading": "Population",
+    "html": "<p>Catral had around 9,400 residents at the start of 2024, and the population is growing slowly but steadily. In 1741 the town bought its independence from Orihuela and was granted the title of <strong>villa</strong>. Locals are called <strong>catralenses</strong>.</p><p>Roughly a quarter of residents were born abroad (approx. 25% in 2022). The largest groups come from the United Kingdom and Morocco, followed by France. Many British residents live out in the countryside, while life in the town itself is clearly Spanish. Some Spanish will get you a long way in the shops, at school and at the town hall.</p>"
+   },
+   {
+    "key": "education",
+    "heading": "Schools and education",
+    "html": "<p>Catral has its own schools for all ages up to 18:</p><ul><li><strong>CEIP Azorín:</strong> state infant and primary school (ages 3 to 12).</li><li><strong>Second state primary school:</strong> newly built on Avenida Comunitat Valenciana; its name is being chosen in autumn 2026 and it is due to open soon.</li><li><strong>IES Catral:</strong> state secondary school offering ESO and bachillerato.</li><li><strong>Early years:</strong> a municipal nursery and a private nursery.</li></ul><p>There is also a music and dance conservatoire, a music school and a municipal adult education centre. There are no international or English-language schools in the town; for those you would drive towards the coast, Elche or Alicante. Children learn Valencian at school alongside Spanish.</p>"
+   },
+   {
+    "key": "distances",
+    "heading": "Distances from the centre",
+    "rows": [
+     [
+      "Supermarket",
+      "in town, approx. 0.5–1 km"
+     ],
+     [
+      "Health centre (Centro de Salud Catral)",
+      "in town, approx. 0.5 km"
+     ],
+     [
+      "Pharmacy",
+      "in town, approx. 0.5 km"
+     ],
+     [
+      "Primary school (CEIP Azorín)",
+      "in town, approx. 0.5 km"
+     ],
+     [
+      "Secondary school (IES Catral)",
+      "in town, approx. 1 km"
+     ],
+     [
+      "Beach (Guardamar)",
+      "approx. 20 km, 20 min"
+     ],
+     [
+      "Golf course (La Marquesa, Ciudad Quesada)",
+      "approx. 15 km, 17 min"
+     ],
+     [
+      "Hospital (Hospital Vega Baja, Orihuela)",
+      "approx. 12 km, 15 min"
+     ],
+     [
+      "Torrevieja",
+      "approx. 30 km, 30 min"
+     ],
+     [
+      "Elche",
+      "approx. 25 km, 25 min"
+     ],
+     [
+      "Alicante (city)",
+      "approx. 45 km, 35 min"
+     ],
+     [
+      "Alicante-Elche airport",
+      "approx. 35 km, 30 min"
+     ],
+     [
+      "Murcia airport (Corvera)",
+      "approx. 75 km, 50 min"
+     ]
+    ]
+   },
+   {
+    "key": "shops",
+    "heading": "Shops and markets",
+    "html": "<p>For everyday shopping the town has what you need: supermarkets, bakeries, butchers, pharmacies and small specialist shops, plus bars and restaurants. For bigger purchases, clothes or electronics you will drive to Almoradí, Orihuela or the shopping centres near Elche and Torrevieja.</p><p>The <strong>weekly market</strong> is on <strong>Saturday morning</strong> (roughly 8am to 1pm) in Calle Óscar Esplá, selling fruit, vegetables, clothing and household goods. Occasional markets are held around the La Purísima festival in December and at Christmas. The market in neighbouring Dolores is also close by if you want a second market day.</p>"
+   },
+   {
+    "key": "culture",
+    "heading": "Culture and sights",
+    "html": "<p>The town is dominated by the parish church of <strong>Los Santos Juanes</strong>, which has Gothic roots and a Baroque finish completed around 1800. A few hermitages (ermitas) are also worth a look:</p><ul><li><strong>Ermita de la Purísima</strong>, dating from the 16th century.</li><li><strong>Ermita de Santa Águeda</strong>, an unusual round chapel in the district of the same name.</li><li><strong>La Cruz de Piedra</strong>, an old stone cross.</li></ul><p>The <strong>Casa de Cultura</strong> hosts concerts, performances and exhibitions. Music matters here: the town has its own band society and a conservatoire. Catral has held official tourist municipality status since 2014, though tourism remains small-scale.</p>"
+   },
+   {
+    "key": "festivals",
+    "heading": "Local festivals",
+    "rows": [
+     [
+      "Romería de Santa Águeda",
+      "early February, around 5 February",
+      "Pilgrimage and town festival around the round chapel of Santa Águeda, with stalls and candles; recognised as being of provincial tourist interest."
+     ],
+     [
+      "Carnival",
+      "February",
+      "Fancy-dress parade through the town."
+     ],
+     [
+      "Semana Santa",
+      "March/April, Holy Week",
+      "Processions, including the Virgen de la Soledad on Good Friday, and a band competition."
+     ],
+     [
+      "Fiestas patronales San Juan Bautista",
+      "second half of June, around 24 June",
+      "More than a week of celebrations with a procession from the church, parades, open-air dances, concerts and fireworks."
+     ],
+     [
+      "La Banderita",
+      "late June, after San Juan",
+      "Traditional music event that rounds off the summer festivities."
+     ],
+     [
+      "Romería del Pilar (de las Cañas)",
+      "12 October",
+      "Pilgrimage out into the countryside with a festive day outdoors."
+     ],
+     [
+      "Rosario de la Aurora (auroros)",
+      "Sundays in October",
+      "Singers walk the streets at dawn performing centuries-old chants."
+     ],
+     [
+      "La Purísima",
+      "7 and 8 December",
+      "Festival in honour of the Purísima, with a procession and an occasional market."
+     ]
+    ]
+   },
+   {
+    "key": "health",
+    "heading": "Healthcare",
+    "html": "<p>Catral has its own <strong>centro de salud</strong> (health centre) with GPs, a paediatrician and nursing staff. You register with your SIP card from the Valencian health service, after which you can book appointments online or by phone. There are several pharmacies in the town.</p><p>The town belongs to the Orihuela health department. Its hospital is <strong>Hospital Vega Baja</strong> near Orihuela, about fifteen minutes away by car. For some specialties you may be referred to Elche or Alicante. Private clinics can be found in Orihuela, Elche and Torrevieja, among other places. Bear in mind that the Vega Baja hospital can have long waiting times at busy periods.</p>"
+   },
+   {
+    "key": "outdoor",
+    "heading": "Outdoor leisure",
+    "html": "<p>East of the town lies the <strong>El Hondo</strong> nature park, a large wetland with two reservoirs, salt flats and reed beds. Most of the park lies within Elche and Crevillent, but it borders Catral and Dolores. It is one of the most important bird areas in the region, with flamingos, herons and rare ducks among its species. Catral has its own nature centre (Aula de la Naturaleza) with observation towers in the protection zone, while the official visitor centre and walking routes start on the Crevillent side.</p><p>The flat farmland and its quiet lanes are ideal for cycling and walking. There is a sports complex and a municipal swimming pool. The beaches and dune woodland of Guardamar are about twenty minutes away. Inland summers get very hot, and mosquitoes near the wetlands are a known nuisance in the warmer months.</p>"
+   },
+   {
+    "key": "indoor",
+    "heading": "Indoor leisure",
+    "html": "<p>Indoor life centres on the <strong>Casa de Cultura</strong>, with concerts by the local band, theatre and exhibitions, and the public library. The conservatoire and music school offer lessons for children and adults, and there is a sports hall for indoor sports.</p><p>Otherwise, social life happens in the town's bars and restaurants, and there is a tapas route in the autumn. For cinema, large shopping centres or museums you will drive to Elche, Orihuela or Alicante, all within half an hour to three quarters of an hour.</p>"
+   }
+  ],
+  "photos": [
+   {
+    "path": "towns/catral/1.jpg",
+    "author": "19Tarrestnom65",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Casa_consistorial_de_Catral_02.jpg",
+    "alt": "Catral town hall"
+   },
+   {
+    "path": "towns/catral/2.jpg",
+    "author": "fred adam",
+    "license": "CC BY-SA 3.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Catral,_vista_hacía_Callosa_de_Segura_-_panoramio.jpg",
+    "alt": "View from Catral towards Callosa de Segura"
+   },
+   {
+    "path": "towns/catral/3.jpg",
+    "author": "Asociación de Vecinos La Replaseta",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Ermita_de_Santa_Águeda.jpg",
+    "alt": "The Santa Águeda chapel"
+   }
+  ],
+  "sources": [
+   {
+    "title": "Ayuntamiento de Catral",
+    "url": "https://www.catral.es"
+   },
+   {
+    "title": "Ayuntamiento de Catral - Teléfonos de interés (centro de salud, scholen)",
+    "url": "https://www.catral.es/servicios/telefonos-de-interes/"
+   },
+   {
+    "title": "Ayuntamiento de Catral - Concejalía de Educación",
+    "url": "https://www.catral.es/concejalias/concejalia-de-educacion/"
+   },
+   {
+    "title": "Ayuntamiento de Catral - Fiestas",
+    "url": "https://www.catral.es/turismo/fiestas/"
+   },
+   {
+    "title": "Ayuntamiento de Catral - Aula de la Naturaleza El Hondo",
+    "url": "https://www.catral.es/turismo/parque-natural-el-hondo-aula-de-la-naturaleza/"
+   },
+   {
+    "title": "Wikipedia (ES) - Catral (INE 2024)",
+    "url": "https://es.wikipedia.org/wiki/Catral"
+   },
+   {
+    "title": "Wikipedia (EN) - Catral",
+    "url": "https://en.wikipedia.org/wiki/Catral"
+   },
+   {
+    "title": "INE padrón en geboorteland 2022 (via Foro-ciudad)",
+    "url": "https://www.foro-ciudad.com/alicante/catral/habitantes.html"
+   },
+   {
+    "title": "Comunitat Valenciana Turismo - Romería de Santa Águeda",
+    "url": "https://www.comunitatvalenciana.com/es/alacant-alicante/catral/fiestas/romeria-de-santa-agueda"
+   },
+   {
+    "title": "Comunitat Valenciana Turismo - Parque Natural El Hondo",
+    "url": "https://www.comunitatvalenciana.com/es/alacant-alicante/crevillent/espacios-naturales/parque-natural-el-fondo"
+   },
+   {
+    "title": "Festivales de España - Fiestas Patronales San Juan Bautista Catral 2025",
+    "url": "https://www.festivalesdeespana.com/festival/fiestas-patronales-catral-san-juan-bautista/2025"
+   },
+   {
+    "title": "Mercadillos.org - weekmarkt Catral",
+    "url": "https://mercadillos.org/es/catral/mercadillo-catral"
+   },
+   {
+    "title": "Alicante Plaza - bouw CEIP nr. 2 Catral (juli 2024)",
+    "url": "https://alicanteplaza.es/alicanteplaza/arrancan-las-obras-del-ceip-numero-2-de-catral-con-una-inversion-de-8-7-millones-del-plan-edificant"
+   },
+   {
+    "title": "Alicante Plaza - naamkeuze nieuw colegio Catral (okt 2026)",
+    "url": "https://alicanteplaza.es/alicanteplaza/orihuela1/catral-deja-en-manos-de-los-vecinos-el-nombre-de-su-nuevo-colegio-publico-tres-opciones-a-elegir"
+   },
+   {
+    "title": "Micole - IES Catral",
+    "url": "https://www.micole.net/alicante/catral/instituto-catral"
+   }
+  ],
+  "coords": [
+   38.1594,
+   -0.805
+  ],
+  "sort": 140,
+  "review_notes": "1) Inwonertal is INE 1-1-2024 (ca. 9.400); padrón 1-1-2025 niet gevonden, graag bijwerken. 2) Moros y Cristianos alleen genoemd door een aggregator (festivalesdeespana), niet door de gemeente: daarom weggelaten; lokaal checken. 3) Tweede basisschool (CEIP nr. 2, naam in keuze okt 2026): openingsdatum onbekend; ook naam van de gemeentelijke escuela infantil ('Ángel de la Guarda') en de particuliere ('El Camino') niet opgenomen, graag bevestigen. 4) Afstanden zijn schattingen (o.a. Guardamar ca. 20 km, Hospital Vega Baja ca. 12 km, golfbaan La Marquesa); gemeentelijk zwembad, tapasroute en tolstatus AP-7 kort controleren. 5) Aliases 'Pueblo' en 'Catral - Country' uit eigen aanbod; oudere bronnen noemen gehuchten (Hornos, Madriguera, Nonduermas, Palomar) die niet als alias zijn opgenomen omdat ze niet bevestigd zijn."
+ },
+ {
+  "slug": "san-fulgencio",
+  "lang": "nl",
+  "town": "San Fulgencio",
+  "aliases": [
+   "El Oasis",
+   "Oasis La Marina",
+   "Urb. La Marina",
+   "Urbanización La Marina",
+   "La Marina Urbanization",
+   "La Marina-El Oasis",
+   "Marina-Oasis",
+   "La Escuera",
+   "Monte Victoria"
+  ],
+  "title": "Wonen in San Fulgencio",
+  "lead": "San Fulgencio is een agrarisch dorp in de Vega Baja met daarnaast een van de grootste urbanisaties van Spanje: La Marina met El Oasis, vlak bij de duinen en dennenbossen van de kust. Het Spaanse dorpsleven en de sterk internationale urbanisatie liggen zo'n vijf kilometer uit elkaar en voelen als twee verschillende plaatsen. Ongeveer twee derde van de inwoners komt uit het buitenland.",
+  "facts": [
+   {
+    "label": "Inwoners",
+    "value": "ca. 9.400 (INE, 1-1-2024)"
+   },
+   {
+    "label": "In het buitenland geboren",
+    "value": "ca. 66% (2022)"
+   },
+   {
+    "label": "Kernen",
+    "value": "dorp en Urbanización La Marina / El Oasis (ca. 5,5 km)"
+   },
+   {
+    "label": "Afstand tot zee",
+    "value": "dorp ca. 9 km; La Marina ca. 2 tot 3 km"
+   },
+   {
+    "label": "Luchthaven Alicante-Elche",
+    "value": "ca. 30 km, 25 min"
+   },
+   {
+    "label": "Dichtstbijzijnd ziekenhuis",
+    "value": "Hospital Universitario de Torrevieja, ca. 25 tot 30 km"
+   }
+  ],
+  "sections": [
+   {
+    "key": "housing",
+    "heading": "Wonen en huisvesting",
+    "html": "<p>San Fulgencio bestaat uit twee heel verschillende delen. Het <strong>dorp</strong> (in de volksmond 'el pueblo') ligt tussen de citrusvelden van de Vega Baja en heeft een Spaans karakter met dorpshuizen, appartementen boven winkels en enkele nieuwere rijtjeshuizen aan de randen.</p><p>Ongeveer vijf kilometer oostelijker, richting de kust, ligt de <strong>Urbanización La Marina</strong>, een van de grootste urbanisaties van Spanje. De bouw begon eind jaren tachtig. Binnen de urbanisatie onderscheidt men onder meer:</p><ul><li><strong>La Marina en La Escuera</strong>: veel bungalows, geschakelde woningen en vrijstaande villa's met tuin.</li><li><strong>El Oasis</strong>: rond het groene Paraje El Oasis, met een vergelijkbare mix.</li><li><strong>Monte Victoria, La Plana, El Oral en Sector 8</strong>: deels nieuwere wijken, met ook recente nieuwbouw.</li></ul><p>Let op: het kustdorp La Marina en het strand van La Marina horen bij de gemeente Elche, niet bij San Fulgencio. Controleer per adres in welke gemeente een woning ligt.</p>"
+   },
+   {
+    "key": "work",
+    "heading": "Werk en economie",
+    "html": "<p>Van oudsher leeft San Fulgencio van de landbouw. Rond het dorp worden groenten en citrus geteeld, en er zijn pak- en exportbedrijven voor groente en fruit. Daarnaast is er een zandgroeve en een klein bedrijventerrein.</p><p>Met de groei van La Marina sinds de jaren tachtig zijn bouw, onderhoud van woningen, horeca, winkels en dienstverlening voor de internationale bewoners belangrijk geworden. Veel kleine ondernemers in de urbanisatie zijn zelf buitenlanders. Na de crisis van 2008 liep de werkloosheid flink op, wat laat zien hoe afhankelijk de gemeente is van de woningmarkt.</p><p>Grote werkgevers zijn er niet. Wie in loondienst wil werken, pendelt meestal naar Elche, Torrevieja, Guardamar of Alicante, en vrijwel altijd met de auto. Voor thuiswerkers is de ligging dicht bij de luchthaven van Alicante wel een pluspunt.</p>"
+   },
+   {
+    "key": "population",
+    "heading": "Bevolking",
+    "html": "<p>Volgens het INE telde San Fulgencio op 1 januari 2024 ca. 9.400 inwoners. Het grootste deel woont niet in het dorp maar in de urbanisatie La Marina.</p><p>San Fulgencio hoort bij de gemeenten met het hoogste aandeel buitenlanders van Spanje. In 2022 was ongeveer twee derde van de ingeschreven inwoners in het buitenland geboren. Britten vormen veruit de grootste groep, gevolgd door Duitsers; daarnaast wonen er onder meer Marokkanen en Fransen. In La Marina hoor je vooral Engels, in het dorp vooral Spaans.</p><p>Veel inwoners zijn gepensioneerd en een deel woont er alleen een deel van het jaar. In de zomer en rond de feestdagen zijn er dus beduidend meer mensen dan het officiële inwonertal doet vermoeden. Wie zich laat inschrijven in het padrón, helpt de gemeente aan meer middelen.</p>"
+   },
+   {
+    "key": "education",
+    "heading": "Scholen en onderwijs",
+    "html": "<p>De openbare scholen staan in het dorp:</p><ul><li><strong>Escuela Infantil Municipal La Ranita</strong>: gemeentelijke kinderopvang voor de jongste kinderen.</li><li><strong>CEIP José María Manresa Navarro</strong>: openbare kleuter- en basisschool (3 tot 12 jaar).</li><li><strong>Sección del IES La Encantá</strong>: een afdeling van het instituto van Rojales, met de vier jaren ESO.</li><li><strong>Centro de Formación de Personas Adultas</strong>: gemeentelijk volwassenenonderwijs.</li></ul><p>Voor gezinnen in La Marina betekent dit een rit van ca. 5 tot 6 km naar school. Voor bachillerato gaan leerlingen naar een instituto in een buurgemeente. Het onderwijs is in het Spaans en Valenciaans, met Engels als vak; oudere kinderen die later instromen hebben vaak extra begeleiding nodig. Engelstalige internationale scholen liggen in de bredere regio, op een half uur of meer rijden.</p>"
+   },
+   {
+    "key": "distances",
+    "heading": "Afstanden vanaf het centrum",
+    "rows": [
+     [
+      "Supermarkt",
+      "ca. 0,5 km (dorp); ook in La Marina"
+     ],
+     [
+      "Gezondheidscentrum San Fulgencio",
+      "in het dorp, ca. 0,5 km"
+     ],
+     [
+      "Consultorio La Marina",
+      "ca. 5 tot 6 km, 7 min"
+     ],
+     [
+      "Apotheek",
+      "in het dorp en in La Marina"
+     ],
+     [
+      "Basisschool (CEIP José María Manresa Navarro)",
+      "ca. 0,5 km"
+     ],
+     [
+      "Urbanización La Marina",
+      "ca. 5,5 km, 7 min"
+     ],
+     [
+      "Strand (Guardamar del Segura)",
+      "ca. 9 km, 12 min"
+     ],
+     [
+      "Golfbaan (La Marquesa, Ciudad Quesada)",
+      "ca. 10 km, 12 min"
+     ],
+     [
+      "Ziekenhuis (Hospital Universitario de Torrevieja)",
+      "ca. 25 tot 30 km, 25 min"
+     ],
+     [
+      "Torrevieja (centrum)",
+      "ca. 25 km, 25 min"
+     ],
+     [
+      "Elche (stad)",
+      "ca. 20 km, 25 min"
+     ],
+     [
+      "Alicante (stad)",
+      "ca. 40 km, 35 min"
+     ],
+     [
+      "Luchthaven Alicante-Elche",
+      "ca. 30 km, 25 min"
+     ],
+     [
+      "Luchthaven Murcia (Corvera)",
+      "ca. 75 km, 55 min"
+     ]
+    ]
+   },
+   {
+    "key": "shops",
+    "heading": "Winkels en markten",
+    "html": "<p>In het dorp vind je de basis: een paar supermarkten, bakkers, apotheken, banken en cafés. In La Marina is het aanbod groter en sterk gericht op de internationale bewoners, met supermarkten, restaurants, makelaars, tandartsen, opticiens en kringloopwinkels van goede doelen. De meeste zaken zijn het hele jaar open.</p><ul><li><strong>Donderdag</strong>: weekmarkt in de urbanisatie La Marina, in de ochtend.</li><li><strong>Zaterdag</strong>: grote markt aan de rand van La Marina, op het bedrijventerrein, eveneens in de ochtend.</li></ul><p>Ook het dorp heeft een kleinere eigen weekmarkt; vraag bij het ayuntamiento naar de actuele dag en plek. Voor grotere aankopen en winkelcentra ga je naar Elche, Guardamar of Torrevieja. Op zondag is in Guardamar een markt.</p>"
+   },
+   {
+    "key": "culture",
+    "heading": "Cultuur en bezienswaardigheden",
+    "html": "<p>San Fulgencio werd in 1729 gesticht door bisschop Luis Antonio Belluga, die het moerassige land bij de monding van de Segura liet droogleggen. Het dorp draagt de naam van de heilige Fulgentius, en koning Felipe V gaf het de status van Villa Real.</p><p>Wat er te zien is:</p><ul><li><strong>Parochiekerk</strong> uit de 18e eeuw in het dorpscentrum.</li><li><strong>Archeologisch museum</strong> met Iberisch en Grieks aardewerk uit de omgeving.</li><li><strong>El Oral</strong>: resten van een vroeg-Iberische nederzetting uit de 6e eeuw voor Christus.</li><li><strong>La Escuera</strong>: een laat-Iberische vindplaats, die ook zijn naam aan een deel van de urbanisatie gaf.</li></ul><p>In het dorp zijn de muziekvereniging en de jaarlijkse tapasroute vaste onderdelen van het culturele leven. In La Marina organiseren clubs en verenigingen van internationale bewoners veel activiteiten.</p>"
+   },
+   {
+    "key": "festivals",
+    "heading": "Lokale feesten",
+    "rows": [
+     [
+      "San Fulgencio en San Antonio Abad",
+      "rond 16 en 17 januari",
+      "Patroonsfeest met muziek, processie, vuurwerk, de zegening van brood en dieren en een gezamenlijke maaltijd."
+     ],
+     [
+      "Semana Santa",
+      "week voor Pasen",
+      "Processies in het dorp."
+     ],
+     [
+      "San Isidro Labrador",
+      "rond 15 mei",
+      "Bedevaart naar het Paraje El Oasis, met traditionele liederen en een dag in het groen."
+     ],
+     [
+      "Virgen de la Paz",
+      "begin augustus",
+      "Feest in de urbanisatie La Marina met concerten, een gezamenlijk diner, vuurwerk en een grote paella."
+     ],
+     [
+      "Virgen del Remedio",
+      "oktober",
+      "Het grootste dorpsfeest, met versierde straten, praalwagens en vuurwerk."
+     ]
+    ]
+   },
+   {
+    "key": "health",
+    "heading": "Gezondheidszorg",
+    "html": "<p>San Fulgencio heeft twee openbare huisartsenposten: het <strong>centro de salud</strong> in het dorp, dat in 2023 werd verbouwd en uitgebreid, en een <strong>consultorio in La Marina</strong>. Beide werken op werkdagen op afspraak. Voor spoed 's nachts en in het weekend ga je naar het gezondheidscentrum van Guardamar del Segura, op ca. 8 km van het dorp.</p><p>De gemeente valt onder het <strong>Departament de Salut de Torrevieja</strong>. Het referentieziekenhuis is het <strong>Hospital Universitario de Torrevieja</strong>, op ca. 25 tot 30 km. Het Hospital Vega Baja bij Orihuela hoort bij een ander departement. In La Marina zijn er daarnaast apotheken, een post van het Rode Kruis en particuliere tandartsen en fysiotherapeuten.</p><p>Voor openbare zorg moet je ingeschreven zijn in het padrón en een SIP-kaart aanvragen. Zonder auto is het ziekenhuis lastig te bereiken.</p>"
+   },
+   {
+    "key": "outdoor",
+    "heading": "Buiten ontspannen",
+    "html": "<p>De urbanisatie La Marina grenst aan het dennenbos en de duinen achter de kust. Via paden door de pijnbomen loop of fiets je naar zee. De kustzone is verdeeld: in het noorden liggen het strand en het dorp La Marina, die bij Elche horen, en richting het zuiden begint het duinbos van Guardamar met de stranden van Guardamar del Segura. San Fulgencio zelf heeft geen eigen strand.</p><ul><li><strong>Paraje El Oasis</strong>: groene recreatiezone in de urbanisatie met picknick- en barbecueplekken.</li><li><strong>Zoutpannen en wetlands</strong>: in de omgeving liggen de Salinas de Santa Pola en El Hondo, goed voor flamingo's en andere watervogels.</li><li><strong>Sport</strong>: sportvelden, tennisbanen en jeu-de-boulesbanen in La Marina; golf in Ciudad Quesada en verder in de regio.</li></ul><p>In juli en augustus is het heet en druk aan de kust. Ga vroeg op pad.</p>"
+   },
+   {
+    "key": "indoor",
+    "heading": "Binnen ontspannen",
+    "html": "<p>Binnen draait het vooral om het verenigingsleven. In La Marina zijn er tal van clubs en hobbygroepen, vaak opgezet door internationale bewoners, plus twee particuliere sportcomplexen met zwembad. In het dorp zijn er de gemeentelijke bibliotheek, de muziekvereniging en het archeologisch museum.</p><p>De toeristische informatie in La Marina, die wordt uitgebreid, is een handig startpunt voor activiteiten en cursussen, ook taallessen. Restaurants en bars, vaak met live muziek of sport op tv, zijn er volop in de urbanisatie.</p><p>Voor bioscoop, theater en grote winkelcentra rijd je naar Elche, Torrevieja of Alicante, op ca. 20 tot 40 minuten.</p>"
+   }
+  ],
+  "photos": [
+   {
+    "path": "towns/san-fulgencio/1.jpg",
+    "author": "19Tarrestnom65",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Calle_del_pueblo_de_San_Fulgencio.jpg",
+    "alt": "Straat in het dorp San Fulgencio"
+   },
+   {
+    "path": "towns/san-fulgencio/2.jpg",
+    "author": "19Tarrestnom65",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Calle_de_San_Fulgencio.jpg",
+    "alt": "Het dorp San Fulgencio"
+   }
+  ],
+  "sources": [
+   {
+    "title": "Wikipedia (ES) – San Fulgencio (INE 2024, buitenlanders 2022, geschiedenis, urbanisatie, zorg)",
+    "url": "https://es.wikipedia.org/wiki/San_Fulgencio_(Alicante)"
+   },
+   {
+    "title": "Wikipedia (EN) – San Fulgencio",
+    "url": "https://en.wikipedia.org/wiki/San_Fulgencio"
+   },
+   {
+    "title": "Foro-ciudad – San Fulgencio habitantes (INE 1-1-2024; geboorteland 2022)",
+    "url": "https://www.foro-ciudad.com/alicante/san-fulgencio/habitantes.html"
+   },
+   {
+    "title": "Euribor.com.es – gemeenten met hoogste aandeel buitenlanders (INE padrón jan 2025)",
+    "url": "https://www.euribor.com.es/2026/05/05/los-20-municipios-con-mayor-porcentaje-de-poblacion-extranjera-en-espana-segun-el-ine/?amp=1"
+   },
+   {
+    "title": "Mercadillos.org – Mercadillo de La Marina (donderdag)",
+    "url": "https://mercadillos.org/es/la-marina/mercadillo-la-marina"
+   },
+   {
+    "title": "Mercadillos.org – Mercadillo del Sábado de La Marina",
+    "url": "https://mercadillos.org/es/san-fulgencio/mercadillo-san-fulgencio"
+   },
+   {
+    "title": "Turismo Comunitat Valenciana – Fiestas de San Fulgencio",
+    "url": "https://www.comunitatvalenciana.com/en/alacant-alicante/san-fulgencio/festivals/san-fulgencio-s-festivals"
+   },
+   {
+    "title": "Turismo Comunitat Valenciana – Fiesta Virgen de la Paz, Urb. La Marina",
+    "url": "https://www.comunitatvalenciana.com/en/alacant-alicante/san-fulgencio/events/virgen-de-la-paz-festival-in-urb-marina-san-fulgencio"
+   },
+   {
+    "title": "The Olive Press – patroonsfeest San Fulgencio (2022)",
+    "url": "https://theolivepress.es/spain-news/2022/01/14/patron-saint-festival-returns-to-town-popular-with-expats-on-spains-costa-blanca"
+   },
+   {
+    "title": "The Olive Press – La Marina urbanisation (2022)",
+    "url": "https://theolivepress.es/spain-news/2022/07/09/la-marina-urbanisation-a-home-from-home-in-the-heartland-of-orange-groves-and-flamingos/"
+   },
+   {
+    "title": "Buscocolegio – onderwijscentra San Fulgencio",
+    "url": "https://www.buscocolegio.com/Comunidad-Valenciana/Alicante/buscar-Colegios-San-Fulgencio.jsp"
+   },
+   {
+    "title": "Micole – CEIP José María Manresa Navarro",
+    "url": "https://www.micole.net/alicante/san-fulgencio/colegio-jose-maria-manresa-navarro"
+   },
+   {
+    "title": "GVA Educació – Sección del IES La Encantá en San Fulgencio",
+    "url": "https://portal.edu.gva.es/iesdesanfulgencio/"
+   },
+   {
+    "title": "Alicante Plaza – verbouwing centro de salud San Fulgencio (2023)",
+    "url": "https://alicanteplaza.es/alicanteplaza/san-fulgencio-invierte-360000-euros-en-reformar-y-ampliar-su-centro-de-salud"
+   },
+   {
+    "title": "Alicante Plaza – uitbreiding toeristenbureau La Marina (2024)",
+    "url": "https://alicanteplaza.es/alicanteplaza/san-fulgencio-licita-la-reforma-y-ampliacion-de-la-oficina-de-turismo-de-la-marina-por-275000-euros"
+   },
+   {
+    "title": "Departament de Salut de Torrevieja",
+    "url": "https://torrevieja.san.gva.es/"
+   }
+  ],
+  "coords": [
+   38.105,
+   -0.698
+  ],
+  "sort": 150,
+  "review_notes": "1) Inwonertal: INE 1-1-2024 = 9.433; een bron (euribor.com.es, padrón jan 2025) noemt ca. 7.600 inwoners en 77,6% buitenlanders, wat een grote daling zou zijn. Graag het officiële INE-cijfer 1-1-2025 controleren en facts bijwerken. 2) Markten: donderdag (urbanisatie) en zaterdag (bedrijventerrein, Calle Mar Jónico) bevestigd via mercadillos.org; exacte plek donderdagmarkt wisselt per bron (Calle Justo Quesada vs. plein Calle Lisboa). Dorpsmarkt alleen genoemd door The Olive Press (dinsdag) en daarom algemeen gehouden. 3) Scholen: alleen in het dorp gevonden; bevestigen dat er geen openbare school in La Marina zelf is en waar bachillerato gevolgd wordt (IES La Encantá Rojales?). 4) Zorg: departement Torrevieja afgeleid uit spoed in Guardamar; openingstijden consultorio La Marina en avond-/weekendspoed bevestigen. 5) Grens: aangenomen dat San Fulgencio geen eigen kustlijn heeft (strand La Marina = Elche, duinbos = Guardamar); feestweek Virgen del Remedio in oktober (exacte week) en datum San Isidro-romería controleren."
+ },
+ {
+  "slug": "san-fulgencio",
+  "lang": "en",
+  "town": "San Fulgencio",
+  "aliases": [
+   "El Oasis",
+   "Oasis La Marina",
+   "Urb. La Marina",
+   "Urbanización La Marina",
+   "La Marina Urbanization",
+   "La Marina-El Oasis",
+   "Marina-Oasis",
+   "La Escuera",
+   "Monte Victoria"
+  ],
+  "title": "Living in San Fulgencio",
+  "lead": "San Fulgencio is a farming village in the Vega Baja that is also home to one of Spain's largest residential estates: La Marina with El Oasis, close to the coastal dunes and pine woods. The Spanish village and the highly international estate lie about five kilometres apart and feel like two different places. Around two thirds of residents were born abroad.",
+  "facts": [
+   {
+    "label": "Population",
+    "value": "approx. 9,400 (INE, 1 Jan 2024)"
+   },
+   {
+    "label": "Born abroad",
+    "value": "approx. 66% (2022)"
+   },
+   {
+    "label": "Areas",
+    "value": "village and Urbanización La Marina / El Oasis (approx. 5.5 km)"
+   },
+   {
+    "label": "Distance to the sea",
+    "value": "village approx. 9 km; La Marina approx. 2 to 3 km"
+   },
+   {
+    "label": "Alicante-Elche airport",
+    "value": "approx. 30 km, 25 min"
+   },
+   {
+    "label": "Nearest hospital",
+    "value": "Hospital Universitario de Torrevieja, approx. 25 to 30 km"
+   }
+  ],
+  "sections": [
+   {
+    "key": "housing",
+    "heading": "Housing",
+    "html": "<p>San Fulgencio is made up of two quite different parts. The <strong>village</strong> (known locally as 'el pueblo') sits among the citrus groves of the Vega Baja and has a Spanish feel, with village houses, flats above shops and some newer terraced homes on the outskirts.</p><p>About five kilometres east, towards the coast, lies the <strong>Urbanización La Marina</strong>, one of the largest residential estates in Spain. Building began in the late 1980s. Within it you will find, among others:</p><ul><li><strong>La Marina and La Escuera</strong>: many bungalows, linked houses and detached villas with gardens.</li><li><strong>El Oasis</strong>: around the green Paraje El Oasis, with a similar mix.</li><li><strong>Monte Victoria, La Plana, El Oral and Sector 8</strong>: partly newer districts, including recent new builds.</li></ul><p>Note that the coastal village of La Marina and La Marina beach belong to the municipality of Elche, not San Fulgencio. Always check which municipality a property is in.</p>"
+   },
+   {
+    "key": "work",
+    "heading": "Work and economy",
+    "html": "<p>San Fulgencio has traditionally lived from farming. Vegetables and citrus are grown around the village, and there are packing and export firms for fruit and vegetables. There is also a sand quarry and a small industrial estate.</p><p>With the growth of La Marina since the 1980s, construction, property maintenance, hospitality, shops and services for international residents have become important. Many small businesses on the estate are run by foreign residents themselves. Unemployment rose sharply after the 2008 crisis, which shows how much the town depends on the housing market.</p><p>There are no large employers. People in salaried jobs usually commute to Elche, Torrevieja, Guardamar or Alicante, nearly always by car. For remote workers, being close to Alicante airport is a real advantage.</p>"
+   },
+   {
+    "key": "population",
+    "heading": "Population",
+    "html": "<p>According to the INE, San Fulgencio had around 9,400 inhabitants on 1 January 2024. Most of them live not in the village but on the La Marina estate.</p><p>San Fulgencio is among the Spanish municipalities with the highest share of foreign residents. In 2022 about two thirds of registered residents had been born abroad. The British are by far the largest group, followed by Germans, with Moroccan and French residents among others. On La Marina you mostly hear English; in the village, mostly Spanish.</p><p>Many residents are retired and some live there for only part of the year, so in summer and over the holidays there are noticeably more people than the official figure suggests. Registering on the padrón helps the council secure more funding.</p>"
+   },
+   {
+    "key": "education",
+    "heading": "Schools and education",
+    "html": "<p>The state schools are in the village:</p><ul><li><strong>Escuela Infantil Municipal La Ranita</strong>: council-run nursery for the youngest children.</li><li><strong>CEIP José María Manresa Navarro</strong>: state infant and primary school (ages 3 to 12).</li><li><strong>Sección del IES La Encantá</strong>: a branch of the Rojales secondary school, offering the four years of ESO.</li><li><strong>Centro de Formación de Personas Adultas</strong>: council adult education centre.</li></ul><p>For families on La Marina this means a journey of about 5 to 6 km to school. For bachillerato, pupils go to a secondary school in a neighbouring town. Teaching is in Spanish and Valencian, with English as a subject; older children who join later often need extra support. English-speaking international schools are found in the wider area, half an hour or more by car.</p>"
+   },
+   {
+    "key": "distances",
+    "heading": "Distances from the centre",
+    "rows": [
+     [
+      "Supermarket",
+      "approx. 0.5 km (village); also on La Marina"
+     ],
+     [
+      "San Fulgencio health centre",
+      "in the village, approx. 0.5 km"
+     ],
+     [
+      "La Marina clinic (consultorio)",
+      "approx. 5 to 6 km, 7 min"
+     ],
+     [
+      "Pharmacy",
+      "in the village and on La Marina"
+     ],
+     [
+      "Primary school (CEIP José María Manresa Navarro)",
+      "approx. 0.5 km"
+     ],
+     [
+      "Urbanización La Marina",
+      "approx. 5.5 km, 7 min"
+     ],
+     [
+      "Beach (Guardamar del Segura)",
+      "approx. 9 km, 12 min"
+     ],
+     [
+      "Golf course (La Marquesa, Ciudad Quesada)",
+      "approx. 10 km, 12 min"
+     ],
+     [
+      "Hospital (Hospital Universitario de Torrevieja)",
+      "approx. 25 to 30 km, 25 min"
+     ],
+     [
+      "Torrevieja (centre)",
+      "approx. 25 km, 25 min"
+     ],
+     [
+      "Elche (city)",
+      "approx. 20 km, 25 min"
+     ],
+     [
+      "Alicante (city)",
+      "approx. 40 km, 35 min"
+     ],
+     [
+      "Alicante-Elche airport",
+      "approx. 30 km, 25 min"
+     ],
+     [
+      "Murcia airport (Corvera)",
+      "approx. 75 km, 55 min"
+     ]
+    ]
+   },
+   {
+    "key": "shops",
+    "heading": "Shops and markets",
+    "html": "<p>The village has the basics: a few supermarkets, bakeries, pharmacies, banks and cafés. La Marina offers more, largely aimed at international residents, with supermarkets, restaurants, estate agents, dentists, opticians and charity shops. Most businesses stay open all year.</p><ul><li><strong>Thursday</strong>: weekly market on the La Marina estate, in the morning.</li><li><strong>Saturday</strong>: large market on the edge of La Marina, on the industrial estate, also in the morning.</li></ul><p>The village also has its own smaller weekly market; ask the town hall for the current day and location. For bigger shopping trips and shopping centres, head to Elche, Guardamar or Torrevieja. Guardamar has a market on Sundays.</p>"
+   },
+   {
+    "key": "culture",
+    "heading": "Culture and sights",
+    "html": "<p>San Fulgencio was founded in 1729 by Bishop Luis Antonio Belluga, who had the marshland near the mouth of the Segura drained. The village is named after Saint Fulgentius, and King Felipe V granted it the status of Villa Real.</p><p>Things to see:</p><ul><li><strong>Parish church</strong> from the 18th century in the village centre.</li><li><strong>Archaeological museum</strong> with Iberian and Greek pottery from the area.</li><li><strong>El Oral</strong>: remains of an early Iberian settlement from the 6th century BC.</li><li><strong>La Escuera</strong>: a late Iberian site, which also gave its name to part of the estate.</li></ul><p>In the village, the music society and the annual tapas route are fixtures of cultural life. On La Marina, clubs and associations of international residents organise a wide range of activities.</p>"
+   },
+   {
+    "key": "festivals",
+    "heading": "Local festivals",
+    "rows": [
+     [
+      "San Fulgencio and San Antonio Abad",
+      "around 16 and 17 January",
+      "Patron saint festivities with music, a procession, fireworks, the blessing of bread and animals and a communal meal."
+     ],
+     [
+      "Semana Santa",
+      "the week before Easter",
+      "Processions in the village."
+     ],
+     [
+      "San Isidro Labrador",
+      "around 15 May",
+      "Pilgrimage to the Paraje El Oasis, with traditional songs and a day outdoors."
+     ],
+     [
+      "Virgen de la Paz",
+      "early August",
+      "Festival on the La Marina estate with concerts, a communal dinner, fireworks and a giant paella."
+     ],
+     [
+      "Virgen del Remedio",
+      "October",
+      "The village's main festival, with decorated streets, floats and fireworks."
+     ]
+    ]
+   },
+   {
+    "key": "health",
+    "heading": "Healthcare",
+    "html": "<p>San Fulgencio has two public GP facilities: the <strong>centro de salud</strong> in the village, which was refurbished and extended in 2023, and a <strong>consultorio on La Marina</strong>. Both work by appointment on weekdays. For urgent care at night and at weekends, you go to the Guardamar del Segura health centre, about 8 km from the village.</p><p>The town falls under the <strong>Torrevieja Health Department</strong> (Departament de Salut de Torrevieja). The reference hospital is the <strong>Hospital Universitario de Torrevieja</strong>, about 25 to 30 km away. The Hospital Vega Baja near Orihuela belongs to a different department. La Marina also has pharmacies, a Red Cross post and private dentists and physiotherapists.</p><p>To use public healthcare you need to be on the padrón and apply for a SIP card. Without a car, the hospital is hard to reach.</p>"
+   },
+   {
+    "key": "outdoor",
+    "heading": "Outdoor leisure",
+    "html": "<p>The La Marina estate borders the pine woods and dunes behind the coast, and paths through the trees lead to the sea on foot or by bike. The coastline is split: to the north lie La Marina beach and village, which belong to Elche, while to the south the dune forest of Guardamar begins, with the beaches of Guardamar del Segura. San Fulgencio itself has no beach of its own.</p><ul><li><strong>Paraje El Oasis</strong>: a green recreation area on the estate with picnic and barbecue spots.</li><li><strong>Salt pans and wetlands</strong>: the Salinas de Santa Pola and El Hondo are nearby, good for flamingos and other water birds.</li><li><strong>Sport</strong>: pitches, tennis courts and bowls on La Marina; golf at Ciudad Quesada and elsewhere in the area.</li></ul><p>July and August are hot and the coast gets busy, so set off early.</p>"
+   },
+   {
+    "key": "indoor",
+    "heading": "Indoor leisure",
+    "html": "<p>Indoor life revolves largely around clubs and societies. La Marina has a wide range of clubs and hobby groups, often set up by international residents, plus two private sports complexes with pools. The village has the municipal library, the music society and the archaeological museum.</p><p>The tourist office on La Marina, which is being extended, is a useful starting point for activities and courses, including language classes. There are plenty of restaurants and bars on the estate, often with live music or sport on TV.</p><p>For cinemas, theatres and large shopping centres, drive to Elche, Torrevieja or Alicante, about 20 to 40 minutes away.</p>"
+   }
+  ],
+  "photos": [
+   {
+    "path": "towns/san-fulgencio/1.jpg",
+    "author": "19Tarrestnom65",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Calle_del_pueblo_de_San_Fulgencio.jpg",
+    "alt": "Street in San Fulgencio village"
+   },
+   {
+    "path": "towns/san-fulgencio/2.jpg",
+    "author": "19Tarrestnom65",
+    "license": "CC BY-SA 4.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Calle_de_San_Fulgencio.jpg",
+    "alt": "San Fulgencio village"
+   }
+  ],
+  "sources": [
+   {
+    "title": "Wikipedia (ES) – San Fulgencio (INE 2024, buitenlanders 2022, geschiedenis, urbanisatie, zorg)",
+    "url": "https://es.wikipedia.org/wiki/San_Fulgencio_(Alicante)"
+   },
+   {
+    "title": "Wikipedia (EN) – San Fulgencio",
+    "url": "https://en.wikipedia.org/wiki/San_Fulgencio"
+   },
+   {
+    "title": "Foro-ciudad – San Fulgencio habitantes (INE 1-1-2024; geboorteland 2022)",
+    "url": "https://www.foro-ciudad.com/alicante/san-fulgencio/habitantes.html"
+   },
+   {
+    "title": "Euribor.com.es – gemeenten met hoogste aandeel buitenlanders (INE padrón jan 2025)",
+    "url": "https://www.euribor.com.es/2026/05/05/los-20-municipios-con-mayor-porcentaje-de-poblacion-extranjera-en-espana-segun-el-ine/?amp=1"
+   },
+   {
+    "title": "Mercadillos.org – Mercadillo de La Marina (donderdag)",
+    "url": "https://mercadillos.org/es/la-marina/mercadillo-la-marina"
+   },
+   {
+    "title": "Mercadillos.org – Mercadillo del Sábado de La Marina",
+    "url": "https://mercadillos.org/es/san-fulgencio/mercadillo-san-fulgencio"
+   },
+   {
+    "title": "Turismo Comunitat Valenciana – Fiestas de San Fulgencio",
+    "url": "https://www.comunitatvalenciana.com/en/alacant-alicante/san-fulgencio/festivals/san-fulgencio-s-festivals"
+   },
+   {
+    "title": "Turismo Comunitat Valenciana – Fiesta Virgen de la Paz, Urb. La Marina",
+    "url": "https://www.comunitatvalenciana.com/en/alacant-alicante/san-fulgencio/events/virgen-de-la-paz-festival-in-urb-marina-san-fulgencio"
+   },
+   {
+    "title": "The Olive Press – patroonsfeest San Fulgencio (2022)",
+    "url": "https://theolivepress.es/spain-news/2022/01/14/patron-saint-festival-returns-to-town-popular-with-expats-on-spains-costa-blanca"
+   },
+   {
+    "title": "The Olive Press – La Marina urbanisation (2022)",
+    "url": "https://theolivepress.es/spain-news/2022/07/09/la-marina-urbanisation-a-home-from-home-in-the-heartland-of-orange-groves-and-flamingos/"
+   },
+   {
+    "title": "Buscocolegio – onderwijscentra San Fulgencio",
+    "url": "https://www.buscocolegio.com/Comunidad-Valenciana/Alicante/buscar-Colegios-San-Fulgencio.jsp"
+   },
+   {
+    "title": "Micole – CEIP José María Manresa Navarro",
+    "url": "https://www.micole.net/alicante/san-fulgencio/colegio-jose-maria-manresa-navarro"
+   },
+   {
+    "title": "GVA Educació – Sección del IES La Encantá en San Fulgencio",
+    "url": "https://portal.edu.gva.es/iesdesanfulgencio/"
+   },
+   {
+    "title": "Alicante Plaza – verbouwing centro de salud San Fulgencio (2023)",
+    "url": "https://alicanteplaza.es/alicanteplaza/san-fulgencio-invierte-360000-euros-en-reformar-y-ampliar-su-centro-de-salud"
+   },
+   {
+    "title": "Alicante Plaza – uitbreiding toeristenbureau La Marina (2024)",
+    "url": "https://alicanteplaza.es/alicanteplaza/san-fulgencio-licita-la-reforma-y-ampliacion-de-la-oficina-de-turismo-de-la-marina-por-275000-euros"
+   },
+   {
+    "title": "Departament de Salut de Torrevieja",
+    "url": "https://torrevieja.san.gva.es/"
+   }
+  ],
+  "coords": [
+   38.105,
+   -0.698
+  ],
+  "sort": 150,
+  "review_notes": "1) Inwonertal: INE 1-1-2024 = 9.433; een bron (euribor.com.es, padrón jan 2025) noemt ca. 7.600 inwoners en 77,6% buitenlanders, wat een grote daling zou zijn. Graag het officiële INE-cijfer 1-1-2025 controleren en facts bijwerken. 2) Markten: donderdag (urbanisatie) en zaterdag (bedrijventerrein, Calle Mar Jónico) bevestigd via mercadillos.org; exacte plek donderdagmarkt wisselt per bron (Calle Justo Quesada vs. plein Calle Lisboa). Dorpsmarkt alleen genoemd door The Olive Press (dinsdag) en daarom algemeen gehouden. 3) Scholen: alleen in het dorp gevonden; bevestigen dat er geen openbare school in La Marina zelf is en waar bachillerato gevolgd wordt (IES La Encantá Rojales?). 4) Zorg: departement Torrevieja afgeleid uit spoed in Guardamar; openingstijden consultorio La Marina en avond-/weekendspoed bevestigen. 5) Grens: aangenomen dat San Fulgencio geen eigen kustlijn heeft (strand La Marina = Elche, duinbos = Guardamar); feestweek Virgen del Remedio in oktober (exacte week) en datum San Isidro-romería controleren."
  }
 ]

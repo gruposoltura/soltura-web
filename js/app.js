@@ -1595,10 +1595,17 @@ function townGuides() {
   return TG.load[lang];
 }
 function guideKeys(g) { return [g.town, ...(g.aliases || [])].map(fold); }
+// wijk weegt zwaarder dan plaats (Ciudad Quesada wint van Rojales); bij een wijknaam in twee gidsen wint de gids van dezelfde plaats
 function guideFor(p, list) {
   if (!p || !list) return null;
-  const k = [p.town, p.suburb].map(fold).filter(Boolean);
-  return list.find(g => guideKeys(g).some(x => k.includes(x))) || null;
+  const town = fold(p.town), sub = fold(p.suburb);
+  let best = null, top = 0;
+  list.forEach(g => {
+    const keys = guideKeys(g);
+    const sc = (sub && keys.includes(sub) ? 2 : 0) + (town && keys.includes(town) ? 1 : 0);
+    if (sc > top) { top = sc; best = g; }
+  });
+  return best;
 }
 function guideHomes(g) {
   const keys = guideKeys(g);
