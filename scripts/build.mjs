@@ -39,11 +39,27 @@ const LOCALE = { en: 'en-GB', nl: 'nl-NL', sv: 'sv-SE' }, OG_LOCALE = { en: 'en_
 const T = (lang, k, ...a) => { const v = (I18N[lang] || I18N.en)[k] ?? I18N.en[k]; return typeof v === 'function' ? v(...a) : (v ?? ''); };
 
 // ---------- data ----------
+// anon heeft in Supabase een statement_timeout van 3s; koud of bij drukte haalt web_properties (~5 MB) dat soms niet
+// (HTTP 500, code 57014). Daarom tot 4 pogingen met oplopende wachttijd; de tweede poging is meestal warm en snel.
+async function fetchRetry(url, opts, label) {
+  const waits = [0, 5000, 15000, 30000];
+  let last;
+  for (let i = 0; i < waits.length; i++) {
+    if (waits[i]) { log(`${label}: poging ${i + 1} over ${waits[i] / 1000}s (${last})`); await new Promise(r => setTimeout(r, waits[i])); }
+    try {
+      const r = await fetch(url, opts);
+      if (r.ok) return r;
+      last = `HTTP ${r.status}`;
+      if (r.status < 500 && r.status !== 429) break; // 4xx = echte fout (kolom/rechten), niet herhalen
+    } catch (e) { last = e.message; }
+  }
+  throw new Error(`${label}: ${last}`);
+}
 async function get(pathq) {
   const out = [];
+  const label = pathq.split('?')[0];
   for (let from = 0; ; from += 1000) {
-    const r = await fetch(`${SB}/rest/v1/${pathq}`, { headers: { apikey: KEY, 'range-unit': 'items', range: `${from}-${from + 999}` } });
-    if (!r.ok) throw new Error(`${pathq.split('?')[0]}: HTTP ${r.status}`);
+    const r = await fetchRetry(`${SB}/rest/v1/${pathq}`, { headers: { apikey: KEY, 'range-unit': 'items', range: `${from}-${from + 999}` } }, label);
     const rows = await r.json(); out.push(...rows);
     if (rows.length < 1000) return out;
   }
