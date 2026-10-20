@@ -275,14 +275,14 @@ Object.assign(I18N.nl, {
 // status van de woning
 Object.assign(I18N.en, {
   st_available: 'Available', st_under_offer: 'Under offer', st_reserved: 'Reserved', st_sold: 'Sold',
-  st_note_under_offer: 'There is an offer on this home. Until it is signed you can still view it and make an offer.',
+  st_note_under_offer: 'This home is under offer. We have stopped viewings and expect the sale to complete. If it does not go through, the home will come back on the market.',
   st_note_reserved: 'This home is reserved. If the sale does not go through, it comes back; we can let you know.',
   st_note_sold: 'This home has been sold. We often have something similar, sometimes before it goes online.',
   st_similar: 'See similar homes',
 });
 Object.assign(I18N.nl, {
   st_available: 'Beschikbaar', st_under_offer: 'Onder bod', st_reserved: 'Gereserveerd', st_sold: 'Verkocht',
-  st_note_under_offer: 'Er ligt een bod op deze woning. Zolang er niet getekend is, kun je hem nog bekijken en een bod doen.',
+  st_note_under_offer: 'Op deze woning ligt een bod. We plannen geen bezichtigingen meer en verwachten dat de verkoop wordt afgerond. Gaat de verkoop niet door, dan komt de woning terug op de markt.',
   st_note_reserved: 'Deze woning is gereserveerd. Gaat de koop niet door, dan komt hij terug; we laten het je graag weten.',
   st_note_sold: 'Deze woning is verkocht. We hebben vaak iets vergelijkbaars, soms nog voordat het online staat.',
   st_similar: 'Bekijk vergelijkbare woningen',
@@ -334,7 +334,7 @@ Object.assign(I18N.sv, {
   guide_err: 'Fyll i förnamn, efternamn och en giltig e-postadress.', guide_ok: n => `Tack, ${n}! Köpguiden är på väg till din inkorg.`,
   guide_msg: 'Buying guide requested from the property page.',
   st_available: 'Tillgänglig', st_under_offer: 'Bud lagt', st_reserved: 'Reserverad', st_sold: 'Såld',
-  st_note_under_offer: 'Det finns ett bud på den här bostaden. Så länge inget är underskrivet kan du fortfarande titta på den och lägga ett bud.',
+  st_note_under_offer: 'Det finns ett bud på den här bostaden. Vi har slutat med visningar och räknar med att försäljningen slutförs. Om den inte går igenom kommer bostaden tillbaka ut på marknaden.',
   st_note_reserved: 'Den här bostaden är reserverad. Om affären inte blir av kommer den tillbaka; vi kan höra av oss till dig.',
   st_note_sold: 'Den här bostaden är såld. Vi har ofta något liknande, ibland innan det läggs ut online.',
   st_similar: 'Se liknande bostäder',
