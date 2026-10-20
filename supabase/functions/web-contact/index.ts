@@ -15,6 +15,9 @@
 // v9 (19-10-2026): Zweedse website (/sv/). Besluit Rick: de site is Zweeds, alle uitgaande communicatie (mail, mailings, berichten)
 //   blijft ENGELS. Daarom wordt taal 'sv' (sitetaal of browsertaal) altijd 'en' voor het contact en voor FavoritesMail.
 //   De sitetaal blijft zichtbaar in payload.site_lang / payload.lang en in page_url (/sv/...).
+// v10 (20-10-2026): kind 'notify' (knop "Laat me weten als hij terugkomt" op gereserveerde woning, form_id web-property-notify).
+//   E-mail verplicht (de opvolging is een mail). Intake legt hem vast als request type notify-back; geen LeadProcessor.
+//   JARVIS-Sales-BackOnMarket mailt zodra de woning weer beschikbaar is.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type', 'Access-Control-Allow-Methods': 'POST, OPTIONS' };
 const sb = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
@@ -28,7 +31,7 @@ const LANGS = ['nl', 'en', 'es', 'de', 'fr', 'no', 'da', 'fi', 'ru'];
 // talen waarin de site wel bestaat maar waarin we NIET communiceren -> Engels
 const COMM_EN = ['sv'];
 // terugval per soort als de pagina geen form_id meestuurt
-const FORM_BY_KIND: Record<string, string> = { viewing: 'web-property-viewing', guide: 'web-property-buying-guide', costs: 'web-buy-costs', valuation: 'web-sell-valuation', move: 'web-move-intake', contact: 'web-contact', newsletter: 'web-newsletter-footer', favorites: 'web-favorites-mail' };
+const FORM_BY_KIND: Record<string, string> = { viewing: 'web-property-viewing', guide: 'web-property-buying-guide', costs: 'web-buy-costs', valuation: 'web-sell-valuation', move: 'web-move-intake', contact: 'web-contact', newsletter: 'web-newsletter-footer', favorites: 'web-favorites-mail', notify: 'web-property-notify' };
 // oude technische element-ID's (pagina van voor v7 nog in cache)
 const LEGACY_ID: Record<string, string> = { viewForm: 'web-property-viewing', guideForm: 'web-property-buying-guide', buyForm: 'web-buy-costs', sellForm: 'web-sell-valuation', moveForm: 'web-move-intake', contactForm: 'web-contact' };
 const NL_VARIANT: Record<string, string> = { pop: 'web-newsletter-popup', feed: 'web-newsletter-feed', inline: 'web-newsletter-footer' };
@@ -90,7 +93,7 @@ Deno.serve(async (req) => {
     page_url: str(b.page_url || b.page, 300) || null, utm, payload: cleanPayload(b),
   };
   const emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(row.email);
-  if (!emailOk && (row.kind === 'newsletter' || row.kind === 'guide' || isFav || row.phone.length < 6)) return json({ ok: false, error: 'contact' }, 400);
+  if (!emailOk && (row.kind === 'newsletter' || row.kind === 'guide' || row.kind === 'notify' || isFav || row.phone.length < 6)) return json({ ok: false, error: 'contact' }, 400);
   if (row.kind === 'newsletter' && !interests.length) return json({ ok: false, error: 'interests' }, 400);
   if (isFav && !favorites.length) return json({ ok: false, error: 'favorites' }, 400);
 

@@ -1031,7 +1031,7 @@ async function openSheet(ref) {
           <a class="btn wa" href="${waHref}" target="_blank" rel="noopener" data-track="whatsapp">${t('wa_btn')}</a>
           <a class="btn ghost" href="tel:${ag.tel}" data-track="call">${t('call_btn')} ${ag.tel.replace(/(\+34)(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4')}</a>
           <button class="btn primary" type="button" id="viewBtn">${isNotify(p) ? t('notify_btn') : t('viewing_btn')}</button>
-          <form class="form" id="viewForm" hidden style="margin-top:12px">${contactFields('viewing', p)}</form>
+          <form class="form" id="viewForm" hidden style="margin-top:12px"${isNotify(p) ? ' data-notify="1"' : ''}>${contactFields('viewing', p)}</form>
         </div>
         ${guideHtml(p)}
         <div id="costBox"></div>
@@ -1134,9 +1134,11 @@ function bindMortgage(p) {
 }
 function openViewForm(name = 'web-property-viewing', kind = 'viewing') {
   const f = $('#viewForm'); if (!f) return null;
+  // gereserveerde woning: geen bezichtiging maar een seintje als hij terugkomt (alle ingangen: knop, snelknop, galerij, assistent)
+  if (kind === 'viewing' && f.dataset.notify) { name = 'web-property-notify'; kind = 'notify'; }
   const ta = $('textarea', f), k = $('input[name=kind]', f);
   if (f.dataset.vmsg === undefined) f.dataset.vmsg = ta.value;
-  if (kind === 'viewing' && k.value !== 'viewing') ta.value = f.dataset.vmsg;
+  if ((kind === 'viewing' || kind === 'notify') && k.value !== kind) ta.value = f.dataset.vmsg;
   k.value = kind; f.dataset.fname = name; f.hidden = false;
   return f;
 }
@@ -1162,7 +1164,7 @@ function bindForm(form, p) {
     if (!/\S+@\S+\.\S+/.test(d.email || '') && (d.phone || '').length < 6) { out.style.color = 'var(--salina)'; out.textContent = t('form_err'); return; }
     $('button[type=submit]', form).disabled = true;
     const r = await fn('web-contact', { ...d, ...loose, ...formMeta(form.id, p, form.dataset.fname) }).catch(() => ({ ok: false }));
-    out.style.color = ''; out.textContent = r.ok ? t('form_ok') : t('form_err');
+    out.style.color = ''; out.textContent = r.ok ? t(d.kind === 'notify' ? 'notify_ok' : 'form_ok') : t('form_err');
     if (r.ok) { track('contact_sent', p?.id || null, null, { kind: d.kind }); $$('input,textarea', form).forEach(i => i.type !== 'hidden' && !i.dataset.keep && (i.value = '')); }
     $('button[type=submit]', form).disabled = false;
   });
@@ -1367,7 +1369,7 @@ function openLightbox(urls, start = 0, plain = false) {
     <div class="lb-top"><span class="lb-ref">${p ? esc(p.reference) + ' · ' + esc(title(p)) : ''}</span><span class="lb-count"></span>
     <button type="button" class="lb-close" aria-label="${t('close')}">${ICON.x}</button></div>
     <button type="button" class="lb-nav lb-prev" aria-label="Previous">${ICON.l}</button><button type="button" class="lb-nav lb-next" aria-label="Next">${ICON.r}</button>
-    <div class="lb-bottom">${p ? `<span class="lb-price">${p.price != null ? eur(p.price) : ''}</span><button type="button" class="btn lemon" id="lbAsk">${t('qa_ask')}</button><button type="button" class="btn primary" id="lbView">${t('qa_view')}</button>` : ''}</div>`;
+    <div class="lb-bottom">${p ? `<span class="lb-price">${p.price != null ? eur(p.price) : ''}</span><button type="button" class="btn lemon" id="lbAsk">${t('qa_ask')}</button><button type="button" class="btn primary" id="lbView">${isNotify(p) ? t('notify_btn') : t('qa_view')}</button>` : ''}</div>`;
   document.body.appendChild(lb);
   const tr = $('.lb-track', lb), count = $('.lb-count', lb);
   const cur = () => Math.round(tr.scrollLeft / tr.clientWidth);
