@@ -837,7 +837,9 @@ img,video,svg{max-width:100%}
 @keyframes stPulse{50%{opacity:.35}}
 @media (prefers-reduced-motion:reduce){.st-available i{animation:none}}
 .st.big{position:static;font-size:14px;padding:7px 14px 7px 11px;box-shadow:none}
-.sh-status{margin:2px 0 8px}
+.sh-labels{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 8px}
+.sh-labels:empty{display:none}
+.sh-labels .badge,.sh-labels .st{position:static;box-shadow:none;display:inline-flex;align-items:center;gap:6px;height:30px;box-sizing:border-box;padding:0 13px;border-radius:999px;font:700 14px/1 var(--sans);letter-spacing:.01em}
 .st-card-sold .ph img{filter:grayscale(.65) brightness(.92)}
 .st-card-reserved .ph img{filter:saturate(.8)}
 .sold-band{position:absolute;z-index:2;top:22px;left:-44px;width:170px;transform:rotate(-35deg);background:var(--sea);color:#fff;text-align:center;font:800 13px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;padding:7px 0;box-shadow:0 4px 10px rgba(0,0,0,.25)}

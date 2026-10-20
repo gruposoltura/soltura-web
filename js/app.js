@@ -998,8 +998,7 @@ async function openSheet(ref) {
     <div class="thumbs" id="thumbs"></div>
     <div class="sh-body">
       <div>
-        <div class="badges" style="display:flex;gap:6px">${badges(p)}</div>
-        ${isOpen(p) ? '' : `<div class="sh-status">${statusTag(p, true)}</div>`}
+        <div class="sh-labels">${badges(p)}${statusTag(p, true)}</div>
         <h1 id="sheetTitle">${esc(title(p))}</h1>
         ${isOpen(p) ? '' : `<div class="st-note st-note-${stOf(p)}">${t('st_note_' + stOf(p))} <a href="#shMore" data-scroll>${t('st_similar')}</a></div>`}
         <div class="sh-price">${p.price_from ? `<small style="font-size:16px;font-weight:500">${t('from')}</small>` : ''}${p.price != null ? eur(p.price) : ''}${reduced(p) ? `<s>${eur(p.previous_price)}</s>` : ''}</div>
