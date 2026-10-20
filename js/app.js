@@ -256,7 +256,6 @@ function score(p, pr) {
   if (p.list_date) s += Math.max(0, 4 - (Date.now() - new Date(p.list_date)) / 864e5 / 30); // fresh listings
   if (reduced(p)) s += 1.5;
   if (belowMkt(p)) s += 1;
-  if (stOf(p) === 'under_offer') s -= 3;
   if (stOf(p) === 'reserved') s -= 5;
   if (stOf(p) === 'sold') s -= 40;
   if (!p.image) s -= 10;
@@ -312,7 +311,10 @@ function computeOrder() {
 }
 
 // ---------- status: Beschikbaar / Onder bod / Gereserveerd / Verkocht ----------
-const stOf = p => p.status && p.status !== 'draft' ? p.status : (p.under_offer ? 'under_offer' : 'available');
+// 'Onder bod' gebruiken we niet meer (Rick, 20-10-2026): wat zo in de data staat tonen we als Gereserveerd.
+const stOf = p => { const s = p.status && p.status !== 'draft' ? p.status : (p.under_offer ? 'under_offer' : 'available'); return s === 'under_offer' ? 'reserved' : s; };
+// gereserveerd: geen bezichtigingen meer; de knop wordt 'laat me weten als hij terugkomt'
+const isNotify = p => stOf(p) === 'reserved';
 const isOpen = p => stOf(p) === 'available';
 // 'Beschikbaar' tonen we niet; alleen onder bod / gereserveerd / verkocht krijgen een label
 const statusTag = (p, big) => isOpen(p) ? '' : `<span class="st st-${stOf(p)}${big ? ' big' : ''}"><i></i>${t('st_' + stOf(p))}</span>`;
@@ -1006,7 +1008,7 @@ async function openSheet(ref) {
           <button type="button" data-go="chatBox">${ICON.chat}<span>${t('qa_ask')}</span></button>
           <button type="button" data-go="mortBox">${ICON.calc}<span>${t('qa_mort')}</span></button>
           <button type="button" data-go="gal">${ICON.cam}<span id="qaPhotos">${t('qa_photos', p.photo_count || 1)}</span></button>
-          <button type="button" data-go="viewBtn">${ICON.cal}<span>${t('qa_view')}</span></button>
+          <button type="button" data-go="viewBtn">${ICON.cal}<span>${isNotify(p) ? t('notify_btn') : t('qa_view')}</span></button>
           <button type="button" data-go="guideBox">${ICON.book}<span>${t('qa_guide')}</span></button>
         </div>
         <div class="keyfacts" id="keyfacts"></div>
@@ -1028,7 +1030,7 @@ async function openSheet(ref) {
           <a class="rv-mini" id="rvMini" hidden target="_blank" rel="noopener" data-social="reviews_sheet"></a>
           <a class="btn wa" href="${waHref}" target="_blank" rel="noopener" data-track="whatsapp">${t('wa_btn')}</a>
           <a class="btn ghost" href="tel:${ag.tel}" data-track="call">${t('call_btn')} ${ag.tel.replace(/(\+34)(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4')}</a>
-          <button class="btn primary" type="button" id="viewBtn">${t('viewing_btn')}</button>
+          <button class="btn primary" type="button" id="viewBtn">${isNotify(p) ? t('notify_btn') : t('viewing_btn')}</button>
           <form class="form" id="viewForm" hidden style="margin-top:12px">${contactFields('viewing', p)}</form>
         </div>
         ${guideHtml(p)}
@@ -1144,7 +1146,7 @@ function contactFields(kind, p) {
     <input name="name" placeholder="${t('form_name')}" autocomplete="name" aria-label="${t('form_name')}">
     <input name="email" type="email" placeholder="${t('form_email')}" autocomplete="email" aria-label="${t('form_email')}">
     <input name="phone" type="tel" placeholder="${t('form_phone')}" autocomplete="tel" aria-label="${t('form_phone')}">
-    <textarea name="message" rows="3" aria-label="${t('form_msg')}">${kind === 'viewing' && p ? esc(t('viewing_msg', p.reference)) : ''}</textarea>
+    <textarea name="message" rows="3" aria-label="${t('form_msg')}">${kind === 'viewing' && p ? esc(t(isNotify(p) ? 'notify_msg' : 'viewing_msg', p.reference)) : ''}</textarea>
     <button class="btn primary" type="submit">${t('form_send')}</button><p class="ok" aria-live="polite"></p>`;
 }
 function bindForm(form, p) {

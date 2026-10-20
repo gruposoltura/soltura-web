@@ -135,7 +135,8 @@ function bodyHtml(body, lang, guides) {
 }
 
 // ---------- domein: woningen, gidsen ----------
-const stOf = p => p.status && p.status !== 'draft' ? p.status : (p.under_offer ? 'under_offer' : 'available');
+// 'Onder bod' wordt niet meer gebruikt (20-10-2026): tonen als Gereserveerd, gelijk aan js/app.js
+const stOf = p => { const s = p.status && p.status !== 'draft' ? p.status : (p.under_offer ? 'under_offer' : 'available'); return s === 'under_offer' ? 'reserved' : s; };
 const title = (p, lang) => `${R.catName(p.category, lang)} ${lang === 'sv' ? 'i' : 'in'} ${R.placeLabel(p)}`; // zelfde als title() in de app
 const guideKeys = g => [g.town, ...(g.aliases || [])].map(R.fold);
 function guideFor(p, list) {
