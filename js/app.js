@@ -556,7 +556,7 @@ function renderFooterStack() {
   lazy(sb, renderSocialBand);
 }
 
-// ---------- cookiekeuze: compacte balk rechtsonder (SpanjeKompas-patroon, 21-10-2026), blokkeert de site niet ----------
+// ---------- cookiekeuze: vriendelijke kaart linksonder (SpanjeKompas-patroon, 21-10-2026), blokkeert de site niet ----------
 // Oke = statistiek + marketing, Weigeren = alleen noodzakelijk (even makkelijk, AEPD). Info klapt de categorieen open.
 // Zolang er geen keuze is staat alles op denied (gtag default), dus niet blokkeren mag.
 function consentBar(force) {
@@ -565,7 +565,7 @@ function consentBar(force) {
   if (!bar) { bar = document.createElement('div'); bar.id = 'consent'; bar.className = 'consent'; bar.setAttribute('role', 'region'); bar.setAttribute('aria-label', t('cookie_settings')); document.body.appendChild(bar); }
   const cur = consentCurrent();
   bar.innerHTML = `<div class="cc-row">
-      <p class="cc-line">${t('cc_short')} <button class="cc-info" type="button" aria-expanded="false">${t('cc_info')}</button></p>
+      <div class="cc-top"><span class="cc-ico" aria-hidden="true">🍪</span><p class="cc-line"><b>${t('cc_hi')}</b>${t('cc_short')} <button class="cc-info" type="button" aria-expanded="false">${t('cc_info')}</button></p></div>
       <div class="cc-btns"><button class="cc-btn ok" type="button" data-cc="all">${t('cc_ok')}</button><button class="cc-btn" type="button" data-cc="no">${t('cc_refuse')}</button></div>
     </div>
     <div class="cc-opts" hidden>
