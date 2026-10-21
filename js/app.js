@@ -556,27 +556,29 @@ function renderFooterStack() {
   lazy(sb, renderSocialBand);
 }
 
-// ---------- cookiekeuze: statistieken met bezoekerscode alleen na toestemming ----------
+// ---------- cookiekeuze: compacte balk rechtsonder (SpanjeKompas-patroon, 21-10-2026), blokkeert de site niet ----------
+// Oke = statistiek + marketing, Weigeren = alleen noodzakelijk (even makkelijk, AEPD). Info klapt de categorieen open.
+// Zolang er geen keuze is staat alles op denied (gtag default), dus niet blokkeren mag.
 function consentBar(force) {
   if (!force && ls.get('consent', null) && consentCurrent()) return;
   let bar = $('#consent');
-  if (!bar) { bar = document.createElement('div'); bar.id = 'consent'; bar.className = 'consent'; bar.setAttribute('role', 'dialog'); bar.setAttribute('aria-modal', 'true'); bar.setAttribute('aria-label', t('cc_h')); document.body.appendChild(bar); }
-  let shade = $('#consentShade');
-  if (!shade) { shade = document.createElement('div'); shade.id = 'consentShade'; shade.className = 'consent-shade'; document.body.appendChild(shade); }
+  if (!bar) { bar = document.createElement('div'); bar.id = 'consent'; bar.className = 'consent'; bar.setAttribute('role', 'region'); bar.setAttribute('aria-label', t('cookie_settings')); document.body.appendChild(bar); }
   const cur = consentCurrent();
-  bar.innerHTML = `<h2 class="cc-h">${t('cc_h')}</h2>
-    <p>${t('cc_p')} <a href="${L('privacy')}">${t('privacy')}</a></p>
+  bar.innerHTML = `<div class="cc-row">
+      <p class="cc-line">${t('cc_short')} <button class="cc-info" type="button" aria-expanded="false">${t('cc_info')}</button></p>
+      <div class="cc-btns"><button class="cc-btn ok" type="button" data-cc="all">${t('cc_ok')}</button><button class="cc-btn" type="button" data-cc="no">${t('cc_refuse')}</button></div>
+    </div>
     <div class="cc-opts" hidden>
+      <p class="cc-p">${t('cc_p')} <a href="${L('privacy')}">${t('privacy')}</a></p>
       <label><input type="checkbox" checked disabled> <span><b>${t('cc_nec')}</b> ${t('cc_nec_d')}</span></label>
       <label><input type="checkbox" id="ccStat" ${cur && gaGranted() ? 'checked' : ''}> <span><b>${t('cc_stat')}</b> ${t('cc_stat_d')}</span></label>
       <label><input type="checkbox" id="ccAds" ${cur && adsGranted() ? 'checked' : ''}> <span><b>${t('cc_ads')}</b> ${t('cc_ads_d')}</span></label>
-      <button class="btn ghost cc-save" type="button" data-cc="save">${t('cc_save')}</button>
-    </div>
-    <div class="cc-btns"><button class="btn ghost" type="button" data-cc="no">${t('cc_no')}</button><button class="btn primary" type="button" data-cc="all">${t('cc_all')}</button></div>
-    <button class="cc-more" type="button" aria-expanded="false">${t('cc_set')}</button>`;
-  const more = $('.cc-more', bar), opts = $('.cc-opts', bar);
-  if (force) { opts.hidden = false; more.hidden = true; }
-  more.addEventListener('click', () => { opts.hidden = false; more.hidden = true; more.setAttribute('aria-expanded', 'true'); });
+      <button class="cc-btn cc-save" type="button" data-cc="save">${t('cc_save')}</button>
+    </div>`;
+  const info = $('.cc-info', bar), opts = $('.cc-opts', bar);
+  const open = on => { opts.hidden = !on; bar.classList.toggle('open', on); info.setAttribute('aria-expanded', String(on)); };
+  if (force) open(true);
+  info.addEventListener('click', () => open(opts.hidden));
   $$('[data-cc]', bar).forEach(b => b.addEventListener('click', () => {
     const k = b.dataset.cc;
     const stat = k === 'all' || (k === 'save' && $('#ccStat', bar).checked);
@@ -585,22 +587,15 @@ function consentBar(force) {
     gtag('consent', 'update', Object.assign({ analytics_storage: stat ? 'granted' : 'denied' }, adsState(ads)));
     if (stat) { S.vid = ls.get('vid', null) || rid(); ls.set('vid', S.vid); } else { S.vid = null; try { localStorage.removeItem('gs_vid'); } catch {} }
     if (ads) { const was = fbOn; fbLoad(); if (!was) fb('PageView'); } else fbStop();
-    track('consent', null, (stat ? 1 : 0) + (ads ? 2 : 0), { stat, ads, how: k, ui: 4 });
-    bar.classList.remove('in'); shade.classList.remove('in'); document.documentElement.classList.remove('cc-lock');
-    setTimeout(() => { bar.remove(); shade.remove(); }, 300);
+    track('consent', null, (stat ? 1 : 0) + (ads ? 2 : 0), { stat, ads, how: k, ui: 5 });
+    bar.classList.remove('in');
+    setTimeout(() => bar.remove(), 300);
   }));
-  consentMode();
-  if (!force) track('consent_shown', null, null, { ui: 4 });
-  requestAnimationFrame(() => { bar.classList.add('in'); shade.classList.add('in'); });
+  if (!force) track('consent_shown', null, null, { ui: 5 });
+  requestAnimationFrame(() => bar.classList.add('in'));
 }
-// op de privacypagina mag je eerst rustig lezen: banner dan zonder verduistering
-function consentMode() {
-  const bar = $('#consent'); if (!bar) return;
-  const reading = cur().key === 'privacy';
-  bar.classList.toggle('docked', reading);
-  document.documentElement.classList.toggle('cc-lock', !reading);
-  const sh = $('#consentShade'); if (sh) sh.hidden = reading;
-}
+// sinds de compacte balk (21-10-2026) geen verduistering of scroll-blokkade meer; route() roept dit nog aan
+function consentMode() {}
 addEventListener('click', e => { if (e.target.closest('[data-cookie-settings]')) { e.preventDefault(); consentBar(true); } });
 
 // ---------- live teller: telt snel op naar het aantal woningen van vandaag ----------
