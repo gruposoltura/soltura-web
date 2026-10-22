@@ -40,6 +40,10 @@ const WP_ORIGIN = '';
     favorites: { en: 'favorites', nl: 'favorieten', sv: 'favoriter' },
     property: { en: 'property', nl: 'woning', sv: 'bostad' },
   };
+  // subpagina's onder een vaste pagina (22-10-2026): maandlastencalculator onder Emigreren
+  // /nl/emigreren/maandlasten/ . /en/move-to-spain/monthly-costs/ . /sv/flytta-till-spanien/manadskostnader/
+  var COSTS = { en: 'monthly-costs', nl: 'maandlasten', sv: 'manadskostnader' };
+  function isCosts(s) { s = String(s || '').toLowerCase(); for (var l in COSTS) if (COSTS[l] === s) return true; return false; }
   // segment -> sleutel (beide talen; ook een segment uit de andere taal wordt herkend en daarna rechtgezet)
   var BYSEG = {};
   Object.keys(SEG).forEach(function (k) { LANGS.forEach(function (l) { if (SEG[k][l]) BYSEG[SEG[k][l]] = k; }); });
@@ -78,6 +82,7 @@ const WP_ORIGIN = '';
       var a = typeof arg === 'string' ? arg.toLowerCase() : propSlug(arg, lang);
       return '/' + lang + '/' + s + '/' + a + '/';
     }
+    if (key === 'costs') return '/' + lang + '/' + SEG.move[lang] + '/' + COSTS[lang] + '/';
     if (key === 'guide') return '/' + lang + '/' + s + '/' + encodeURIComponent(arg) + '/';
     if (key === 'news' && arg) return '/' + lang + '/' + s + '/' + encodeURIComponent(arg) + '/';
     return '/' + lang + '/' + (s ? s + '/' : '');
@@ -96,7 +101,8 @@ const WP_ORIGIN = '';
     var seg = (parts[1] || '').toLowerCase(), rest = parts.slice(2);
     if (!seg) return { lang: lang, key: 'home', arg: null };
     var key = BYSEG[seg];
-    if (!key) return null;
+    if (!key) return isCosts(seg) ? { lang: lang, key: 'costs', arg: null } : null; // ook /nl/maandlasten/ (wordt rechtgezet)
+    if (key === 'move' && rest[0]) return isCosts(rest[0]) ? { lang: lang, key: 'costs', arg: null } : { lang: lang, key: 'move', arg: null };
     if (key === 'property') { var ref = refFromSlug(rest[0]); return ref ? { lang: lang, key: key, arg: ref, slug: rest[0] } : { lang: lang, key: 'home', arg: null }; }
     if (key === 'guide') return rest[0] ? { lang: lang, key: 'guide', arg: rest[0].toLowerCase() } : { lang: lang, key: 'area', arg: null };
     if (key === 'area') return rest[0] ? { lang: lang, key: 'guide', arg: rest[0].toLowerCase() } : { lang: lang, key: 'area', arg: null };
@@ -112,7 +118,7 @@ const WP_ORIGIN = '';
     if (i >= 0) { q = h.slice(i); h = h.slice(0, i); }
     var parts = h.split('/').filter(Boolean).map(function (x) { try { return decodeURIComponent(x); } catch (e) { return x; } });
     var k = parts[0] || '', a = parts[1] || '';
-    var map = { '': 'home', buy: 'buy', sell: 'sell', move: 'move', contact: 'contact', team: 'contact', privacy: 'privacy', favorites: 'favorites' };
+    var map = { costs: 'costs', '': 'home', buy: 'buy', sell: 'sell', move: 'move', contact: 'contact', team: 'contact', privacy: 'privacy', favorites: 'favorites' };
     var path;
     if (k === 'home' && a) path = href(lang, 'property', a);
     else if (k === 'area') path = a ? href(lang, 'guide', a.toLowerCase()) : href(lang, 'area');

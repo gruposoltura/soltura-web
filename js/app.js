@@ -1470,6 +1470,7 @@ function pageMove() {
   return `<section class="page-hero">${video(VIDEO.village)}<div><p class="kicker">${t('nav_move')}</p><h1>${c.h}</h1><p>${c.lead}</p></div></section>
     <div class="pg">
       <div class="stages">${c.stages.map(([h, p], i) => `<div class="stage"><span>${i + 1}</span><h3>${h}</h3><p>${p}</p></div>`).join('')}</div>
+      ${COSTS.teaser(S.lang, L('costs'))}
       <p class="move-areas"><a href="${L('area')}">${t('areas_h')}: ${tx({ en: 'read about schools, healthcare, shops and festivals per town', nl: 'lees per woonplaats over scholen, zorg, winkels en feesten', sv: 'läs om skolor, vård, affärer och fester ort för ort' })} →</a></p>
       <div class="buy-grid move-grid">
         <div class="acc">${c.topics.map(([h, p], i) => `<details${i === 0 ? ' open' : ''}><summary>${h}</summary><p>${p}</p></details>`).join('')}
@@ -1483,6 +1484,12 @@ function pageMove() {
     ${homesRail()}
     <section class="pg form-band"><div><h2>${c.form_h}</h2><p>${c.form_p}</p></div>
       ${richForm('moveForm', 'move', [{ k: 'timing', label: t('f_when'), opts: t('f_when_opts') }, { k: 'budget', label: t('f_budget'), ph: '€' }, { k: 'household', label: t('f_household'), ph: t('f_household_ph') }, { k: 'area', label: t('f_area'), ph: t('f_area_ph') }], '')}</section>`;
+}
+// Maandlastencalculator (22-10-2026) onder Emigreren; invoer alleen in localStorage 'gs_ml' (js/costs.js)
+function pageCosts() {
+  const main = $('#main');
+  main.innerHTML = COSTS.html(S.lang, { move: L('move'), home: L('home'), buy: L('buy') }, ls.get('ml', null));
+  COSTS.bind(main, S.lang, { get: () => ls.get('ml', null), set: v => ls.set('ml', v) });
 }
 const LANG_NAME = { es: { en: 'Spanish', nl: 'Spaans', sv: 'spanska' }, nl: { en: 'Dutch', nl: 'Nederlands', sv: 'nederländska' }, en: { en: 'English', nl: 'Engels', sv: 'engelska' }, de: { en: 'German', nl: 'Duits', sv: 'tyska' }, fr: { en: 'French', nl: 'Frans', sv: 'franska' }, ca: { en: 'Valencian', nl: 'Valenciaans', sv: 'valencianska' }, sv: { en: 'Swedish', nl: 'Zweeds', sv: 'svenska' } };
 // taal van het artikel zelf (de koppen in news_posts zijn al naar het Nederlands herschreven)
@@ -1930,7 +1937,8 @@ function renderPage(r) {
   r = r || { key: 'home' };
   const key = r.key === 'guide' ? 'area' : r.key;
   currentPage = key; S.renderedLang = S.lang; S.renderedSearch = location.search;
-  $$('.nav a').forEach(a => { if (a.dataset.route === key) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  const navKey = key === 'costs' ? 'move' : key;
+  $$('.nav a').forEach(a => { if (a.dataset.route === navKey) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   navLinks();
   $('#nav').classList.remove('open'); $('#menuBtn').setAttribute('aria-expanded', 'false');
   const main = $('#main');
@@ -1939,6 +1947,7 @@ function renderPage(r) {
     case 'buy': main.innerHTML = pageBuy(); bindMortgage(null); bindForm($('#buyForm')); break;
     case 'sell': main.innerHTML = pageSell(); bindForm($('#sellForm')); break;
     case 'move': main.innerHTML = pageMove(); bindForm($('#moveForm')); break;
+    case 'costs': pageCosts(); break;
     case 'news': pageNews(r.arg || ''); break;
     case 'area': pageArea(r.key === 'guide' ? r.arg : ''); break;
     case 'contact': main.innerHTML = pageContact(); bindForm($('#contactForm')); if ('IntersectionObserver' in window) { const o = new IntersectionObserver(es => { if (es[0].isIntersecting) { o.disconnect(); initMap(); } }, { rootMargin: '300px' }); o.observe($('#mapEl')); } else initMap(); break;
@@ -1953,8 +1962,11 @@ function renderPage(r) {
   renderFooterStack();
   if (key !== 'home') hidePop();
   const names = { buy: 'nav_buy', sell: 'nav_sell', move: 'nav_move', area: 'nav_areas', news: 'nav_news', contact: 'nav_contact', favorites: 'fav_h', privacy: 'privacy' };
-  if (!((key === 'area' || key === 'news') && r.arg)) { S.pageTitle = key === 'home' || !names[key] ? 'Grupo Soltura · ' + t('hero_title') : `${t(names[key])} · Grupo Soltura`; document.title = S.pageTitle; }
+  if (key === 'costs') { S.pageTitle = `${COSTS.text(S.lang).h} · Grupo Soltura`; document.title = S.pageTitle; }
+  else if (!((key === 'area' || key === 'news') && r.arg)) { S.pageTitle = key === 'home' || !names[key] ? 'Grupo Soltura · ' + t('hero_title') : `${t(names[key])} · Grupo Soltura`; document.title = S.pageTitle; }
   track('page', null, null, { p: key });
+  // link met anker naar een andere pagina (bv. calculator -> /nl/emigreren/#moveForm): na het opbouwen naar het anker
+  if (location.hash.length > 1 && !location.hash.startsWith('#/')) { const el = document.getElementById(location.hash.slice(1)); if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); }
 }
 // vaste links in kop en voet in de taal van de pagina
 function navLinks() {

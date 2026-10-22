@@ -30,8 +30,8 @@ const die = (msg) => { console.error('[build] AFGEBROKEN: ' + msg); process.exit
 
 // ---------- teksten uit de site zelf (i18n.js, pages.js) ----------
 const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
-for (const f of ['js/i18n.js', 'js/pages.js']) vm.runInContext(fs.readFileSync(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
-const I18N = ctx.I18N, PAGES = ctx.PAGES;
+for (const f of ['js/i18n.js', 'js/pages.js', 'js/costs.js']) vm.runInContext(fs.readFileSync(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
+const I18N = ctx.I18N, PAGES = ctx.PAGES, COSTS = ctx.COSTS;
 // talen van de site (js/routes.js); Zweeds (sv) sinds 19-10-2026. tx({en,nl,sv}, lang) kiest een tekst (terugval Engels).
 const LANGS = R.LANGS;
 const tx = (o, lang) => o[lang] ?? o.en;
@@ -179,7 +179,7 @@ function page({ lang, key, path: p, alt, title: ttl, desc, image, jsonld = [], b
   // kop en voet in de taal van de pagina, met echte links
   h = h.replace(/(<a class="logo" href=")[^"]*(")/, `$1${R.href(lang, 'home')}$2`);
   h = h.replace(/(<a class="fav-link" href=")[^"]*(")/, `$1${R.href(lang, 'favorites')}$2`);
-  h = h.replace(/<a href="[^"]*" data-route="(\w+)"( data-t="\w+")?>/g, (m, r, dt) => `<a href="${R.href(lang, r)}" data-route="${r}"${dt || ''}${(key === 'guide' ? 'area' : key) === r ? ' aria-current="page"' : ''}>`);
+  h = h.replace(/<a href="[^"]*" data-route="(\w+)"( data-t="\w+")?>/g, (m, r, dt) => `<a href="${R.href(lang, r)}" data-route="${r}"${dt || ''}${(key === 'guide' ? 'area' : key === 'costs' ? 'move' : key) === r ? ' aria-current="page"' : ''}>`);
   h = h.replace(/href="[^"]*" data-href="(\w+)"/g, (m, r) => `href="${R.href(lang, r)}" data-href="${r}"`);
   h = h.replace(/(data-t="(\w+)"[^>]*>)([^<]*)(<)/g, (m, a, k, txt, b) => { const v = T(lang, k); return a + (typeof v === 'string' && v ? esc(v) : txt) + b; });
   h = h.replace('<a class="skip" href="#main">Skip to content</a>', `<a class="skip" href="#main">${tx({ en: 'Skip to content', nl: 'Naar de inhoud', sv: 'Till innehållet' }, lang)}</a>`);
@@ -228,6 +228,7 @@ function bodyMove(lang, props) {
   const c = PAGES[lang].move;
   return `<section class="page-hero"><div><p class="kicker">${esc(T(lang, 'nav_move'))}</p><h1>${c.h}</h1><p>${c.lead}</p></div></section>
   <div class="pg"><div class="stages">${c.stages.map(([h, p], i) => `<div class="stage"><span>${i + 1}</span><h3>${h}</h3><p>${p}</p></div>`).join('')}</div>
+  ${COSTS.teaser(lang, R.href(lang, 'costs'))}
   <p class="move-areas"><a href="${R.href(lang, 'area')}">${esc(T(lang, 'areas_h'))}</a></p>
   <div class="acc">${c.topics.map(([h, p]) => `<details open><summary>${h}</summary><p>${p}</p></details>`).join('')}<p class="disclaimer">${c.disclaimer}</p></div>
   <aside class="box side-cta"><h2>${c.form_h}</h2><p>${c.form_p}</p></aside></div>${homesRail(props, lang)}`;
@@ -360,6 +361,7 @@ async function main() {
     ['buy', l => ({ title: `${strip(PAGES[l].buy.h)} · Grupo Soltura`, desc: cut(strip(PAGES[l].buy.lead + ' ' + PAGES[l].buy.intro)), body: bodyBuy(l, props) })],
     ['sell', l => ({ title: `${strip(PAGES[l].sell.h)} · Grupo Soltura`, desc: cut(strip(PAGES[l].sell.lead)), body: bodySell(l) })],
     ['move', l => ({ title: `${strip(PAGES[l].move.h)} · Grupo Soltura`, desc: cut(strip(PAGES[l].move.lead)), body: bodyMove(l, props) })],
+    ['costs', l => ({ title: `${COSTS.text(l).title} · Grupo Soltura`, desc: cut(COSTS.text(l).desc), body: COSTS.html(l, { move: R.href(l, 'move'), home: R.href(l, 'home'), buy: R.href(l, 'buy') }), crumb: [[strip(PAGES[l].move.h), R.href(l, 'move')], [COSTS.text(l).crumb, R.href(l, 'costs')]] })],
     ['area', l => ({ title: `${T(l, 'areas_h')} · Grupo Soltura`, desc: cut(T(l, 'areas_p')), body: bodyAreas(l, G[l], props), lastmod: G[l].map(g => g.updated_at).sort().pop()?.slice(0, 10) })],
     ['contact', l => ({ title: `${T(l, 'contact_h')} · Grupo Soltura`, desc: cut(T(l, 'contact_p') + ' Avda. de la Constitución s/n, 03179 Formentera del Segura. +34 966 792 113.'), body: bodyContact(l), jsonld: [ld(ORG)] })],
     ['privacy', l => ({ title: `${strip(PAGES[l].privacy.h)} · Grupo Soltura`, desc: cut(strip(PAGES[l].privacy.sections[0][1])), body: bodyPrivacy(l) })],
@@ -368,7 +370,7 @@ async function main() {
     const alt = both(key);
     for (const l of LANGS) {
       const c = fnc(l);
-      const jsonld = [...(c.jsonld || []), ...(key === 'home' ? [] : [crumbs([['Grupo Soltura', R.href(l, 'home')], [strip(c.title.split(' · ')[0]), R.href(l, key)]])])];
+      const jsonld = [...(c.jsonld || []), ...(key === 'home' ? [] : [crumbs([['Grupo Soltura', R.href(l, 'home')], ...(c.crumb || [[strip(c.title.split(' · ')[0]), R.href(l, key)]])])])];
       const html = page({ lang: l, key, path: alt[l], alt, title: c.title, desc: c.desc, jsonld, body: c.body });
       write(alt[l], html);
       if (key === 'home' && l === 'en') write('/', html);

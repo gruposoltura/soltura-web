@@ -985,3 +985,57 @@ img,video,svg{max-width:100%}
 .prop-static .keyfacts{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
 .prop-static .keyfacts dt{color:var(--muted);font-size:13px}
 .prop-static .keyfacts dd{margin:0;font-weight:700}
+
+/* ---------- maandlastencalculator (22-10-2026): /nl/emigreren/maandlasten/ ---------- */
+.ml-hero .kicker a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(251,204,16,.5)}
+.ml-hero .kicker a:hover{border-bottom-color:var(--lemon)}
+.ml{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,1fr);gap:32px;align-items:start}
+.ml-in{display:grid;gap:18px;min-width:0}
+.ml-in fieldset{margin:0;min-width:0}
+.ml-in fieldset.box{background:#fff;border:1px solid var(--mist);border-radius:16px;padding:8px 22px 14px}
+.ml-in legend{float:left;width:100%;font:400 clamp(22px,2.2vw,27px)/1.2 var(--serif);padding:14px 0 6px;margin:0}
+.ml-in legend+*{clear:both}
+.ml-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,230px);gap:8px 16px;align-items:center;padding:10px 0;border-bottom:1px solid var(--mist)}
+.ml-groep .ml-row:last-child,.ml-in fieldset>.ml-row:last-of-type{border-bottom:0}
+.ml-row label{font-weight:600;line-height:1.35}
+.ml-maal{display:block;font-weight:400;color:var(--muted);font-size:13.5px;margin-top:2px}
+.ml-row select,.ml-row>input,.ml-eur input{width:100%;border:1px solid var(--mist);border-radius:10px;padding:10px 12px;background:#fff;min-height:44px}
+.ml-row select{appearance:auto}
+.ml-eur{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px}
+.ml-eur>span:first-child{color:var(--muted);font-weight:600}
+.ml-eur input{text-align:right;font-variant-numeric:tabular-nums}
+.ml-eur input.eigen{border-color:var(--lemon);background:var(--lemon-soft)}
+.ml-per{font-size:13px;color:var(--muted);white-space:nowrap}
+.ml-gt{margin:16px 0 0;font:700 12.5px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--sea)}
+.ml-groep:first-of-type .ml-gt{margin-top:6px}
+.ml-hint{margin:0;padding:14px 18px;border-radius:14px;background:var(--lemon-soft);color:var(--ink);line-height:1.5}
+.ml-help{margin:4px 0 0;font-size:14px;color:var(--muted)}
+.ml-reset{justify-self:start}
+.ml-uit{position:sticky;top:calc(var(--top-h,90px) + 20px);background:var(--sea-deep);color:#fff;border-radius:18px;padding:24px;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.ml-uit::before{content:"";display:block;height:5px;margin:-24px -24px 8px;background:var(--sun)}
+.ml-uit .kicker{color:var(--lemon);margin:0}
+.ml-tot{margin:0;display:flex;flex-direction:column;gap:2px}
+.ml-tot span{color:#D3DBDF;font-size:15px}
+.ml-tot b{font:400 clamp(42px,5vw,58px)/1 var(--serif);font-variant-numeric:tabular-nums}
+.ml-jaar{margin:0;color:#D3DBDF}
+.ml-bars{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:10px}
+.ml-bars li{display:grid;grid-template-columns:1fr auto;gap:4px 10px;font-size:15px}
+.ml-bv{font-weight:700;font-variant-numeric:tabular-nums}
+.ml-bar{grid-column:1/-1;height:8px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}
+.ml-bar i{display:block;height:100%;border-radius:99px;background:var(--lemon);transition:width .35s var(--ease)}
+.ml-verg{margin:4px 0 0;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.1);line-height:1.45}
+.ml-verg b{color:var(--lemon)}
+.ml-excl{margin:0;font-size:13.5px;color:#B9C4C9;line-height:1.45}
+.ml-uit .btn{justify-content:center}
+.ml-link{color:#fff;font-weight:600;font-size:15px}
+.ml-exp{max-width:80ch}
+.ml-exp p{line-height:1.6;color:var(--ink-2)}
+@media (max-width:960px){.ml{grid-template-columns:1fr}.ml-uit{position:static;order:-1}}
+@media (max-width:520px){.ml-row{grid-template-columns:1fr}.ml-in fieldset.box{padding:6px 16px 12px}}
+/* teaser op de Emigreren-pagina */
+.ml-teaser{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;margin:0 0 30px;padding:20px 24px;border-radius:16px;background:var(--lemon-soft);border:1px solid #F3DE8A;color:var(--ink);text-decoration:none;transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+.ml-teaser:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(46,59,66,.12)}
+.ml-teaser-ico{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:var(--lemon);font:700 24px var(--sans)}
+.ml-teaser b{display:block;font:500 22px/1.2 var(--serif);margin-bottom:4px}
+.ml-teaser>span:nth-child(2)>span{color:var(--ink-2);line-height:1.45}
+@media (max-width:760px){.ml-teaser{grid-template-columns:auto 1fr}.ml-teaser .btn{grid-column:1/-1;justify-content:center}}
