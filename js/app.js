@@ -1620,7 +1620,7 @@ const OFFICE_LL = [38.0871507, -0.7407113];
 const OFFICE_IMG = MEDIA + 'contact-office.jpg';
 let leafletP = null;
 function loadLeaflet() {
-  if (window.L) return Promise.resolve();
+  if (window.L && window.L.map) return Promise.resolve();
   if (!leafletP) leafletP = new Promise((ok, no) => {
     const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css'; document.head.appendChild(css);
     const js = document.createElement('script'); js.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js'; js.onload = ok; js.onerror = no; document.head.appendChild(js);
@@ -1631,12 +1631,14 @@ async function initMap() {
   const el = $('#mapEl'); if (!el) return;
   try { await loadLeaflet(); } catch { el.innerHTML = `<a class="map-load" href="https://www.openstreetmap.org/?mlat=${OFFICE_LL[0]}&mlon=${OFFICE_LL[1]}#map=17/${OFFICE_LL[0]}/${OFFICE_LL[1]}" target="_blank" rel="noopener">OpenStreetMap</a>`; return; }
   if (!document.body.contains(el)) return;
+  // Leaflet heet globaal L, maar binnen deze app is L de linkhelper (pad per taal): altijd window.L gebruiken
+  const LF = window.L;
   el.innerHTML = '';
-  const map = L.map(el, { scrollWheelZoom: false, zoomControl: true, attributionControl: true }).setView([OFFICE_LL[0] + 0.0012, OFFICE_LL[1]], 16);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }).addTo(map);
-  const pin = L.divIcon({ className: 'soltura-pin', iconSize: [64, 84], iconAnchor: [32, 80], popupAnchor: [0, -76],
+  const map = LF.map(el, { scrollWheelZoom: false, zoomControl: true, attributionControl: true }).setView([OFFICE_LL[0] + 0.0012, OFFICE_LL[1]], 16);
+  LF.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }).addTo(map);
+  const pin = LF.divIcon({ className: 'soltura-pin', iconSize: [64, 84], iconAnchor: [32, 80], popupAnchor: [0, -76],
     html: `<span class="sp-pulse"></span><svg viewBox="0 0 64 84" aria-hidden="true"><path d="M32 82C32 82 6 52 6 31a26 26 0 0 1 52 0c0 21-26 51-26 51z" fill="#C63232" stroke="#fff" stroke-width="3"/><circle cx="32" cy="30" r="17" fill="#fff"/><circle cx="32" cy="22" r="6.5" fill="#FBCC10"/><path d="M20 39l12-11 12 11v3H20z" fill="#C63232"/></svg>` });
-  L.marker(OFFICE_LL, { icon: pin, title: 'Grupo Soltura Real Estate' }).addTo(map)
+  LF.marker(OFFICE_LL, { icon: pin, title: 'Grupo Soltura Real Estate' }).addTo(map)
     .bindPopup(`<b>Grupo Soltura Real Estate</b><br>Avda. de la Constitución s/n<br>03179 Formentera del Segura<br><a href="https://www.google.com/maps/dir/?api=1&destination=${OFFICE_LL.join(',')}" target="_blank" rel="noopener">${t('c_route')} →</a>`).openPopup();
   // scrollen over de pagina blijft scrollen; na een klik op de kaart mag je zoomen
   map.on('click', () => map.scrollWheelZoom.enable());
