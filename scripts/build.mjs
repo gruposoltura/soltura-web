@@ -155,7 +155,10 @@ function nearby(g, list, n = 4) {
 const PARENT = { 'ciudad-quesada': { name: 'Rojales', slug: 'rojales' }, 'orihuela-costa': { name: 'Orihuela', slug: null } };
 
 // ---------- pagina-sjabloon (index.html van de site zelf) ----------
-const TEMPLATE = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+// versie achter elk script en stylesheet (commit-id), zodat browser en Cloudflare na een deploy meteen de nieuwe JS/CSS laden
+const VER = (process.env.GITHUB_SHA || Date.now().toString(36)).slice(0, 8);
+const stamp = h => h.replace(/(src|href)="(\/(?:js|css)\/[\w.-]+\.(?:js|css))"/g, `$1="$2?v=${VER}"`);
+const TEMPLATE = stamp(fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8'));
 let FOOT_GUIDES = { en: '', nl: '', sv: '' };
 function page({ lang, key, path: p, alt, title: ttl, desc, image, jsonld = [], body, noindex = false, ogType = 'website' }) {
   let h = TEMPLATE;
@@ -333,6 +336,8 @@ function copySite() {
   fs.mkdirSync(OUT, { recursive: true });
   const skip = new Set(['.git', '.github', 'dist', 'scripts', 'supabase', 'node_modules', 'README.md', 'sitemap.xml', 'test']);
   for (const e of fs.readdirSync(ROOT)) { if (skip.has(e) || e === path.basename(OUT)) continue; fs.cpSync(path.join(ROOT, e), path.join(OUT, e), { recursive: true }); }
+  const idx = path.join(OUT, 'index.html');
+  if (fs.existsSync(idx)) fs.writeFileSync(idx, stamp(fs.readFileSync(idx, 'utf8')));
 }
 
 async function main() {
