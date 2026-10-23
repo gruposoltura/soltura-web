@@ -3,5 +3,6 @@ Allow: /
 Disallow: /redirects.json
 Disallow: /routes.json
 Disallow: /build.json
+Disallow: /downloads/
 
 Sitemap: https://gruposoltura.com/sitemap.xml
