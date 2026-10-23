@@ -1163,3 +1163,26 @@ img,video,svg{max-width:100%}
   .gd-sol{flex-direction:column}
 }
 @media (prefers-reduced-motion:reduce){.sol-msg,.sol-done,.sol-done-fly,.sol-conf,.sol-chips button{animation:none}.sol-conf{display:none}}
+
+/* ---------- Ava: gezicht van de live assistent (23-10-2026, icons/ava-*.webp) ---------- */
+.ava-img{display:block;width:100%;height:100%;border-radius:50%;object-fit:cover;background:#0A7BF0}
+.chat-av,.ab-av,.sol-av{padding:0;overflow:visible;background:#0A7BF0}
+.chat-av .ava-img,.ab-av .ava-img,.sol-av .ava-img{position:absolute;inset:0}
+.ab-av{position:relative}
+.chat-av.lg{width:96px;height:96px;flex:0 0 96px}
+.chat-av.lg .online{width:16px;height:16px;right:4px;bottom:4px}
+.gd-ava{position:relative;display:inline-block;margin:0 0 18px}
+.gd-ava-img{width:176px;height:176px;border-radius:44px;box-shadow:0 22px 50px rgba(0,0,0,.4),0 0 0 6px rgba(255,255,255,.12);animation:avaFloat 5s ease-in-out infinite}
+.gd-ava-tag{position:absolute;right:-10px;bottom:10px;display:inline-flex;align-items:center;gap:6px;background:#fff;color:var(--ink);border-radius:999px;padding:5px 11px;font:700 12.5px/1 var(--sans);box-shadow:0 6px 16px rgba(0,0,0,.25)}
+.gd-ava-tag i{width:8px;height:8px;border-radius:50%;background:#3BD16F;animation:livepulse 1.8s infinite}
+@keyframes avaFloat{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-8px) rotate(1.5deg)}}
+.chat-fab .fab-ava{width:28px;height:28px;border-radius:50%;margin:-6px 0 -6px -10px;box-shadow:0 0 0 2px #fff}
+.chat-fab:has(.fab-ava)::before{display:none}
+@media (max-width:900px){.gd-ava-img{width:112px;height:112px;border-radius:30px}.gd-ava{margin-bottom:12px}}
+@media (prefers-reduced-motion:reduce){.gd-ava-img{animation:none}}
+.gd-ava{display:block;width:max-content}
+.ai-badge.sol-hi{padding:4px 16px 4px 4px;font-size:15px}
+.sol-hi .sol-av{width:40px;height:40px}
+.sol-hi .sol-av i{width:10px;height:10px}
+.gd-promo-sol .chat-av{width:40px;height:40px}
+.gd-promo-sol{font-size:14px}

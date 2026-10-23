@@ -1,4 +1,4 @@
--- 075 (23-10-2026): kennisbank woon/koopgids voor live assistent Sol + formulier web-guide-assistant.
+-- 075 (23-10-2026): kennisbank woon/koopgids voor live assistent Ava + formulier web-guide-assistant.
 -- web_guide_knowledge: de inhoud van de gids "Thuis aan de Costa Blanca" in korte, feitelijke secties (Engels = bron,
 -- het model antwoordt in de taal van de bezoeker). Alleen leesbaar via service role (edge function web-assistant).
 -- Regels: geen tarieven van onze diensten (op aanvraag, besluit Rick 23-10-2026); belastingpercentages komen uit web_config.
@@ -49,11 +49,11 @@ on conflict (key) do update set part = excluded.part, title = excluded.title, bo
 
 -- formulier voor NEXUS (filters, flows) en WebFormIntake (kind guide -> LeadProcessor-v2 -> PurchaseInfoV2)
 insert into core.request_forms (key, label_nl, label_en, channel, kind, active, sort, notes)
-values ('web-guide-assistant', 'Woon/koopgids via live assistent Sol (gidspagina)', 'Living/buying guide via live assistant Sol (guide page)', 'website', 'guide', true, 16,
-        'Gesprek met Sol op /nl/woongids/ /en/buying-guide/ /sv/kopguide/: naam, e-mail, mobiel, plannen, gidstaal. Zelfde leadproces als andere formulieren.')
+values ('web-guide-assistant', 'Woon/koopgids via live assistent Ava (gidspagina)', 'Living/buying guide via live assistant Ava (guide page)', 'website', 'guide', true, 16,
+        'Gesprek met Ava op /nl/woongids/ /en/buying-guide/ /sv/kopguide/: naam, e-mail, mobiel, plannen, gidstaal. Zelfde leadproces als andere formulieren.')
 on conflict (key) do update set label_nl = excluded.label_nl, label_en = excluded.label_en, kind = excluded.kind, notes = excluded.notes, updated_at = now();
 
 insert into core.request_forms (key, label_nl, label_en, channel, kind, active, sort, notes)
-values ('web-guide-assistant-handoff', 'Persoonlijk contact gevraagd via live assistent Sol', 'Personal contact requested via live assistant Sol', 'website', 'contact', true, 17,
+values ('web-guide-assistant-handoff', 'Persoonlijk contact gevraagd via live assistent Ava', 'Personal contact requested via live assistant Ava', 'website', 'contact', true, 17,
         'Na de gidsaanvraag vraagt de bezoeker in het gesprek met Sol om persoonlijk contact; bericht bevat de vraag en het gesprek.')
 on conflict (key) do nothing;

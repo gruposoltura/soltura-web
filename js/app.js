@@ -703,7 +703,7 @@ function renderHome() {
     <div class="hero-body">
       <h1>${t('hero_title')}</h1>
       <p class="sub">${t('hero_sub')}</p>
-      <div class="hero-badges"><div class="ai-badge sol-hi"><span class="sol-av">${GIDS.NAME[0]}<i></i></span><span>${t('ai_badge')}</span></div><a class="rv-pill" id="rvPill" hidden target="_blank" rel="noopener" data-social="reviews_hero"></a></div>
+      <div class="hero-badges"><div class="ai-badge sol-hi"><span class="sol-av">${GIDS.avatar(26)}<i></i></span><span>${t('ai_badge')}</span></div><a class="rv-pill" id="rvPill" hidden target="_blank" rel="noopener" data-social="reviews_hero"></a></div>
       <form class="ask" id="askForm" role="search">
         <input id="askInput" type="search" autocomplete="off" placeholder="${esc(t('ask_ph'))}" aria-label="${esc(t('ask_ph'))}">
         <button type="submit" id="askBtn">${t('ask_btn')}</button>
@@ -792,7 +792,7 @@ function renderFeed(append = false) {
   if (!list.length) {
     // filters via de balk: geen lege pagina maar een ballon met concrete aanpassingen
     S.sugg = relaxations();
-    feed.innerHTML = `<div class="ai-bubble in warn feed-bubble" style="grid-column:1/-1"><span class="ab-av">S</span><div class="ab-body">
+    feed.innerHTML = `<div class="ai-bubble in warn feed-bubble" style="grid-column:1/-1"><span class="ab-av">${GIDS.avatar(34)}</span><div class="ab-body">
       <div class="ab-none"><b>${t('none_h')}</b> ${t('none_bar')}</div>
       ${S.sugg.length ? `<div class="ab-sugg">${S.sugg.map((x, i) => `<button type="button" data-sug="${i}">${esc(x.label)} <small>${x.n}</small></button>`).join('')}</div>` : ''}
       <p class="ab-tip">${t('none_contact')} <a href="${L('contact')}">${t('nav_contact')}</a></p></div></div>`;
@@ -878,13 +878,13 @@ async function aiSearch(q) {
       S.f = Object.assign(blankFilters(), { ref_prefix: pre }); S.type = 'all'; S.shown = PAGE;
       const n = S.all.filter(p => match(p)).length;
       out.className = 'ai-bubble in';
-      out.innerHTML = `<span class="ab-av">S</span><div class="ab-body"><p class="ab-reply">${t('ref_prefix_ok', n, esc(pre))}</p></div>`;
+      out.innerHTML = `<span class="ab-av">${GIDS.avatar(34)}</span><div class="ab-body"><p class="ab-reply">${t('ref_prefix_ok', n, esc(pre))}</p></div>`;
       track('search_ref_prefix', null, n, { pre });
       renderBar(); renderFeed(); logResults('ref_prefix', q);
       setTimeout(() => $('#bar').scrollIntoView({ behavior: 'smooth', block: 'start' }), 900);
     } else {
       out.className = 'ai-bubble in warn';
-      out.innerHTML = `<span class="ab-av">S</span><div class="ab-body"><div class="ab-none"><b>${t('ref_prefix_none', esc(pre.none))}</b> ${t('ref_prefix_tip')}</div></div>`;
+      out.innerHTML = `<span class="ab-av">${GIDS.avatar(34)}</span><div class="ab-body"><div class="ab-none"><b>${t('ref_prefix_none', esc(pre.none))}</b> ${t('ref_prefix_tip')}</div></div>`;
     }
     return;
   }
@@ -892,20 +892,20 @@ async function aiSearch(q) {
   if (ref) {
     out.hidden = false; out.className = 'ai-bubble in' + (ref.p ? '' : ' warn');
     if (ref.p) {
-      out.innerHTML = `<span class="ab-av">S</span><div class="ab-body"><p class="ab-reply">${t('ref_open', esc(ref.p.reference))}</p></div>`;
+      out.innerHTML = `<span class="ab-av">${GIDS.avatar(34)}</span><div class="ab-body"><p class="ab-reply">${t('ref_open', esc(ref.p.reference))}</p></div>`;
       track('search_ref', null, null, { ref: ref.p.reference });
       go(ph(ref.p));
     } else if (ref.many) {
       S.sugg = ref.many.map(p => ({ ref: p.reference }));
-      out.innerHTML = `<span class="ab-av">S</span><div class="ab-body"><p class="ab-reply">${t('ref_many')}</p><div class="ab-sugg">${ref.many.slice(0, 8).map(p => `<a class="ab-ref" href="${ph(p)}">${esc(p.reference)} <small>${esc(p.town || '')}</small></a>`).join('')}</div></div>`;
+      out.innerHTML = `<span class="ab-av">${GIDS.avatar(34)}</span><div class="ab-body"><p class="ab-reply">${t('ref_many')}</p><div class="ab-sugg">${ref.many.slice(0, 8).map(p => `<a class="ab-ref" href="${ph(p)}">${esc(p.reference)} <small>${esc(p.town || '')}</small></a>`).join('')}</div></div>`;
     } else {
-      out.innerHTML = `<span class="ab-av">S</span><div class="ab-body"><div class="ab-none"><b>${t('ref_missing_h', esc(ref.missing))}</b> ${t('ref_missing_p')}</div><p class="ab-tip"><a href="https://wa.me/34664414515?text=${encodeURIComponent(t('wa_text', ref.missing))}" target="_blank" rel="noopener">WhatsApp</a> · <a href="${L('contact')}">${t('nav_contact')}</a></p></div>`;
+      out.innerHTML = `<span class="ab-av">${GIDS.avatar(34)}</span><div class="ab-body"><div class="ab-none"><b>${t('ref_missing_h', esc(ref.missing))}</b> ${t('ref_missing_p')}</div><p class="ab-tip"><a href="https://wa.me/34664414515?text=${encodeURIComponent(t('wa_text', ref.missing))}" target="_blank" rel="noopener">WhatsApp</a> · <a href="${L('contact')}">${t('nav_contact')}</a></p></div>`;
       track('search_ref_missing', null, null, { ref: ref.missing });
     }
     return;
   }
   btn.disabled = true; btn.textContent = t('asking');
-  out.hidden = false; out.className = 'ai-bubble'; out.innerHTML = `<span class="ab-av">S</span><div class="ab-body"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+  out.hidden = false; out.className = 'ai-bubble'; out.innerHTML = `<span class="ab-av">${GIDS.avatar(34)}</span><div class="ab-body"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
   track('search', null, null, { q: q.slice(0, 200) });
   const r = await fn('web-assistant', { mode: 'search', lang: S.lang, query: q }).catch(() => ({}));
   if (r.filters) {
@@ -948,7 +948,7 @@ async function aiSearch(q) {
   } else if (!r.filters && r.reply) track(r.intent === 'off_topic' ? 'search_offtopic' : 'search_local', null, null, { q: q.slice(0, 120) });
   out.className = 'ai-bubble in' + (note.includes('ab-none') ? ' warn' : '');
   btn.disabled = false; btn.textContent = t('ask_btn');
-  out.innerHTML = `<span class="ab-av">S</span><div class="ab-body">${reply ? `<p class="ab-reply">${esc(reply)}</p>` : ''}${cta}${note}</div>`;
+  out.innerHTML = `<span class="ab-av">${GIDS.avatar(34)}</span><div class="ab-body">${reply ? `<p class="ab-reply">${esc(reply)}</p>` : ''}${cta}${note}</div>`;
   bindSugg(out);
   renderBar(); renderFeed();
   if (r.filters) logResults('assistant', q);
@@ -1058,7 +1058,7 @@ async function openSheet(ref) {
       </div>
       <aside class="side">
         <div class="box chat" id="chatBox">
-          <div class="chat-head"><div class="chat-av">S<i class="online"></i></div><div><h3>${t('ask_h')}</h3><p>${t('ask_sub')}</p></div></div>
+          <div class="chat-head"><div class="chat-av">${GIDS.avatar(46)}<i class="online"></i></div><div><h3>${t('ask_h')}</h3><p>${t('ask_sub')}</p></div></div>
           <div class="log" id="chatLog"><div class="msg a intro typing-dots"><span></span><span></span><span></span></div></div>
           <div class="sugg" id="chatSugg">${t('ask_start').map(s => `<button type="button">${esc(s)}</button>`).join('')}</div>
           <form id="chatForm"><input id="chatIn" autocomplete="off" placeholder="${esc(t('ask_ph2'))}" aria-label="${esc(t('ask_ph2'))}"><button type="submit">${t('send')}</button></form>
@@ -1077,7 +1077,7 @@ async function openSheet(ref) {
         <div class="box social-box" id="socialBox"></div>
       </aside>
     </div>
-    <button class="chat-fab" type="button" id="chatFab">${t('ask_fab')}</button>
+    <button class="chat-fab" type="button" id="chatFab">${GIDS.avatar(28, 'fab-ava')}${t('ask_fab')}</button>
     <div class="sh-area" id="shArea"></div>
     <div class="sh-more" id="shMore"></div>
     <div class="sh-next"><button class="btn ghost" type="button" data-step="-1">← ${t('prev_home')}</button><button class="btn primary" type="button" data-step="1">${t('next_home')} →</button></div>`;
@@ -1498,7 +1498,7 @@ function pageMove() {
     <section class="pg form-band"><div><h2>${c.form_h}</h2><p>${c.form_p}</p></div>
       ${richForm('moveForm', 'move', [{ k: 'timing', label: t('f_when'), opts: t('f_when_opts') }, { k: 'budget', label: t('f_budget'), ph: '€' }, { k: 'household', label: t('f_household'), ph: t('f_household_ph') }, { k: 'area', label: t('f_area'), ph: t('f_area_ph') }], '')}</section>`;
 }
-// Woon/koopgids met live assistent Sol (23-10-2026): /nl/woongids/ · /en/buying-guide/ · /sv/kopguide/ (js/gids.js)
+// Woon/koopgids met live assistent Ava (23-10-2026): /nl/woongids/ · /en/buying-guide/ · /sv/kopguide/ (js/gids.js)
 function solDeps(o) {
   return Object.assign({
     fn, track, ls, href: k => L(k), homeHref: p => ph(p), catName, word: k => t(k), formName: 'web-guide-assistant',

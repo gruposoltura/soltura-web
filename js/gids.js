@@ -1,17 +1,19 @@
-/* Grupo Soltura website — Woon/koopgids met live assistent Sol (23-10-2026).
+/* Grupo Soltura website — Woon/koopgids met live assistent Ava (23-10-2026).
    /nl/woongids/ · /en/buying-guide/ · /sv/kopguide/
-   Geen formulier maar een gesprek: Sol vraagt naam, e-mail, mobiel (en plannen + gidstaal), meldt enthousiast dat de gids
+   Geen formulier maar een gesprek: Ava vraagt naam, e-mail, mobiel (en plannen + gidstaal), meldt enthousiast dat de gids
    onderweg is en praat daarna door over kopen, verkopen, kosten, gebieden en onze woningen (edge function web-assistant, mode=guide).
    Elke aanvraag is een lead zoals de andere formulieren: web-contact kind 'guide' -> WebFormIntake-v2 -> LeadProcessor-v2 -> PurchaseInfoV2.
    Gedeeld door de app (GIDS.html + GIDS.bind + GIDS.promo) en de statische build (GIDS.html + GIDS.promo). */
 (function (root) {
   'use strict';
-  var NAME = 'Sol'; // naam van de live assistent: alleen hier (en in de edge function) aanpassen
+  var NAME = 'Ava'; // naam van de live assistent (vrouwelijk, sinds 23-10-2026; eerst 'Sol'): alleen hier, in i18n.js en in de edge function aanpassen
+  // gezicht van Ava (icons/ava-*.webp|png); avatar(size) geeft een <img> voor ronde avatars en illustraties
+  function avatar(size, cls) { var s = size > 96 ? 256 : size > 48 ? 128 : 64; return '<img class="ava-img' + (cls ? ' ' + cls : '') + '" src="/icons/ava-' + s + '.webp" width="' + size + '" height="' + size + '" alt="' + NAME + '" loading="lazy" decoding="async">'; }
 
   var TX = {
     nl: {
       after2: 'Ik ben er weer voor al je vragen. Over het koopproces, de kosten, de dorpen of onze woningen: vraag maar raak.', read: 'Lees verder:', cta_chat: 'Begin het gesprek met ' + NAME, kicker: 'Gratis woon- en koopgids', crumb: 'Woongids', title: 'Gratis woon- en koopgids Costa Blanca',
-      desc: 'Thuis aan de Costa Blanca: onze gratis woon- en koopgids voor de Vega Baja. Vraag hem aan bij Sol, onze live assistent, en stel daarna al je vragen over kopen, kosten en wonen.',
+      desc: 'Thuis aan de Costa Blanca: onze gratis woon- en koopgids voor de Vega Baja. Vraag hem aan bij Ava, onze live assistent, en stel daarna al je vragen over kopen, kosten en wonen.',
       hi: 'Hoi, ik ben ' + NAME + ', jouw live assistent',
       lead: 'Ik stuur je onze exclusieve gids "Thuis aan de Costa Blanca" en daarna beantwoord ik al je vragen: over het koopproces, de kosten, de dorpen en onze woningen.',
       guideTitle: 'Thuis aan de Costa Blanca', guideSub: 'Woon- en koopgids Vega Baja',
@@ -64,7 +66,7 @@
       handoff_q: 'Zal ik een collega vragen om persoonlijk contact met je op te nemen?', handoff_yes: 'Ja, graag', handoff_ok: 'Geregeld. Een collega neemt zo snel mogelijk contact met je op, meestal binnen een werkdag.',
       sorry: 'Dat weet ik niet zeker. App ons gerust, dan helpen we je persoonlijk.',
       page: { buy: 'Kopen', sell: 'Verkopen', move: 'Emigreren', costs: 'Maandlastencalculator', area: 'Woonplaatsen', contact: 'Contact' },
-      promo_h: 'Gratis woon- en koopgids', promo_p: 'Alles over kopen en wonen aan de Costa Blanca, in gewone taal. Sol stuurt hem je toe en beantwoordt daarna je vragen.',
+      promo_h: 'Gratis woon- en koopgids', promo_p: 'Alles over kopen en wonen aan de Costa Blanca, in gewone taal. Ava stuurt hem je toe en beantwoordt daarna je vragen.',
       promo_items: ['Elke stap van reservering tot sleutel', 'Wat het echt kost, in drie lagen', 'De dorpen van de Vega Baja'], promo_btn: 'Vraag hem aan bij ' + NAME,
       p_plan: 'Plannen', p_lang: 'Taal gids', p_via: 'Aangevraagd via een gesprek met ' + NAME + ' op de gidspagina.', p_via_prop: 'Aangevraagd via ' + NAME + ' op de woningpagina',
       cmp_intro: 'Zal ik je de gratis koopgids sturen? Dan heb ik even je naam, e-mail en mobiel nodig.', cmp_start: 'Ja, stuur maar',
@@ -72,7 +74,7 @@
     },
     en: {
       after2: "I'm here again for all your questions. About the buying process, the costs, the towns or our homes: just ask.", read: 'Read more:', cta_chat: 'Start chatting with ' + NAME, kicker: 'Free living & buying guide', crumb: 'Buying guide', title: 'Free Costa Blanca buying guide',
-      desc: 'At home on the Costa Blanca: our free living and buying guide for the Vega Baja. Ask Sol, our live assistant, for your copy and then ask anything about buying, costs and living here.',
+      desc: 'At home on the Costa Blanca: our free living and buying guide for the Vega Baja. Ask Ava, our live assistant, for your copy and then ask anything about buying, costs and living here.',
       hi: 'Hi, I\'m ' + NAME + ', your live assistant',
       lead: 'I\'ll send you our exclusive guide "At home on the Costa Blanca", and then I\'ll answer all your questions: about the buying process, the costs, the towns and our homes.',
       guideTitle: 'At home on the Costa Blanca', guideSub: 'Living & buying guide Vega Baja',
@@ -124,7 +126,7 @@
       handoff_q: 'Shall I ask a colleague to contact you personally?', handoff_yes: 'Yes, please', handoff_ok: 'Done. A colleague will get in touch as soon as possible, usually within one working day.',
       sorry: 'I\'m not sure about that. Feel free to WhatsApp us and we\'ll help you personally.',
       page: { buy: 'Buying', sell: 'Selling', move: 'Move to Spain', costs: 'Monthly cost calculator', area: 'Areas', contact: 'Contact' },
-      promo_h: 'Free living & buying guide', promo_p: 'Everything about buying and living on the Costa Blanca, in plain language. Sol sends it to you and then answers your questions.',
+      promo_h: 'Free living & buying guide', promo_p: 'Everything about buying and living on the Costa Blanca, in plain language. Ava sends it to you and then answers your questions.',
       promo_items: ['Every step from reservation to keys', 'What it really costs, in three layers', 'The towns of the Vega Baja'], promo_btn: 'Ask ' + NAME + ' for it',
       p_plan: 'Plans', p_lang: 'Guide language', p_via: 'Requested in a chat with ' + NAME + ' on the guide page.', p_via_prop: 'Requested via ' + NAME + ' on the property page',
       cmp_intro: 'Shall I send you the free buying guide? I just need your name, email and mobile.', cmp_start: 'Yes, send it',
@@ -132,7 +134,7 @@
     },
     sv: {
       after2: 'Jag finns här igen för alla dina frågor. Om köpprocessen, kostnaderna, orterna eller våra bostäder: fråga på.', read: 'Läs mer:', cta_chat: 'Börja chatta med ' + NAME, kicker: 'Kostnadsfri bo- och köpguide', crumb: 'Köpguide', title: 'Kostnadsfri köpguide Costa Blanca',
-      desc: 'Hemma på Costa Blanca: vår kostnadsfria bo- och köpguide för Vega Baja. Be Sol, vår live-assistent, om ditt exemplar och fråga sedan om allt kring köp, kostnader och boende.',
+      desc: 'Hemma på Costa Blanca: vår kostnadsfria bo- och köpguide för Vega Baja. Be Ava, vår live-assistent, om ditt exemplar och fråga sedan om allt kring köp, kostnader och boende.',
       hi: 'Hej, jag är ' + NAME + ', din live-assistent',
       lead: 'Jag skickar vår exklusiva guide "At home on the Costa Blanca" och svarar sedan på alla dina frågor: om köpprocessen, kostnaderna, orterna och våra bostäder.',
       guideTitle: 'At home on the Costa Blanca', guideSub: 'Bo- och köpguide Vega Baja',
@@ -184,7 +186,7 @@
       handoff_q: 'Ska jag be en kollega att kontakta dig personligen?', handoff_yes: 'Ja, gärna', handoff_ok: 'Klart. En kollega hör av sig så snart som möjligt, oftast inom en arbetsdag.',
       sorry: 'Det är jag inte säker på. Skicka gärna ett WhatsApp så hjälper vi dig personligen.',
       page: { buy: 'Köpa', sell: 'Sälja', move: 'Flytta till Spanien', costs: 'Månadskostnader', area: 'Orter', contact: 'Kontakt' },
-      promo_h: 'Kostnadsfri bo- och köpguide', promo_p: 'Allt om att köpa och bo på Costa Blanca, på klarspråk. Sol skickar den till dig och svarar sedan på dina frågor.',
+      promo_h: 'Kostnadsfri bo- och köpguide', promo_p: 'Allt om att köpa och bo på Costa Blanca, på klarspråk. Ava skickar den till dig och svarar sedan på dina frågor.',
       promo_items: ['Varje steg från reservation till nycklar', 'Vad det verkligen kostar, i tre lager', 'Orterna i Vega Baja'], promo_btn: 'Be ' + NAME + ' om den',
       p_plan: 'Planer', p_lang: 'Guidens språk', p_via: 'Beställd i en chatt med ' + NAME + ' på guidesidan.', p_via_prop: 'Beställd via ' + NAME + ' på bostadssidan',
       cmp_intro: 'Ska jag skicka den kostnadsfria köpguiden? Jag behöver bara ditt namn, e-post och mobilnummer.', cmp_start: 'Ja, skicka den',
@@ -211,7 +213,7 @@
   }
   function panel(lang, links) {
     var t = L(lang);
-    return '<div class="sol-panel" id="solPanel"><div class="sol-head"><div class="chat-av">' + NAME.charAt(0) + '<i class="online"></i></div>' +
+    return '<div class="sol-panel" id="solPanel"><div class="sol-head"><div class="chat-av">' + avatar(46) + '<i class="online"></i></div>' +
       '<div><h2>' + esc(NAME) + '</h2><p><span class="sol-dot"></span>' + esc(t.panelSub) + '</p></div></div>' +
       '<div class="sol-log" id="solLog" aria-live="polite"><div class="sol-msg a">' + esc(t.g1) + '</div><div class="sol-msg a">' + esc(t.g2) + '</div></div>' +
       '<div class="sol-chips" id="solChips"></div>' +
@@ -224,13 +226,13 @@
   function html(lang, links) {
     var t = L(lang);
     return '<section class="gd-hero"><div class="gd-hero-in">' +
-      '<div class="gd-hero-txt"><p class="kicker">' + esc(t.kicker) + '</p><h1>' + esc(t.hi) + '</h1><p class="gd-lead">' + esc(t.lead) + '</p>' + cover(lang) + '</div>' +
+      '<div class="gd-hero-txt"><div class="gd-ava">' + avatar(176, 'gd-ava-img') + '<span class="gd-ava-tag"><i></i>' + esc(t.online) + '</span></div><p class="kicker">' + esc(t.kicker) + '</p><h1>' + esc(t.hi) + '</h1><p class="gd-lead">' + esc(t.lead) + '</p>' + cover(lang) + '</div>' +
       panel(lang, links) + '</div></section>' +
       '<div class="pg gd-pg">' +
       '<h2 class="pg-h">' + esc(t.inside_h) + '</h2><p class="pg-intro">' + esc(t.inside_p) + '</p>' +
       '<ol class="gd-parts">' + t.parts.map(function (p, i) { return '<li><span class="gd-n">' + (i + 1) + '</span><div><h3>' + esc(p[0]) + '</h3><p>' + esc(p[1]) + '</p></div></li>'; }).join('') + '</ol>' +
       '<h2 class="pg-h">' + esc(t.why_h) + '</h2><div class="feats">' + t.why.map(function (w) { return '<div class="feat"><h3>' + esc(w[0]) + '</h3><p>' + esc(w[1]) + '</p></div>'; }).join('') + '</div>' +
-      '<div class="gd-sol"><div class="chat-av">' + NAME.charAt(0) + '<i class="online"></i></div><div><h2>' + esc(t.sol_h) + '</h2><p>' + esc(t.sol_p) + '</p>' +
+      '<div class="gd-sol"><div class="chat-av lg">' + avatar(96) + '<i class="online"></i></div><div><h2>' + esc(t.sol_h) + '</h2><p>' + esc(t.sol_p) + '</p>' +
       '<a class="btn primary" href="#solPanel" data-sol-focus>' + esc(t.cta_chat) + '</a></div></div>' +
       '<h2 class="pg-h">' + esc(t.more_h) + '</h2><div class="gd-links">' + t.links.map(function (l) { return '<a href="' + links[l[0]] + '">' + esc(l[1]) + ICO.arrow + '</a>'; }).join('') + '</div>' +
       '</div>';
@@ -238,7 +240,7 @@
   // promo-paneel voor andere pagina's (Kopen, Emigreren, woonplaatsgids, home)
   function promo(lang, href) {
     var t = L(lang);
-    return '<a class="gd-promo" href="' + href + '">' + cover(lang, true) + '<span class="gd-promo-txt"><span class="gd-promo-sol"><span class="chat-av">' + NAME.charAt(0) + '<i class="online"></i></span>' + esc(t.hi) + '</span>' +
+    return '<a class="gd-promo" href="' + href + '">' + cover(lang, true) + '<span class="gd-promo-txt"><span class="gd-promo-sol"><span class="chat-av">' + avatar(46) + '<i class="online"></i></span>' + esc(t.hi) + '</span>' +
       '<b>' + esc(t.promo_h) + '</b><span>' + esc(t.promo_p) + '</span><span class="gd-promo-list">' + t.promo_items.map(function (x) { return '<span>' + ICO.check + esc(x) + '</span>'; }).join('') + '</span></span>' +
       '<span class="btn lemon">' + esc(t.promo_btn) + '</span></a>';
   }
@@ -344,7 +346,7 @@
       for (var i = 0; i < 14; i++) { var c = document.createElement('i'); c.className = 'sol-conf'; c.style.setProperty('--x', (Math.random() * 220 - 110) + 'px'); c.style.setProperty('--r', (Math.random() * 540 - 270) + 'deg'); c.style.setProperty('--d', (Math.random() * .4) + 's'); c.style.background = ['#F03838', '#FF7068', '#FBCC10', '#384850'][i % 4]; card.appendChild(c); }
       return say(d.compact ? t.cmp_done(st.first) : t.done(st.first, st.email), 'big');
     }
-    // vrij gesprek met Sol na de intake
+    // vrij gesprek met Ava na de intake
     function chatMode() {
       st.step = 'chat'; ask('chat', t.ph_chat, 'text', 'off');
       setChips(t.starters.map(function (s) { return [s, s]; }), function (v) { chats(v); });
@@ -459,10 +461,10 @@
   // compacte variant (woningpagina): zelfde gesprek in een klein paneel
   function compact(lang) {
     var t = L(lang);
-    return '<div class="box guide-box sol-compact" id="guideBox"><div class="gb-head"><span class="chat-av">' + NAME.charAt(0) + '<i class="online"></i></span><div><h3>' + esc(t.promo_h) + '</h3><p>' + esc(t.hi) + '</p></div></div>' +
+    return '<div class="box guide-box sol-compact" id="guideBox"><div class="gb-head"><span class="chat-av">' + avatar(46) + '<i class="online"></i></span><div><h3>' + esc(t.promo_h) + '</h3><p>' + esc(t.hi) + '</p></div></div>' +
       '<div class="sol-log" id="solLog" aria-live="polite"></div><div class="sol-chips" id="solChips"></div>' +
       '<form class="sol-form" id="solForm" hidden><input id="solIn" autocomplete="name"><button type="submit" aria-label="OK">' + ICO.send + '</button></form></div>';
   }
 
-  root.GIDS = { NAME: NAME, html: html, bind: bind, promo: promo, compact: compact, text: L };
+  root.GIDS = { NAME: NAME, avatar: avatar, html: html, bind: bind, promo: promo, compact: compact, text: L };
 })(typeof window !== 'undefined' ? window : globalThis);
