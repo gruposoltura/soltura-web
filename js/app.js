@@ -897,7 +897,6 @@ async function aiSearch(q) {
   out.hidden = false; out.className = 'ai-bubble'; out.innerHTML = `<span class="ab-av">S</span><div class="ab-body"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
   track('search', null, null, { q: q.slice(0, 200) });
   const r = await fn('web-assistant', { mode: 'search', lang: S.lang, query: q }).catch(() => ({}));
-  btn.disabled = false; btn.textContent = t('ask_btn');
   if (r.filters) {
     const f = Object.assign(blankFilters(), r.filters);
     f.towns = Array.isArray(f.towns) ? f.towns : []; f.categories = Array.isArray(f.categories) ? f.categories : [];
@@ -908,26 +907,24 @@ async function aiSearch(q) {
   }
   // nooit een lege pagina: zonder treffers versoepelen we zelf en stellen we concrete aanpassingen voor
   let note = '';
+  let reply = r.reply || '';
   if (r.filters && !S.all.some(p => match(p))) {
     const sug = relaxations();
     S.sugg = sug;
-    if (sug.length && !sug[0].budget) {
-      // binnen budget: het beste alternatief (plaats, dan type) tonen we meteen, de rest als knop
-      S.f = sug[0].f; S.type = sug[0].type; S.shown = PAGE;
-      note = `<div class="ab-none"><b>${t('none_h')}</b> ${t('none_applied', sug[0].label, sug[0].n)}</div>
-        ${sug.length > 1 ? `<p class="ab-try">${t('none_try')}</p><div class="ab-sugg">${sug.slice(1).map((x, i) => `<button type="button" data-sug="${i + 1}">${esc(x.label)} <small>${x.n}</small></button>`).join('')}</div>` : ''}
-        <p class="ab-tip">${t('none_tip')}</p>`;
-      track('search_relaxed', null, sug[0].n, { q: q.slice(0, 120) });
-    } else if (sug.length) {
-      // alleen een hoger budget helpt: als voorstel, de bezoeker beslist
-      S.askPending = JSON.stringify(S.f) + S.type;
-      note = `<div class="ab-none"><b>${t('none_h')}</b> ${t('none_budget_ask', eur(sug[0].budget), sug[0].n)}</div>
-        <div class="ab-sugg"><button type="button" data-sug="0">${t('none_budget_yes', eur(sug[0].budget))} <small>${sug[0].n}</small></button></div>
-        <p class="ab-tip">${t('none_contact')} <a href="${L('contact')}">${t('nav_contact')}</a></p>`;
-      track('search_budget_proposed', null, sug[0].n, { q: q.slice(0, 120), budget: sug[0].budget });
-    } else {
-      note = `<div class="ab-none"><b>${t('none_h')}</b> ${t('none_contact')} <a href="${L('contact')}">${t('nav_contact')}</a></div><p class="ab-tip">${t('none_tip')}</p>`;
-    }
+    const apply = sug.length && !sug[0].budget;
+    if (apply) { S.f = sug[0].f; S.type = sug[0].type; S.shown = PAGE; }
+    // de assistent verwerkt de alternatieven in zijn eigen antwoord, in de taal van de bezoeker (ook de knoppen)
+    const rx = sug.length ? await fn('web-assistant', { mode: 'relax', lang: S.lang, query: q, reply, applied: !!apply, alts: sug.map(x => ({ desc: x.desc, n: x.n })) }).catch(() => ({})) : {};
+    const ok = rx && rx.reply && Array.isArray(rx.labels) && rx.labels.length === sug.length;
+    if (ok) { reply = rx.reply; sug.forEach((x, i) => { if (rx.labels[i]) x.label = rx.labels[i]; }); }
+    const rest = apply ? sug.slice(1) : sug;
+    const btns = rest.length ? `${apply && (ok ? rx.try_label : t('none_try')) ? `<p class="ab-try">${esc(ok ? rx.try_label : t('none_try'))}</p>` : ''}<div class="ab-sugg">${rest.map(x => `<button type="button" data-sug="${sug.indexOf(x)}">${esc(x.label)} <small>${x.n}</small></button>`).join('')}</div>` : '';
+    if (!sug.length) note = `<div class="ab-none"><b>${t('none_h')}</b> ${t('none_contact')} <a href="${L('contact')}">${t('nav_contact')}</a></div><p class="ab-tip">${t('none_tip')}</p>`;
+    else if (ok) note = btns + (rx.tip ? `<p class="ab-tip">${esc(rx.tip)}</p>` : '');
+    else if (apply) note = `<div class="ab-none"><b>${t('none_h')}</b> ${t('none_applied', sug[0].label, sug[0].n)}</div>${btns}<p class="ab-tip">${t('none_tip')}</p>`;
+    else note = `<div class="ab-none"><b>${t('none_h')}</b> ${t('none_budget_ask', eur(sug[0].budget), sug[0].n)}</div>${btns}`;
+    if (!apply && sug.length) S.askPending = JSON.stringify(S.f) + S.type;
+    track(apply ? 'search_relaxed' : 'search_budget_proposed', null, sug[0] ? sug[0].n : 0, { q: q.slice(0, 120) });
   }
   if (!r.filters && !r.reply) note = `<div class="ab-none"><b>${t('ai_fail_h')}</b> ${t('ai_fail_p')}</div><p class="ab-tip">${t('none_tip')}</p>`;
   // Lokale vraag (weekmarkt, strand, vliegveld...): filters blijven staan, geen scroll; wel een knop naar onze woningen in die plaats.
@@ -938,8 +935,9 @@ async function aiSearch(q) {
     if (n) { S.sugg = [{ f, type: 'all', n }]; cta = `<div class="ab-sugg"><button type="button" data-sug="0">${esc(r.cta)} <small>${n}</small></button></div>`; }
     track('search_local', null, n, { q: q.slice(0, 120), town: r.town });
   } else if (!r.filters && r.reply) track(r.intent === 'off_topic' ? 'search_offtopic' : 'search_local', null, null, { q: q.slice(0, 120) });
-  out.className = 'ai-bubble in' + (note ? ' warn' : '');
-  out.innerHTML = `<span class="ab-av">S</span><div class="ab-body">${r.reply ? `<p class="ab-reply">${esc(r.reply)}</p>` : ''}${cta}${note}</div>`;
+  out.className = 'ai-bubble in' + (note.includes('ab-none') ? ' warn' : '');
+  btn.disabled = false; btn.textContent = t('ask_btn');
+  out.innerHTML = `<span class="ab-av">S</span><div class="ab-body">${reply ? `<p class="ab-reply">${esc(reply)}</p>` : ''}${cta}${note}</div>`;
   bindSugg(out);
   renderBar(); renderFeed();
   if (!note && r.filters) setTimeout(() => $('#bar').scrollIntoView({ behavior: 'smooth', block: 'start' }), 1600);
@@ -953,26 +951,27 @@ function relaxations() {
   const hits = (f, ty = type) => S.all.filter(p => match(p, f, ty));
   const top = (list, key, n) => { const c = {}; list.forEach(p => { if (p[key]) c[p[key]] = (c[p[key]] || 0) + 1; }); return Object.entries(c).sort((a, b) => b[1] - a[1]).slice(0, n); };
   const place = [], kind = [], other = [];
-  const add = (arr, label, f, ty = type) => { const n = hits(f, ty).length; if (n > 0) arr.push({ label, f, type: ty, n }); };
-  // plaats: concrete plaatsen binnen budget, plus 'ook buiten' als dat meer plaatsen oplevert
+  // label = knoptekst in de paginataal (terugval); desc = Engelse omschrijving waaruit de assistent de tekst in de taal van de bezoeker maakt
+  const en = (k, ...a) => { const v = I18N.en[k]; return typeof v === 'function' ? v(...a) : v; };
+  const add = (arr, k, args, f, ty = type) => { const n = hits(f, ty).length; if (n > 0) arr.push({ label: t(k, ...args), desc: en(k, ...args), f, type: ty, n }); };
+  const list = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' & ' + a[a.length - 1];
+  // plaats: alle andere plaatsen waar we binnen budget wel iets hebben, in één keer
   if (base.towns.length) {
-    const wide = hits(w({ towns: [] }));
-    const towns = top(wide, 'town', 2);
-    towns.forEach(([tw, n]) => place.push({ label: t('rx_town_to', tw), f: w({ towns: [tw] }), type, n }));
-    if (towns.length && wide.length > towns.reduce((a, x) => a + x[1], 0)) place.push({ label: t('rx_towns', base.towns.join(', ')), f: w({ towns: [] }), type, n: wide.length });
+    const towns = top(hits(w({ towns: [] })), 'town', 99).map(x => x[0]);
+    if (towns.length) { const f = w({ towns }); place.push({ label: t('rx_town_to', list(towns)), desc: `homes in ${list(towns)} instead of ${list(base.towns)}`, f, type, n: hits(f).length, towns }); }
   }
   // woningtype: concrete types binnen budget
-  if (base.categories.length) top(hits(w({ categories: [] })), 'category', 2).forEach(([c, n]) => kind.push({ label: t('rx_cat_to', catName(c)), f: w({ categories: [c] }), type, n }));
+  if (base.categories.length) top(hits(w({ categories: [] })), 'category', 2).forEach(([c]) => { const f = w({ categories: [c] }); kind.push({ label: t('rx_cat_to', catName(c)), desc: `${en('rx_cat_to', CAT_EN[c] || cap(c))} instead of ${base.categories.map(x => CAT_EN[x] || cap(x)).join(', ')}`, f, type, n: hits(f).length }); });
   // overige wensen, allemaal binnen budget
-  if (base.price_min) add(other, t('rx_pmin'), w({ price_min: null }));
-  if (base.beds_min > 1) add(other, t('rx_beds', base.beds_min - 1), w({ beds_min: base.beds_min - 1 }));
-  if (base.baths_min) add(other, t('rx_baths'), w({ baths_min: null }));
-  if (base.pool === 'private') add(other, t('rx_pool_any'), w({ pool: 'any' }));
-  else if (base.pool) add(other, t('rx_pool'), w({ pool: null }));
-  if (base.newbuild != null) add(other, t('rx_newbuild'), w({ newbuild: null }));
-  if (type !== 'all') add(other, t('rx_newbuild'), base, 'all');
-  if (base.max_sea_km) add(other, t('rx_sea', base.max_sea_km * 2), w({ max_sea_km: base.max_sea_km * 2 }));
-  if (base.reduced_only) add(other, t('rx_reduced'), w({ reduced_only: false }));
+  if (base.price_min) add(other, 'rx_pmin', [], w({ price_min: null }));
+  if (base.beds_min > 1) add(other, 'rx_beds', [base.beds_min - 1], w({ beds_min: base.beds_min - 1 }));
+  if (base.baths_min) add(other, 'rx_baths', [], w({ baths_min: null }));
+  if (base.pool === 'private') add(other, 'rx_pool_any', [], w({ pool: 'any' }));
+  else if (base.pool) add(other, 'rx_pool', [], w({ pool: null }));
+  if (base.newbuild != null) add(other, 'rx_newbuild', [], w({ newbuild: null }));
+  if (type !== 'all') add(other, 'rx_newbuild', [], base, 'all');
+  if (base.max_sea_km) add(other, 'rx_sea', [base.max_sea_km * 2], w({ max_sea_km: base.max_sea_km * 2 }));
+  if (base.reduced_only) add(other, 'rx_reduced', [], w({ reduced_only: false }));
   other.sort((a, b) => b.n - a.n);
   const inBudget = [...place, ...kind, ...other].slice(0, 4);
   if (inBudget.length || !base.price_max) return inBudget;
@@ -983,7 +982,7 @@ function relaxations() {
   while (i > 0 && prices[i] > base.price_max * 1.25) i--;
   const v = Math.ceil(prices[i] / 5000) * 5000;
   const f = w({ price_max: v });
-  return [{ label: t('rx_budget', eur(v)), f, type, n: hits(f).length, budget: v }];
+  return [{ label: t('none_budget_yes', eur(v)), desc: `raise the maximum budget from ${base.price_max} to ${v} euro`, f, type, n: hits(f).length, budget: v }];
 }
 function bindSugg(root) {
   $$('[data-sug]', root).forEach(b => b.addEventListener('click', () => {
