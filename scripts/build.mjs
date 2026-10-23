@@ -182,7 +182,7 @@ function page({ lang, key, path: p, alt, title: ttl, desc, image, jsonld = [], b
   // kop en voet in de taal van de pagina, met echte links
   h = h.replace(/(<a class="logo" href=")[^"]*(")/, `$1${R.href(lang, 'home')}$2`);
   h = h.replace(/(<a class="fav-link" href=")[^"]*(")/, `$1${R.href(lang, 'favorites')}$2`);
-  h = h.replace(/<a href="[^"]*" data-route="(\w+)"( data-t="\w+")?>/g, (m, r, dt) => `<a href="${R.href(lang, r)}" data-route="${r}"${dt || ''}${(key === 'guide' ? 'area' : key === 'costs' ? 'move' : key === 'gids' ? 'buy' : key) === r ? ' aria-current="page"' : ''}>`);
+  h = h.replace(/<a href="[^"]*" data-route="(\w+)"( data-t="\w+")?>/g, (m, r, dt) => `<a href="${R.href(lang, r)}" data-route="${r}"${dt || ''}${(key === 'guide' ? 'area' : key === 'costs' ? 'move' : key) === r ? ' aria-current="page"' : ''}>`);
   h = h.replace(/href="[^"]*" data-href="(\w+)"/g, (m, r) => `href="${R.href(lang, r)}" data-href="${r}"`);
   h = h.replace(/(data-t="(\w+)"[^>]*>)([^<]*)(<)/g, (m, a, k, txt, b) => { const v = T(lang, k); return a + (typeof v === 'string' && v ? esc(v) : txt) + b; });
   h = h.replace('<a class="skip" href="#main">Skip to content</a>', `<a class="skip" href="#main">${tx({ en: 'Skip to content', nl: 'Naar de inhoud', sv: 'Till innehållet' }, lang)}</a>`);

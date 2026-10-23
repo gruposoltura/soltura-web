@@ -205,7 +205,17 @@
     mail: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3z"/><path d="M3 6l9 7 9-7"/></svg>',
     arrow: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
   };
+  // echte pagina's uit de PDF-gids (img/gids/<taal>-<pagina>.webp; nl of en, sv valt terug op en)
+  var FAN = [26, 14, 16, 5, 1]; // van achter naar voor; 1 = omslag
+  function pg(lang, n) { return '/img/gids/' + (lang === 'nl' ? 'nl' : 'en') + '-' + n + '.webp'; }
+  function fan(lang) {
+    var t = L(lang);
+    return '<div class="gd-fan" aria-label="' + esc(t.guideTitle) + '">' + FAN.map(function (n, i) {
+      return '<img class="gd-fan-p p' + i + '" src="' + pg(lang, n) + '" width="440" height="622" alt="' + (n === 1 ? esc(t.guideTitle) : '') + '" loading="' + (n === 1 ? 'eager' : 'lazy') + '" decoding="async">';
+    }).join('') + '<span class="gd-cover-tag">' + esc(t.coverTag) + '</span></div>';
+  }
   function cover(lang, small) {
+    if (small) return '<img class="gd-cover-img" src="' + pg(lang, 1) + '" width="86" height="122" alt="" loading="lazy" decoding="async">';
     var t = L(lang);
     return '<div class="gd-cover' + (small ? ' sm' : '') + '" aria-hidden="true"><div class="gd-cover-sun"></div><div class="gd-cover-sea"></div>' +
       '<div class="gd-cover-txt"><span class="gd-cover-brand">Soltura Real Estate</span><b>' + esc(t.guideTitle) + '</b><span>' + esc(t.guideSub) + '</span></div>' +
@@ -226,7 +236,7 @@
   function html(lang, links) {
     var t = L(lang);
     return '<section class="gd-hero"><div class="gd-hero-in">' +
-      '<div class="gd-hero-txt"><div class="gd-ava">' + avatar(176, 'gd-ava-img') + '<span class="gd-ava-tag"><i></i>' + esc(t.online) + '</span></div><p class="kicker">' + esc(t.kicker) + '</p><h1>' + esc(t.hi) + '</h1><p class="gd-lead">' + esc(t.lead) + '</p>' + cover(lang) + '</div>' +
+      '<div class="gd-hero-txt"><div class="gd-ava">' + avatar(176, 'gd-ava-img') + '<span class="gd-ava-tag"><i></i>' + esc(t.online) + '</span></div><p class="kicker">' + esc(t.kicker) + '</p><h1>' + esc(t.hi) + '</h1><p class="gd-lead">' + esc(t.lead) + '</p>' + fan(lang) + '</div>' +
       panel(lang, links) + '</div></section>' +
       '<div class="pg gd-pg">' +
       '<h2 class="pg-h">' + esc(t.inside_h) + '</h2><p class="pg-intro">' + esc(t.inside_p) + '</p>' +

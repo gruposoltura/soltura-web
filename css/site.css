@@ -1186,3 +1186,33 @@ img,video,svg{max-width:100%}
 .sol-hi .sol-av i{width:10px;height:10px}
 .gd-promo-sol .chat-av{width:40px;height:40px}
 .gd-promo-sol{font-size:14px}
+
+/* ---------- waaier van echte gidspagina's (img/gids, 23-10-2026) ---------- */
+.gd-fan{position:relative;width:min(100%,440px);height:340px;margin-top:6px}
+.gd-fan-p{position:absolute;left:calc(50% - 95px);bottom:0;width:190px;height:auto;aspect-ratio:440/622;border-radius:4px 8px 8px 4px;background:#fff;box-shadow:0 16px 36px rgba(0,0,0,.45),0 0 0 1px rgba(0,0,0,.06);transform-origin:50% 100%;transition:transform .6s var(--ease)}
+.gd-fan-p.p0{transform:rotate(-24deg) translateY(4px)}
+.gd-fan-p.p1{transform:rotate(-12deg)}
+.gd-fan-p.p2{transform:rotate(12deg)}
+.gd-fan-p.p3{transform:rotate(24deg) translateY(4px)}
+.gd-fan-p.p4{transform:translateY(-8px);box-shadow:0 26px 54px rgba(0,0,0,.55)}
+.gd-fan:hover .p0{transform:rotate(-34deg) translateY(6px)}
+.gd-fan:hover .p1{transform:rotate(-17deg) translateY(-4px)}
+.gd-fan:hover .p2{transform:rotate(17deg) translateY(-4px)}
+.gd-fan:hover .p3{transform:rotate(34deg) translateY(6px)}
+.gd-fan:hover .p4{transform:translateY(-22px) scale(1.04)}
+.gd-fan .gd-cover-tag{left:calc(50% + 40px);right:auto;top:6px;z-index:2;transform:rotate(6deg)}
+.gd-cover-img{width:86px;height:auto;aspect-ratio:440/622;border-radius:3px 6px 6px 3px;transform:rotate(-4deg);box-shadow:0 10px 22px rgba(0,0,0,.25);flex:0 0 auto;background:#fff}
+@media (max-width:900px){.gd-hero-txt .gd-fan{display:none}}
+@media (max-width:640px){.gd-promo .gd-cover-img{width:64px}}
+@media (prefers-reduced-motion:reduce){.gd-fan-p{transition:none}}
+
+/* ---------- menu-item Woongids met Ava en glans (23-10-2026) ---------- */
+.nav a[data-route="gids"]{position:relative;display:inline-flex;align-items:center;gap:7px;padding-left:6px;background:linear-gradient(110deg,var(--lemon-soft) 0%,var(--lemon-soft) 40%,#fff 50%,var(--lemon-soft) 60%,var(--lemon-soft) 100%);background-size:250% 100%;border:1px solid #F0D67A;animation:navShine 4.5s ease-in-out infinite}
+.nav a[data-route="gids"] .nav-ava{width:24px;height:24px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px #fff;animation:navWave 4.5s ease-in-out infinite}
+.nav a[data-route="gids"] em{font-style:normal;font:800 10.5px/1 var(--sans);text-transform:uppercase;letter-spacing:.06em;color:#fff;background:var(--sea);border-radius:999px;padding:4px 6px;margin-left:1px}
+.nav a[data-route="gids"]::after{content:"";position:absolute;top:3px;right:3px;width:8px;height:8px;border-radius:50%;background:#3BD16F;box-shadow:0 0 0 2px #fff;animation:livepulse 1.8s infinite}
+.nav a[data-route="gids"][aria-current="page"]{border-color:var(--sea)}
+@keyframes navShine{0%,55%{background-position:100% 0}85%,100%{background-position:0 0}}
+@keyframes navWave{0%,60%,100%{transform:rotate(0)}66%{transform:rotate(-14deg) scale(1.08)}74%{transform:rotate(10deg) scale(1.08)}82%{transform:rotate(0)}}
+@media (max-width:1180px){.nav a[data-route="gids"] em{display:none}}
+@media (prefers-reduced-motion:reduce){.nav a[data-route="gids"],.nav a[data-route="gids"] .nav-ava{animation:none}}

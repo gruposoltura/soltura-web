@@ -1972,7 +1972,7 @@ function renderPage(r) {
   r = r || { key: 'home' };
   const key = r.key === 'guide' ? 'area' : r.key;
   currentPage = key; S.renderedLang = S.lang; S.renderedSearch = location.search;
-  const navKey = key === 'costs' ? 'move' : key === 'gids' ? 'buy' : key;
+  const navKey = key === 'costs' ? 'move' : key;
   $$('.nav a').forEach(a => { if (a.dataset.route === navKey) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   navLinks();
   $('#nav').classList.remove('open'); $('#menuBtn').setAttribute('aria-expanded', 'false');
