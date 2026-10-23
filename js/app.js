@@ -409,23 +409,18 @@ document.addEventListener('pointermove', e => {
   const img = $('img', c); if (img && img.dataset.i != i) { img.src = urls[i]; img.dataset.i = i; }
   $$('.dots i', c).forEach((d, k) => d.classList.toggle('on', k === i));
 });
-// Vertoningen (Rick 23-10-2026, Seller Weekly Update "Gevonden in zoekresultaten"): een woningkaart die voor 60% in beeld komt
-// telt één keer per sessie. Gebundeld in één web_events-rij 'impressions' met meta.ids (core-uuid's), elke 5 s en bij verlaten van de pagina.
-const IMP = { seen: new Set(), q: [], t: null };
-function impFlush() {
-  clearTimeout(IMP.t); IMP.t = null; if (!IMP.q.length) return;
-  const ids = IMP.q.splice(0, 200);
-  try { fetch(SB + '/rest/v1/web_events', { method: 'POST', keepalive: true, headers: { apikey: KEY, 'content-type': 'application/json', Prefer: 'return=minimal' },
-    body: JSON.stringify({ sid: S.sid, vid: S.vid, lang: S.lang, event: 'impressions', value: ids.length, meta: { ids, p: (cur() || {}).key || null } }) }); } catch {}
-  if (IMP.q.length) impFlush();
+// Gevonden in zoekresultaten (Rick 23-10-2026, Seller Weekly Update, zoals de oude WP-teller): elke zoekopdracht via de zoekbalk /
+// live assistant legt vast welke woningen in het resultaat zaten. Eén web_events-rij 'search_results' met meta.ids (core-uuid's).
+function logResults(src, q) {
+  try {
+    const ids = (S.order || []).map(p => p.id).filter(Boolean);
+    if (!ids.length) return;
+    fetch(SB + '/rest/v1/web_events', { method: 'POST', keepalive: true, headers: { apikey: KEY, 'content-type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify({ sid: S.sid, vid: S.vid, lang: S.lang, event: 'search_results', value: ids.length, meta: { ids: ids.slice(0, 2000), src, q: q ? String(q).slice(0, 120) : null } }) });
+  } catch {}
 }
-function impression(id) {
-  if (!id || IMP.seen.has(id)) return; IMP.seen.add(id); IMP.q.push(id);
-  if (!IMP.t) IMP.t = setTimeout(impFlush, 5000);
-}
-addEventListener('pagehide', impFlush); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') impFlush(); });
 const inviewObs = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(en => {
-  if (en.isIntersecting) { en.target.classList.add('inview'); impression(en.target.dataset.id); inviewObs.unobserve(en.target); }
+  if (en.isIntersecting) { en.target.classList.add('inview'); inviewObs.unobserve(en.target); }
 }), { threshold: .6 }) : null;
 function observeCards(root) { if (inviewObs) $$('.card', root).forEach(c => inviewObs.observe(c)); }
 
@@ -884,7 +879,7 @@ async function aiSearch(q) {
       out.className = 'ai-bubble in';
       out.innerHTML = `<span class="ab-av">S</span><div class="ab-body"><p class="ab-reply">${t('ref_prefix_ok', n, esc(pre))}</p></div>`;
       track('search_ref_prefix', null, n, { pre });
-      renderBar(); renderFeed();
+      renderBar(); renderFeed(); logResults('ref_prefix', q);
       setTimeout(() => $('#bar').scrollIntoView({ behavior: 'smooth', block: 'start' }), 900);
     } else {
       out.className = 'ai-bubble in warn';
@@ -955,6 +950,7 @@ async function aiSearch(q) {
   out.innerHTML = `<span class="ab-av">S</span><div class="ab-body">${reply ? `<p class="ab-reply">${esc(reply)}</p>` : ''}${cta}${note}</div>`;
   bindSugg(out);
   renderBar(); renderFeed();
+  if (r.filters) logResults('assistant', q);
   if (!note && r.filters) setTimeout(() => $('#bar').scrollIntoView({ behavior: 'smooth', block: 'start' }), 1600);
 }
 // alternatieven bij nul treffers (Rick, 23-10-2026): het budget van de bezoeker is heilig.
@@ -1010,7 +1006,7 @@ function bindSugg(root) {
     const x = S.sugg[+b.dataset.sug]; if (!x) return;
     S.f = x.f; S.type = x.type; S.shown = PAGE; track('search_suggestion', null, x.n);
     $$('[data-sug]', root).forEach(o => o.classList.toggle('on', o === b));
-    renderBar(); renderFeed(); $('#bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    renderBar(); renderFeed(); logResults('suggestion'); $('#bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }));
 }
 
