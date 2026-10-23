@@ -1,0 +1,88 @@
+name: Guide update (GuideCheck)
+
+# Wordt gestart door de n8n-agent JARVIS-Research-GuideCheck (1e van de maand), alleen als de
+# controle een wijziging in de woon- en koopgids vond. Past de tekst toe, maakt alle vier de PDF's
+# opnieuw (NL/EN/ES/SV), vervangt de oude in downloads/ (zelfde namen), ververst de waaierbeelden,
+# commit, start de site-deploy en meldt het resultaat terug aan n8n (log + Telegram).
+on:
+  workflow_dispatch:
+    inputs:
+      edits:
+        description: 'base64(JSON) {"files": {"content_en.py": [{"old","new"}], ...}}'
+        required: true
+      changes:
+        description: 'base64(JSON) lijst met korte Nederlandse regels per wijziging'
+        required: true
+      nonce:
+        description: 'eenmalige sleutel voor de terugmelding'
+        required: true
+      callback:
+        description: 'n8n webhook voor de terugmelding'
+        required: true
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: guide-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install tools
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils jq
+          pip install -q playwright qrcode pillow
+          python -m playwright install --with-deps chromium
+      - name: Apply edits
+        env:
+          EDITS_B64: ${{ inputs.edits }}
+        run: python gids-src/apply_edits.py
+      - name: Build and publish PDFs
+        run: python gids-src/publish.py .
+      - name: Commit
+        id: commit
+        env:
+          CHANGES_B64: ${{ inputs.changes }}
+        run: |
+          V=$(grep -oP "soltura-v\K[0-9]+" sw.js | head -1)
+          sed -i "s/soltura-v$V/soltura-v$((V+1))/" sw.js
+          git config user.name "JARVIS GuideCheck"
+          git config user.email "noreply@gruposoltura.com"
+          git add gids-src downloads img/gids sw.js
+          MSG=$(echo "$CHANGES_B64" | base64 -d | jq -r '"gids: maandcontrole " + (now|strftime("%Y-%m")) + "\n\n" + (map("- " + .) | join("\n"))')
+          git commit -m "$MSG"
+          git push
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Deploy site
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main
+      - name: Report success
+        env:
+          CHANGES_B64: ${{ inputs.changes }}
+          NONCE: ${{ inputs.nonce }}
+          CALLBACK: ${{ inputs.callback }}
+          SHA: ${{ steps.commit.outputs.sha }}
+        run: |
+          jq -n --arg nonce "$NONCE" --arg sha "$SHA" --argjson changes "$(echo "$CHANGES_B64" | base64 -d)" \
+            '{nonce:$nonce, stage:"published", changed:true, changes:$changes, languages:["nl","en","es","sv"], commit:$sha}' \
+            | curl -sS -X POST "$CALLBACK" -H 'Content-Type: application/json' --data-binary @-
+      - name: Report failure
+        if: failure()
+        env:
+          NONCE: ${{ inputs.nonce }}
+          CALLBACK: ${{ inputs.callback }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          jq -n --arg nonce "$NONCE" --arg url "$RUN_URL" \
+            '{nonce:$nonce, stage:"published", changed:false, error:("Bijwerken van de gids mislukt, er is niets gepubliceerd. Log: " + $url)}' \
+            | curl -sS -X POST "$CALLBACK" -H 'Content-Type: application/json' --data-binary @-

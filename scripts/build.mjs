@@ -335,7 +335,7 @@ function write(p, html) {
 function copySite() {
   fs.rmSync(OUT, { recursive: true, force: true });
   fs.mkdirSync(OUT, { recursive: true });
-  const skip = new Set(['.git', '.github', 'dist', 'scripts', 'supabase', 'node_modules', 'README.md', 'sitemap.xml', 'test']);
+  const skip = new Set(['.git', '.github', 'dist', 'scripts', 'supabase', 'node_modules', 'gids-src', 'README.md', 'sitemap.xml', 'test']);
   for (const e of fs.readdirSync(ROOT)) { if (skip.has(e) || e === path.basename(OUT)) continue; fs.cpSync(path.join(ROOT, e), path.join(OUT, e), { recursive: true }); }
   const idx = path.join(OUT, 'index.html');
   if (fs.existsSync(idx)) fs.writeFileSync(idx, stamp(fs.readFileSync(idx, 'utf8')));
