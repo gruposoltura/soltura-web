@@ -409,8 +409,23 @@ document.addEventListener('pointermove', e => {
   const img = $('img', c); if (img && img.dataset.i != i) { img.src = urls[i]; img.dataset.i = i; }
   $$('.dots i', c).forEach((d, k) => d.classList.toggle('on', k === i));
 });
+// Vertoningen (Rick 23-10-2026, Seller Weekly Update "Gevonden in zoekresultaten"): een woningkaart die voor 60% in beeld komt
+// telt één keer per sessie. Gebundeld in één web_events-rij 'impressions' met meta.ids (core-uuid's), elke 5 s en bij verlaten van de pagina.
+const IMP = { seen: new Set(), q: [], t: null };
+function impFlush() {
+  clearTimeout(IMP.t); IMP.t = null; if (!IMP.q.length) return;
+  const ids = IMP.q.splice(0, 200);
+  try { fetch(SB + '/rest/v1/web_events', { method: 'POST', keepalive: true, headers: { apikey: KEY, 'content-type': 'application/json', Prefer: 'return=minimal' },
+    body: JSON.stringify({ sid: S.sid, vid: S.vid, lang: S.lang, event: 'impressions', value: ids.length, meta: { ids, p: (cur() || {}).key || null } }) }); } catch {}
+  if (IMP.q.length) impFlush();
+}
+function impression(id) {
+  if (!id || IMP.seen.has(id)) return; IMP.seen.add(id); IMP.q.push(id);
+  if (!IMP.t) IMP.t = setTimeout(impFlush, 5000);
+}
+addEventListener('pagehide', impFlush); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') impFlush(); });
 const inviewObs = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(en => {
-  if (en.isIntersecting) { en.target.classList.add('inview'); inviewObs.unobserve(en.target); }
+  if (en.isIntersecting) { en.target.classList.add('inview'); impression(en.target.dataset.id); inviewObs.unobserve(en.target); }
 }), { threshold: .6 }) : null;
 function observeCards(root) { if (inviewObs) $$('.card', root).forEach(c => inviewObs.observe(c)); }
 
