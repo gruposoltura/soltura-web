@@ -39,6 +39,8 @@ const WP_ORIGIN = '';
     privacy: { en: 'privacy', nl: 'privacy', sv: 'integritet' },
     favorites: { en: 'favorites', nl: 'favorieten', sv: 'favoriter' },
     property: { en: 'property', nl: 'woning', sv: 'bostad' },
+    // woon/koopgids met live assistent Sol (23-10-2026)
+    gids: { en: 'buying-guide', nl: 'woongids', sv: 'kopguide' },
   };
   // subpagina's onder een vaste pagina (22-10-2026): maandlastencalculator onder Emigreren
   // /nl/emigreren/maandlasten/ . /en/move-to-spain/monthly-costs/ . /sv/flytta-till-spanien/manadskostnader/

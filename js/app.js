@@ -703,7 +703,7 @@ function renderHome() {
     <div class="hero-body">
       <h1>${t('hero_title')}</h1>
       <p class="sub">${t('hero_sub')}</p>
-      <div class="hero-badges"><div class="ai-badge"><i></i>${ICON.spark}<span>${t('ai_badge')}</span></div><a class="rv-pill" id="rvPill" hidden target="_blank" rel="noopener" data-social="reviews_hero"></a></div>
+      <div class="hero-badges"><div class="ai-badge sol-hi"><span class="sol-av">${GIDS.NAME[0]}<i></i></span><span>${t('ai_badge')}</span></div><a class="rv-pill" id="rvPill" hidden target="_blank" rel="noopener" data-social="reviews_hero"></a></div>
       <form class="ask" id="askForm" role="search">
         <input id="askInput" type="search" autocomplete="off" placeholder="${esc(t('ask_ph'))}" aria-label="${esc(t('ask_ph'))}">
         <button type="submit" id="askBtn">${t('ask_btn')}</button>
@@ -719,6 +719,7 @@ function renderHome() {
     <button type="button" data-hint="ask">${ICON.chat}<span>${t('hint_ask')}</span></button>
     <button type="button" data-hint="reel">${ICON.play}<span>${t('hint_reel')}</span></button>
     <button type="button" data-hint="fav">${ICON.heart}<span>${t('hint_fav')}</span></button>
+    <a class="hint-guide" href="${L('gids')}" data-track="guide_promo">${ICON.book}<span>${GIDS.text(S.lang).promo_h}</span></a>
   </div>
   <section class="feed" id="feed" aria-live="polite"></section>
   <div class="loadmore"><button class="btn ghost" id="moreBtn" type="button">${t('more')}</button></div>
@@ -1071,7 +1072,7 @@ async function openSheet(ref) {
           <button class="btn primary" type="button" id="viewBtn">${isNotify(p) ? t('notify_btn') : t('viewing_btn')}</button>
           <form class="form" id="viewForm" hidden style="margin-top:12px"${isNotify(p) ? ' data-notify="1"' : ''}>${contactFields('viewing', p)}</form>
         </div>
-        ${guideHtml(p)}
+        ${GIDS.compact(S.lang)}
         <div id="costBox"></div>
         <div class="box social-box" id="socialBox"></div>
       </aside>
@@ -1100,39 +1101,6 @@ async function openSheet(ref) {
     $('#keyfacts').insertAdjacentHTML('afterbegin', `<div><b>${km(geo.beach_road_km || geo.beach_km)}</b><span>${t('sh_sea')} · ${geo.beach_drive_min} min</span></div><div><b>${km(geo.alc_km * 1.25)}</b><span>${t('sh_airport')} ALC · ${geo.alc_drive_min} min</span></div>`);
   }
   if (full) fillDetail(full);
-}
-// ---------- koopgids aanvragen (aanhef, voornaam, achternaam, e-mail) ----------
-function guideHtml(p) {
-  return `<div class="box guide-box" id="guideBox">
-    <div class="gb-head"><span class="gb-ic">${ICON.book}</span><div><h3>${t('guide_h')}</h3><p>${t('guide_p')}</p></div></div>
-    <ul class="gb-list">${t('guide_items').map(x => `<li>${x}</li>`).join('')}</ul>
-    <button class="btn lemon" type="button" id="guideBtn">${t('guide_btn')}</button>
-    <form class="form rich gb-form" id="guideForm" hidden novalidate>
-      <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <div class="row2"><label><span>${t('nl_first')} *</span><input name="first" autocomplete="given-name" required></label><label><span>${t('nl_last')} *</span><input name="last" autocomplete="family-name" required></label></div>
-      <label><span>${t('form_email')} *</span><input name="email" type="email" autocomplete="email" required></label>
-      <button class="btn primary" type="submit">${t('guide_send')}</button>
-      <p class="ok" aria-live="polite"></p>
-      <p class="form-note">${t('form_privacy')} <a href="${L('privacy')}">${t('privacy')}</a></p>
-    </form></div>`;
-}
-function bindGuide(p) {
-  const btn = $('#guideBtn'), form = $('#guideForm'); if (!form) return;
-  btn.addEventListener('click', () => { form.hidden = false; btn.hidden = true; $('input[name=first]', form).focus(); track('guide_open', p.id); });
-  form.addEventListener('submit', async e => {
-    e.preventDefault();
-    const d = Object.fromEntries(new FormData(form)), out = $('.ok', form);
-    const first = (d.first || '').trim(), last = (d.last || '').trim(), email = (d.email || '').trim();
-    out.style.color = 'var(--salina)';
-    if (!first || !last || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { out.textContent = t('guide_err'); return; }
-    $('button[type=submit]', form).disabled = true;
-    const r = await fn('web-contact', { kind: 'guide', ...formMeta('guideForm', p), name: `${first} ${last}`, first, last, first_name: first, last_name: last, email,
-      message: `${t('guide_msg')}\n${t('nl_first')}: ${first}\n${t('nl_last')}: ${last}\n${t('sh_ref')} ${p.reference}`,
-      website: d.website }).catch(() => ({ ok: false }));
-    $('button[type=submit]', form).disabled = false;
-    if (r.ok) { track('guide_request', p.id); form.innerHTML = `<p class="gb-done">${ICON.check}<span>${t('guide_ok', first)}</span></p>`; }
-    else { out.textContent = t('form_err'); }
-  });
 }
 // ---------- hypotheekcalculator (annuïteit) ----------
 function mortgageHtml(p) {
@@ -1219,7 +1187,7 @@ function bindSheet(p, waHref) {
   });
   $('#viewBtn').addEventListener('click', () => { const f = $('#viewForm'); if (f.hidden) openViewForm(); else f.hidden = true; if (!f.hidden) { $('input[name=name]', f).focus(); track('contact_open', p.id); } });
   bindForm($('#viewForm'), p);
-  bindGuide(p);
+  GIDS.bind($('#guideBox'), S.lang, solDeps({ compact: true, formName: 'web-property-buying-guide', property: p }));
   bindMortgage(p);
   renderSocialSheet(p);
   $$('.quick-acts [data-go]', inner).forEach(b => b.addEventListener('click', () => {
@@ -1490,6 +1458,7 @@ function pageBuy() {
       </div>
       <div class="pg-2 fin-row">${mortgageHtml(null)}<div class="box fin-card"><h3>${c.fin_h}</h3><p>${c.fin_p}</p><a class="btn ghost" href="#buyForm" data-scroll>${c.cta}</a></div></div>
       <h2 class="pg-h">${c.services_h}</h2><ul class="svc">${c.services.map(x => `<li>${ICON.check}<span>${x}</span></li>`).join('')}</ul>
+      ${GIDS.promo(S.lang, L('gids'))}
     </div>
     ${homesRail()}
     <section class="pg form-band"><div><h2>${c.cta}</h2><p>${c.costs_note}</p></div>
@@ -1514,6 +1483,7 @@ function pageMove() {
     <div class="pg">
       <div class="stages">${c.stages.map(([h, p], i) => `<div class="stage"><span>${i + 1}</span><h3>${h}</h3><p>${p}</p></div>`).join('')}</div>
       ${COSTS.teaser(S.lang, L('costs'))}
+      ${GIDS.promo(S.lang, L('gids'))}
       <p class="move-areas"><a href="${L('area')}">${t('areas_h')}: ${tx({ en: 'read about schools, healthcare, shops and festivals per town', nl: 'lees per woonplaats over scholen, zorg, winkels en feesten', sv: 'läs om skolor, vård, affärer och fester ort för ort' })} →</a></p>
       <div class="buy-grid move-grid">
         <div class="acc">${c.topics.map(([h, p], i) => `<details${i === 0 ? ' open' : ''}><summary>${h}</summary><p>${p}</p></details>`).join('')}
@@ -1527,6 +1497,24 @@ function pageMove() {
     ${homesRail()}
     <section class="pg form-band"><div><h2>${c.form_h}</h2><p>${c.form_p}</p></div>
       ${richForm('moveForm', 'move', [{ k: 'timing', label: t('f_when'), opts: t('f_when_opts') }, { k: 'budget', label: t('f_budget'), ph: '€' }, { k: 'household', label: t('f_household'), ph: t('f_household_ph') }, { k: 'area', label: t('f_area'), ph: t('f_area_ph') }], '')}</section>`;
+}
+// Woon/koopgids met live assistent Sol (23-10-2026): /nl/woongids/ · /en/buying-guide/ · /sv/kopguide/ (js/gids.js)
+function solDeps(o) {
+  return Object.assign({
+    fn, track, ls, href: k => L(k), homeHref: p => ph(p), catName, word: k => t(k), formName: 'web-guide-assistant',
+    meta: n => formMeta(o && o.property ? 'guideForm' : n, o && o.property ? o.property : null, n),
+    img: u => u,
+    showAll: f => {
+      S.f = Object.assign(blankFilters(), { towns: f.towns || [], categories: f.categories || [], price_min: f.price_min || null, price_max: f.price_max || null, beds_min: f.beds_min || null, pool: f.pool && f.pool !== 'any' ? f.pool : null, newbuild: f.newbuild ?? null });
+      S.type = 'all'; S.shown = PAGE; track('guide_show_all');
+      go(L('home')); setTimeout(() => { const b = $('#bar'); if (b) b.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 600);
+    },
+  }, o || {});
+}
+function pageGids() {
+  const main = $('#main');
+  main.innerHTML = GIDS.html(S.lang, { privacy: L('privacy'), buy: L('buy'), sell: L('sell'), move: L('move'), costs: L('costs'), area: L('area'), contact: L('contact') });
+  GIDS.bind($('#solPanel'), S.lang, solDeps());
 }
 // Maandlastencalculator (22-10-2026) onder Emigreren; invoer alleen in localStorage 'gs_ml' (js/costs.js)
 function pageCosts() {
@@ -1785,6 +1773,8 @@ async function pageAreaDetail(slug) {
           <a class="btn ghost" href="${L('contact')}">${t('nav_contact')}</a>
         </aside>
       </div>
+      <div class="area-promo">${GIDS.promo(S.lang, L('gids'))}
+      </div>
     </div>
     ${homes.length > 2 ? `<section class="section"><h2>${esc(t('area_h', g.town))}</h2><div class="rail">${homes.slice(0, 12).map(p => card(p)).join('')}</div></section>` : homesRail()}`;
   observeCards(main);
@@ -1982,7 +1972,7 @@ function renderPage(r) {
   r = r || { key: 'home' };
   const key = r.key === 'guide' ? 'area' : r.key;
   currentPage = key; S.renderedLang = S.lang; S.renderedSearch = location.search;
-  const navKey = key === 'costs' ? 'move' : key;
+  const navKey = key === 'costs' ? 'move' : key === 'gids' ? 'buy' : key;
   $$('.nav a').forEach(a => { if (a.dataset.route === navKey) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   navLinks();
   $('#nav').classList.remove('open'); $('#menuBtn').setAttribute('aria-expanded', 'false');
@@ -1993,6 +1983,7 @@ function renderPage(r) {
     case 'sell': main.innerHTML = pageSell(); bindForm($('#sellForm')); break;
     case 'move': main.innerHTML = pageMove(); bindForm($('#moveForm')); break;
     case 'costs': pageCosts(); break;
+    case 'gids': pageGids(); break;
     case 'news': pageNews(r.arg || ''); break;
     case 'area': pageArea(r.key === 'guide' ? r.arg : ''); break;
     case 'contact': main.innerHTML = pageContact(); bindForm($('#contactForm')); if ('IntersectionObserver' in window) { const o = new IntersectionObserver(es => { if (es[0].isIntersecting) { o.disconnect(); initMap(); } }, { rootMargin: '300px' }); o.observe($('#mapEl')); } else initMap(); break;
@@ -2008,6 +1999,7 @@ function renderPage(r) {
   if (key !== 'home') hidePop();
   const names = { buy: 'nav_buy', sell: 'nav_sell', move: 'nav_move', area: 'nav_areas', news: 'nav_news', contact: 'nav_contact', favorites: 'fav_h', privacy: 'privacy' };
   if (key === 'costs') { S.pageTitle = `${COSTS.text(S.lang).h} · Grupo Soltura`; document.title = S.pageTitle; }
+  else if (key === 'gids') { S.pageTitle = `${GIDS.text(S.lang).title} · Grupo Soltura`; document.title = S.pageTitle; }
   else if (!((key === 'area' || key === 'news') && r.arg)) { S.pageTitle = key === 'home' || !names[key] ? 'Grupo Soltura · ' + t('hero_title') : `${t(names[key])} · Grupo Soltura`; document.title = S.pageTitle; }
   track('page', null, null, { p: key });
   // link met anker naar een andere pagina (bv. calculator -> /nl/emigreren/#moveForm): na het opbouwen naar het anker
