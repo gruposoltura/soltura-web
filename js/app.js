@@ -953,15 +953,21 @@ function relaxations() {
   const place = [], kind = [], other = [];
   // label = knoptekst in de paginataal (terugval); desc = Engelse omschrijving waaruit de assistent de tekst in de taal van de bezoeker maakt
   const en = (k, ...a) => { const v = I18N.en[k]; return typeof v === 'function' ? v(...a) : v; };
-  const add = (arr, k, args, f, ty = type) => { const n = hits(f, ty).length; if (n > 0) arr.push({ label: t(k, ...args), desc: en(k, ...args), f, type: ty, n }); };
+  // eenduidige Engelse omschrijving per soort aanpassing, zodat de assistent de knop goed vertaalt
+  const DESC = {
+    rx_pmin: () => 'no minimum price', rx_beds: n => `at least ${n} bedrooms instead of ${base.beds_min}`, rx_baths: () => 'fewer bathrooms than asked',
+    rx_pool_any: () => 'a communal pool is fine too, not only a private pool', rx_pool: () => 'also homes without a pool',
+    rx_newbuild: () => 'both resale (existing) homes and new build, not only one of the two', rx_sea: km => `up to ${km} km from the sea`, rx_reduced: () => 'not only price-reduced homes',
+  };
+  const add = (arr, k, args, f, ty = type) => { const n = hits(f, ty).length; if (n > 0) arr.push({ label: t(k, ...args), desc: 'change: ' + (DESC[k] ? DESC[k](...args) : en(k, ...args)), f, type: ty, n }); };
   const list = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' & ' + a[a.length - 1];
   // plaats: alle andere plaatsen waar we binnen budget wel iets hebben, in één keer
   if (base.towns.length) {
     const towns = top(hits(w({ towns: [] })), 'town', 99).map(x => x[0]);
-    if (towns.length) { const f = w({ towns }); place.push({ label: t('rx_town_to', list(towns)), desc: `homes in ${list(towns)} instead of ${list(base.towns)}`, f, type, n: hits(f).length, towns }); }
+    if (towns.length) { const f = w({ towns }); place.push({ label: t('rx_town_to', list(towns)), desc: `place: homes in ${list(towns)} instead of ${list(base.towns)}`, f, type, n: hits(f).length, towns }); }
   }
   // woningtype: concrete types binnen budget
-  if (base.categories.length) top(hits(w({ categories: [] })), 'category', 2).forEach(([c]) => { const f = w({ categories: [c] }); kind.push({ label: t('rx_cat_to', catName(c)), desc: `${en('rx_cat_to', CAT_EN[c] || cap(c))} instead of ${base.categories.map(x => CAT_EN[x] || cap(x)).join(', ')}`, f, type, n: hits(f).length }); });
+  if (base.categories.length) top(hits(w({ categories: [] })), 'category', 2).forEach(([c]) => { const f = w({ categories: [c] }); kind.push({ label: t('rx_cat_to', catName(c)), desc: `type: ${CAT_EN[c] || cap(c)} instead of ${base.categories.map(x => CAT_EN[x] || cap(x)).join(', ')}`, f, type, n: hits(f).length }); });
   // overige wensen, allemaal binnen budget
   if (base.price_min) add(other, 'rx_pmin', [], w({ price_min: null }));
   if (base.beds_min > 1) add(other, 'rx_beds', [base.beds_min - 1], w({ beds_min: base.beds_min - 1 }));
@@ -982,7 +988,7 @@ function relaxations() {
   while (i > 0 && prices[i] > base.price_max * 1.25) i--;
   const v = Math.ceil(prices[i] / 5000) * 5000;
   const f = w({ price_max: v });
-  return [{ label: t('none_budget_yes', eur(v)), desc: `raise the maximum budget from ${base.price_max} to ${v} euro`, f, type, n: hits(f).length, budget: v }];
+  return [{ label: t('none_budget_yes', eur(v)), desc: `budget: raise the maximum budget from ${base.price_max} to ${v} euro`, f, type, n: hits(f).length, budget: v }];
 }
 function bindSugg(root) {
   $$('[data-sug]', root).forEach(b => b.addEventListener('click', () => {
