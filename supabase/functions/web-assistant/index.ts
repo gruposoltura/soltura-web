@@ -1,10 +1,11 @@
-// SOLTURA WEBSITE - live assistent "Ava" voor bezoekers.
+// SOLTURA WEBSITE - live assistent "Sola" voor bezoekers.
 // mode=search : natuurlijke taal -> filters + korte reactie, OF een lokale vraag over onze plaatsen (intent 'local')
 // mode=ask    : vraag over een specifieke woning, gegrond in web_properties + web_property_geo
 // mode=relax  : bij nul treffers de alternatieven van de site verwerken in één antwoord
 // mode=guide  : gesprek op de woon/koopgids-pagina (na de intake): koop- en verkoopproces, kosten, gebieden, emigreren,
 //               gegrond in web_guide_knowledge + web_town_info; kan ook onze woningen zoeken (max 3 kaartjes terug)
 // POST {mode, lang, query, id?, reference?, wp_id?, history?, name?}  of  GET ?mode=&lang=&q=&id=&ref=&wp_id=
+// v23 (23-10-2026): de assistent heet Sola (vrouwelijk), niet meer Ava.
 // v22 (23-10-2026): commerciële naam Soltura Real Estate (niet Grupo Soltura) naar bezoekers.
 // v21 (23-10-2026): de assistent heet Ava (vrouwelijk), niet meer Sol.
 // v20 (23-10-2026): search - afstanden in het lokale inzicht alleen uit de tabel (Benijófar stond op '5 km van Alicante').
@@ -39,9 +40,9 @@ const CRED_ID = '90d3279d-1a62-46f2-ab4a-099c79732f14';
 const sb = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
 let KEY: string | null = null;
 
-const VOICE = `Your name is Ava. You are the live assistant of Soltura Real Estate (the company is legally Grupo Soltura SL, but to visitors we are always Soltura Real Estate; never call us Grupo Soltura): the real estate agency in Formentera del Segura, between Rojales and Guardamar on the Costa Blanca South, local since 2002 and always one step ahead. Your colleagues are Rick, Marco, Ingrid and Lisette. You speak as one of us.
+const VOICE = `Your name is Sola. You are the live assistant of Soltura Real Estate (the company is legally Grupo Soltura SL, but to visitors we are always Soltura Real Estate; never call us Grupo Soltura): the real estate agency in Formentera del Segura, between Rojales and Guardamar on the Costa Blanca South, local since 2002 and always one step ahead. Your colleagues are Rick, Marco, Ingrid and Lisette. You speak as one of us.
 
-About yourself: when you introduce yourself or someone asks who they are talking to, you are Ava, the live assistant of Soltura Real Estate. You present yourself as female (she/her; in Dutch, German, Spanish or Swedish use the feminine forms where the language needs them). Be honest that you are a digital assistant when asked; never pretend to be a person. For anything important (a viewing, an offer, a personal cost overview) a colleague takes over personally. Do not repeat your name in every answer.
+About yourself: when you introduce yourself or someone asks who they are talking to, you are Sola, the live assistant of Soltura Real Estate. You present yourself as female (she/her; in Dutch, German, Spanish or Swedish use the feminine forms where the language needs them). Be honest that you are a digital assistant when asked; never pretend to be a person. For anything important (a viewing, an offer, a personal cost overview) a colleague takes over personally. Do not repeat your name in every answer.
 
 How we talk:
 - Always in the "we" form for the company: "we", "our", "this villa of ours", "we know this area well". Never refer to "the listing", "the data", "the description", "the information provided" or "the facts I have". You know these homes and this area; speak from that knowledge with quiet authority.
@@ -93,7 +94,7 @@ let CFG: { at: number; v: Record<string, number> } | null = null;
 async function cfg() {
   if (CFG && Date.now() - CFG.at < 600_000) return CFG.v;
   const { data } = await sb.from('web_config').select('key,value');
-  const v: Record<string, number> = { itp_resale_pct: 9, iva_newbuild_pct: 10, ajd_newbuild_pct: 1.5 };
+  const v: Record<string, number> = { itp_resale_pct: 9, iva_newbuild_pct: 10, ajd_newbuild_pct: 1.4 };
   (data || []).forEach((r: any) => (v[r.key] = Number(r.value)));
   CFG = { at: Date.now(), v };
   return v;
@@ -291,7 +292,7 @@ The visitor types into the search box on our homepage. Decide first what kind of
 
 1. intent "search": the visitor describes a home they want (type, budget, bedrooms, town, pool, sea...). Turn the wish into search filters for our listings and write one or two short sentences back that show you understood and add one useful local insight if relevant. Any distance or travel time in that insight must come from the typical distances table below (rounded); if it is not in the table, leave distances out.
 
-2. intent "local": a question about living in or visiting one of the towns where we sell homes, or the Vega Baja / Costa Blanca South around them. For example: on which day is the weekly market, which beach is closest, where is the health centre, golf, schools, supermarkets, fiestas, the climate, getting there from Alicante or Murcia airport, buses, practical matters for newcomers (NIE, padrón, healthcare, residency, opening a bank account) in general terms. A question about who you are also counts as local: introduce yourself as Ava in one sentence. Answer it like a helpful local who lives there, in at most 60 words (two to four short sentences). Rules for local answers:
+2. intent "local": a question about living in or visiting one of the towns where we sell homes, or the Vega Baja / Costa Blanca South around them. For example: on which day is the weekly market, which beach is closest, where is the health centre, golf, schools, supermarkets, fiestas, the climate, getting there from Alicante or Murcia airport, buses, practical matters for newcomers (NIE, padrón, healthcare, residency, opening a bank account) in general terms. A question about who you are also counts as local: introduce yourself as Sola in one sentence. Answer it like a helpful local who lives there, in at most 60 words (two to four short sentences). Rules for local answers:
    - Our towns (with the number of homes we have there now): ${townCounts}. Ciudad Quesada, Doña Pepa and La Marquesa belong to Rojales; La Zenia, Playa Flamenca, Cabo Roig and Campoamor to Orihuela Costa; La Marina to San Fulgencio; La Mata to Torrevieja. Nearby places in the Vega Baja and the Costa Blanca South (Alicante, Elche, Murcia, Cartagena, the airports) count too, as long as the question is about life around our towns.
    - Our verified local facts come first. Use them exactly. Confidence high: state it plainly. Medium: state it, optionally add "as far as we know". Low: give it, but say it is worth a quick check at the town hall (ayuntamiento) or tourist office.
 ${localFacts}
@@ -346,7 +347,7 @@ Answer with the respond tool.`;
       if (typeof out.reply === 'string') out.reply = out.reply.replace(/\*\*?/g, '').trim();
       if (!Array.isArray(out.labels) || out.labels.length !== alts.length) out.labels = null;
     } else if (mode === 'guide') {
-      // Gidspagina: de bezoeker heeft (meestal) net de woon/koopgids aangevraagd en praat door met Sol.
+      // Gidspagina: de bezoeker heeft (meestal) net de woon/koopgids aangevraagd en praat door met Sola.
       const [f, ti, tg, gk] = await Promise.all([facets(), townInfo(), townGeo(), guideKnowledge()]);
       const name = String(body.name || '').replace(/[^\p{L}\p{M}' -]/gu, '').trim().slice(0, 40);
       const localFacts = ti.map((r: any) => `- ${r.town}${r.place ? ' / ' + r.place : ''} [${r.topic}, confidence ${r.confidence}]: ${r.fact}`).join('\n');

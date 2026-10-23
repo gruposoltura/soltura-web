@@ -14,7 +14,7 @@ Bestandsnamen van de PDF's nooit wijzigen: de links staan in mails en op de site
 
 ## Maandelijkse controle (volledig automatisch, los van Claude-sessies)
 1. **n8n `JARVIS-Research-GuideCheck`** draait elke 1e van de maand om 06:37 (Madrid).
-   Haalt de vier bestanden op (raw.githubusercontent.com), plus Ava's kennis (`web_guide_knowledge`)
+   Haalt de vier bestanden op (raw.githubusercontent.com), plus Sola's kennis (`web_guide_knowledge`)
    en `web_config`, en laat Claude met webzoeken de feiten controleren (belastingen ITP/IVA/AJD,
    hypotheek, Modelo 210, verhuurregels, plusvalía/retención, NIE/padrón/residencia, zorg,
    huisdieren, Soltura-gegevens). Alleen exact toepasbare, onderbouwde wijzigingen blijven over.
@@ -25,4 +25,4 @@ Bestandsnamen van de PDF's nooit wijzigen: de links staan in mails en op de site
    de waaier, verhoogt de cacheversie in `sw.js`, commit, start de site-deploy en meldt terug op
    webhook `jarvis-guide-check`. n8n logt dat en stuurt **dan pas** Telegram aan Rick.
    Mislukt de build, dan wordt er niets gepubliceerd en logt n8n een fout (geen Telegram).
-4. Ava's kennisrijen en tarieven in `web_config` worden in dezelfde run bijgewerkt.
+4. Sola's kennisrijen en tarieven in `web_config` worden in dezelfde run bijgewerkt.

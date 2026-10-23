@@ -19,7 +19,7 @@
     privacy: { en: 'privacy', nl: 'privacy', sv: 'integritet' },
     favorites: { en: 'favorites', nl: 'favorieten', sv: 'favoriter' },
     property: { en: 'property', nl: 'woning', sv: 'bostad' },
-    // woon/koopgids met live assistent Ava (23-10-2026)
+    // woon/koopgids met live assistent Sola (23-10-2026)
     gids: { en: 'buying-guide', nl: 'woongids', sv: 'kopguide' },
   };
   // subpagina's onder een vaste pagina (22-10-2026): maandlastencalculator onder Emigreren

@@ -1498,7 +1498,7 @@ function pageMove() {
     <section class="pg form-band"><div><h2>${c.form_h}</h2><p>${c.form_p}</p></div>
       ${richForm('moveForm', 'move', [{ k: 'timing', label: t('f_when'), opts: t('f_when_opts') }, { k: 'budget', label: t('f_budget'), ph: '€' }, { k: 'household', label: t('f_household'), ph: t('f_household_ph') }, { k: 'area', label: t('f_area'), ph: t('f_area_ph') }], '')}</section>`;
 }
-// Woon/koopgids met live assistent Ava (23-10-2026): /nl/woongids/ · /en/buying-guide/ · /sv/kopguide/ (js/gids.js)
+// Woon/koopgids met live assistent Sola (23-10-2026): /nl/woongids/ · /en/buying-guide/ · /sv/kopguide/ (js/gids.js)
 function solDeps(o) {
   return Object.assign({
     fn, track, ls, href: k => L(k), homeHref: p => ph(p), catName, word: k => t(k), formName: 'web-guide-assistant',

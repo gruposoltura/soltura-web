@@ -1,20 +1,20 @@
-/* Grupo Soltura website — Woon/koopgids met live assistent Ava (23-10-2026).
+/* Grupo Soltura website — Woon/koopgids met live assistent Sola (23-10-2026).
    23-10-2026: na de gidstaalkeuze (NL/EN/ES/SV) loopt het hele gesprek in die taal verder; SV krijgt sinds 23-10-2026 de Zweedse PDF (mail Engels).
    /nl/woongids/ · /en/buying-guide/ · /sv/kopguide/
-   Geen formulier maar een gesprek: Ava vraagt naam, e-mail, mobiel (en plannen + gidstaal), meldt enthousiast dat de gids
+   Geen formulier maar een gesprek: Sola vraagt naam, e-mail, mobiel (en plannen + gidstaal), meldt enthousiast dat de gids
    onderweg is en praat daarna door over kopen, verkopen, kosten, gebieden en onze woningen (edge function web-assistant, mode=guide).
    Elke aanvraag is een lead zoals de andere formulieren: web-contact kind 'guide' -> WebFormIntake-v2 -> LeadProcessor-v2 -> PurchaseInfoV2.
    Gedeeld door de app (GIDS.html + GIDS.bind + GIDS.promo) en de statische build (GIDS.html + GIDS.promo). */
 (function (root) {
   'use strict';
-  var NAME = 'Ava'; // naam van de live assistent (vrouwelijk, sinds 23-10-2026; eerst 'Sol'): alleen hier, in i18n.js en in de edge function aanpassen
-  // gezicht van Ava (icons/ava-*.webp|png); avatar(size) geeft een <img> voor ronde avatars en illustraties
+  var NAME = 'Sola'; // naam van de live assistent (vrouwelijk; 23-10-2026 eerst 'Sol', toen 'Ava', nu 'Sola'): alleen hier, in i18n.js en in de edge function aanpassen
+  // gezicht van Sola (icons/ava-*.webp|png); avatar(size) geeft een <img> voor ronde avatars en illustraties
   function avatar(size, cls) { var s = size > 96 ? 256 : size > 48 ? 128 : 64; return '<img class="ava-img' + (cls ? ' ' + cls : '') + '" src="/icons/ava-' + s + '.webp" width="' + size + '" height="' + size + '" alt="' + NAME + '" loading="lazy" decoding="async">'; }
 
   var TX = {
     nl: {
       after2: 'Ik ben er weer voor al je vragen. Over het koopproces, de kosten, de dorpen of onze woningen: vraag maar raak.', read: 'Lees verder:', cta_chat: 'Begin het gesprek met ' + NAME, kicker: 'Gratis woon- en koopgids', crumb: 'Woongids', title: 'Gratis woon- en koopgids Costa Blanca',
-      desc: 'Thuis aan de Costa Blanca: onze gratis woon- en koopgids voor de Vega Baja. Vraag hem aan bij Ava, onze live assistent, en stel daarna al je vragen over kopen, kosten en wonen.',
+      desc: 'Thuis aan de Costa Blanca: onze gratis woon- en koopgids voor de Vega Baja. Vraag hem aan bij Sola, onze live assistent, en stel daarna al je vragen over kopen, kosten en wonen.',
       hi: 'Hoi, ik ben ' + NAME + ', jouw live assistent',
       lead: 'Ik stuur je onze exclusieve gids "Thuis aan de Costa Blanca" en daarna beantwoord ik al je vragen: over het koopproces, de kosten, de dorpen en onze woningen.',
       guideTitle: 'Thuis aan de Costa Blanca', guideSub: 'Woon- en koopgids Vega Baja',
@@ -67,7 +67,7 @@
       handoff_q: 'Zal ik een collega vragen om persoonlijk contact met je op te nemen?', handoff_yes: 'Ja, graag', handoff_ok: 'Geregeld. Een collega neemt zo snel mogelijk contact met je op, meestal binnen een werkdag.',
       sorry: 'Dat weet ik niet zeker. App ons gerust, dan helpen we je persoonlijk.',
       page: { buy: 'Kopen', sell: 'Verkopen', move: 'Emigreren', costs: 'Maandlastencalculator', area: 'Woonplaatsen', contact: 'Contact' },
-      promo_h: 'Gratis woon- en koopgids', promo_p: 'Alles over kopen en wonen aan de Costa Blanca, in gewone taal. Ava stuurt hem je toe en beantwoordt daarna je vragen.',
+      promo_h: 'Gratis woon- en koopgids', promo_p: 'Alles over kopen en wonen aan de Costa Blanca, in gewone taal. Sola stuurt hem je toe en beantwoordt daarna je vragen.',
       promo_items: ['Elke stap van reservering tot sleutel', 'Wat het echt kost, in drie lagen', 'De dorpen van de Vega Baja'], promo_btn: 'Vraag hem aan bij ' + NAME,
       p_plan: 'Plannen', p_lang: 'Taal gids', p_via: 'Aangevraagd via een gesprek met ' + NAME + ' op de gidspagina.', p_via_prop: 'Aangevraagd via ' + NAME + ' op de woningpagina',
       cmp_intro: 'Zal ik je de gratis koopgids sturen? Dan heb ik even je naam, e-mail en mobiel nodig.', cmp_start: 'Ja, stuur maar',
@@ -75,7 +75,7 @@
     },
     en: {
       after2: "I'm here again for all your questions. About the buying process, the costs, the towns or our homes: just ask.", read: 'Read more:', cta_chat: 'Start chatting with ' + NAME, kicker: 'Free living & buying guide', crumb: 'Buying guide', title: 'Free Costa Blanca buying guide',
-      desc: 'At home on the Costa Blanca: our free living and buying guide for the Vega Baja. Ask Ava, our live assistant, for your copy and then ask anything about buying, costs and living here.',
+      desc: 'At home on the Costa Blanca: our free living and buying guide for the Vega Baja. Ask Sola, our live assistant, for your copy and then ask anything about buying, costs and living here.',
       hi: 'Hi, I\'m ' + NAME + ', your live assistant',
       lead: 'I\'ll send you our exclusive guide "At home on the Costa Blanca", and then I\'ll answer all your questions: about the buying process, the costs, the towns and our homes.',
       guideTitle: 'At home on the Costa Blanca', guideSub: 'Living & buying guide Vega Baja',
@@ -127,7 +127,7 @@
       handoff_q: 'Shall I ask a colleague to contact you personally?', handoff_yes: 'Yes, please', handoff_ok: 'Done. A colleague will get in touch as soon as possible, usually within one working day.',
       sorry: 'I\'m not sure about that. Feel free to WhatsApp us and we\'ll help you personally.',
       page: { buy: 'Buying', sell: 'Selling', move: 'Move to Spain', costs: 'Monthly cost calculator', area: 'Areas', contact: 'Contact' },
-      promo_h: 'Free living & buying guide', promo_p: 'Everything about buying and living on the Costa Blanca, in plain language. Ava sends it to you and then answers your questions.',
+      promo_h: 'Free living & buying guide', promo_p: 'Everything about buying and living on the Costa Blanca, in plain language. Sola sends it to you and then answers your questions.',
       promo_items: ['Every step from reservation to keys', 'What it really costs, in three layers', 'The towns of the Vega Baja'], promo_btn: 'Ask ' + NAME + ' for it',
       p_plan: 'Plans', p_lang: 'Guide language', p_via: 'Requested in a chat with ' + NAME + ' on the guide page.', p_via_prop: 'Requested via ' + NAME + ' on the property page',
       cmp_intro: 'Shall I send you the free buying guide? I just need your name, email and mobile.', cmp_start: 'Yes, send it',
@@ -135,7 +135,7 @@
     },
     sv: {
       after2: 'Jag finns här igen för alla dina frågor. Om köpprocessen, kostnaderna, orterna eller våra bostäder: fråga på.', read: 'Läs mer:', cta_chat: 'Börja chatta med ' + NAME, kicker: 'Kostnadsfri bo- och köpguide', crumb: 'Köpguide', title: 'Kostnadsfri köpguide Costa Blanca',
-      desc: 'Hemma på Costa Blanca: vår kostnadsfria bo- och köpguide för Vega Baja. Be Ava, vår live-assistent, om ditt exemplar och fråga sedan om allt kring köp, kostnader och boende.',
+      desc: 'Hemma på Costa Blanca: vår kostnadsfria bo- och köpguide för Vega Baja. Be Sola, vår live-assistent, om ditt exemplar och fråga sedan om allt kring köp, kostnader och boende.',
       hi: 'Hej, jag är ' + NAME + ', din live-assistent',
       lead: 'Jag skickar vår exklusiva guide "Hemma på Costa Blanca" och svarar sedan på alla dina frågor: om köpprocessen, kostnaderna, orterna och våra bostäder.',
       guideTitle: 'Hemma på Costa Blanca', guideSub: 'Bo- och köpguide Vega Baja',
@@ -187,7 +187,7 @@
       handoff_q: 'Ska jag be en kollega att kontakta dig personligen?', handoff_yes: 'Ja, gärna', handoff_ok: 'Klart. En kollega hör av sig så snart som möjligt, oftast inom en arbetsdag.',
       sorry: 'Det är jag inte säker på. Skicka gärna ett WhatsApp så hjälper vi dig personligen.',
       page: { buy: 'Köpa', sell: 'Sälja', move: 'Flytta till Spanien', costs: 'Månadskostnader', area: 'Orter', contact: 'Kontakt' },
-      promo_h: 'Kostnadsfri bo- och köpguide', promo_p: 'Allt om att köpa och bo på Costa Blanca, på klarspråk. Ava skickar den till dig och svarar sedan på dina frågor.',
+      promo_h: 'Kostnadsfri bo- och köpguide', promo_p: 'Allt om att köpa och bo på Costa Blanca, på klarspråk. Sola skickar den till dig och svarar sedan på dina frågor.',
       promo_items: ['Varje steg från reservation till nycklar', 'Vad det verkligen kostar, i tre lager', 'Orterna i Vega Baja'], promo_btn: 'Be ' + NAME + ' om den',
       p_plan: 'Planer', p_lang: 'Guidens språk', p_via: 'Beställd i en chatt med ' + NAME + ' på guidesidan.', p_via_prop: 'Beställd via ' + NAME + ' på bostadssidan',
       cmp_intro: 'Ska jag skicka den kostnadsfria köpguiden? Jag behöver bara ditt namn, e-post och mobilnummer.', cmp_start: 'Ja, skicka den',
@@ -214,7 +214,7 @@
     cmp_done: function (f) { return '¡Listo, ' + f + '! La guía va de camino a tu bandeja de entrada.'; }, cmp_more: 'Sigue hablando con ' + NAME + ' sobre la compra',
   });
   // gidstalen. De PDF bestaat in NL, EN, ES en SV (Zweeds sinds 23-10-2026); de mail aan Zweedse kiezers blijft Engels, de knop gaat naar de Zweedse PDF.
-  // Na de keuze gaat het hele gesprek (Ava's teksten, knoppen, antwoorden) verder in die taal (Rick, 23-10-2026).
+  // Na de keuze gaat het hele gesprek (Sola's teksten, knoppen, antwoorden) verder in die taal (Rick, 23-10-2026).
   var GLANGS = [['nl', 'Nederlands'], ['en', 'English'], ['es', 'Español'], ['sv', 'Svenska']];
   // mailLang: taal van de mail en het contact (Zweeds -> Engels); de gidstaal zelf (st.glang, ook sv) bepaalt welke PDF de mail linkt
   function pdfLang(g) { return g === 'nl' || g === 'es' ? g : 'en'; }
@@ -381,7 +381,7 @@
       for (var i = 0; i < 14; i++) { var c = document.createElement('i'); c.className = 'sol-conf'; c.style.setProperty('--x', (Math.random() * 220 - 110) + 'px'); c.style.setProperty('--r', (Math.random() * 540 - 270) + 'deg'); c.style.setProperty('--d', (Math.random() * .4) + 's'); c.style.background = ['#F03838', '#FF7068', '#FBCC10', '#384850'][i % 4]; card.appendChild(c); }
       return say(d.compact ? t.cmp_done(st.first) : t.done(st.first, st.email), 'big');
     }
-    // vrij gesprek met Ava na de intake
+    // vrij gesprek met Sola na de intake
     function chatMode() {
       st.step = 'chat'; ask('chat', t.ph_chat, 'text', 'off');
       setChips(t.starters.map(function (s) { return [s, s]; }), function (v) { chats(v); });
