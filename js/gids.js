@@ -216,6 +216,7 @@
   // gidstalen. De PDF bestaat in NL, EN, ES en SV (Zweeds sinds 23-10-2026); de mail aan Zweedse kiezers blijft Engels, de knop gaat naar de Zweedse PDF.
   // Na de keuze gaat het hele gesprek (Ava's teksten, knoppen, antwoorden) verder in die taal (Rick, 23-10-2026).
   var GLANGS = [['nl', 'Nederlands'], ['en', 'English'], ['es', 'Español'], ['sv', 'Svenska']];
+  // mailLang: taal van de mail en het contact (Zweeds -> Engels); de gidstaal zelf (st.glang, ook sv) bepaalt welke PDF de mail linkt
   function pdfLang(g) { return g === 'nl' || g === 'es' ? g : 'en'; }
 
   function L(lang) { return TX[lang] || TX.en; }
@@ -349,11 +350,11 @@
       if (st.busy) return; st.busy = true; form.hidden = true;
       var wait = document.createElement('div'); wait.className = 'sol-msg a sol-sending'; wait.innerHTML = '<span class="sol-env">' + ICO.mail + '</span>' + esc(t.sending); log.appendChild(wait); scroll();
       var gl = GLANGS.filter(function (g) { return g[0] === st.glang; })[0];
-      var gLbl = (gl ? gl[1] : st.glang) + (st.glang === 'sv' ? ' (PDF: English)' : '');
+      var gLbl = gl ? gl[1] : st.glang;
       var lines = [d.compact ? tSite.p_via_prop + (d.property ? ' ' + d.property.reference : '') + '.' : tSite.p_via, (st.plan ? tSite.p_plan + ': ' + st.plan : ''), tSite.p_lang + ': ' + gLbl].filter(Boolean);
       var body = Object.assign({ kind: 'guide' }, d.meta(d.formName), {
         lang: pdfLang(st.glang), site_lang: lang, name: st.first + ' ' + st.last, first: st.first, last: st.last, first_name: st.first, last_name: st.last,
-        email: st.email, phone: st.phone, message: lines.join('\n'), fields: { plan: st.plan || null, guide_lang: pdfLang(st.glang), chat_lang: st.clang, channel: 'sol' } });
+        email: st.email, phone: st.phone, message: lines.join('\n'), fields: { plan: st.plan || null, guide_lang: st.glang, chat_lang: st.clang, channel: 'sol' } });
       d.fn('web-contact', body).catch(function () { return { ok: false }; }).then(function (r) {
         st.busy = false; wait.remove();
         if (!r || !r.ok) {
@@ -375,7 +376,7 @@
     }
     function celebrate() {
       var card = document.createElement('div'); card.className = 'sol-done';
-      card.innerHTML = '<div class="sol-done-fly">' + cover(pdfLang(st.glang), true) + '<span class="sol-done-env">' + ICO.mail + '</span></div><div><b>' + esc(t.done_h) + '</b><span>' + esc(st.email) + '</span></div>';
+      card.innerHTML = '<div class="sol-done-fly">' + cover(st.glang, true) + '<span class="sol-done-env">' + ICO.mail + '</span></div><div><b>' + esc(t.done_h) + '</b><span>' + esc(st.email) + '</span></div>';
       log.appendChild(card); scroll();
       for (var i = 0; i < 14; i++) { var c = document.createElement('i'); c.className = 'sol-conf'; c.style.setProperty('--x', (Math.random() * 220 - 110) + 'px'); c.style.setProperty('--r', (Math.random() * 540 - 270) + 'deg'); c.style.setProperty('--d', (Math.random() * .4) + 's'); c.style.background = ['#F03838', '#FF7068', '#FBCC10', '#384850'][i % 4]; card.appendChild(c); }
       return say(d.compact ? t.cmp_done(st.first) : t.done(st.first, st.email), 'big');
