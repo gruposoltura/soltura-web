@@ -777,6 +777,7 @@ function renderFeed(append = false) {
   if (!S.all.length) { feed.innerHTML = Array.from({ length: 6 }, () => '<div><div class="ph skeleton" style="aspect-ratio:4/3;border-radius:14px"></div></div>').join(''); return; }
   const list = append ? S.order : computeOrder();
   $('#resultN').textContent = t('results', list.length);
+  if (!list.length && S.askPending && S.askPending === JSON.stringify(S.f) + S.type) { feed.innerHTML = ''; $('#moreBtn').hidden = true; return; }
   if (!list.length) {
     // filters via de balk: geen lege pagina maar een ballon met concrete aanpassingen
     S.sugg = relaxations();
@@ -909,13 +910,23 @@ async function aiSearch(q) {
   let note = '';
   if (r.filters && !S.all.some(p => match(p))) {
     const sug = relaxations();
-    if (sug.length) {
+    S.sugg = sug;
+    if (sug.length && !sug[0].budget) {
+      // binnen budget: het beste alternatief (plaats, dan type) tonen we meteen, de rest als knop
       S.f = sug[0].f; S.type = sug[0].type; S.shown = PAGE;
       note = `<div class="ab-none"><b>${t('none_h')}</b> ${t('none_applied', sug[0].label, sug[0].n)}</div>
         ${sug.length > 1 ? `<p class="ab-try">${t('none_try')}</p><div class="ab-sugg">${sug.slice(1).map((x, i) => `<button type="button" data-sug="${i + 1}">${esc(x.label)} <small>${x.n}</small></button>`).join('')}</div>` : ''}
         <p class="ab-tip">${t('none_tip')}</p>`;
-      S.sugg = sug;
       track('search_relaxed', null, sug[0].n, { q: q.slice(0, 120) });
+    } else if (sug.length) {
+      // alleen een hoger budget helpt: als voorstel, de bezoeker beslist
+      S.askPending = JSON.stringify(S.f) + S.type;
+      note = `<div class="ab-none"><b>${t('none_h')}</b> ${t('none_budget_ask', eur(sug[0].budget), sug[0].n)}</div>
+        <div class="ab-sugg"><button type="button" data-sug="0">${t('none_budget_yes', eur(sug[0].budget))} <small>${sug[0].n}</small></button></div>
+        <p class="ab-tip">${t('none_contact')} <a href="${L('contact')}">${t('nav_contact')}</a></p>`;
+      track('search_budget_proposed', null, sug[0].n, { q: q.slice(0, 120), budget: sug[0].budget });
+    } else {
+      note = `<div class="ab-none"><b>${t('none_h')}</b> ${t('none_contact')} <a href="${L('contact')}">${t('nav_contact')}</a></div><p class="ab-tip">${t('none_tip')}</p>`;
     }
   }
   if (!r.filters && !r.reply) note = `<div class="ab-none"><b>${t('ai_fail_h')}</b> ${t('ai_fail_p')}</div><p class="ab-tip">${t('none_tip')}</p>`;
@@ -933,30 +944,46 @@ async function aiSearch(q) {
   renderBar(); renderFeed();
   if (!note && r.filters) setTimeout(() => $('#bar').scrollIntoView({ behavior: 'smooth', block: 'start' }), 1600);
 }
-// alternatieven bij nul treffers: telkens één wens versoepelen en tellen wat er dan wél is
+// alternatieven bij nul treffers (Rick, 23-10-2026): het budget van de bezoeker is heilig.
+// 1) eerst binnen budget: een andere plaats, dan een ander woningtype, dan overige wensen;
+// 2) pas als er binnen budget niets is, een VOORSTEL voor een hoger "tot"-budget - nooit automatisch toegepast.
 function relaxations() {
   const base = S.f, type = S.type;
-  const cnt = (f, ty = type) => S.all.filter(p => match(p, f, ty)).length;
-  const out = [];
-  const add = (label, f, ty = type) => { const n = cnt(f, ty); if (n > 0) out.push({ label, f, type: ty, n }); };
   const w = o => Object.assign({}, base, o);
-  if (base.price_max) {
-    const prices = S.all.filter(p => match(p, w({ price_max: null }))).map(p => p.price).filter(Boolean).sort((a, b) => a - b);
-    if (prices.length) { const v = Math.ceil(prices[Math.min(4, prices.length - 1)] / 5000) * 5000; add(t('rx_budget', eur(v)), w({ price_max: v })); }
+  const hits = (f, ty = type) => S.all.filter(p => match(p, f, ty));
+  const top = (list, key, n) => { const c = {}; list.forEach(p => { if (p[key]) c[p[key]] = (c[p[key]] || 0) + 1; }); return Object.entries(c).sort((a, b) => b[1] - a[1]).slice(0, n); };
+  const place = [], kind = [], other = [];
+  const add = (arr, label, f, ty = type) => { const n = hits(f, ty).length; if (n > 0) arr.push({ label, f, type: ty, n }); };
+  // plaats: concrete plaatsen binnen budget, plus 'ook buiten' als dat meer plaatsen oplevert
+  if (base.towns.length) {
+    const wide = hits(w({ towns: [] }));
+    const towns = top(wide, 'town', 2);
+    towns.forEach(([tw, n]) => place.push({ label: t('rx_town_to', tw), f: w({ towns: [tw] }), type, n }));
+    if (towns.length && wide.length > towns.reduce((a, x) => a + x[1], 0)) place.push({ label: t('rx_towns', base.towns.join(', ')), f: w({ towns: [] }), type, n: wide.length });
   }
-  if (base.price_min) add(t('rx_pmin'), w({ price_min: null }));
-  if (base.towns.length) add(t('rx_towns', base.towns.join(', ')), w({ towns: [] }));
-  if (base.categories.length) add(t('rx_cat', base.categories.map(catName).join(', ')), w({ categories: [] }));
-  if (base.beds_min > 1) add(t('rx_beds', base.beds_min - 1), w({ beds_min: base.beds_min - 1 }));
-  if (base.baths_min) add(t('rx_baths'), w({ baths_min: null }));
-  if (base.pool === 'private') add(t('rx_pool_any'), w({ pool: 'any' }));
-  else if (base.pool) add(t('rx_pool'), w({ pool: null }));
-  if (base.newbuild != null) add(t('rx_newbuild'), w({ newbuild: null }));
-  if (type !== 'all') add(t('rx_newbuild'), base, 'all');
-  if (base.max_sea_km) add(t('rx_sea', base.max_sea_km * 2), w({ max_sea_km: base.max_sea_km * 2 }));
-  if (base.reduced_only) add(t('rx_reduced'), w({ reduced_only: false }));
-  // budget eerst als dat het probleem is (meest gevraagd), daarna wat het meeste oplevert
-  return out.sort((a, b) => (b.f.price_max !== base.price_max && b.f.price_max ? 1 : 0) - (a.f.price_max !== base.price_max && a.f.price_max ? 1 : 0) || b.n - a.n).slice(0, 4);
+  // woningtype: concrete types binnen budget
+  if (base.categories.length) top(hits(w({ categories: [] })), 'category', 2).forEach(([c, n]) => kind.push({ label: t('rx_cat_to', catName(c)), f: w({ categories: [c] }), type, n }));
+  // overige wensen, allemaal binnen budget
+  if (base.price_min) add(other, t('rx_pmin'), w({ price_min: null }));
+  if (base.beds_min > 1) add(other, t('rx_beds', base.beds_min - 1), w({ beds_min: base.beds_min - 1 }));
+  if (base.baths_min) add(other, t('rx_baths'), w({ baths_min: null }));
+  if (base.pool === 'private') add(other, t('rx_pool_any'), w({ pool: 'any' }));
+  else if (base.pool) add(other, t('rx_pool'), w({ pool: null }));
+  if (base.newbuild != null) add(other, t('rx_newbuild'), w({ newbuild: null }));
+  if (type !== 'all') add(other, t('rx_newbuild'), base, 'all');
+  if (base.max_sea_km) add(other, t('rx_sea', base.max_sea_km * 2), w({ max_sea_km: base.max_sea_km * 2 }));
+  if (base.reduced_only) add(other, t('rx_reduced'), w({ reduced_only: false }));
+  other.sort((a, b) => b.n - a.n);
+  const inBudget = [...place, ...kind, ...other].slice(0, 4);
+  if (inBudget.length || !base.price_max) return inBudget;
+  // niets binnen budget: één voorstel voor een nieuw, zo klein mogelijk "tot"-budget (liefst 3 woningen, maar hooguit +25%)
+  const prices = hits(w({ price_max: null })).map(p => p.price).filter(Boolean).sort((a, b) => a - b);
+  if (!prices.length) return [];
+  let i = Math.min(2, prices.length - 1);
+  while (i > 0 && prices[i] > base.price_max * 1.25) i--;
+  const v = Math.ceil(prices[i] / 5000) * 5000;
+  const f = w({ price_max: v });
+  return [{ label: t('rx_budget', eur(v)), f, type, n: hits(f).length, budget: v }];
 }
 function bindSugg(root) {
   $$('[data-sug]', root).forEach(b => b.addEventListener('click', () => {

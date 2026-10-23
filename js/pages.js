@@ -238,7 +238,9 @@ Object.assign(I18N.nl, {
   c_wa: 'Het snelst: meestal binnen het uur antwoord', c_call: 'Maandag t/m vrijdag, tijdens kantooruren', c_mail: 'We antwoorden binnen één werkdag', c_route: 'Plan je route', c_team: 'Spreek direct een van ons', c_form_h: 'Stuur ons een bericht',
 });
 Object.assign(I18N.en, {
-  none_h: 'Nothing matches exactly.', none_applied: (l, n) => `So we widened one wish for you: <b>${l}</b> gives ${n} homes, shown below.`,
+  none_h: 'Nothing matches exactly.', none_applied: (l, n) => `Within your budget we do have this: <b>${l}</b> gives ${n} homes, shown below.`,
+  none_budget_ask: (v, n) => `Within your budget we have nothing that fits right now, not even with a small change. Would you like to raise your budget to ${v}? Then we have ${n} homes for you.`, none_budget_yes: v => `Yes, show homes up to ${v}`,
+  rx_town_to: x => `In ${x}`, rx_cat_to: x => `Type: ${x}`,
   none_try: 'Or adjust your question in another way:', none_bar: 'Change one wish and you will see homes again:',
   none_tip: 'Tip: give a price range, a town or area, and the type of home. For example “villa with pool near Rojales up to €400,000”.',
   none_contact: 'Prefer us to look for you? Many homes reach our own searchers first.',
@@ -247,7 +249,9 @@ Object.assign(I18N.en, {
   rx_beds: n => `${n}+ bedrooms`, rx_baths: 'Fewer bathrooms', rx_pool_any: 'Communal pool is fine too', rx_pool: 'Without pool', rx_newbuild: 'Resale and new build', rx_sea: km => `Up to ${km} km from the sea`, rx_reduced: 'Not only reduced',
 });
 Object.assign(I18N.nl, {
-  none_h: 'Precies dit hebben we nu niet.', none_applied: (l, n) => `Daarom hebben we één wens verruimd: <b>${l}</b> geeft ${n} woningen, hieronder.`,
+  none_h: 'Precies dit hebben we nu niet.', none_applied: (l, n) => `Binnen je budget hebben we wel dit: <b>${l}</b> geeft ${n} woningen, hieronder.`,
+  none_budget_ask: (v, n) => `Binnen je budget hebben we nu niets wat past, ook niet met een kleine aanpassing. Wil je je budget verhogen naar ${v}? Dan hebben we ${n} woningen voor je.`, none_budget_yes: v => `Ja, toon woningen tot ${v}`,
+  rx_town_to: x => `In ${x}`, rx_cat_to: x => `Type: ${x}`,
   none_try: 'Of pas je vraag op een andere manier aan:', none_bar: 'Pas één wens aan en je ziet weer woningen:',
   none_tip: 'Tip: noem een prijsrange, een plaats of gebied en het soort woning. Bijvoorbeeld “villa met zwembad bij Rojales tot € 400.000”.',
   none_contact: 'Liever dat wij voor je zoeken? Veel woningen komen eerst bij onze eigen zoekers.',
@@ -321,7 +325,9 @@ Object.assign(I18N.sv, {
   f_topic: 'Ämne', f_topic_opts: ['Köpa en bostad', 'Sälja min bostad', 'Flytta till Spanien', 'Juridiska tjänster', 'Något annat'], f_lang: 'Önskat språk',
   news_all: 'Alla', news_market: 'Bostadsmarknaden', news_region: 'Vega Baja', news_spain: 'Spanien', news_none: 'Inga nyheter i den här kategorin än.', news_more: 'Fler nyheter', c_find: 'Hitta till vårt kontor', c_map: 'Karta över vårt kontor i Formentera del Segura', c_office_alt: 'Vårt mötesrum i Formentera del Segura', news_in: l => l ? `artikel på ${l}` : 'artikel på ett annat språk', move_plan_btn: 'Få min steg-för-steg-plan',
   c_wa: 'Snabbast: oftast svar inom en timme', c_call: 'Måndag till fredag, under kontorstid', c_mail: 'Vi svarar inom en arbetsdag', c_route: 'Planera din väg hit', c_team: 'Prata direkt med någon av oss', c_form_h: 'Skicka ett meddelande till oss',
-  none_h: 'Inget matchar exakt.', none_applied: (l, n) => `Därför har vi vidgat en av dina önskningar: <b>${l}</b> ger ${n} bostäder, som du ser nedan.`,
+  none_h: 'Inget matchar exakt.', none_applied: (l, n) => `Inom din budget har vi det här: <b>${l}</b> ger ${n} bostäder, som du ser nedan.`,
+  none_budget_ask: (v, n) => `Inom din budget har vi inget som passar just nu, inte ens med en liten ändring. Vill du höja din budget till ${v}? Då har vi ${n} bostäder åt dig.`, none_budget_yes: v => `Ja, visa bostäder upp till ${v}`,
+  rx_town_to: x => `I ${x}`, rx_cat_to: x => `Typ: ${x}`,
   none_try: 'Eller ändra din fråga på ett annat sätt:', none_bar: 'Ändra en önskning så ser du bostäder igen:',
   none_tip: 'Tips: ange ett prisintervall, en ort eller ett område och typ av bostad. Till exempel ”villa med pool nära Rojales upp till 400 000 €”.',
   none_contact: 'Vill du hellre att vi letar åt dig? Många bostäder når våra egna sökande först.',
