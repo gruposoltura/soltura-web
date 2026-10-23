@@ -1,4 +1,5 @@
 /* Grupo Soltura website — Woon/koopgids met live assistent Ava (23-10-2026).
+   23-10-2026: na de gidstaalkeuze (NL/EN/ES/SV) loopt het hele gesprek in die taal verder; SV krijgt de Engelse PDF.
    /nl/woongids/ · /en/buying-guide/ · /sv/kopguide/
    Geen formulier maar een gesprek: Ava vraagt naam, e-mail, mobiel (en plannen + gidstaal), meldt enthousiast dat de gids
    onderweg is en praat daarna door over kopen, verkopen, kosten, gebieden en onze woningen (edge function web-assistant, mode=guide).
@@ -174,9 +175,9 @@
       bad_phone: 'Numret verkar för kort. Kan du skriva det med landsnummer, till exempel +46 70 123 45 67?',
       ask_plan: 'Sista frågan: vad passar bäst för dina planer?',
       plans: ['Semesterbostad', 'Flytta hit', 'Uthyrning eller investering', 'Jag orienterar mig'],
-      ask_lang: 'På vilket språk vill du ha guiden? (Den finns på engelska, nederländska och spanska.)',
+      ask_lang: 'På vilket språk vill du ha guiden?',
       sending: 'Gör i ordning din guide…',
-      done_h: 'Din guide är på väg', done: function (f, e) { return 'Klart, ' + f + '! Din exklusiva guide "At home on the Costa Blanca" är på väg till ' + e + '. Titta i inkorgen om några minuter, och i skräpposten för säkerhets skull.'; },
+      done_h: 'Din guide är på väg', done: function (f, e) { return 'Klart, ' + f + '! Din exklusiva guide "At home on the Costa Blanca" (på engelska) är på väg till ' + e + '. Titta i inkorgen om några minuter, och i skräpposten för säkerhets skull.'; },
       after: 'Under tiden finns jag här för alla dina frågor. Om köpprocessen, kostnaderna, orterna eller våra bostäder: fråga på.',
       fail: 'Hmm, det gick inte riktigt. Försök igen, eller skicka ett WhatsApp till +34 664 414 515.', retry: 'Skicka igen',
       welcome: function (f, e) { return 'Välkommen tillbaka, ' + f + '. Din guide skickades tidigare till ' + e + '.'; },
@@ -193,8 +194,29 @@
       cmp_done: function (f) { return 'Klart, ' + f + '! Guiden är på väg till din inkorg.'; }, cmp_more: 'Fortsätt prata med ' + NAME + ' om köp',
     },
   };
-  // gidstalen (de PDF bestaat in NL, EN en ES); sv-bezoekers kiezen, standaard Engels
-  var GLANGS = [['nl', 'Nederlands'], ['en', 'English'], ['es', 'Español']];
+
+  // Spaans: alleen het gesprek NA de taalkeuze (de site zelf bestaat in en/nl/sv); de rest valt terug op Engels
+  TX.es = Object.assign({}, TX.en, {
+    after2: 'Aquí estoy de nuevo para todas tus preguntas. Sobre el proceso de compra, los costes, los pueblos o nuestras viviendas: pregunta lo que quieras.', read: 'Sigue leyendo:',
+    guideTitle: 'En casa en la Costa Blanca',
+    ph_chat: 'Hazle una pregunta a ' + NAME + '…',
+    sending: 'Preparando tu guía…',
+    done_h: 'Tu guía está en camino', done: function (f, e) { return '¡Listo, ' + f + '! Tu guía exclusiva "En casa en la Costa Blanca" va de camino a ' + e + '. Revisa tu bandeja de entrada en unos minutos, y la carpeta de spam por si acaso.'; },
+    after: 'Mientras tanto, estoy aquí para todas tus preguntas. Sobre el proceso de compra, los costes, los pueblos o nuestras viviendas: pregunta lo que quieras.',
+    fail: 'Vaya, algo no ha funcionado. Inténtalo de nuevo o escríbenos por WhatsApp al +34 664 414 515.', retry: 'Enviar de nuevo',
+    welcome: function (f, e) { return 'Bienvenido de nuevo, ' + f + '. Ya te enviamos la guía a ' + e + '.'; },
+    resend: 'Envíala de nuevo', other: 'Usar otros datos',
+    starters: ['¿Cómo funciona la compra?', '¿Qué gastos hay además del precio?', 'Villas hasta 400.000 €', '¿Qué pueblo me conviene?'],
+    edit: 'Cambiar', homes_n: function (n) { return n === 1 ? '1 vivienda encaja' : n + ' viviendas encajan'; }, homes_all: 'Ver todas',
+    handoff_q: '¿Quieres que un compañero se ponga en contacto contigo personalmente?', handoff_yes: 'Sí, por favor', handoff_ok: 'Hecho. Un compañero se pondrá en contacto contigo lo antes posible, normalmente en un día laborable.',
+    sorry: 'No estoy segura de eso. Escríbenos por WhatsApp y te ayudamos personalmente.',
+    page: { buy: 'Comprar', sell: 'Vender', move: 'Vivir en España', costs: 'Calculadora de gastos mensuales', area: 'Pueblos', contact: 'Contacto' },
+    cmp_done: function (f) { return '¡Listo, ' + f + '! La guía va de camino a tu bandeja de entrada.'; }, cmp_more: 'Sigue hablando con ' + NAME + ' sobre la compra',
+  });
+  // gidstalen. De PDF bestaat in NL, EN en ES; wie Svenska kiest, krijgt het gesprek in het Zweeds en de Engelse PDF.
+  // Na de keuze gaat het hele gesprek (Ava's teksten, knoppen, antwoorden) verder in die taal (Rick, 23-10-2026).
+  var GLANGS = [['nl', 'Nederlands'], ['en', 'English'], ['es', 'Español'], ['sv', 'Svenska']];
+  function pdfLang(g) { return g === 'nl' || g === 'es' ? g : 'en'; }
 
   function L(lang) { return TX[lang] || TX.en; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -205,9 +227,9 @@
     mail: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3z"/><path d="M3 6l9 7 9-7"/></svg>',
     arrow: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
   };
-  // echte pagina's uit de PDF-gids (img/gids/<taal>-<pagina>.webp; nl of en, sv valt terug op en)
+  // echte pagina's uit de PDF-gids (img/gids/<taal>-<pagina>.webp; nl, en of es, sv valt terug op en)
   var FAN = [26, 14, 16, 5, 1]; // van achter naar voor; 1 = omslag
-  function pg(lang, n) { return '/img/gids/' + (lang === 'nl' ? 'nl' : 'en') + '-' + n + '.webp'; }
+  function pg(lang, n) { return '/img/gids/' + (lang === 'nl' || lang === 'es' ? lang : 'en') + '-' + n + '.webp'; }
   function fan(lang) {
     var t = L(lang);
     return '<div class="gd-fan" aria-label="' + esc(t.guideTitle) + '">' + FAN.map(function (n, i) {
@@ -273,11 +295,12 @@
   // root: element met #solLog/#solChips/#solForm/#solIn (pagina) of de compacte variant (woningpagina).
   // d: { fn, meta(formName), track, href(key), ls: {get,set}, compact, formName, property }
   function bind(rootEl, lang, d) {
-    var t = L(lang);
+    var t = L(lang), tSite = t; // t = taal van het gesprek (wisselt bij de gidstaalkeuze), tSite = sitetaal (teamregels)
     var $ = function (s) { return rootEl.querySelector(s); };
     var log = $('#solLog'), chips = $('#solChips'), form = $('#solForm'), input = $('#solIn');
     if (!log || !form) return;
-    var st = { step: 'name', first: '', last: '', email: '', phone: '', plan: '', glang: lang === 'sv' ? 'en' : lang, sent: false, busy: false };
+    var st = { step: 'name', first: '', last: '', email: '', phone: '', plan: '', glang: lang, clang: lang, sent: false, busy: false };
+    function setChatLang(l) { st.clang = TX[l] ? l : lang; t = L(st.clang); input.placeholder = t.ph_chat; }
     var hist = [], answers = [];
     var saved = d.ls ? d.ls.get('guide', null) : null;
 
@@ -320,16 +343,17 @@
     function askLang() {
       form.hidden = true;
       var order = GLANGS.slice().sort(function (a, b) { return (a[0] === st.glang ? -1 : 0) - (b[0] === st.glang ? -1 : 0); });
-      return say(t.ask_lang).then(function () { setChips(order, function (v, lbl) { st.glang = v; chips.innerHTML = ''; me(lbl); submit(); }); });
+      return say(t.ask_lang).then(function () { setChips(order, function (v, lbl) { st.glang = v; setChatLang(v); chips.innerHTML = ''; me(lbl); submit(); }); });
     }
     function submit() {
       if (st.busy) return; st.busy = true; form.hidden = true;
       var wait = document.createElement('div'); wait.className = 'sol-msg a sol-sending'; wait.innerHTML = '<span class="sol-env">' + ICO.mail + '</span>' + esc(t.sending); log.appendChild(wait); scroll();
       var gl = GLANGS.filter(function (g) { return g[0] === st.glang; })[0];
-      var lines = [d.compact ? t.p_via_prop + (d.property ? ' ' + d.property.reference : '') + '.' : t.p_via, (st.plan ? t.p_plan + ': ' + st.plan : ''), t.p_lang + ': ' + (gl ? gl[1] : st.glang)].filter(Boolean);
+      var gLbl = (gl ? gl[1] : st.glang) + (st.glang === 'sv' ? ' (PDF: English)' : '');
+      var lines = [d.compact ? tSite.p_via_prop + (d.property ? ' ' + d.property.reference : '') + '.' : tSite.p_via, (st.plan ? tSite.p_plan + ': ' + st.plan : ''), tSite.p_lang + ': ' + gLbl].filter(Boolean);
       var body = Object.assign({ kind: 'guide' }, d.meta(d.formName), {
-        lang: st.glang, site_lang: lang, name: st.first + ' ' + st.last, first: st.first, last: st.last, first_name: st.first, last_name: st.last,
-        email: st.email, phone: st.phone, message: lines.join('\n'), fields: { plan: st.plan || null, guide_lang: st.glang, channel: 'sol' } });
+        lang: pdfLang(st.glang), site_lang: lang, name: st.first + ' ' + st.last, first: st.first, last: st.last, first_name: st.first, last_name: st.last,
+        email: st.email, phone: st.phone, message: lines.join('\n'), fields: { plan: st.plan || null, guide_lang: pdfLang(st.glang), chat_lang: st.clang, channel: 'sol' } });
       d.fn('web-contact', body).catch(function () { return { ok: false }; }).then(function (r) {
         st.busy = false; wait.remove();
         if (!r || !r.ok) {
@@ -338,7 +362,7 @@
         }
         st.sent = true;
         answers.forEach(function (a) { var b = a.querySelector('.sol-edit'); if (b) b.remove(); });
-        if (d.ls) d.ls.set('guide', { first: st.first, last: st.last, email: st.email, phone: st.phone, glang: st.glang, at: Date.now() });
+        if (d.ls) d.ls.set('guide', { first: st.first, last: st.last, email: st.email, phone: st.phone, glang: st.glang, clang: st.clang, at: Date.now() });
         if (d.track) d.track('guide_request', d.property ? d.property.id : null, null, { via: 'sol', plan: st.plan || null, glang: st.glang });
         celebrate().then(function () {
           if (d.compact) {
@@ -351,7 +375,7 @@
     }
     function celebrate() {
       var card = document.createElement('div'); card.className = 'sol-done';
-      card.innerHTML = '<div class="sol-done-fly">' + cover(lang, true) + '<span class="sol-done-env">' + ICO.mail + '</span></div><div><b>' + esc(t.done_h) + '</b><span>' + esc(st.email) + '</span></div>';
+      card.innerHTML = '<div class="sol-done-fly">' + cover(pdfLang(st.glang), true) + '<span class="sol-done-env">' + ICO.mail + '</span></div><div><b>' + esc(t.done_h) + '</b><span>' + esc(st.email) + '</span></div>';
       log.appendChild(card); scroll();
       for (var i = 0; i < 14; i++) { var c = document.createElement('i'); c.className = 'sol-conf'; c.style.setProperty('--x', (Math.random() * 220 - 110) + 'px'); c.style.setProperty('--r', (Math.random() * 540 - 270) + 'deg'); c.style.setProperty('--d', (Math.random() * .4) + 's'); c.style.background = ['#F03838', '#FF7068', '#FBCC10', '#384850'][i % 4]; card.appendChild(c); }
       return say(d.compact ? t.cmp_done(st.first) : t.done(st.first, st.email), 'big');
@@ -363,7 +387,7 @@
     }
     function homeCard(p) {
       var a = document.createElement('a'); a.className = 'sol-home'; a.href = d.homeHref(p);
-      var price = p.price != null ? new Intl.NumberFormat(lang === 'sv' ? 'sv-SE' : lang === 'nl' ? 'nl-NL' : 'en-IE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(p.price) : '';
+      var cl = st.clang, price = p.price != null ? new Intl.NumberFormat(cl === 'sv' ? 'sv-SE' : cl === 'nl' ? 'nl-NL' : cl === 'es' ? 'es-ES' : 'en-IE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(p.price) : '';
       a.innerHTML = (p.image ? '<img src="' + esc(d.img ? d.img(p.image) : p.image) + '" alt="" loading="lazy">' : '<span class="sol-home-ph"></span>') +
         '<span><b>' + esc(price) + '</b><small>' + esc([d.catName ? d.catName(p.category) : p.category, p.town].filter(Boolean).join(' · ')) + '</small><small>' + esc([p.bedrooms ? p.bedrooms + ' ' + (d.word ? d.word('beds') : 'bd') : '', p.reference].filter(Boolean).join(' · ')) + '</small></span>';
       return a;
@@ -373,7 +397,7 @@
       st.busy = true; chips.innerHTML = ''; me(q); input.value = '';
       var ty = document.createElement('div'); ty.className = 'sol-msg a typing'; ty.innerHTML = '<span></span><span></span><span></span>'; log.appendChild(ty); scroll();
       if (d.track) d.track('assistant', null, null, { via: 'guide' });
-      d.fn('web-assistant', { mode: 'guide', lang: lang, query: q, name: st.first, history: hist }).catch(function () { return {}; }).then(function (r) {
+      d.fn('web-assistant', { mode: 'guide', lang: st.clang, query: q, name: st.first, history: hist }).catch(function () { return {}; }).then(function (r) {
         st.busy = false; ty.remove();
         var reply = (r && r.reply) || t.sorry;
         hist.push({ role: 'user', content: q }, { role: 'assistant', content: reply });
@@ -399,7 +423,7 @@
     }
     function handoff(q) {
       var tr = hist.slice(-8).map(function (h) { return (h.role === 'user' ? st.first || 'Bezoeker' : NAME) + ': ' + h.content; }).join('\n');
-      var body = Object.assign({ kind: 'contact' }, d.meta('web-guide-assistant-handoff'), { lang: st.glang, site_lang: lang, name: st.first + ' ' + st.last, first: st.first, last: st.last, first_name: st.first, last_name: st.last, email: st.email, phone: st.phone,
+      var body = Object.assign({ kind: 'contact' }, d.meta('web-guide-assistant-handoff'), { lang: pdfLang(st.glang), site_lang: lang, name: st.first + ' ' + st.last, first: st.first, last: st.last, first_name: st.first, last_name: st.last, email: st.email, phone: st.phone,
         message: 'Wil persoonlijk contact na gesprek met ' + NAME + ' (gidspagina).\nVraag: ' + q + '\n\nGesprek:\n' + tr, fields: { channel: 'sol', plan: st.plan || null } });
       d.fn('web-contact', body).catch(function () { return { ok: false }; }).then(function (r) {
         if (r && r.ok) { if (d.track) d.track('contact_sent', null, null, { kind: 'sol_handoff' }); say(t.handoff_ok); }
@@ -449,6 +473,7 @@
     if (saved && saved.email && saved.first) {
       log.innerHTML = '';
       Object.assign(st, { first: saved.first, last: saved.last || '', email: saved.email, phone: saved.phone || '', glang: saved.glang || st.glang });
+      setChatLang(saved.clang || (saved.glang && TX[saved.glang] ? saved.glang : lang));
       form.hidden = true;
       say(t.welcome(saved.first, saved.email)).then(function () {
         say(t.after2).then(function () {
@@ -456,7 +481,7 @@
           var extra = [['resend', t.resend], ['other', t.other]];
           setChips(extra.concat(t.starters.slice(0, 2).map(function (s) { return [s, s]; })), function (v, lbl) {
             if (v === 'resend') { chips.innerHTML = ''; me(lbl); st.sent = false; submit(); }
-            else if (v === 'other') { chips.innerHTML = ''; me(lbl); st.sent = false; if (d.ls) d.ls.set('guide', null); Object.assign(st, { first: '', last: '', email: '', phone: '', plan: '' }); say(t.g2).then(function () { ask('name', t.ph_name, 'text', 'name'); }); }
+            else if (v === 'other') { chips.innerHTML = ''; me(lbl); st.sent = false; if (d.ls) d.ls.set('guide', null); Object.assign(st, { first: '', last: '', email: '', phone: '', plan: '', glang: lang }); setChatLang(lang); say(t.g2).then(function () { ask('name', t.ph_name, 'text', 'name'); }); }
             else chats(v);
           });
         });
