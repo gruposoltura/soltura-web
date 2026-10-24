@@ -3,6 +3,9 @@
 // (concurrentie, Rick 24-10-2026); alleen de wettelijke belastingpercentages uit web_config (data.cfg).
 // De makelaar van de woning bespreekt de specifieke kosten persoonlijk (leadcard).
 // buildCosts(data, lang, A) -> HTML. data = brochure_data(ref) (p, geo, reviews, cfg). A = asset-basis (logo's).
+// Zonder woning (data.p leeg) ontstaat de ALGEMENE versie: het statische document in /downloads (Rick 24-10-2026: net als de
+// koopgids één vast PDF per taal, als downloadlink in de mail). Beide belastingvarianten en een algemeen contactblok.
+// A.qr (optioneel) vervangt de QR-dienst, voor een render zonder netwerk.
 function buildCosts(data, lang, A) {
   const p = (data && data.p) || {}, rev = (data && data.reviews) || {}, cfg = (data && data.cfg) || {};
   const L = ['nl', 'en', 'es', 'sv'].includes(lang) ? lang : 'en';
@@ -11,8 +14,10 @@ function buildCosts(data, lang, A) {
   const IVA = cfg.iva_newbuild_pct != null ? pct(cfg.iva_newbuild_pct) : null;
   const AJD = cfg.ajd_newbuild_pct != null ? pct(cfg.ajd_newbuild_pct) : null;
   const isNew = p.is_newbuild === true;
+  const generic = !p.reference;
   const T = {
     nl: {
+      genH: 'Bestaande bouw of nieuwbouw?', genP: 'Welke belasting je betaalt, hangt af van de woning: bij bestaande bouw overdrachtsbelasting (ITP), bij nieuwbouw btw (IVA) en zegelrecht (AJD).', agKg: 'De bedragen voor jouw woning', agPg: 'Je makelaar neemt de specifieke kosten van jouw woning persoonlijk met je door: welke belasting geldt, wat er in jouw situatie bijkomt en wat onze all-in fee is.', office2: 'Kantoor Formentera del Segura',
       kicker: 'Kostenoverzicht', title: 'Wat komt er bij de <em>prijs</em>?',
       lead: 'Naast de koopprijs betaal je in Spanje belastingen en een aantal kosten voor de juridische afhandeling. Hier lees je welke kosten dat zijn, waarom ze er zijn en wat wij voor je regelen. De precieze bedragen hangen af van de woning en van jouw situatie: die neemt je makelaar persoonlijk met je door.',
       thisHome: 'Deze woning', resale: 'Bestaande bouw', newb: 'Nieuwbouw',
@@ -53,6 +58,7 @@ function buildCosts(data, lang, A) {
       office: 'Kantoor', officeHours: 'ma–vr 10:00–14:00, en op afspraak', roleP: 'Partner, verkoop', roleS: '(After) sales', roleO: 'Grupo Soltura Real Estate', calc: 'Maandlastencalculator',
     },
     en: {
+      genH: 'Resale or new build?', genP: 'Which tax you pay depends on the home: transfer tax (ITP) for a resale home, VAT (IVA) and stamp duty (AJD) for a new build.', agKg: 'The amounts for your home', agPg: 'Your agent will go through the specific costs of your home with you personally: which tax applies, what comes on top in your situation and what our all-in fee is.', office2: 'Office Formentera del Segura',
       kicker: 'Cost overview', title: 'What comes on top of the <em>price</em>?',
       lead: 'Besides the purchase price, buying a home in Spain involves taxes and a number of costs for the legal side of the purchase. Here you can read which costs these are, why they exist and what we take care of for you. The exact amounts depend on the home and on your situation: your agent will go through them with you personally.',
       thisHome: 'This home', resale: 'Resale', newb: 'New build',
@@ -93,6 +99,7 @@ function buildCosts(data, lang, A) {
       office: 'Office', officeHours: 'Mon–Fri 10:00–14:00, and by appointment', roleP: 'Partner, sales', roleS: '(After) sales', roleO: 'Grupo Soltura Real Estate', calc: 'Monthly cost calculator',
     },
     es: {
+      genH: '¿Segunda mano u obra nueva?', genP: 'El impuesto depende de la vivienda: ITP en segunda mano, IVA y AJD en obra nueva.', agKg: 'Los importes de tu vivienda', agPg: 'Tu agente repasa contigo personalmente los gastos concretos de tu vivienda: qué impuesto se aplica, qué se suma en tu situación y cuál es nuestra tarifa todo incluido.', office2: 'Oficina Formentera del Segura',
       kicker: 'Resumen de gastos', title: '¿Qué se suma al <em>precio</em>?',
       lead: 'Además del precio de compra, al comprar una vivienda en España pagas impuestos y algunos gastos por la parte jurídica de la compra. Aquí lees qué gastos son, por qué existen y de qué nos encargamos nosotros. Los importes exactos dependen de la vivienda y de tu situación: tu agente los repasa contigo personalmente.',
       thisHome: 'Esta vivienda', resale: 'Segunda mano', newb: 'Obra nueva',
@@ -133,6 +140,7 @@ function buildCosts(data, lang, A) {
       office: 'Oficina', officeHours: 'lun–vie 10:00–14:00, y con cita previa', roleP: 'Socio, ventas', roleS: 'Posventa', roleO: 'Grupo Soltura Real Estate', calc: 'Calculadora de gastos',
     },
     sv: {
+      genH: 'Befintlig bostad eller nyproduktion?', genP: 'Vilken skatt du betalar beror på bostaden: överlåtelseskatt (ITP) för en befintlig bostad, moms (IVA) och stämpelskatt (AJD) för nyproduktion.', agKg: 'Beloppen för din bostad', agPg: 'Din mäklare går personligen igenom de specifika kostnaderna för din bostad med dig: vilken skatt som gäller, vad som tillkommer i din situation och vad vårt allt-i-ett-arvode är.', office2: 'Kontor Formentera del Segura',
       kicker: 'Kostnadsöversikt', title: 'Vad tillkommer utöver <em>priset</em>?',
       lead: 'Utöver köpeskillingen betalar du i Spanien skatter och en del kostnader för den juridiska delen av köpet. Här kan du läsa vilka kostnader det är, varför de finns och vad vi tar hand om åt dig. De exakta beloppen beror på bostaden och din situation: din mäklare går igenom dem med dig personligen.',
       thisHome: 'Den här bostaden', resale: 'Befintlig bostad', newb: 'Nyproduktion',
@@ -185,7 +193,7 @@ function buildCosts(data, lang, A) {
     4: { name: 'Ingrid van Hoeven', tel: '+34664414668', mail: 'ingrid@gruposoltura.com', role: T.roleS },
     6: { name: 'Lisette Don', tel: '+34662226338', mail: 'lisette@gruposoltura.com', role: T.roleS },
   };
-  const ag = AG[p.agent_wp_id] || { name: 'Grupo Soltura', tel: '+34664414515', mail: 'info@gruposoltura.com', role: T.roleO };
+  const ag = generic ? { name: 'Grupo Soltura Real Estate', tel: '+34966792113', mail: 'info@gruposoltura.com', role: T.office2 } : (AG[p.agent_wp_id] || { name: 'Grupo Soltura', tel: '+34664414515', mail: 'info@gruposoltura.com', role: T.roleO });
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const dec = v => String(Math.round(Number(v) * 10) / 10).replace('.', L === 'en' ? '.' : ',');
   const telFmt = t => t.replace(/^\+34(\d{3})(\d{3})(\d{3})$/, '+34 $1 $2 $3');
@@ -195,7 +203,7 @@ function buildCosts(data, lang, A) {
   const place = [p.suburb, p.town].filter(Boolean).join(', ');
   const photo = (Array.isArray(p.photos) ? p.photos : []).filter(Boolean)[0] || '';
   const calcUrl = L === 'nl' ? 'https://gruposoltura.com/nl/emigreren/maandlasten/' : L === 'sv' ? 'https://gruposoltura.com/sv/flytta-till-spanien/manadskostnader/' : 'https://gruposoltura.com/en/move-to-spain/monthly-costs/';
-  const qr = u => 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&color=2E3B42&data=' + encodeURIComponent(u);
+  const qr = A.qr || (u => 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&color=2E3B42&data=' + encodeURIComponent(u));
   const score = rev && rev.score ? dec(rev.score) : '4,7';
   const rcount = rev && rev.count ? rev.count : '';
 
@@ -225,9 +233,9 @@ function buildCosts(data, lang, A) {
   };
   const ic = (k, cls) => `<svg class="${cls || 'ic'}" viewBox="0 0 24 24">${I[k] || ''}</svg>`;
 
-  const taxes = isNew
-    ? [[T.ivaH, IVA, T.ivaWhy], [T.ajdH, AJD, T.ajdWhy]]
-    : [[T.itpH, ITP, T.itpWhy]];
+  const taxes = generic
+    ? [[T.itpH, ITP, T.itpWhy, T.resale], [T.ivaH, IVA, T.ivaWhy, T.newb], [T.ajdH, AJD, T.ajdWhy, T.newb]]
+    : isNew ? [[T.ivaH, IVA, T.ivaWhy], [T.ajdH, AJD, T.ajdWhy]] : [[T.itpH, ITP, T.itpWhy]];
 
   const css = `
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Manrope:wght@400;500;600;700;800&display=block');
@@ -253,7 +261,7 @@ h2{font-family:var(--serif);font-weight:600;font-size:15pt;line-height:1.1;lette
 h2 .tag{font-family:var(--sans);font-size:6.8pt;font-weight:800;letter-spacing:.12em;text-transform:uppercase;border-radius:99px;padding:.9mm 2.6mm;line-height:1.2}
 .tag.tax{background:var(--deep);color:#fff}.tag.in{background:var(--red);color:#fff}.tag.third{background:var(--lemon);color:var(--ink)}
 .top{display:grid;grid-template-columns:minmax(0,1fr) 58mm;gap:7mm;align-items:start}
-.lead{margin-top:3mm;font-size:10pt;line-height:1.5;color:var(--ink2)}
+.lead{margin-top:2.6mm;font-size:9.6pt;line-height:1.48;color:var(--ink2)}
 .home{border:.6mm solid var(--red);border-radius:5mm;overflow:hidden;background:#fff}
 .home .hp{height:30mm;background:#ddd center/cover no-repeat}
 .home .hb{padding:3mm 3.6mm 3.4mm}
@@ -263,7 +271,7 @@ h2 .tag{font-family:var(--sans);font-size:6.8pt;font-weight:800;letter-spacing:.
 .pill{display:inline-flex;align-items:center;border-radius:99px;padding:.8mm 2.6mm;font-weight:800;font-size:6.8pt;letter-spacing:.1em;text-transform:uppercase}
 .pill.ref{border:.4mm solid var(--red);color:var(--ink)}.pill.kind{background:var(--lemon);color:var(--ink)}
 .home .ht{font-size:8pt;line-height:1.4;font-weight:600;color:var(--ink2)}
-.sec{margin-top:7mm}
+.sec{margin-top:5mm}
 .taxes{display:grid;grid-template-columns:repeat(${taxes.length},minmax(0,1fr));gap:3.4mm}
 .tx{border:.45mm solid var(--red);border-radius:5mm;padding:3.6mm 4mm;display:grid;grid-template-columns:auto minmax(0,1fr);gap:1mm 3.4mm;align-items:start}
 .tx .tv{grid-row:span 2;background:var(--deep);color:#fff;border-radius:4mm;min-width:20mm;padding:2.4mm 2mm;text-align:center}
@@ -272,7 +280,7 @@ h2 .tag{font-family:var(--sans);font-size:6.8pt;font-weight:800;letter-spacing:.
 .tx h3{font-size:9.4pt;font-weight:800;line-height:1.25}
 .tx p{font-size:8.2pt;line-height:1.42;color:var(--ink2)}
 .note{margin-top:2mm;font-size:7.4pt;color:var(--muted);font-weight:600}
-.allin{margin-top:6mm;background:var(--deep);color:#fff;border-radius:6mm;padding:5mm 6mm;position:relative;overflow:hidden;display:grid;grid-template-columns:30mm minmax(0,1fr);gap:5mm;align-items:center}
+.allin{margin-top:4.5mm;background:var(--deep);color:#fff;border-radius:6mm;padding:4mm 5.5mm;position:relative;overflow:hidden;display:grid;grid-template-columns:30mm minmax(0,1fr);gap:5mm;align-items:center}
 .allin::before{content:"";position:absolute;left:0;top:0;right:0;height:1.6mm;background:var(--sun)}
 .allin .one{font-family:var(--serif);font-weight:700;font-size:44pt;line-height:.9;color:var(--lemon);text-align:center}
 .allin .one span{display:block;font-family:var(--sans);font-size:6.6pt;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#fff;opacity:.85;margin-top:1.4mm}
@@ -280,7 +288,7 @@ h2 .tag{font-family:var(--sans);font-size:6.8pt;font-weight:800;letter-spacing:.
 .allin h2{color:#fff;margin:0 0 1.4mm}.allin h2 em{color:var(--lemon)}
 .allin p{font-size:8.6pt;line-height:1.48;opacity:.92}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:2.8mm}
-.it{border:.45mm solid var(--red);border-radius:4.5mm;padding:2.8mm 3.2mm;display:flex;gap:2.6mm;align-items:flex-start;background:#fff}
+.it{border:.45mm solid var(--red);border-radius:4.5mm;padding:2.3mm 3mm;display:flex;gap:2.6mm;align-items:flex-start;background:#fff}
 .it .ic{width:6.2mm;height:6.2mm;margin-top:.2mm}
 .it h3{font-size:8.8pt;font-weight:800;line-height:1.25;margin-bottom:.6mm}
 .it p{font-size:7.7pt;line-height:1.4;color:var(--ink2)}
@@ -315,6 +323,9 @@ h2 .tag{font-family:var(--sans);font-size:6.8pt;font-weight:800;letter-spacing:.
 .p1foot{position:absolute;left:16mm;right:16mm;bottom:8mm;display:flex;justify-content:space-between;align-items:center;font-size:7.6pt;font-weight:700;color:var(--muted);letter-spacing:.06em}
 .p1foot b{color:var(--red)}
 .when{margin-top:6mm}
+.tx .tk{grid-column:2;font-size:6.6pt;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
+.taxes.g3 .tx{grid-template-columns:1fr;gap:1.2mm;align-content:start;padding:3mm 3.2mm}.taxes.g3 .tx p{font-size:7.7pt;line-height:1.38}.taxes.g3 .tx .tv{grid-row:auto;display:flex;align-items:baseline;gap:1.6mm;min-width:0;padding:1.8mm 2.6mm;text-align:left}.taxes.g3 .tx .tv span{margin:0}.taxes.g3 .tx .tk{grid-column:1}
+.home.gen .hb{padding:4mm 4mm 4.2mm}.home.gen .hn{font-size:12.5pt}
 .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;counter-reset:st}
 .step{position:relative;border:.45mm solid var(--red);border-radius:4.5mm;padding:3.2mm 3.2mm 3mm;background:#fff}
 .step .sn{width:7mm;height:7mm;border-radius:50%;background:var(--sun);color:#fff;font-weight:800;font-size:9pt;display:grid;place-items:center;margin-bottom:1.6mm}
@@ -322,7 +333,7 @@ h2 .tag{font-family:var(--sans);font-size:6.8pt;font-weight:800;letter-spacing:.
 .step p{font-size:7.5pt;line-height:1.4;color:var(--ink2)}
 .step:not(:last-child)::after{content:"";position:absolute;right:-3mm;top:6.5mm;width:3mm;height:.45mm;background:var(--red)}
 `;
-  const head = `<header class="ph-head"><img src="${A.logoWide}" alt="Soltura Real Estate"><span class="hl">${T.kicker} · Ref. ${esc(ref)}</span></header>`;
+  const head = `<header class="ph-head"><img src="${A.logoWide}" alt="Soltura Real Estate"><span class="hl">${T.kicker} · ${generic ? 'gruposoltura.com' : 'Ref. ' + esc(ref)}</span></header>`;
   const item = (x, cls) => `<div class="it${cls ? ' ' + cls : ''}">${ic(x[0])}<div><h3>${esc(x[1])}</h3><p>${esc(x[2])}</p></div></div>`;
 
   const page1 = `<section class="page">${head}
@@ -333,17 +344,19 @@ h2 .tag{font-family:var(--sans);font-size:6.8pt;font-weight:800;letter-spacing:.
         <h1>${T.title}</h1>
         <p class="lead">${esc(T.lead)}</p>
       </div>
-      <div class="home">
+      ${generic ? `<div class="home gen"><div class="hb"><div class="hk">${T.kicker}</div><div class="hn">${esc(T.genH)}</div>
+          <div class="hr"><span class="pill kind">${T.resale}</span><span class="pill ref">${T.newb}</span></div><div class="ht">${esc(T.genP)}</div></div></div>`
+      : `<div class="home">
         ${photo ? `<div class="hp" style="background-image:url('${esc(photo)}')"></div>` : ''}
         <div class="hb"><div class="hk">${T.thisHome}</div>
           <div class="hn">${esc(cat)} · ${esc(place || p.town || '')}</div>
           <div class="hr"><span class="pill ref">Ref. ${esc(ref)}</span><span class="pill kind">${isNew ? T.newb : T.resale}</span></div>
           <div class="ht">${esc(T.homeTax)}</div></div>
-      </div>
+      </div>`}
     </div>
     <div class="sec">
       <h2>${T.taxH} <span class="tag tax">${T.tagTax}</span></h2>
-      <div class="taxes">${taxes.map(x => `<div class="tx"><div class="tv"><b>${x[1] || '–'}</b><span>${T.ofPrice}</span></div><h3>${esc(x[0])}</h3><p>${esc(x[2])}</p></div>`).join('')}</div>
+      <div class="taxes${generic ? ' g3' : ''}">${taxes.map(x => `<div class="tx"><div class="tv"><b>${x[1] || '–'}</b><span>${T.ofPrice}</span></div>${x[3] ? `<div class="tk">${esc(x[3])}</div>` : ''}<h3>${esc(x[0])}</h3><p>${esc(x[2])}</p></div>`).join('')}</div>
       <p class="note">${esc(T.taxNote)}</p>
     </div>
     <div class="allin"><div class="one">1<span>${T.allin.split(',')[0]}</span></div>
@@ -353,7 +366,7 @@ h2 .tag{font-family:var(--sans);font-size:6.8pt;font-weight:800;letter-spacing:.
       <div class="grid">${T.inItems.map((x, i) => item(x, i === T.inItems.length - 1 && T.inItems.length % 2 ? 'wide' : '')).join('')}</div>
     </div>
   </div>
-  <div class="p1foot"><span>${T.kicker.toUpperCase()} · <b>${esc(ref)}</b></span><span>GRUPOSOLTURA.COM · +34 664 414 515</span></div>
+  ${generic ? '' : `<div class="p1foot"><span>${T.kicker.toUpperCase()} · <b>${esc(ref)}</b></span><span>GRUPOSOLTURA.COM · +34 664 414 515</span></div>`}
   <div class="sunbar"></div>
 </section>`;
 
@@ -364,8 +377,8 @@ h2 .tag{font-family:var(--sans);font-size:6.8pt;font-weight:800;letter-spacing:.
     <div class="bottom">
       <div class="after"><h3>${T.afterH}</h3><ul>${T.after.map(a => `<li>${ic('check')}<span>${esc(a)}</span></li>`).join('')}</ul>
         <div class="calc"><img src="${qr(calcUrl)}" alt=""><div><b>${T.calc}</b><span>${esc(T.afterP)}</span></div></div></div>
-      <div class="agent"><div class="ak">${T.agK}</div><div class="an">${esc(ag.name)}</div><div class="ar">${esc(ag.role)}</div>
-        <div class="ap">${esc(T.agP(ag.name.split(' ')[0]))}</div>
+      <div class="agent"><div class="ak">${generic ? T.agKg : T.agK}</div><div class="an">${esc(ag.name)}</div><div class="ar">${esc(ag.role)}</div>
+        <div class="ap">${esc(generic ? T.agPg : T.agP(ag.name.split(' ')[0]))}</div>
         <div class="al">${ic('wa')}${telFmt(ag.tel)}</div><div class="al">${ic('mail')}${esc(ag.mail)}</div></div>
     </div>
     <div class="when"><h2>${T.whenH}</h2><div class="steps">${T.when.map((w, i) => `<div class="step"><div class="sn">${i + 1}</div><h3>${esc(w[0])}</h3><p>${esc(w[1])}</p></div>`).join('')}</div></div>
