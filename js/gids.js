@@ -247,7 +247,7 @@
   function panel(lang, links) {
     var t = L(lang);
     return '<div class="sol-panel" id="solPanel"><div class="sol-head"><div class="chat-av">' + avatar(46) + '<i class="online"></i></div>' +
-      '<div><h2>' + esc(NAME) + '</h2><p><span class="sol-dot"></span>' + esc(t.panelSub) + '</p></div></div>' +
+      '<div><h2>' + esc(NAME) + '</h2><p>' + esc(t.panelSub) + '</p></div></div>' +
       '<div class="sol-log" id="solLog" aria-live="polite"><div class="sol-msg a">' + esc(t.g1) + '</div><div class="sol-msg a">' + esc(t.g2) + '</div></div>' +
       '<div class="sol-chips" id="solChips"></div>' +
       '<form class="sol-form" id="solForm" autocomplete="on"><input id="solIn" name="name" autocomplete="name" placeholder="' + esc(t.ph_name) + '" aria-label="' + esc(t.ph_name) + '">' +
