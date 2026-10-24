@@ -31,6 +31,18 @@ Echte aantallen uit `web_events`, via edge function `web-live` (cache 60 s, alle
 - **Team en bots tellen niet mee**: kolom `web_events.flag` (`team`/`bot`). Teamapparaat markeren: eenmalig `https://gruposoltura.com/?team=1` openen (per browser; `?team=0` zet het uit). Bots: user-agent/webdriver.
 - **`sid` is sinds 24-10-2026 per tabblad-sessie** (sessionStorage) i.p.v. per paginalading; tellingen per sid van voor die datum zijn paginaladingen.
 
+## Woningpagina: aanvragen (sinds 24-10-2026)
+Doel: meer aanvragen, rustiger pagina (besluit Rick 24-10-2026).
+- **Twee snelknoppen** onder de prijs: *Stuur me de brochure + kosten* (nieuwbouw/gereserveerd: *kosten + gids*) en *Plan bezichtiging* (gereserveerd: *laat me weten als hij terugkomt*). Foto's, hypotheek en Sola staan gewoon op de pagina.
+- **Verzendblok** bovenaan de rechterkolom (`#sendBox`, `sendHtml`/`bindSend` in app.js): aanvinken wat je wilt (brochure PDF alleen bij `broOk`, persoonlijk kostenoverzicht, koopgids PDF), voornaam + achternaam + e-mail verplicht, mobiel optioneel. Kosten: drie ja/nee-knoppen (NIE, Spaanse hypotheek, volmacht) i.p.v. vrije tekst.
+  Elke aangevinkte optie gaat als **eigen aanvraag** naar `web-contact` (na elkaar, `form_el: sendForm`, `fields.channel: 'sendbox'`): `brochure` (form `web-property-brochure` -> LeadProcessor-v2 pdfbrochure), `costs` (form `web-property-costs`, `fields.nie/mortgage/power_of_attorney`), `guide` (form `web-property-buying-guide`, `fields.guide_lang` = sitetaal). Backend ongewijzigd; `nexus2_submit_form` hangt alles aan één contact.
+  Berichten aan kantoor: Nederlands op `/nl/`, anders Engels. Gegevens worden op het apparaat onthouden (`gs_me`) en bij een volgende woning vooraf ingevuld; is de gids eerder gestuurd (`gs_guide`), dan staat die optie uit.
+  Events: `send_open` (via quick/bar/sola/costs/form), `contact_sent` (kind brochure/costs, via sendbox), `guide_request` (via sendbox).
+- **Sola** heeft één plek op de woning: het chatblok. De gids-chat (`GIDS.compact`) staat niet meer op de woning; Sola krijgt een vaste chip *Stuur me de brochure en kosten* die naar het verzendblok gaat. De gidspagina `/en/buying-guide/` is ongewijzigd.
+- **Kostenblok**: de knop *Vraag mijn persoonlijke kostenoverzicht aan* opent het verzendblok met kosten aangevinkt.
+- **Marktvergelijking** op de woning alleen bij een afwijking t/m **+5%** (`MARKET_SHOW_MAX`); daarboven wordt het blok niet getoond. De lijstkaart (*x% below market*) is ongewijzigd.
+- **Mobiel (≤900px)**: vaste balk onderin met *WhatsApp* (makelaar van de woning) + *Brochure* (of *Kosten & gids*); verdwijnt zolang het verzendblok in beeld is. Vervangt de oude Sola-knop onderin.
+
 ## Uitgangspunten
 - **De woning is de hoofdzaak.** Hero is kort; het aanbod staat direct eronder. Een woning opent als sheet over de lijst (geen pagina-wissel), met vorige/volgende, vergelijkbare woningen en "meer in deze plaats" — zo blijft de bezoeker bladeren.
 - **Zoeken in eigen woorden** (Claude zet de wens om in filters) en **vragen per woning** (Claude antwoordt alleen uit de woninggegevens, kosten altijd indicatief).

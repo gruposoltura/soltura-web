@@ -1075,6 +1075,7 @@ function bindSugg(root) {
 }
 
 // ---------- PROPERTY SHEET ----------
+const MARKET_SHOW_MAX = 5; // marktvergelijking op de woning alleen tot en met +5% boven de mediaan
 async function openSheet(ref) {
   const p = S.byRef.get(ref.toUpperCase());
   const sh = $('#sheet'), inner = $('#sheetInner');
@@ -1108,12 +1109,8 @@ async function openSheet(ref) {
         <div class="sh-price">${p.price_from ? `<small style="font-size:16px;font-weight:500">${t('from')}</small>` : ''}${p.price != null ? eur(p.price) : ''}${reduced(p) ? `<s>${eur(p.previous_price)}</s>` : ''}</div>
         <div class="lv-prop" id="lvProp" hidden></div>
         <div class="quick-acts">
-          <button type="button" data-go="chatBox">${ICON.chat}<span>${t('qa_ask')}</span></button>
-          <button type="button" data-go="mortBox">${ICON.calc}<span>${t('qa_mort')}</span></button>
-          <button type="button" data-go="gal">${ICON.cam}<span id="qaPhotos">${t('qa_photos', p.photo_count || 1)}</span></button>
+          <button type="button" data-go="sendBox">${ICON.doc}<span>${broOk(p) ? t('qa_send_bro') : t('qa_send_info')}</span></button>
           <button type="button" data-go="viewBtn">${ICON.cal}<span>${isNotify(p) ? t('notify_btn') : t('qa_view')}</span></button>
-          <button type="button" data-go="guideBox">${ICON.book}<span>${t('qa_guide')}</span></button>
-          ${broOk(p) ? `<button type="button" data-go="broBtn">${ICON.doc}<span>${t('qa_bro')}</span></button>` : ''}
         </div>
         <div class="keyfacts" id="keyfacts"></div>
         <div id="marketBox"></div>
@@ -1122,6 +1119,7 @@ async function openSheet(ref) {
         ${mortgageHtml(p)}
       </div>
       <aside class="side">
+        ${sendHtml(p)}
         <div class="box chat" id="chatBox">
           <div class="chat-head"><div class="chat-av">${GIDS.avatar(46)}<i class="online"></i></div><div><h3>${t('ask_h')}</h3><p>${t('ask_sub')}</p></div></div>
           <div class="log" id="chatLog"><div class="msg a intro typing-dots"><span></span><span></span><span></span></div></div>
@@ -1136,14 +1134,12 @@ async function openSheet(ref) {
           <a class="btn ghost" href="tel:${ag.tel}" data-track="call">${t('call_btn')} ${ag.tel.replace(/(\+34)(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4')}</a>
           <button class="btn primary" type="button" id="viewBtn">${isNotify(p) ? t('notify_btn') : t('viewing_btn')}</button>
           <form class="form" id="viewForm" hidden style="margin-top:12px"${isNotify(p) ? ' data-notify="1"' : ''}>${contactFields('viewing', p)}</form>
-          ${broOk(p) ? broHtml(p) : ''}
         </div>
-        ${GIDS.compact(S.lang)}
         <div id="costBox"></div>
         <div class="box social-box" id="socialBox"></div>
       </aside>
     </div>
-    <button class="chat-fab" type="button" id="chatFab">${GIDS.avatar(28, 'fab-ava')}${t('ask_fab')}</button>
+    <div class="sh-bar" id="shBar"><a class="btn wa" href="${waHref}" target="_blank" rel="noopener" data-track="whatsapp">${ICON.wa}<span>WhatsApp</span></a><button class="btn primary" type="button" id="barSend">${ICON.doc}<span>${broOk(p) ? t('bar_bro') : t('bar_info')}</span></button></div>
     <div class="sh-area" id="shArea"></div>
     <div class="sh-more" id="shMore"></div>
     <div class="sh-next"><button class="btn ghost" type="button" data-step="-1">← ${t('prev_home')}</button><button class="btn primary" type="button" data-step="1">${t('next_home')} →</button></div>`;
@@ -1205,44 +1201,104 @@ function bindMortgage(p) {
   $$('[data-ltv]', box).forEach(b => b.addEventListener('click', () => { $('#mAmt').value = num(Math.round(p.price * b.dataset.ltv / 100 / 1000) * 1000); onInput(); }));
   calc();
 }
-// ---------- PDF-brochure per mail (kind brochure -> intake -> LeadProcessor-v2 type pdfbrochure -> PDF als bijlage) ----------
-function broHtml(p) {
-  return `<div class="bro" id="broWrap">
-    <button class="bro-link" type="button" id="broBtn" aria-expanded="false" aria-controls="broForm">${ICON.doc}<span>${t('bro_btn')}</span><small>PDF</small></button>
-    <form class="form bro-form" id="broForm" hidden>
-      <p class="bro-intro">${t('bro_intro', esc(p.reference))}</p>
-      <input type="hidden" name="kind" value="brochure"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <div class="row2"><input name="first" placeholder="${t('bro_first')}" autocomplete="given-name" aria-label="${t('bro_first')}" required><input name="last" placeholder="${t('bro_last')}" autocomplete="family-name" aria-label="${t('bro_last')}" required></div>
-      <input name="email" type="email" placeholder="${t('form_email')}" autocomplete="email" aria-label="${t('form_email')}" required>
-      <button class="btn primary" type="submit">${t('bro_send')}</button><p class="ok" aria-live="polite"></p>
+// ---------- Verzendblok "Wat mogen we je sturen over <ref>?" (24-10-2026) ----------
+// Eén formulier voor brochure (PDF), persoonlijk kostenoverzicht en koopgids (PDF). Elke aangevinkte optie gaat als eigen
+// aanvraag naar web-contact (kind brochure / costs / guide), na elkaar, zodat de bestaande ketens ongewijzigd blijven:
+// brochure -> LeadProcessor-v2 pdfbrochure, kosten -> request voor de makelaar, gids -> PurchaseInfoV2.
+// nexus2_submit_form koppelt alles aan één contact (zelfde e-mail). Brochure alleen bij broOk (beleid nieuwbouw 22-10-2026).
+const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i;
+const nameCase = v => String(v || '').replace(/[^\p{L}\p{M}' .-]/gu, ' ').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean).map(w => /^(van|de|der|den|het|ten|ter|von|da|del|la|le)$/i.test(w) ? w.toLowerCase() : w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+// berichten aan kantoor: Nederlands op de NL-site, anders Engels (Zweedse site communiceert Engels)
+const officeNl = () => S.lang === 'nl';
+function costMsg(ref, a) {
+  const nl = officeNl(), yn = v => v === 'yes' ? (nl ? 'ja' : 'yes') : v === 'no' ? (nl ? 'nee' : 'no') : (nl ? 'niet ingevuld' : 'not answered');
+  return nl ? `Ik wil graag een persoonlijk kostenoverzicht voor ${ref}.\nNIE nog nodig: ${yn(a.nie)}\nSpaanse hypotheek: ${yn(a.mort)}\nTekenen via volmacht: ${yn(a.poa)}`
+    : `I would like a personal cost overview for ${ref}.\nStill need an NIE: ${yn(a.nie)}\nSpanish mortgage: ${yn(a.mort)}\nSigning via power of attorney: ${yn(a.poa)}`;
+}
+function sendHtml(p) {
+  const g = ls.get('guide', null), gSent = !!(g && g.email);
+  const opt = (id, on, h, sub) => `<label class="sb-opt"><input type="checkbox" name="${id}"${on ? ' checked' : ''}><span class="sb-box" aria-hidden="true">${ICON.check}</span><span class="sb-txt"><b>${h}</b><small>${sub}</small></span></label>`;
+  const q = k => `<div class="sb-q"><span>${t('sb_q_' + k)}</span><div class="sb-seg" data-q="${k}" role="group" aria-label="${esc(t('sb_q_' + k))}"><button type="button" data-v="yes" aria-pressed="false">${t('sb_yes')}</button><button type="button" data-v="no" aria-pressed="false">${t('sb_no')}</button></div></div>`;
+  return `<div class="box sendbox" id="sendBox">
+    <h3>${t('sb_h', esc(p.reference))}</h3><p class="sb-sub">${t('sb_sub')}</p>
+    <form class="form" id="sendForm" novalidate>
+      <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="sb-opts">
+        ${broOk(p) ? opt('bro', true, t('sb_bro_h'), t('sb_bro_s')) : ''}
+        ${opt('costs', true, t('sb_cost_h'), t('sb_cost_s'))}
+        <div class="sb-qs" id="sbQs">${q('nie')}${q('mort')}${q('poa')}</div>
+        ${opt('guide', !gSent, t('sb_guide_h'), gSent ? t('sb_guide_sent') : t('sb_guide_s'))}
+      </div>
+      <div class="row2"><input name="first" placeholder="${t('bro_first')}" autocomplete="given-name" aria-label="${t('bro_first')}"><input name="last" placeholder="${t('bro_last')}" autocomplete="family-name" aria-label="${t('bro_last')}"></div>
+      <input name="email" type="email" placeholder="${t('form_email')}" autocomplete="email" aria-label="${t('form_email')}">
+      <input name="phone" type="tel" placeholder="${t('sb_phone')}" autocomplete="tel" aria-label="${t('sb_phone')}">
+      <button class="btn primary" type="submit">${t('sb_send')}</button><p class="ok" aria-live="polite"></p>
+      <p class="sb-priv">${t('sb_priv', L('privacy'))}</p>
     </form>
-    <div class="bro-done" id="broDone" hidden role="status"></div>
+    <div class="bro-done sb-done" id="sendDone" hidden role="status"></div>
   </div>`;
 }
-function openBro(p) {
-  const f = $('#broForm'), b = $('#broBtn'); if (!f || !$('#broDone').hidden) return;
-  f.hidden = false; b.setAttribute('aria-expanded', 'true'); b.classList.add('on');
-  setTimeout(() => $('input[name=first]', f).focus({ preventScroll: true }), 50);
-  track('brochure_open', p.id);
+// open het blok (snelknop, balk onderin, kostenblok, Sola-chip); want = optie die zeker aan moet staan
+function openSend(p, want, via) {
+  const box = $('#sendBox'), f = $('#sendForm'); if (!box) return;
+  if (want && f) { const c = $(`input[name=${want}]`, f); if (c && !c.checked) { c.checked = true; c.dispatchEvent(new Event('change')); } }
+  box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  box.classList.add('flash'); setTimeout(() => box.classList.remove('flash'), 1400);
+  if (f && !f.hidden) setTimeout(() => { const i = $$('input[name=first],input[name=last],input[name=email]', f).find(x => !x.value); if (i) i.focus({ preventScroll: true }); }, 450);
+  track('send_open', p.id, null, { via: via || 'button' });
 }
-function bindBro(p) {
-  const f = $('#broForm'), b = $('#broBtn'); if (!f) return;
-  b.addEventListener('click', () => { if (f.hidden) openBro(p); else { f.hidden = true; b.setAttribute('aria-expanded', 'false'); b.classList.remove('on'); } });
+function bindSend(p) {
+  const f = $('#sendForm'); if (!f) return;
+  const qs = $('#sbQs'), costs = $('input[name=costs]', f), ans = {};
+  const syncQs = () => { qs.hidden = !costs.checked; };
+  costs.addEventListener('change', syncQs); syncQs();
+  $$('.sb-seg', f).forEach(seg => seg.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    const k = seg.dataset.q; ans[k] = ans[k] === b.dataset.v ? null : b.dataset.v;
+    $$('button', seg).forEach(x => { const on = x.dataset.v === ans[k]; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
+  }));
+  // eerder ingevulde gegevens (dit apparaat) alvast invullen
+  const me = ls.get('me', null) || ls.get('guide', null);
+  if (me) [['first', me.first], ['last', me.last], ['email', me.email], ['phone', me.phone]].forEach(([k, v]) => { if (v) $(`input[name=${k}]`, f).value = v; });
+  let opened = false;
+  f.addEventListener('focusin', () => { if (!opened) { opened = true; track('send_open', p.id, null, { via: 'form' }); } });
   f.addEventListener('submit', async e => {
     e.preventDefault();
-    const d = Object.fromEntries(new FormData(f)), out = $('.ok', f);
-    const first = (d.first || '').trim(), last = (d.last || '').trim(), email = (d.email || '').trim();
-    if (!first || !last || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { out.style.color = 'var(--salina)'; out.textContent = t('bro_err'); return; }
-    const btn = $('button[type=submit]', f); btn.disabled = true; btn.textContent = t('bro_busy');
-    const r = await fn('web-contact', { kind: 'brochure', website: d.website || '', first, last, first_name: first, last_name: last, name: `${first} ${last}`, email,
-      message: t('bro_msg', p.reference), ...formMeta('broForm', p, 'web-property-brochure') }).catch(() => ({ ok: false }));
-    btn.disabled = false; btn.textContent = t('bro_send');
-    if (!r || !r.ok) { out.style.color = 'var(--salina)'; out.textContent = t('form_err'); return; }
-    track('contact_sent', p.id, null, { kind: 'brochure' });
-    f.hidden = true; b.hidden = true;
-    const done = $('#broDone');
-    done.innerHTML = `<div class="bro-ico">${ICON.check}</div><div><b>${t('bro_ok_h', esc(first))}</b><p>${t('bro_ok', esc(p.reference), esc(email))}</p></div>`;
-    done.hidden = false;
+    const d = Object.fromEntries(new FormData(f)), out = $('.ok', f), err = k => { out.style.color = 'var(--salina)'; out.textContent = t(k); };
+    if (d.website) return;
+    const want = ['bro', 'costs', 'guide'].filter(k => { const c = $(`input[name=${k}]`, f); return c && c.checked; });
+    const first = nameCase(d.first), last = nameCase(d.last), email = String(d.email || '').trim().toLowerCase().replace(/\s+/g, ''), phone = String(d.phone || '').trim();
+    if (!want.length) return err('sb_err_none');
+    if (!first || !last || !EMAIL_RE.test(email)) return err('sb_err');
+    const btn = $('button[type=submit]', f); btn.disabled = true; btn.textContent = t('sb_busy'); out.textContent = '';
+    const base = { website: '', first, last, first_name: first, last_name: last, name: `${first} ${last}`, email, phone };
+    const done = [], failed = [];
+    for (const k of want) {
+      let body;
+      if (k === 'bro') body = { ...formMeta('sendForm', p, 'web-property-brochure'), ...base, kind: 'brochure',
+        message: officeNl() ? `Graag ontvang ik de PDF-brochure van ${p.reference}.` : `Please send me the PDF brochure of ${p.reference}.`, fields: { channel: 'sendbox' } };
+      else if (k === 'costs') body = { ...formMeta('sendForm', p, 'web-property-costs'), ...base, kind: 'costs', message: costMsg(p.reference, ans),
+        fields: { nie: ans.nie || null, mortgage: ans.mort || null, power_of_attorney: ans.poa || null, channel: 'sendbox' } };
+      else body = { ...formMeta('sendForm', p, 'web-property-buying-guide'), ...base, kind: 'guide', site_lang: S.lang,
+        message: officeNl() ? `Koopgids aangevraagd via woning ${p.reference} (verzendblok).` : `Buying guide requested via property ${p.reference} (send box).`,
+        fields: { guide_lang: S.lang, chat_lang: S.lang, channel: 'sendbox' } };
+      const r = await fn('web-contact', body).catch(() => ({ ok: false }));
+      (r && r.ok ? done : failed).push(k);
+    }
+    btn.disabled = false; btn.textContent = t('sb_send');
+    if (!done.length) return err('form_err');
+    ls.set('me', { first, last, email, phone });
+    done.forEach(k => k === 'guide'
+      ? track('guide_request', p.id, null, { via: 'sendbox', glang: S.lang })
+      : track('contact_sent', p.id, null, { kind: k === 'bro' ? 'brochure' : 'costs', via: 'sendbox' }));
+    if (done.includes('guide')) ls.set('guide', { first, last, email, phone, glang: S.lang, clang: S.lang, at: Date.now() });
+    f.hidden = true;
+    const box = $('#sendDone');
+    box.innerHTML = `<div class="bro-ico">${ICON.check}</div><div><b>${t('sb_ok_h', esc(first))}</b><ul class="sb-list">${done.map(k => `<li>${t('sb_ok_' + k, esc(p.reference), esc(email))}</li>`).join('')}</ul>`
+      + (failed.length ? `<p class="sb-fail">${t('sb_fail', failed.map(k => t('sb_' + (k === 'bro' ? 'bro' : k === 'costs' ? 'cost' : 'guide') + '_h')).join(', '))}</p>` : '') + `</div>`;
+    box.hidden = false;
+    const bar = $('#barSend'); if (bar) bar.hidden = true;
+    $$('.sugg-send').forEach(x => x.remove());
   });
 }
 function openViewForm(name = 'web-property-viewing', kind = 'viewing') {
@@ -1294,19 +1350,16 @@ function bindSheet(p, waHref) {
   });
   $('#viewBtn').addEventListener('click', () => { const f = $('#viewForm'); if (f.hidden) openViewForm(); else f.hidden = true; if (!f.hidden) { $('input[name=name]', f).focus(); track('contact_open', p.id); } });
   bindForm($('#viewForm'), p);
-  bindBro(p);
-  GIDS.bind($('#guideBox'), S.lang, solDeps({ compact: true, formName: 'web-property-buying-guide', property: p }));
+  bindSend(p);
   bindMortgage(p);
   renderSocialSheet(p);
   $$('.quick-acts [data-go]', inner).forEach(b => b.addEventListener('click', () => {
-    const id = b.dataset.go, el = $('#' + id); if (!el) return;
+    const id = b.dataset.go;
     track('quick_action', p.id, null, { id });
-    el.scrollIntoView({ behavior: 'smooth', block: id === 'gal' ? 'start' : 'center' });
-    if (id === 'chatBox') setTimeout(() => $('#chatIn').focus({ preventScroll: true }), 500);
-    if (id === 'viewBtn') setTimeout(() => { openViewForm(); }, 400);
-    if (id === 'broBtn') setTimeout(() => openBro(p), 400);
-    if (id === 'guideBox') setTimeout(() => { const f = $('#guideForm'); if (f) { f.hidden = false; $('#guideBtn').hidden = true; } }, 400);
-    if (id === 'mortBox' || id === 'chatBox' || id === 'guideBox') { el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1400); }
+    if (id === 'sendBox') return openSend(p, null, 'quick');
+    const el = $('#' + id); if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (id === 'viewBtn') setTimeout(() => { const f = openViewForm(); if (f) $('input[name=name]', f).focus({ preventScroll: true }); }, 400);
   }));
   // chat
   const hist = [];
@@ -1325,11 +1378,15 @@ function bindSheet(p, waHref) {
     log.insertAdjacentHTML('beforeend', `<div class="msg a">${esc(reply)}${r.handoff ? `<br><br>${t('handoff')} <a href="${waHref}" target="_blank" rel="noopener">WhatsApp</a>` : ''}</div>`);
     log.scrollTop = log.scrollHeight;
     if (r.handoff) { openViewForm('web-property-viewing-assistant'); }
-    $('#chatSugg').innerHTML = (r.suggestions || []).slice(0, 3).map(s => `<button type="button">${esc(s)}</button>`).join('');
+    $('#chatSugg').innerHTML = (r.suggestions || []).slice(0, 2).map(s => `<button type="button">${esc(s)}</button>`).join('');
+    if (!$('#sendForm') || !$('#sendForm').hidden) sendChip();
   };
-  $('#chatSugg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) ask(b.textContent); });
-  if ('IntersectionObserver' in window) new IntersectionObserver(es => { $('#chatFab').hidden = es[0].isIntersecting; }, { root: $('#sheetInner'), threshold: .3 }).observe($('#chatBox'));
-  $('#chatFab').addEventListener('click', () => { $('#chatBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => $('#chatIn').focus({ preventScroll: true }), 400); track('assistant_fab', p.id); });
+  const sendChip = () => $('#chatSugg').insertAdjacentHTML('beforeend', `<button type="button" class="sugg-send" data-send>${ICON.doc}${esc(broOk(p) ? t('sb_chip_bro') : t('sb_chip_info'))}</button>`);
+  sendChip();
+  $('#chatSugg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.send !== undefined) return openSend(p, null, 'sola'); ask(b.textContent); });
+  // mobiel: vaste balk onderin (WhatsApp + brochure); weg zolang het verzendblok zelf in beeld is
+  if ('IntersectionObserver' in window) new IntersectionObserver(es => { $('#shBar').classList.toggle('off', es[0].isIntersecting); }, { root: $('#sheetInner'), threshold: .25 }).observe($('#sendBox'));
+  $('#barSend').addEventListener('click', () => openSend(p, null, 'bar'));
   $('#chatForm').addEventListener('submit', e => { e.preventDefault(); const v = $('#chatIn').value; $('#chatIn').value = ''; ask(v); });
 }
 function fillFacts(p) {
@@ -1350,9 +1407,10 @@ function fillDetail(d) {
   add(d.year_built, t('sh_year')); add(d.energy_label && d.energy_label !== 'R' ? d.energy_label : null, t('sh_energy'));
   add(d.orientation && cap(d.orientation), t('sh_orient'));
   kf.insertAdjacentHTML('beforeend', extra.join(''));
-  // market position
-  if (!d.is_newbuild && d.market_deviation_pct != null && d.market_n >= 5) {
-    const dev = Math.round(d.market_deviation_pct);
+  // market position: alleen tonen als de vraagprijs onder of rond de mediaan ligt (max. +5%); daarboven werkt het blok
+  // tegen de aanvraag en tegen de verkoper (Rick, 24-10-2026). De lijstkaart 'x% below market' blijft zoals hij was.
+  const dev = d.market_deviation_pct != null ? Math.round(d.market_deviation_pct) : null;
+  if (!d.is_newbuild && dev != null && dev <= MARKET_SHOW_MAX && d.market_n >= 5) {
     const posPct = Math.max(3, Math.min(97, 50 + dev * 1.2));
     $('#marketBox').innerHTML = `<div class="market"><h3>${t('market_h')}</h3>
       <div class="mbar"><i style="left:${posPct}%"></i><em style="left:${posPct}%">${dev > 0 ? '+' : ''}${dev}%</em></div>
@@ -1405,12 +1463,8 @@ function fillDetail(d) {
         <div class="allin-cta"><button type="button" class="btn primary" id="costAsk">${t('allin_btn')}</button>
         <a class="btn wa" href="https://wa.me/${agentOf(d).tel.replace('+', '')}?text=${encodeURIComponent(t('allin_wa', d.reference))}" target="_blank" rel="noopener" data-track="whatsapp_costs">WhatsApp</a></div></div>
       <p class="note">${t('costs_note')}</p></div>`;
-    $('#costAsk').addEventListener('click', () => {
-      const f = openViewForm('web-property-costs', 'costs');
-      $('textarea', f).value = t('allin_msg', d.reference);
-      f.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => $('input[name=name]', f).focus({ preventScroll: true }), 450);
-      track('costs_ask', d.id);
-    });
+    // kostenoverzicht loopt via het verzendblok (vragen NIE / hypotheek / volmacht als knoppen, geen vrije tekst meer)
+    $('#costAsk').addEventListener('click', () => { const p = S.byId.get(d.id) || d; openSend(p, 'costs', 'costs'); track('costs_ask', d.id); });
   }
 }
 function gallery(urls) {
