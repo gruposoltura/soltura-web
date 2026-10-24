@@ -159,6 +159,7 @@ const ICON = {
   ig: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>',
   fb: '<svg viewBox="0 0 24 24"><path d="M14 8.5V7c0-.8.5-1.2 1.2-1.2H17V2.5h-2.6C11.6 2.5 10.6 4.4 10.6 7v1.5H8V12h2.6v9.5H14V12h2.7l.4-3.5z" fill="currentColor" stroke="none"/></svg>',
   fs: '<svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>',
+  doc: '<svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9.5 14.5 12 17l2.5-2.5"/></svg>',
   check: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
   phone: '<svg viewBox="0 0 24 24"><path d="M6.6 3.5h3l1.5 4-2 1.3a11 11 0 0 0 6.1 6.1l1.3-2 4 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/></svg>',
   mail: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></svg>',
@@ -221,7 +222,7 @@ function shareUrl(path, source, content) {
   return location.origin + path + '?utm_source=' + source + '&utm_medium=social&utm_campaign=share' + (content ? '&utm_content=' + encodeURIComponent(content) : '');
 }
 // Beschrijvende formulier-ID per ingang; NEXUS toont hier een leesbare naam bij (core.request_forms).
-const FORM_NAMES = { viewForm: 'web-property-viewing', guideForm: 'web-property-buying-guide', buyForm: 'web-buy-costs', sellForm: 'web-sell-valuation', moveForm: 'web-move-intake', contactForm: 'web-contact' };
+const FORM_NAMES = { viewForm: 'web-property-viewing', guideForm: 'web-property-buying-guide', buyForm: 'web-buy-costs', sellForm: 'web-sell-valuation', moveForm: 'web-move-intake', contactForm: 'web-contact', broForm: 'web-property-brochure' };
 // vaste velden voor web-contact: form_id (beschrijvend), form_el (technisch), page_url, utm, taal, bezoekerscode, woning (uuid + referentie)
 function formMeta(formId, p, name) {
   const m = { form_id: name || FORM_NAMES[formId] || formId, form_el: formId, page_url: location.href.slice(0, 300), lang: S.lang, vid: S.vid };
@@ -374,6 +375,8 @@ const stOf = p => { const s = p.status && p.status !== 'draft' ? p.status : (p.u
 // gereserveerd: geen bezichtigingen meer; de knop wordt 'laat me weten als hij terugkomt'
 const isNotify = p => stOf(p) === 'reserved';
 const isOpen = p => stOf(p) === 'available';
+// PDF-brochure: alleen beschikbare bestaande woningen (nieuwbouw: eerst persoonlijk contact, beleid Rick 22-10-2026)
+const broOk = p => isOpen(p) && !p.is_newbuild;
 // 'Beschikbaar' tonen we niet; alleen onder bod / gereserveerd / verkocht krijgen een label
 const statusTag = (p, big) => isOpen(p) ? '' : `<span class="st st-${stOf(p)}${big ? ' big' : ''}"><i></i>${t('st_' + stOf(p))}</span>`;
 
@@ -1110,6 +1113,7 @@ async function openSheet(ref) {
           <button type="button" data-go="gal">${ICON.cam}<span id="qaPhotos">${t('qa_photos', p.photo_count || 1)}</span></button>
           <button type="button" data-go="viewBtn">${ICON.cal}<span>${isNotify(p) ? t('notify_btn') : t('qa_view')}</span></button>
           <button type="button" data-go="guideBox">${ICON.book}<span>${t('qa_guide')}</span></button>
+          ${broOk(p) ? `<button type="button" data-go="broBtn">${ICON.doc}<span>${t('qa_bro')}</span></button>` : ''}
         </div>
         <div class="keyfacts" id="keyfacts"></div>
         <div id="marketBox"></div>
@@ -1132,6 +1136,7 @@ async function openSheet(ref) {
           <a class="btn ghost" href="tel:${ag.tel}" data-track="call">${t('call_btn')} ${ag.tel.replace(/(\+34)(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4')}</a>
           <button class="btn primary" type="button" id="viewBtn">${isNotify(p) ? t('notify_btn') : t('viewing_btn')}</button>
           <form class="form" id="viewForm" hidden style="margin-top:12px"${isNotify(p) ? ' data-notify="1"' : ''}>${contactFields('viewing', p)}</form>
+          ${broOk(p) ? broHtml(p) : ''}
         </div>
         ${GIDS.compact(S.lang)}
         <div id="costBox"></div>
@@ -1200,6 +1205,46 @@ function bindMortgage(p) {
   $$('[data-ltv]', box).forEach(b => b.addEventListener('click', () => { $('#mAmt').value = num(Math.round(p.price * b.dataset.ltv / 100 / 1000) * 1000); onInput(); }));
   calc();
 }
+// ---------- PDF-brochure per mail (kind brochure -> intake -> LeadProcessor-v2 type pdfbrochure -> PDF als bijlage) ----------
+function broHtml(p) {
+  return `<div class="bro" id="broWrap">
+    <button class="bro-link" type="button" id="broBtn" aria-expanded="false" aria-controls="broForm">${ICON.doc}<span>${t('bro_btn')}</span><small>PDF</small></button>
+    <form class="form bro-form" id="broForm" hidden>
+      <p class="bro-intro">${t('bro_intro', esc(p.reference))}</p>
+      <input type="hidden" name="kind" value="brochure"><input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="row2"><input name="first" placeholder="${t('bro_first')}" autocomplete="given-name" aria-label="${t('bro_first')}" required><input name="last" placeholder="${t('bro_last')}" autocomplete="family-name" aria-label="${t('bro_last')}" required></div>
+      <input name="email" type="email" placeholder="${t('form_email')}" autocomplete="email" aria-label="${t('form_email')}" required>
+      <button class="btn primary" type="submit">${t('bro_send')}</button><p class="ok" aria-live="polite"></p>
+    </form>
+    <div class="bro-done" id="broDone" hidden role="status"></div>
+  </div>`;
+}
+function openBro(p) {
+  const f = $('#broForm'), b = $('#broBtn'); if (!f || !$('#broDone').hidden) return;
+  f.hidden = false; b.setAttribute('aria-expanded', 'true'); b.classList.add('on');
+  setTimeout(() => $('input[name=first]', f).focus({ preventScroll: true }), 50);
+  track('brochure_open', p.id);
+}
+function bindBro(p) {
+  const f = $('#broForm'), b = $('#broBtn'); if (!f) return;
+  b.addEventListener('click', () => { if (f.hidden) openBro(p); else { f.hidden = true; b.setAttribute('aria-expanded', 'false'); b.classList.remove('on'); } });
+  f.addEventListener('submit', async e => {
+    e.preventDefault();
+    const d = Object.fromEntries(new FormData(f)), out = $('.ok', f);
+    const first = (d.first || '').trim(), last = (d.last || '').trim(), email = (d.email || '').trim();
+    if (!first || !last || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { out.style.color = 'var(--salina)'; out.textContent = t('bro_err'); return; }
+    const btn = $('button[type=submit]', f); btn.disabled = true; btn.textContent = t('bro_busy');
+    const r = await fn('web-contact', { kind: 'brochure', website: d.website || '', first, last, first_name: first, last_name: last, name: `${first} ${last}`, email,
+      message: t('bro_msg', p.reference), ...formMeta('broForm', p, 'web-property-brochure') }).catch(() => ({ ok: false }));
+    btn.disabled = false; btn.textContent = t('bro_send');
+    if (!r || !r.ok) { out.style.color = 'var(--salina)'; out.textContent = t('form_err'); return; }
+    track('contact_sent', p.id, null, { kind: 'brochure' });
+    f.hidden = true; b.hidden = true;
+    const done = $('#broDone');
+    done.innerHTML = `<div class="bro-ico">${ICON.check}</div><div><b>${t('bro_ok_h', esc(first))}</b><p>${t('bro_ok', esc(p.reference), esc(email))}</p></div>`;
+    done.hidden = false;
+  });
+}
 function openViewForm(name = 'web-property-viewing', kind = 'viewing') {
   const f = $('#viewForm'); if (!f) return null;
   // gereserveerde woning: geen bezichtiging maar een seintje als hij terugkomt (alle ingangen: knop, snelknop, galerij, assistent)
@@ -1249,6 +1294,7 @@ function bindSheet(p, waHref) {
   });
   $('#viewBtn').addEventListener('click', () => { const f = $('#viewForm'); if (f.hidden) openViewForm(); else f.hidden = true; if (!f.hidden) { $('input[name=name]', f).focus(); track('contact_open', p.id); } });
   bindForm($('#viewForm'), p);
+  bindBro(p);
   GIDS.bind($('#guideBox'), S.lang, solDeps({ compact: true, formName: 'web-property-buying-guide', property: p }));
   bindMortgage(p);
   renderSocialSheet(p);
@@ -1258,6 +1304,7 @@ function bindSheet(p, waHref) {
     el.scrollIntoView({ behavior: 'smooth', block: id === 'gal' ? 'start' : 'center' });
     if (id === 'chatBox') setTimeout(() => $('#chatIn').focus({ preventScroll: true }), 500);
     if (id === 'viewBtn') setTimeout(() => { openViewForm(); }, 400);
+    if (id === 'broBtn') setTimeout(() => openBro(p), 400);
     if (id === 'guideBox') setTimeout(() => { const f = $('#guideForm'); if (f) { f.hidden = false; $('#guideBtn').hidden = true; } }, 400);
     if (id === 'mortBox' || id === 'chatBox' || id === 'guideBox') { el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1400); }
   }));

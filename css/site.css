@@ -1292,3 +1292,22 @@ body.ag-locked{overflow:hidden}
 .ag-gate-msg small{display:block;font-weight:500;color:var(--ink-2);margin-top:4px}
 @media (max-width:900px){.ag-feats{max-width:none}.ag-hero .gd-ava{display:none}}
 @media (prefers-reduced-motion:reduce){.ag-home,.ag-sum,.ag-rep,.ag-done-ic,.ag-gate{animation:none}}
+
+/* PDF-brochure op de woning: stille tekstlink in de contactbox, klapt open tot mini-formulier */
+.bro{margin-top:10px;border-top:1px dashed var(--mist);padding-top:10px}
+.bro-link{display:flex;align-items:center;gap:8px;width:100%;background:none;border:0;padding:6px 2px;cursor:pointer;font:inherit;font-weight:700;font-size:14.5px;color:var(--sea);text-align:left}
+.bro-link svg{width:19px;height:19px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8}
+.bro-link span{flex:1;text-decoration:underline;text-decoration-color:transparent;text-underline-offset:3px;transition:text-decoration-color .15s}
+.bro-link:hover span,.bro-link.on span{text-decoration-color:currentColor}
+.bro-link small{font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--muted);border:1px solid var(--mist);border-radius:6px;padding:1px 6px}
+.bro-form{margin-top:8px}
+.bro-intro{margin:0 0 2px;font-size:13.5px;line-height:1.45;color:var(--ink-2)}
+.bro-done{display:flex;gap:12px;align-items:flex-start;background:var(--lemon-soft);border-radius:12px;padding:14px;animation:broIn .45s ease}
+.bro-done>div>b{display:block;font-size:15.5px;margin-bottom:2px}
+.bro-done p b{color:var(--ink);overflow-wrap:anywhere}
+.bro-done p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+.bro-ico{flex:none;width:34px;height:34px;border-radius:50%;background:var(--sea);display:grid;place-items:center}
+.bro-ico svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2.6;stroke-dasharray:24;stroke-dashoffset:24;animation:broTick .5s .2s ease forwards}
+@keyframes broIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes broTick{to{stroke-dashoffset:0}}
+.quick-acts button[data-go="broBtn"] svg{fill:none;stroke:var(--sea)}
