@@ -2,7 +2,7 @@
 // buildBrochure(data, lang, A) -> HTML. data = brochure_data(ref) (p, geo, reviews). A = asset-basis (logo's, fonts).
 function buildBrochure(data, lang, A) {
   const p = (data && data.p) || {}, geo = (data && data.geo) || {}, rev = (data && data.reviews) || {};
-  const L = ['nl', 'en', 'es'].includes(lang) ? lang : 'en';
+  const L = ['nl', 'en', 'es', 'sv'].includes(lang) ? lang : 'en';
   const T = {
     nl: { kicker: 'Woningbrochure', forSale: 'Te koop', reserved: 'Gereserveerd', sold: 'Verkocht', price: 'Vraagprijs', from: 'vanaf', onReq: 'Prijs op aanvraag',
       beds: 'slaapkamers', bed1: 'slaapkamer', baths: 'badkamers', bath1: 'badkamer', built: 'woonoppervlak', plot: 'perceel', poolP: 'privézwembad', poolC: 'gem. zwembad', year: 'bouwjaar', solarium: 'solarium',
@@ -10,7 +10,7 @@ function buildBrochure(data, lang, A) {
       energy: 'Energielabel', energyR: 'aangevraagd', energyX: 'vrijgesteld', orient: 'Oriëntatie', view: 'Uitzicht', aircon: 'Airconditioning', newb: 'Nieuwbouw', resale: 'Bestaande bouw',
       visitH: 'Zelf komen kijken?', visitP: (n, t) => `Plan een bezichtiging met ${n}: bel of app ${t}. We laten je graag ook vergelijkbare woningen in de buurt zien.`, contactH: 'Jouw contactpersoon', contactP: 'Kent deze woning en vertelt je er graag meer over. Bel, app of mail, of plan direct een bezichtiging.',
       scan: 'Bekijk alle foto\'s', guideH: 'Gratis woon- & koopgids', guideP: 'Alles over kopen aan de Costa Blanca Zuid: kosten, stappen, wonen en de dorpen.',
-      costH: 'All-in kostenoverzicht', costP: 'Wat kost deze woning je echt? Vraag je persoonlijke overzicht aan, met één vaste all-in fee.', costCta: 'Antwoord op onze mail of app ons',
+      costH: 'Bijkomende kosten', costP: 'Welke kosten komen er bij de prijs? Je contactpersoon neemt ze voor deze woning persoonlijk met je door, met één vaste all-in fee.', costCta: 'Bel of app ons',
       since: 'actief sinds', reviews: 'Google-reviews', api: 'API-lid nr.', allin: 'all-in fee, vooraf afgesproken', oneFee: '1',
       find: 'Hier vind je ons', office: 'Kantoor', officeHours: 'ma–vr 10:00–14:00, en op afspraak',
       disc: 'Deze gegevens zijn met zorg samengesteld, zijn bedoeld als leidraad en maken geen deel uit van een contract. Maten en afstanden zijn indicatief.',
@@ -24,7 +24,7 @@ function buildBrochure(data, lang, A) {
       energy: 'Energy rating', energyR: 'requested', energyX: 'exempt', orient: 'Orientation', view: 'Views', aircon: 'Air conditioning', newb: 'New build', resale: 'Resale',
       visitH: 'Want to see it?', visitP: (n, t) => `Book a viewing with ${n}: call or WhatsApp ${t}. We are happy to show you similar homes nearby too.`, contactH: 'Your contact', contactP: 'Knows this home inside out and is happy to tell you more. Call, message or email, or book a viewing straight away.',
       scan: 'See all photos', guideH: 'Free buying guide', guideP: 'Everything about buying on the southern Costa Blanca: costs, steps, living here and the towns.',
-      costH: 'All-in cost overview', costP: 'What will this home really cost you? Ask for your personal overview, with one fixed all-in fee.', costCta: 'Reply to our email or WhatsApp us',
+      costH: 'Purchase costs', costP: 'What comes on top of the price? Your contact goes through the costs of this home with you personally, with one fixed all-in fee.', costCta: 'Call or WhatsApp us',
       since: 'active since', reviews: 'Google reviews', api: 'API member no.', allin: 'all-in fee, agreed up front', oneFee: '1',
       find: 'Where to find us', office: 'Office', officeHours: 'Mon–Fri 10:00–14:00, and by appointment',
       disc: 'These details have been prepared with care, are intended as a guide and do not form part of any contract. Measurements and distances are indicative.',
@@ -38,7 +38,7 @@ function buildBrochure(data, lang, A) {
       energy: 'Certificado energético', energyR: 'en trámite', energyX: 'exento', orient: 'Orientación', view: 'Vistas', aircon: 'Aire acondicionado', newb: 'Obra nueva', resale: 'Segunda mano',
       visitH: '¿Quieres verla?', visitP: (n, t) => `Reserva una visita con ${n}: llama o escribe al ${t}. También te enseñamos viviendas parecidas en la zona.`, contactH: 'Tu persona de contacto', contactP: 'Conoce bien esta vivienda y te cuenta con gusto más detalles. Llama, escribe o reserva una visita.',
       scan: 'Ver todas las fotos', guideH: 'Guía de compra gratuita', guideP: 'Todo sobre comprar en la Costa Blanca Sur: gastos, pasos, vivir aquí y los pueblos.',
-      costH: 'Resumen de gastos', costP: '¿Cuánto te cuesta de verdad esta vivienda? Pide tu resumen personal, con una tarifa única todo incluido.', costCta: 'Responde a nuestro email o escríbenos por WhatsApp',
+      costH: 'Gastos de compra', costP: '¿Qué se suma al precio? Tu persona de contacto repasa contigo los gastos de esta vivienda, con una tarifa única todo incluido.', costCta: 'Llámanos o escríbenos por WhatsApp',
       since: 'activos desde', reviews: 'reseñas en Google', api: 'API nº', allin: 'tarifa todo incluido, acordada de antemano', oneFee: '1',
       find: 'Dónde encontrarnos', office: 'Oficina', officeHours: 'lun–vie 10:00–14:00, y con cita previa',
       disc: 'Estos datos se han preparado con cuidado, son orientativos y no forman parte de ningún contrato. Medidas y distancias aproximadas.',
@@ -46,11 +46,26 @@ function buildBrochure(data, lang, A) {
       orients: { north: 'norte', south: 'sur', east: 'este', west: 'oeste', northeast: 'noreste', northwest: 'noroeste', southeast: 'sureste', southwest: 'suroeste', 'south-west': 'suroeste', 'south-east': 'sureste' },
       views: { sea: 'mar', mountain: 'montaña', country: 'campo', golf: 'golf', green: 'zonas verdes', lake: 'laguna salada', panoramic: 'panorámicas', residential: 'urbanización', valley: 'valle' },
       feat: { furnished: 'Amueblada', 'semi furnished': 'Semiamueblada', fireplace: 'Chimenea', 'secure parking': 'Aparcamiento cerrado', 'security system': 'Sistema de seguridad', 'central heating': 'Calefacción central', basement: 'Sótano', 'air conditioning preinstalled': 'Preinstalación de aire acondicionado', intercom: 'Portero automático', 'fully fenced': 'Totalmente vallada', 'split heating': 'Calefacción por splits', 'underfloor heating': 'Suelo radiante', 'remote garage': 'Garaje con mando', 'ducted heating': 'Calefacción por conductos', 'ducted cooling': 'Aire por conductos', 'outdoor entertaining': 'Zona exterior de ocio' } },
+    sv: { kicker: 'Bostadsbroschyr', forSale: 'Till salu', reserved: 'Reserverad', sold: 'Såld', price: 'Utgångspris', from: 'från', onReq: 'Pris på förfrågan',
+      beds: 'sovrum', bed1: 'sovrum', baths: 'badrum', bath1: 'badrum', built: 'boyta', plot: 'tomt', poolP: 'egen pool', poolC: 'gemensam pool', year: 'byggår', solarium: 'solarium',
+      about: 'Om den här <em>bostaden</em>', features: 'Egenskaper', location: 'Läge', beach: 'Strand', airport: 'Flygplats', shops: 'Butiker', drive: 'min med bil', approx: 'ca',
+      energy: 'Energiklass', energyR: 'begärd', energyX: 'undantagen', orient: 'Väderstreck', view: 'Utsikt', aircon: 'Luftkonditionering', newb: 'Nyproduktion', resale: 'Befintlig bostad',
+      visitH: 'Vill du se den?', visitP: (n, t) => `Boka en visning med ${n}: ring eller skicka WhatsApp till ${t}. Vi visar gärna liknande bostäder i närheten också.`, contactH: 'Din kontaktperson', contactP: 'Känner bostaden väl och berättar gärna mer. Ring, skriv eller boka en visning direkt.',
+      scan: 'Se alla bilder', guideH: 'Gratis köpguide', guideP: 'Allt om att köpa på södra Costa Blanca: kostnader, steg, livet här och orterna.',
+      costH: 'Köpkostnader', costP: 'Vad tillkommer utöver priset? Din kontaktperson går igenom kostnaderna för bostaden med dig, med ett fast allt-i-ett-arvode.', costCta: 'Ring eller skriv på WhatsApp',
+      since: 'aktiva sedan', reviews: 'Google-omdömen', api: 'API-medlem nr', allin: 'allt-i-ett-arvode, avtalat i förväg', oneFee: '1',
+      find: 'Här hittar du oss', office: 'Kontor', officeHours: 'mån–fre 10:00–14:00, och efter överenskommelse',
+      disc: 'Uppgifterna är sammanställda med omsorg, är vägledande och ingår inte i något avtal. Mått och avstånd är ungefärliga.',
+      roleP: 'Partner, försäljning', roleS: '(After) sales', roleO: 'Grupo Soltura Real Estate', photos: 'bilder',
+      orients: { north: 'norr', south: 'söder', east: 'öster', west: 'väster', northeast: 'nordost', northwest: 'nordväst', southeast: 'sydost', southwest: 'sydväst', 'south-west': 'sydväst', 'south-east': 'sydost' },
+      views: { sea: 'hav', mountain: 'berg', country: 'landsbygd', golf: 'golfbana', green: 'grönområden', lake: 'saltsjö', panoramic: 'panorama', residential: 'bostadsområde', valley: 'dal' },
+      feat: { furnished: 'Möblerad', 'semi furnished': 'Delvis möblerad', fireplace: 'Öppen spis', 'secure parking': 'Inhägnad parkering', 'security system': 'Larmsystem', 'central heating': 'Centralvärme', basement: 'Källare', 'air conditioning preinstalled': 'Förberett för AC', intercom: 'Porttelefon', 'fully fenced': 'Helt inhägnad', 'split heating': 'Värme via splitaggregat', 'underfloor heating': 'Golvvärme', 'remote garage': 'Garage med fjärrstyrd port', 'ducted heating': 'Kanaliserad värme', 'ducted cooling': 'Kanaliserad kyla', 'outdoor entertaining': 'Uteplats för umgänge' } },
   }[L];
   const CAT = {
     nl: { villa: 'Villa', apartment: 'Appartement', bungalow: 'Bungalow', detached: 'Vrijstaand huis', townhouse: 'Rijtjeshuis', penthouse: 'Penthouse', quadrant: 'Hoekwoning', duplex: 'Duplex', finca: 'Finca', 'semi-detached': 'Twee-onder-een-kap', commercial: 'Bedrijfspand', plot: 'Bouwgrond', attic: 'Penthouse' },
     en: { villa: 'Villa', apartment: 'Apartment', bungalow: 'Bungalow', detached: 'Detached house', townhouse: 'Townhouse', penthouse: 'Penthouse', quadrant: 'Quad house', duplex: 'Duplex', finca: 'Finca', 'semi-detached': 'Semi-detached house', commercial: 'Commercial property', plot: 'Building plot', attic: 'Penthouse' },
     es: { villa: 'Villa', apartment: 'Apartamento', bungalow: 'Bungalow', detached: 'Chalet independiente', townhouse: 'Adosado', penthouse: 'Ático', quadrant: 'Quad', duplex: 'Dúplex', finca: 'Finca', 'semi-detached': 'Pareado', commercial: 'Local comercial', plot: 'Parcela', attic: 'Ático' },
+    sv: { villa: 'Villa', apartment: 'Lägenhet', bungalow: 'Bungalow', detached: 'Fristående hus', townhouse: 'Radhus', penthouse: 'Takvåning', quadrant: 'Fyrfamiljshus', duplex: 'Duplex', finca: 'Finca', 'semi-detached': 'Parhus', commercial: 'Lokal', plot: 'Tomt', attic: 'Takvåning' },
   }[L];
   const AG = {
     2: { name: 'Rick van Hoeven', tel: '+34664414515', mail: 'rick@gruposoltura.com', role: T.roleP },
@@ -62,19 +77,19 @@ function buildBrochure(data, lang, A) {
 
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const has = v => v !== null && v !== undefined && v !== '' && Number(v) !== 0;
-  const n0 = v => Math.round(Number(v)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, L === 'en' ? ',' : '.');
+  const n0 = v => Math.round(Number(v)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, L === 'en' ? ',' : L === 'sv' ? '\u00a0' : '.');
   const dec = v => String(Math.round(Number(v) * 10) / 10).replace('.', L === 'en' ? '.' : ',');
   const telFmt = t => t.replace(/^\+34(\d{3})(\d{3})(\d{3})$/, '+34 $1 $2 $3');
   const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
   const ref = String(p.reference || '').toUpperCase();
-  const cat = CAT[p.category] || cap(p.category || '') || (L === 'nl' ? 'Woning' : L === 'es' ? 'Vivienda' : 'Home');
+  const cat = CAT[p.category] || cap(p.category || '') || (L === 'nl' ? 'Woning' : L === 'es' ? 'Vivienda' : L === 'sv' ? 'Bostad' : 'Home');
   const place = [p.suburb, p.town].filter(Boolean).join(', ');
   const st = p.status === 'sold' ? T.sold : (p.status === 'reserved' || p.status === 'under_offer' || p.under_offer) ? T.reserved : T.forSale;
   const price = has(p.price) ? (p.price_from ? T.from + ' ' : '') + '€ ' + n0(p.price) : T.onReq;
   const photos = (Array.isArray(p.photos) ? p.photos : []).filter(Boolean);
   const ph = i => photos[i] || photos[i % Math.max(photos.length, 1)] || '';
-  const homeUrl = L === 'nl' ? String(p.url_new || '').replace('/en/property/', '/nl/woning/') : String(p.url_new || 'https://gruposoltura.com/');
-  const guideUrl = L === 'nl' ? 'https://gruposoltura.com/nl/woongids/' : 'https://gruposoltura.com/en/buying-guide/';
+  const homeUrl = L === 'nl' ? String(p.url_new || '').replace('/en/property/', '/nl/woning/') : L === 'sv' ? String(p.url_new || '').replace('/en/property/', '/sv/bostad/') : String(p.url_new || 'https://gruposoltura.com/');
+  const guideUrl = L === 'nl' ? 'https://gruposoltura.com/nl/woongids/' : L === 'sv' ? 'https://gruposoltura.com/sv/kopguide/' : 'https://gruposoltura.com/en/buying-guide/';
   const qr = u => 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&color=2E3B42&data=' + encodeURIComponent(u);
   const wa = 'https://wa.me/' + ag.tel.replace('+', '');
 
@@ -123,7 +138,7 @@ function buildBrochure(data, lang, A) {
   if (p.solarium) feats.push(cap(T.solarium));
   if (p.pool_private) feats.push(cap(T.poolP)); else if (p.pool_communal) feats.push(cap(T.poolC));
   String(p.features || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean).forEach(f => { const v = (T.feat && T.feat[f]) || cap(f); if (!feats.includes(v)) feats.push(v); });
-  if (has(p.terraces)) feats.push((L === 'nl' ? 'Terras ' : L === 'es' ? 'Terraza ' : 'Terrace ') + n0(p.terraces) + ' m²');
+  if (has(p.terraces)) feats.push((L === 'nl' ? 'Terras ' : L === 'es' ? 'Terraza ' : L === 'sv' ? 'Terrass ' : 'Terrace ') + n0(p.terraces) + ' m²');
   const rows = [];
   if (p.orientation) { const o = String(p.orientation).toLowerCase(); rows.push([T.orient, cap((T.orients && T.orients[o]) || o)]); }
   if (p.view_type) rows.push([T.view, cap(String(p.view_type).split(',').map(v => (T.views && T.views[v.trim()]) || v.trim()).join(', '))]);
@@ -140,7 +155,7 @@ function buildBrochure(data, lang, A) {
   if (has(p.dist_shops_m)) loc.push(['cart', T.shops, '', `${T.approx} ${p.dist_shops_m >= 1000 ? dec(p.dist_shops_m / 1000) + ' km' : n0(p.dist_shops_m) + ' m'}`, '']);
 
   // ---------- omschrijving: platte tekst, zonder slot-oproep, ingekort op alinea ----------
-  const raw = String((L === 'nl' ? p.body_nl : p.body_en) || p.body_en || p.body_nl || '');
+  const raw = String((L === 'nl' ? p.body_nl : L === 'sv' ? p.body_sv : p.body_en) || p.body_en || p.body_nl || '');
   let paras = raw.split(/<\/p>\s*/i).map(s => s.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim()).filter(Boolean);
   paras = paras.filter(s => !/(contact|neem .*contact|ponte en contacto|bezichtiging te plannen|arrange a viewing)/i.test(s) || paras.length < 3);
   paras = paras.map(s => s.replace(/\s*(Meer over [^.]*|You can (read|learn) more [^.]*|Puedes leer [^.]*)\.\s*$/i, '').trim());
@@ -153,7 +168,7 @@ function buildBrochure(data, lang, A) {
     if (part.trim().length > 60) desc.push(part.trim());
     break;
   }
-  if (!desc.length) desc.push(String((L === 'nl' ? p.summary_nl : p.summary_en) || ''));
+  if (!desc.length) desc.push(String((L === 'nl' ? p.summary_nl : L === 'sv' ? (p.summary_sv || p.summary_en) : p.summary_en) || ''));
 
   const year = new Date().getFullYear();
   const score = rev && rev.score ? dec(rev.score) : '4,7';
@@ -283,8 +298,8 @@ h2{font-family:var(--serif);font-weight:600;font-size:20pt;line-height:1.08;lett
   <div class="intro">
     <div>
       <div class="kick">${ic('pin')}${esc(place || p.town || '')}</div>
-      <h1>${esc(cat)} ${L === 'nl' ? 'in' : L === 'es' ? 'en' : 'in'} <em>${esc(p.suburb || p.town || '')}</em></h1>
-      <p class="sub">${esc((L === 'nl' ? p.summary_nl : p.summary_en) || '').replace(/\s*(Neem contact op|Contact Grupo Soltura|Enquire today|Vraag nu info aan)[^.]*\.?\s*$/i, '')}</p>
+      <h1>${esc(cat)} ${L === 'nl' ? 'in' : L === 'es' ? 'en' : L === 'sv' ? 'i' : 'in'} <em>${esc(p.suburb || p.town || '')}</em></h1>
+      <p class="sub">${esc((L === 'nl' ? p.summary_nl : L === 'sv' ? (p.summary_sv || p.summary_en) : p.summary_en) || '').replace(/\s*(Neem contact op|Contact Grupo Soltura|Enquire today|Vraag nu info aan)[^.]*\.?\s*$/i, '')}</p>
     </div>
     <div class="pricebox"><div class="pl">${T.price}</div><div class="pv">${price}</div></div>
   </div>
