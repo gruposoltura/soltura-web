@@ -33,13 +33,18 @@ Echte aantallen uit `web_events`, via edge function `web-live` (cache 60 s, alle
 
 ## Woningpagina: aanvragen (sinds 24-10-2026)
 Doel: meer aanvragen, rustiger pagina (besluiten Rick 24-10-2026).
-- **Snelknoppen** onder de prijs: met brochure (`broOk`) *Stuur me de brochure* + *Plan bezichtiging*; zonder brochure (nieuwbouw, gereserveerd) *Plan bezichtiging* (of *laat me weten als hij terugkomt*) + *Vraag het ons* (Sola).
-- **Brochureblok** bovenaan de rechterkolom (`#sendBox`, `sendHtml`/`bindSend`), alleen bij `broOk`: voornaam, achternaam, e-mail -> `web-contact` kind `brochure` (form `web-property-brochure`, `form_el: sendForm`) -> LeadProcessor-v2 pdfbrochure. Gegevens worden op het apparaat onthouden (`gs_me`) en bij de volgende woning vooraf ingevuld. Event `brochure_open` (via quick/bar/sola/form), `contact_sent` kind brochure.
-- **Koopgids staat niet meer op de woning** (Rick, 24-10-2026): alleen op de eigen gidspagina en de promoblokken elders.
-- **Geen persoonlijk kostenoverzicht op de woning**: dat product bestaat nog niet (geen agent, geen sjabloon, nooit een aanvraag binnengekomen). Het kostenblok toont prijs + belasting, de all-in-uitleg en een WhatsApp-knop *Vragen over de kosten?*. Opvolging staat als memo in `memos`. Let op: de pagina Kopen belooft het kostenoverzicht nog wel (`buyForm`, form `web-buy-costs`).
-- **Sola** heeft één plek op de woning: het chatblok, met een vaste chip *Stuur me de brochure* (alleen bij `broOk`) die naar het brochureblok gaat.
-- **Marktvergelijking** op de woning alleen bij een afwijking t/m **+5%** (`MARKET_SHOW_MAX`). De lijstkaart (*x% below market*) is ongewijzigd.
-- **Mobiel (≤900px)**: vaste balk onderin met *WhatsApp* (makelaar van de woning) + *Brochure* (zonder brochure: *Bezichtiging* / *Hou me op de hoogte*); verdwijnt zolang dat blok zelf in beeld is.
+- **Snelknoppen** onder de prijs: bij een beschikbare woning *Stuur me de brochure + kosten* (nieuwbouw: *Stuur me het kostenoverzicht*) + *Plan bezichtiging*; gereserveerd: *Laat me weten als hij terugkomt* + *Vraag het ons*.
+- **Brochureblok** bovenaan de rechterkolom (`#sendBox`, `sendHtml`/`bindSend`), bij elke beschikbare woning: aanvinken **Brochure (PDF)** (alleen `broOk`, dus geen nieuwbouw) en/of **Kostenoverzicht (PDF)**, met drie ja/nee-vragen (NIE, Spaanse hypotheek, volmacht). Voornaam, achternaam, e-mail.
+  **Eén aanvraag**: `web-contact` kind `brochure` met `fields.docs` (`brochure`/`costs`), `fields.nie/mortgage/power_of_attorney` en `browser_lang` -> WebFormIntake-v2 (geeft `docs`, `cost_answers`, `browser_lang`, `contact_created` door) -> LeadProcessor-v2 (type `pdfbrochure`).
+- **LeadProcessor-v2** (sinds 24-10-2026): `Get Contact Language (brochure)` -> `Resolve Brochure Language` -> `Get Brochure Data` -> `Build brochure HTML` (1-2 documenten) -> PDFShift -> `Collect PDFs` -> `Build Brochure Mail` -> Brevo. Beide PDF's gaan samen in **één vaste mail** (geen AI-tekst) die verder alleen reclame maakt voor de koopgids, met een blauwe knop met Sola (`img/email/sola-guide-<taal>.png`, naar de gidspagina; de gids is alleen via Sola op te vragen).
+  - **Taal** (mail en PDF's): bestond het contact al vóór de aanvraag, dan de voorkeurstaal van het contact; anders de browsertaal. Ondersteund NL/EN/ES/SV, anders EN. (Het contact zelf blijft de taal van het formulier houden; Zweedse site = EN, zie Zweeds.)
+  - **Kostenoverzicht** = kosten-infotorial (`brochure-src/costs.js`): soorten bijkomende kosten en waarom, **zonder eigen bedragen** (concurrentie). Alleen de wettelijke belastingpercentages uit `web_config` (via `brochure_data(ref).cfg`). Bron van de woningbrochure: `brochure-src/brochure.js`. Beide staan 1-op-1 in de Code-node *Build brochure HTML*.
+  - **Leadcard** voor de makelaar: wat er verstuurd is, de antwoorden NIE/hypotheek/volmacht en de opdracht om binnen een dag de **specifieke kosten** te bespreken.
+- **Koopgids** staat niet op de woning (alleen gidspagina en Sola).
+- **Kostenblok**: prijs + belasting, all-in-uitleg, knop *Stuur me het kostenoverzicht* (opent het brochureblok) en WhatsApp.
+- **Sola**: één plek (chatblok) met een vaste chip naar het brochureblok.
+- **Marktvergelijking** alleen t/m **+5%** (`MARKET_SHOW_MAX`).
+- **Mobiel (≤900px)**: vaste balk onderin met *WhatsApp* + *Brochure* (nieuwbouw: *Kosten*; gereserveerd: *Hou me op de hoogte*).
 
 ## Uitgangspunten
 - **De woning is de hoofdzaak.** Hero is kort; het aanbod staat direct eronder. Een woning opent als sheet over de lijst (geen pagina-wissel), met vorige/volgende, vergelijkbare woningen en "meer in deze plaats" — zo blijft de bezoeker bladeren.

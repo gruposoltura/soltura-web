@@ -1109,9 +1109,9 @@ async function openSheet(ref) {
         <div class="sh-price">${p.price_from ? `<small style="font-size:16px;font-weight:500">${t('from')}</small>` : ''}${p.price != null ? eur(p.price) : ''}${reduced(p) ? `<s>${eur(p.previous_price)}</s>` : ''}</div>
         <div class="lv-prop" id="lvProp" hidden></div>
         <div class="quick-acts">
-          ${broOk(p) ? `<button type="button" data-go="sendBox">${ICON.doc}<span>${t('qa_send_bro')}</span></button>` : ''}
+          ${sendOk(p) ? `<button type="button" data-go="sendBox">${ICON.doc}<span>${broOk(p) ? t('qa_send_bro') : t('qa_send_costs')}</span></button>` : ''}
           <button type="button" data-go="viewBtn">${ICON.cal}<span>${isNotify(p) ? t('notify_btn') : t('qa_view')}</span></button>
-          ${broOk(p) ? '' : `<button type="button" data-go="chatBox">${ICON.chat}<span>${t('qa_ask')}</span></button>`}
+          ${sendOk(p) ? '' : `<button type="button" data-go="chatBox">${ICON.chat}<span>${t('qa_ask')}</span></button>`}
         </div>
         <div class="keyfacts" id="keyfacts"></div>
         <div id="marketBox"></div>
@@ -1140,7 +1140,7 @@ async function openSheet(ref) {
         <div class="box social-box" id="socialBox"></div>
       </aside>
     </div>
-    <div class="sh-bar" id="shBar"><a class="btn wa" href="${waHref}" target="_blank" rel="noopener" data-track="whatsapp">${ICON.wa}<span>WhatsApp</span></a><button class="btn primary" type="button" id="barSend">${broOk(p) ? `${ICON.doc}<span>${t('bar_bro')}</span>` : `${ICON.cal}<span>${isNotify(p) ? t('bar_notify') : t('bar_view')}</span>`}</button></div>
+    <div class="sh-bar" id="shBar"><a class="btn wa" href="${waHref}" target="_blank" rel="noopener" data-track="whatsapp">${ICON.wa}<span>WhatsApp</span></a><button class="btn primary" type="button" id="barSend">${sendOk(p) ? `${ICON.doc}<span>${broOk(p) ? t('bar_bro') : t('bar_costs')}</span>` : `${ICON.cal}<span>${isNotify(p) ? t('bar_notify') : t('bar_view')}</span>`}</button></div>
     <div class="sh-area" id="shArea"></div>
     <div class="sh-more" id="shMore"></div>
     <div class="sh-next"><button class="btn ghost" type="button" data-step="-1">← ${t('prev_home')}</button><button class="btn primary" type="button" data-step="1">${t('next_home')} →</button></div>`;
@@ -1203,17 +1203,28 @@ function bindMortgage(p) {
   calc();
 }
 // ---------- Brochureblok (24-10-2026) ----------
-// Bovenaan de rechterkolom, alleen bij broOk (beschikbaar, geen nieuwbouw; beleid 22-10-2026). kind brochure -> intake ->
-// LeadProcessor-v2 pdfbrochure -> PDF als bijlage. Koopgids en kostenoverzicht staan NIET meer op de woning (Rick, 24-10-2026):
-// de gids heeft zijn eigen pagina, en een persoonlijk kostenoverzicht bestaat nog niet (opvolging: memo in memos).
+// Bovenaan de rechterkolom bij een beschikbare woning: aanvinken wat je wilt ontvangen
+//   - Brochure (PDF), alleen bij broOk (geen nieuwbouw, beleid 22-10-2026)
+//   - Kostenoverzicht (PDF): infotorial met de soorten bijkomende kosten en waarom, ZONDER bedragen (Rick 24-10-2026),
+//     plus drie ja/nee-vragen (NIE, hypotheek, volmacht) voor de makelaar, die de specifieke kosten bespreekt.
+// Eén aanvraag: web-contact kind 'brochure' met fields.docs ['brochure','costs'] -> intake -> LeadProcessor-v2 pdfbrochure,
+// die beide PDF's in één mail meestuurt. De koopgids staat NIET op de woning (alleen via Sola / de gidspagina).
+const sendOk = p => isOpen(p);
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i;
 const nameCase = v => String(v || '').replace(/[^\p{L}\p{M}' .-]/gu, ' ').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean).map(w => /^(van|de|der|den|het|ten|ter|von|da|del|la|le)$/i.test(w) ? w.toLowerCase() : w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 function sendHtml(p) {
-  if (!broOk(p)) return '';
+  if (!sendOk(p)) return '';
+  const opt = (id, h, sub) => `<label class="sb-opt"><input type="checkbox" name="${id}" checked><span class="sb-box" aria-hidden="true">${ICON.check}</span><span class="sb-txt"><b>${h}</b><small>${sub}</small></span></label>`;
+  const q = k => `<div class="sb-q"><span>${t('sb_q_' + k)}</span><div class="sb-seg" data-q="${k}" role="group" aria-label="${esc(t('sb_q_' + k))}"><button type="button" data-v="yes" aria-pressed="false">${t('sb_yes')}</button><button type="button" data-v="no" aria-pressed="false">${t('sb_no')}</button></div></div>`;
   return `<div class="box sendbox" id="sendBox">
     <h3>${t('sb_h', esc(p.reference))}</h3><p class="sb-sub">${t('sb_sub')}</p>
     <form class="form" id="sendForm" novalidate>
       <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="sb-opts">
+        ${broOk(p) ? opt('bro', t('sb_bro_h'), t('sb_bro_s')) : ''}
+        ${opt('costs', t('sb_cost_h'), t('sb_cost_s'))}
+        <div class="sb-qs" id="sbQs"><p class="sb-qh">${t('sb_qh')}</p>${q('nie')}${q('mort')}${q('poa')}</div>
+      </div>
       <div class="row2"><input name="first" placeholder="${t('bro_first')}" autocomplete="given-name" aria-label="${t('bro_first')}"><input name="last" placeholder="${t('bro_last')}" autocomplete="family-name" aria-label="${t('bro_last')}"></div>
       <input name="email" type="email" placeholder="${t('form_email')}" autocomplete="email" aria-label="${t('form_email')}">
       <button class="btn primary" type="submit">${t('sb_send')}</button><p class="ok" aria-live="polite"></p>
@@ -1222,8 +1233,9 @@ function sendHtml(p) {
     <div class="bro-done sb-done" id="sendDone" hidden role="status"></div>
   </div>`;
 }
-function openSend(p, via) {
+function openSend(p, via, want) {
   const box = $('#sendBox'), f = $('#sendForm'); if (!box) return;
+  if (want && f) { const c = $(`input[name=${want}]`, f); if (c && !c.checked) { c.checked = true; c.dispatchEvent(new Event('change')); } }
   box.scrollIntoView({ behavior: 'smooth', block: 'center' });
   box.classList.add('flash'); setTimeout(() => box.classList.remove('flash'), 1400);
   if (f && !f.hidden) setTimeout(() => { const i = $$('input[name=first],input[name=last],input[name=email]', f).find(x => !x.value); if (i) i.focus({ preventScroll: true }); }, 450);
@@ -1231,6 +1243,14 @@ function openSend(p, via) {
 }
 function bindSend(p) {
   const f = $('#sendForm'); if (!f) return;
+  const qs = $('#sbQs'), costs = $('input[name=costs]', f), ans = {};
+  const syncQs = () => { qs.hidden = !costs.checked; };
+  costs.addEventListener('change', syncQs); syncQs();
+  $$('.sb-seg', f).forEach(seg => seg.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    const k = seg.dataset.q; ans[k] = ans[k] === b.dataset.v ? null : b.dataset.v;
+    $$('button', seg).forEach(x => { const on = x.dataset.v === ans[k]; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
+  }));
   // eerder ingevulde gegevens (dit apparaat) alvast invullen
   const me = ls.get('me', null) || ls.get('guide', null);
   if (me) [['first', me.first], ['last', me.last], ['email', me.email]].forEach(([k, v]) => { if (v) $(`input[name=${k}]`, f).value = v; });
@@ -1240,19 +1260,25 @@ function bindSend(p) {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(f)), out = $('.ok', f), err = k => { out.style.color = 'var(--salina)'; out.textContent = t(k); };
     if (d.website) return;
+    const docs = [['bro', 'brochure'], ['costs', 'costs']].filter(([k]) => { const c = $(`input[name=${k}]`, f); return c && c.checked; }).map(x => x[1]);
     const first = nameCase(d.first), last = nameCase(d.last), email = String(d.email || '').trim().toLowerCase().replace(/\s+/g, '');
+    if (!docs.length) return err('sb_err_none');
     if (!first || !last || !EMAIL_RE.test(email)) return err('sb_err');
     const btn = $('button[type=submit]', f); btn.disabled = true; btn.textContent = t('sb_busy'); out.textContent = '';
     // bericht aan kantoor: Nederlands op de NL-site, anders Engels (Zweedse site communiceert Engels)
+    const nl = S.lang === 'nl', yn = v => v === 'yes' ? (nl ? 'ja' : 'yes') : v === 'no' ? (nl ? 'nee' : 'no') : (nl ? 'niet ingevuld' : 'not answered');
+    const what = docs.map(x => x === 'brochure' ? (nl ? 'de PDF-brochure' : 'the PDF brochure') : (nl ? 'het kostenoverzicht' : 'the cost overview')).join(nl ? ' en ' : ' and ');
+    const lines = [nl ? `Graag ontvang ik ${what} van ${p.reference}.` : `Please send me ${what} of ${p.reference}.`];
+    if (docs.includes('costs')) lines.push(nl ? `NIE nog nodig: ${yn(ans.nie)}\nSpaanse hypotheek: ${yn(ans.mort)}\nTekenen via volmacht: ${yn(ans.poa)}` : `Still need an NIE: ${yn(ans.nie)}\nSpanish mortgage: ${yn(ans.mort)}\nSigning via power of attorney: ${yn(ans.poa)}`);
     const r = await fn('web-contact', { ...formMeta('sendForm', p, 'web-property-brochure'), website: '', kind: 'brochure', first, last, first_name: first, last_name: last, name: `${first} ${last}`, email,
-      message: S.lang === 'nl' ? `Graag ontvang ik de PDF-brochure van ${p.reference}.` : `Please send me the PDF brochure of ${p.reference}.`, fields: { channel: 'sendbox' } }).catch(() => ({ ok: false }));
+      browser_lang: (navigator.language || '').slice(0, 20), message: lines.join('\n'), fields: { docs, nie: docs.includes('costs') ? ans.nie || null : null, mortgage: docs.includes('costs') ? ans.mort || null : null, power_of_attorney: docs.includes('costs') ? ans.poa || null : null, channel: 'sendbox' } }).catch(() => ({ ok: false }));
     btn.disabled = false; btn.textContent = t('sb_send');
     if (!r || !r.ok) return err('form_err');
     ls.set('me', { ...(ls.get('me', null) || {}), first, last, email });
-    track('contact_sent', p.id, null, { kind: 'brochure', via: 'sendbox' });
+    track('contact_sent', p.id, null, { kind: 'brochure', docs: docs.join(','), via: 'sendbox' });
     f.hidden = true;
     const box = $('#sendDone');
-    box.innerHTML = `<div class="bro-ico">${ICON.check}</div><div><b>${t('bro_ok_h', esc(first))}</b><p>${t('bro_ok', esc(p.reference), esc(email))}</p></div>`;
+    box.innerHTML = `<div class="bro-ico">${ICON.check}</div><div><b>${t('bro_ok_h', esc(first))}</b><p>${t(docs.length > 1 ? 'sb_ok_both' : docs[0] === 'brochure' ? 'sb_ok_bro' : 'sb_ok_costs', esc(p.reference), esc(email))}</p></div>`;
     box.hidden = false;
     const bar = $('#barSend'); if (bar) bar.hidden = true;
     $$('.sugg-send').forEach(x => x.remove());
@@ -1339,14 +1365,14 @@ function bindSheet(p, waHref) {
     $('#chatSugg').innerHTML = (r.suggestions || []).slice(0, 2).map(s => `<button type="button">${esc(s)}</button>`).join('');
     if (!$('#sendForm') || !$('#sendForm').hidden) sendChip();
   };
-  const sendChip = () => broOk(p) && $('#chatSugg').insertAdjacentHTML('beforeend', `<button type="button" class="sugg-send" data-send>${ICON.doc}${esc(t('sb_chip_bro'))}</button>`);
+  const sendChip = () => sendOk(p) && $('#chatSugg').insertAdjacentHTML('beforeend', `<button type="button" class="sugg-send" data-send>${ICON.doc}${esc(broOk(p) ? t('sb_chip_bro') : t('sb_chip_costs'))}</button>`);
   sendChip();
   $('#chatSugg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.send !== undefined) return openSend(p, 'sola'); ask(b.textContent); });
   // mobiel: vaste balk onderin (WhatsApp + brochure); weg zolang het verzendblok zelf in beeld is
   const barTarget = $('#sendBox') || $('#viewBtn');
   if ('IntersectionObserver' in window && barTarget) new IntersectionObserver(es => { $('#shBar').classList.toggle('off', es[0].isIntersecting); }, { root: $('#sheetInner'), threshold: .25 }).observe(barTarget);
   $('#barSend').addEventListener('click', () => {
-    if (broOk(p)) return openSend(p, 'bar');
+    if (sendOk(p)) return openSend(p, 'bar');
     $('#viewBtn').scrollIntoView({ behavior: 'smooth', block: 'center' });
     setTimeout(() => { const f = openViewForm(); if (f) $('input[name=name]', f).focus({ preventScroll: true }); }, 400);
     track('quick_action', p.id, null, { id: 'viewBtn', via: 'bar' });
@@ -1422,8 +1448,9 @@ function fillDetail(d) {
     $('#costBox').innerHTML = `<div class="costs"><h3>${t('costs_h')}</h3><table>${rows.map(r => `<tr><td>${r[0]}</td><td>${eur(r[1])}</td></tr>`).join('')}
       <tr class="total"><td>${allIn ? t('costs_total') : t('costs_total_ex')}</td><td>${eur(total)}</td></tr></table>
       <div class="allin"><b>${t('allin_h')}</b><p>${t('allin_p')}</p>
-        <div class="allin-cta"><a class="btn wa" href="https://wa.me/${agentOf(d).tel.replace('+', '')}?text=${encodeURIComponent(t('allin_wa_q', d.reference))}" target="_blank" rel="noopener" data-track="whatsapp_costs">${t('allin_wa_btn')}</a></div></div>
+        <div class="allin-cta">${isOpen(S.byId.get(d.id) || d) ? `<button type="button" class="btn primary" id="costAsk">${t('sb_cost_btn')}</button>` : ''}<a class="btn wa" href="https://wa.me/${agentOf(d).tel.replace('+', '')}?text=${encodeURIComponent(t('allin_wa_q', d.reference))}" target="_blank" rel="noopener" data-track="whatsapp_costs">WhatsApp</a></div></div>
       <p class="note">${t('costs_note')}</p></div>`;
+    const ca = $('#costAsk'); if (ca) ca.addEventListener('click', () => { openSend(S.byId.get(d.id) || d, 'costs', 'costs'); track('costs_ask', d.id); });
   }
 }
 function gallery(urls) {
