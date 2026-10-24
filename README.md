@@ -23,6 +23,14 @@ Elke pagina heeft een echte URL per taal; Google krijgt bij het eerste verzoek v
 - **Cloudflare Worker:** `worker/worker.js` wordt gemaakt met `node scripts/make-worker.mjs` (template + `js/routes.js` + `js/resolve.js`) en met de hand geplakt in `gruposoltura-legacy`. Na elke wijziging aan `routes.js`/`resolve.js` opnieuw genereren en plakken.
 - **Meting:** GA4 `page_path` = het echte pad; `web_events` en de eventnamen zijn ongewijzigd. Formulieren sturen `page_url` met het echte pad mee.
 
+## Live bezoekers (sinds 24-10-2026)
+Echte aantallen uit `web_events`, via edge function `web-live` (cache 60 s, alleen getallen naar de bezoeker; ruwe telling `web_live_counts()` is alleen voor service_role). Onder de drempel toont de site niets.
+- **Homepage** (subtiel, onder "woningen nu online"): unieke bezoekers laatste 30 min, vanaf 8.
+- **Woningpagina** (gele balk onder de prijs): unieke bezoekers die de woning de laatste 7 dagen bekeken, vanaf 5; plus "X kijken er nu naar" als er minstens 2 *anderen* in de laatste 15 min op die woning zitten (laatste event, geen `dwell`).
+- Ververst elke minuut zolang het tabblad zichtbaar is.
+- **Team en bots tellen niet mee**: kolom `web_events.flag` (`team`/`bot`). Teamapparaat markeren: eenmalig `https://gruposoltura.com/?team=1` openen (per browser; `?team=0` zet het uit). Bots: user-agent/webdriver.
+- **`sid` is sinds 24-10-2026 per tabblad-sessie** (sessionStorage) i.p.v. per paginalading; tellingen per sid van voor die datum zijn paginaladingen.
+
 ## Uitgangspunten
 - **De woning is de hoofdzaak.** Hero is kort; het aanbod staat direct eronder. Een woning opent als sheet over de lijst (geen pagina-wissel), met vorige/volgende, vergelijkbare woningen en "meer in deze plaats" — zo blijft de bezoeker bladeren.
 - **Zoeken in eigen woorden** (Claude zet de wens om in filters) en **vragen per woning** (Claude antwoordt alleen uit de woninggegevens, kosten altijd indicatief).

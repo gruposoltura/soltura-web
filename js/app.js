@@ -41,7 +41,7 @@ const S = {
   media: new Map(),
   cfg: { itp_resale_pct: 9, iva_newbuild_pct: 10, ajd_newbuild_pct: 1.5, buyer_all_in_eur: 0 },
   // bezoekerscode alleen in de browser bewaren na toestemming; zonder toestemming tellen we anoniem per sessie (in geheugen)
-  vid: ls.get('consent', null) === 'yes' && ls.get('consent_v', 0) >= 3 ? (ls.get('vid', null) || rid()) : null, sid: rid(), gaRef: null,
+  vid: ls.get('consent', null) === 'yes' && ls.get('consent_v', 0) >= 3 ? (ls.get('vid', null) || rid()) : null, sid: sessionSid(), gaRef: null,
   lastRoute: '/', openSince: 0, openId: null, sheetDepth: 0, pageTitle: '',
 };
 if (S.vid) ls.set('vid', S.vid); else { try { localStorage.removeItem('gs_vid'); } catch {} }
@@ -49,6 +49,19 @@ if (S.vid) ls.set('vid', S.vid); else { try { localStorage.removeItem('gs_vid');
 function browserLang() { const b = (navigator.language || 'en').toLowerCase(); return b.startsWith('nl') ? 'nl' : b.startsWith('sv') ? 'sv' : 'en'; }
 function blankFilters() { return { towns: [], categories: [], price_min: null, price_max: null, beds_min: null, baths_min: null, pool: null, newbuild: null, max_sea_km: null, reduced_only: false, ref_prefix: null }; }
 function rid() { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
+// sessie-code per tabblad (sessionStorage, geen cookie, verdwijnt bij sluiten) - sinds 24-10-2026; daarvoor was elke paginalading een nieuwe sid
+function sessionSid() { try { let v = sessionStorage.getItem('gs_sid'); if (!v) { v = rid(); sessionStorage.setItem('gs_sid', v); } return v; } catch { return rid(); } }
+// eigen team (eenmalig ?team=1 op elk apparaat, ?team=0 = uit) en bots tellen niet mee in tellers en statistiek (web_events.flag)
+const FLAG = (() => {
+  try {
+    const q = new URLSearchParams(location.search).get('team');
+    if (q === '1') localStorage.setItem('gs_team', '1'); else if (q === '0') localStorage.removeItem('gs_team');
+    if (localStorage.getItem('gs_team') === '1') return 'team';
+  } catch {}
+  const ua = navigator.userAgent || '';
+  if (navigator.webdriver || /bot|crawl|spider|slurp|headless|lighthouse|pagespeed|preview|facebookexternalhit|googleother|inspectiontool|bingpreview|ahrefs|semrush|python|curl|wget/i.test(ua)) return 'bot';
+  return null;
+})();
 
 // ---------- Google Analytics 4 (Google-tag van Site Kit, GA4-property 335774479) ----------
 // Consent Mode v2: standaard alles 'denied' -> GA4 ontvangt alleen cookieloze pings (geen cookies, geen ID op het apparaat).
@@ -123,6 +136,7 @@ const reduced = p => p.previous_price && p.previous_price > p.price;
 const dropPct = p => reduced(p) ? Math.round((1 - p.price / p.previous_price) * 100) : 0;
 const belowMkt = p => !p.is_newbuild && p.market_deviation_pct != null && p.market_deviation_pct <= -8 ? Math.round(-p.market_deviation_pct) : 0;
 const ICON = {
+  eye: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
   bed: '<svg viewBox="0 0 24 24"><path d="M3 18V7m0 6h18v5M7 13V10h5a3 3 0 0 1 3 3"/></svg>',
   bath: '<svg viewBox="0 0 24 24"><path d="M4 12h16v3a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4zM6 12V6a2 2 0 0 1 4 0"/></svg>',
   area: '<svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM4 9h5V4"/></svg>',
@@ -233,7 +247,7 @@ function track(event, pid = null, value = null, meta = null) {
     fetch(SB + '/rest/v1/web_events', {
       method: 'POST', keepalive: true,
       headers: { apikey: KEY, 'content-type': 'application/json', Prefer: 'return=minimal' },
-      body: JSON.stringify({ sid: S.sid, vid: S.vid, lang: S.lang, event, wp_id, property_id, value, meta }),
+      body: JSON.stringify({ sid: S.sid, vid: S.vid, lang: S.lang, event, wp_id, property_id, value, meta, flag: FLAG }),
     });
   } catch {}
 }
@@ -460,7 +474,7 @@ function logResults(src, q) {
     const ids = (S.order || []).map(p => p.id).filter(Boolean);
     if (!ids.length) return;
     fetch(SB + '/rest/v1/web_events', { method: 'POST', keepalive: true, headers: { apikey: KEY, 'content-type': 'application/json', Prefer: 'return=minimal' },
-      body: JSON.stringify({ sid: S.sid, vid: S.vid, lang: S.lang, event: 'search_results', value: ids.length, meta: { ids: ids.slice(0, 2000), src, q: q ? String(q).slice(0, 120) : null } }) });
+      body: JSON.stringify({ sid: S.sid, vid: S.vid, flag: FLAG, lang: S.lang, event: 'search_results', value: ids.length, meta: { ids: ids.slice(0, 2000), src, q: q ? String(q).slice(0, 120) : null } }) });
   } catch {}
 }
 const inviewObs = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(en => {
@@ -744,7 +758,7 @@ function renderHome() {
   main.innerHTML = `
   <section class="hero">
     ${video(VIDEO.coast, heroPoster)}
-    <a class="live-count" href="#bar" id="liveCount"><b data-n="${n}">${n ? 0 : '…'}</b> ${t('live')}</a>
+    <a class="live-count" href="#bar" id="liveCount"><b data-n="${n}">${n ? 0 : '…'}</b> ${t('live')}<span class="lv-site" id="lvSite" hidden></span></a>
     <div class="hero-body">
       <h1>${t('hero_title')}</h1>
       <p class="sub">${t('hero_sub')}</p>
@@ -788,6 +802,7 @@ function renderHome() {
   }, { rootMargin: '800px' }).observe($('#sentinel'));
   renderBar(); renderFeed();
   track('view_feed');
+  liveStart(null);
 }
 
 function renderBar() {
@@ -1088,6 +1103,7 @@ async function openSheet(ref) {
         <h1 id="sheetTitle">${esc(title(p))}</h1>
         ${isOpen(p) ? '' : `<div class="st-note st-note-${stOf(p)}">${t('st_note_' + stOf(p))} <a href="#shMore" data-scroll>${t('st_similar')}</a></div>`}
         <div class="sh-price">${p.price_from ? `<small style="font-size:16px;font-weight:500">${t('from')}</small>` : ''}${p.price != null ? eur(p.price) : ''}${reduced(p) ? `<s>${eur(p.previous_price)}</s>` : ''}</div>
+        <div class="lv-prop" id="lvProp" hidden></div>
         <div class="quick-acts">
           <button type="button" data-go="chatBox">${ICON.chat}<span>${t('qa_ask')}</span></button>
           <button type="button" data-go="mortBox">${ICON.calc}<span>${t('qa_mort')}</span></button>
@@ -1128,6 +1144,7 @@ async function openSheet(ref) {
     <div class="sh-next"><button class="btn ghost" type="button" data-step="-1">← ${t('prev_home')}</button><button class="btn primary" type="button" data-step="1">${t('next_home')} →</button></div>`;
   inner.scrollTop = 0;
   bindSheet(p, waHref);
+  liveStart(p.id);
   loadReviews().then(({ rows, sum }) => { const a = $('#rvMini'); if (!a || !sum || S.openId !== p.id) return; const q = rows.find(r => r.text.length < 160) || rows[0]; a.href = RV.all(sum.place_id); a.innerHTML = `<span class="rv-mini-top">${ICON.g}<b>${fmtScore(sum.score)}</b><span class="stars">★★★★★</span><small>${t('rv_count', sum.count)}</small></span>${q ? `<q>${esc(q.text.length > 150 ? q.text.slice(0, 147) + '…' : q.text)}</q>` : ''}`; a.hidden = false; });
   fillFacts(p);
   renderMore(p);
@@ -1387,12 +1404,39 @@ function step(d) {
   const nx = list[(i + d + list.length) % list.length];
   if (nx) { track('step', nx.id, d); go(ph(nx), { replace: true }); }
 }
+// ---------- live bezoekers (24-10-2026): alleen echte aantallen via edge function web-live; onder de drempel niets ----------
+// pid = woning-uuid (woningpagina), null = homepage, false = stoppen. Ververst elke minuut zolang het tabblad zichtbaar is.
+let liveTimer = 0, livePid = false;
+function liveStart(pid) {
+  clearInterval(liveTimer); livePid = pid;
+  if (pid === false) return;
+  liveTick(); liveTimer = setInterval(() => { if (!document.hidden) liveTick(); }, 60000);
+}
+async function liveTick() {
+  const pid = livePid; if (pid === false) return;
+  let d = null;
+  try { const r = await fetch(FN + 'web-live', { method: 'POST', headers: { apikey: KEY, 'content-type': 'application/json' }, body: JSON.stringify({ pid, sid: S.sid }) }); d = r.ok ? await r.json() : null; } catch {}
+  if (pid !== livePid) return;
+  if (pid === null) {
+    const el = $('#lvSite'); if (!el) { liveStart(false); return; } // homepage niet meer in beeld
+    el.hidden = !(d && d.site);
+    if (d && d.site) el.innerHTML = `<i></i>${tx({ en: `${d.site} people browsing`, nl: `${d.site} bezoekers kijken rond`, sv: `${d.site} besökare tittar runt` })}`;
+    return;
+  }
+  const el = $('#lvProp'); if (!el) { liveStart(false); return; }
+  el.hidden = !(d && d.week);
+  if (!d || !d.week) return;
+  const w = d.week, n = d.now;
+  el.innerHTML = `${ICON.eye}<span><b>${tx({ en: `${w} people`, nl: `${w} mensen`, sv: `${w} personer` })}</b> ${tx({ en: 'viewed this home this week', nl: 'bekeken deze woning deze week', sv: 'har tittat på den här bostaden den här veckan' })}${n ? `<em><i></i>${tx({ en: `${n} viewing right now`, nl: `${n} kijken er nu naar`, sv: `${n} tittar just nu` })}</em>` : ''}</span>`;
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden && livePid !== false) liveTick(); });
 function closeSheetTracking() {
   if (S.openId && S.openSince) track('dwell', S.openId, Math.round((Date.now() - S.openSince) / 1000));
   S.openId = null; S.openSince = 0;
 }
 function closeSheet() {
   closeSheetTracking();
+  liveStart($('#lvSite') ? null : false); // terug op de homepage: homepage-teller loopt door
   $('#sheet').hidden = true; document.body.style.overflow = '';
   if (cur().key !== 'property') return;
   // in de app geopend: terug in de geschiedenis naar de pagina eronder; direct binnengekomen: naar die pagina zonder herladen
