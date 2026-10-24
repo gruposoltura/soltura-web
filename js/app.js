@@ -162,26 +162,69 @@ async function fn(name, body) {
   const j = await r.json().catch(() => ({}));
   return { ok: r.ok, ...j };
 }
-// UTM-codes bij binnenkomst bewaren (per sessie) en met elk formulier meesturen
-const UTM = (() => {
+// Herkomst (UTM-conventie 24-10-2026, zie project-doc 'UTM-analyse 24-10'):
+// - last touch: UTM's van de binnenkomst, per sessie (sessionStorage)
+// - first touch: de eerste bekende herkomst, blijvend in localStorage, ALLEEN met statistiek-toestemming
+// - zonder UTM: extern referrer-domein en welk click-id (gclid/fbclid/...) er was, als terugval
+// - eerste event van een nieuwe sessie = 'session_start' in web_events met deze herkomst (geen persoonsgegevens),
+//   zodat bezoek per kanaal ook zonder cookie-toestemming meetbaar is.
+const ATTR = (() => {
+  const out = { last: null, isNew: false };
   try {
-    const u = {};
-    new URLSearchParams(location.search).forEach((v, k) => { if (/^utm_[a-z]+$/i.test(k) && v) u[k.toLowerCase()] = v.slice(0, 120); });
-    if (Object.keys(u).length) sessionStorage.setItem('gs_utm', JSON.stringify(u));
-    return JSON.parse(sessionStorage.getItem('gs_utm') || 'null');
-  } catch { return null; }
+    const q = new URLSearchParams(location.search), u = {};
+    q.forEach((v, k) => { if (/^utm_[a-z]+$/i.test(k) && v) u[k.toLowerCase()] = v.slice(0, 120); });
+    ['gclid', 'gbraid', 'wbraid', 'fbclid', 'msclkid'].forEach(k => { if (!u.click && q.get(k)) u.click = k; });
+    let host = '';
+    try { host = document.referrer ? new URL(document.referrer).hostname.replace(/^www\./, '').toLowerCase() : ''; } catch {}
+    if (host && !/(^|\.)(gruposoltura\.com|solturarealestate\.com|n8n\.cloud)$/.test(host)) u.referrer = host.slice(0, 80);
+    const fresh = Object.keys(u).length > 0;
+    if (fresh) { u.landing = (location.pathname || '/').slice(0, 120); u.at = new Date().toISOString().slice(0, 10); sessionStorage.setItem('gs_utm', JSON.stringify(u)); }
+    out.isNew = !sessionStorage.getItem('gs_sess'); sessionStorage.setItem('gs_sess', '1');
+    out.last = fresh ? u : JSON.parse(sessionStorage.getItem('gs_utm') || 'null');
+    out.landing = (location.pathname || '/').slice(0, 120);
+  } catch {}
+  return out;
 })();
+const UTM = ATTR.last;
+// first touch vastleggen zodra er statistiek-toestemming is (ook direct bij laden als die er al is)
+function rememberFirstTouch() {
+  try {
+    if (!gaGranted() || ls.get('first_touch', null)) return;
+    ls.set('first_touch', ATTR.last ? Object.assign({}, ATTR.last) : { direct: 1, landing: ATTR.landing, at: new Date().toISOString().slice(0, 10) });
+  } catch {}
+}
+rememberFirstTouch();
+// herkomst zoals die met formulieren meegaat: utm_* (last touch) bovenaan, first touch genest onder 'first'
+function attrMeta() {
+  const m = Object.assign({}, ATTR.last || {});
+  const f = ls.get('first_touch', null);
+  if (f) m.first = f;
+  return Object.keys(m).length ? m : null;
+}
+// deel-links: schone URL (zonder de UTM's van de bezoeker zelf) met eigen share-UTM
+function shareUrl(path, source, content) {
+  return location.origin + path + '?utm_source=' + source + '&utm_medium=social&utm_campaign=share' + (content ? '&utm_content=' + encodeURIComponent(content) : '');
+}
 // Beschrijvende formulier-ID per ingang; NEXUS toont hier een leesbare naam bij (core.request_forms).
 const FORM_NAMES = { viewForm: 'web-property-viewing', guideForm: 'web-property-buying-guide', buyForm: 'web-buy-costs', sellForm: 'web-sell-valuation', moveForm: 'web-move-intake', contactForm: 'web-contact' };
 // vaste velden voor web-contact: form_id (beschrijvend), form_el (technisch), page_url, utm, taal, bezoekerscode, woning (uuid + referentie)
 function formMeta(formId, p, name) {
   const m = { form_id: name || FORM_NAMES[formId] || formId, form_el: formId, page_url: location.href.slice(0, 300), lang: S.lang, vid: S.vid };
-  if (UTM) m.utm = UTM;
+  const am = attrMeta(); if (am) m.utm = am;
   if (p) Object.assign(m, { property_id: p.id, reference: p.reference, wp_id: p.wp_id || null });
   return m;
 }
 // pid = core-uuid van de woning; wp_id gaat mee zolang de woning er een heeft (oude rapportages)
+let sessSent = false;
 function track(event, pid = null, value = null, meta = null) {
+  if (!sessSent) {
+    sessSent = true;
+    if (ATTR.isNew) {
+      const a = ATTR.last || {}, sm = { landing: ATTR.landing };
+      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_id', 'referrer', 'click'].forEach(k => { if (a[k]) sm[k] = a[k]; });
+      track('session_start', null, null, sm);
+    }
+  }
   try {
     const p = pid ? S.byId.get(pid) : null;
     const wp_id = p && p.wp_id ? p.wp_id : null, property_id = p ? p.id : null;
@@ -498,12 +541,12 @@ async function renderSocialSheet(p) {
   const { feed, stats } = await loadSocial();
   if (S.openId !== p.id) return;
   const post = feed.find(f => (p.wp_id && f.wp_id === p.wp_id) || (f.reference && f.reference === p.reference));
-  const url = location.origin + ph(p);
+  const url = shareUrl(ph(p), 'facebook', p.reference), urlWa = shareUrl(ph(p), 'whatsapp', p.reference);
   box.innerHTML = `<h3>${t('social_sheet_h')}</h3>
     ${post ? `<a class="sp-post" href="${esc(post.fb_url || SOCIAL.ig)}" target="_blank" rel="noopener" data-social="post">${post.image ? `<img src="${esc(post.image)}" alt="" loading="lazy">` : ''}<span><b>${t('social_onpost')}</b><small>${esc(post.caption.slice(0, 90))}…</small></span></a>` : ''}
     <div class="share-row">
       <a class="share fb" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}" target="_blank" rel="noopener" data-social="share_fb">${ICON.fb}<span>${t('share_fb')}</span></a>
-      <a class="share wa" href="https://wa.me/?text=${encodeURIComponent(title(p) + ' ' + url)}" target="_blank" rel="noopener" data-social="share_wa">${ICON.wa}<span>${t('share_wa')}</span></a>
+      <a class="share wa" href="https://wa.me/?text=${encodeURIComponent(title(p) + ' ' + urlWa)}" target="_blank" rel="noopener" data-social="share_wa">${ICON.wa}<span>${t('share_wa')}</span></a>
     </div>
     <p class="sp-follow">${t('social_follow_p')}</p>
     ${followBtns(stats, true)}`;
@@ -595,7 +638,8 @@ function consentBar(force) {
     const ads = k === 'all' || (k === 'save' && $('#ccAds', bar).checked);
     ls.set('consent', stat ? 'yes' : 'no'); ls.set('consent_ads', ads); ls.set('consent_v', CONSENT_V);
     gtag('consent', 'update', Object.assign({ analytics_storage: stat ? 'granted' : 'denied' }, adsState(ads)));
-    if (stat) { S.vid = ls.get('vid', null) || rid(); ls.set('vid', S.vid); } else { S.vid = null; try { localStorage.removeItem('gs_vid'); } catch {} }
+    if (stat) { S.vid = ls.get('vid', null) || rid(); ls.set('vid', S.vid); } else { S.vid = null; try { localStorage.removeItem('gs_vid'); localStorage.removeItem('gs_first_touch'); } catch {} }
+    rememberFirstTouch();
     if (ads) { const was = fbOn; fbLoad(); if (!was) fb('PageView'); } else fbStop();
     track('consent', null, (stat ? 1 : 0) + (ads ? 2 : 0), { stat, ads, how: k, ui: 5 });
     bar.classList.remove('in');
@@ -1181,7 +1225,7 @@ function bindSheet(p, waHref) {
   $$('[data-step]', inner).forEach(b => b.addEventListener('click', () => step(Number(b.dataset.step))));
   $$('[data-track]', inner).forEach(a => a.addEventListener('click', () => track(a.dataset.track, p.id)));
   $('#shShare').addEventListener('click', async () => {
-    const url = location.href;
+    const url = shareUrl(location.pathname, 'share', p && p.reference);
     try { if (navigator.share) await navigator.share({ title: title(p), url }); else { await navigator.clipboard.writeText(url); $('#shShare').style.background = 'var(--lemon-soft)'; } } catch {}
     track('share', p.id);
   });
@@ -1614,7 +1658,7 @@ async function pagePost(slug) {
       ${r.excerpt ? `<p class="post-lead">${esc(r.excerpt)}</p>` : ''}
       <div class="post-body">${sanitizeRich(r.body_html)}</div>
       ${r.source_url && /^https?:/i.test(r.source_url) ? `<p class="post-src">${tx({ en: 'Source', nl: 'Bron', sv: 'Källa' })}: <a href="${esc(r.source_url)}" target="_blank" rel="noopener nofollow">${esc(r.source_name || new URL(r.source_url).hostname)}</a></p>` : ''}
-      <p class="post-share"><a class="btn ghost" href="${L('news')}">${t('news_more')}</a> <a class="btn wa" href="https://wa.me/?text=${encodeURIComponent(r.title + ' ' + location.origin + L('news', r.slug))}" target="_blank" rel="noopener" data-social="share_wa">${t('share_wa')}</a></p>
+      <p class="post-share"><a class="btn ghost" href="${L('news')}">${t('news_more')}</a> <a class="btn wa" href="https://wa.me/?text=${encodeURIComponent(r.title + ' ' + shareUrl(L('news', r.slug), 'whatsapp', r.slug))}" target="_blank" rel="noopener" data-social="share_wa">${t('share_wa')}</a></p>
     </article>${homesRail()}`;
   observeCards(main);
   track('news_view', null, null, { slug: r.slug });
