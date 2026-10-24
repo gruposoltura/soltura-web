@@ -1607,6 +1607,15 @@ function pageGids() {
 }
 // Makelaarsportaal (24-10-2026): /en/agents/ · /nl/makelaars/ · /sv/maklare/ (js/agents.js, edge function agent-viewing)
 const ss = { get: (k, d) => { try { const v = sessionStorage.getItem('gs_' + k); return v ? JSON.parse(v) : d; } catch { return d; } }, set: (k, v) => { try { v == null ? sessionStorage.removeItem('gs_' + k) : sessionStorage.setItem('gs_' + k, JSON.stringify(v)); } catch {} } };
+// eigen favicon op het makelaarsportaal (Sola); elke andere pagina krijgt de gewone Soltura-iconen terug
+const ICONS = { site: [['icon', '/favicon.ico', '', '48x48'], ['icon', '/icons/favicon.svg', 'image/svg+xml', ''], ['apple-touch-icon', '/icons/apple-touch-icon.png?v=2', '', '']],
+  sola: [['icon', '/icons/sola-favicon.ico', '', '48x48'], ['icon', '/icons/sola-32.png', 'image/png', '32x32'], ['icon', '/icons/sola-192.png', 'image/png', '192x192'], ['apple-touch-icon', '/icons/sola-apple-touch.png', '', '']] };
+function setIcons(set) {
+  if (document.documentElement.dataset.icons === set) return;
+  document.querySelectorAll('link[rel="icon"],link[rel="apple-touch-icon"]').forEach(l => l.remove());
+  ICONS[set].forEach(([rel, href, type, sizes]) => { const l = document.createElement('link'); l.rel = rel; l.href = href; if (type) l.type = type; if (sizes) l.sizes = sizes; document.head.appendChild(l); });
+  document.documentElement.dataset.icons = set;
+}
 function pageAgents() {
   const main = $('#main');
   main.innerHTML = PARTNERS.html(S.lang);
@@ -2074,6 +2083,7 @@ function renderPage(r) {
   $('#nav').classList.remove('open'); $('#menuBtn').setAttribute('aria-expanded', 'false');
   const main = $('#main');
   window.scrollTo(0, 0);
+  setIcons(key === 'agents' ? 'sola' : 'site');
   switch (key) {
     case 'buy': main.innerHTML = pageBuy(); bindMortgage(null); bindForm($('#buyForm')); break;
     case 'sell': main.innerHTML = pageSell(); bindForm($('#sellForm')); break;

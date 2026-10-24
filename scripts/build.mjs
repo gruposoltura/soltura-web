@@ -179,6 +179,11 @@ function page({ lang, key, path: p, alt, title: ttl, desc, image, jsonld = [], b
     ...jsonld.map(j => `<script type="application/ld+json">${JSON.stringify(j).replace(/</g, '\\u003c')}</script>`),
   ].join('\n');
   h = h.replace('</head>', head + '\n</head>');
+  // makelaarsportaal (agents.gruposoltura.com): eigen favicon op basis van Sola (24-10-2026)
+  if (key === 'agents') h = h.replace('<link rel="icon" href="/favicon.ico" sizes="48x48">', '<link rel="icon" href="/icons/sola-favicon.ico" sizes="48x48">')
+    .replace('<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">', '<link rel="icon" href="/icons/sola-32.png" type="image/png" sizes="32x32"><link rel="icon" href="/icons/sola-192.png" type="image/png" sizes="192x192">')
+    .replace(/<link rel="apple-touch-icon" href="[^"]*">/, '<link rel="apple-touch-icon" href="/icons/sola-apple-touch.png">')
+    .replace('<meta name="apple-mobile-web-app-title" content="Soltura">', '<meta name="apple-mobile-web-app-title" content="Soltura Agents">');
   // kop en voet in de taal van de pagina, met echte links
   h = h.replace(/(<a class="logo" href=")[^"]*(")/, `$1${R.href(lang, 'home')}$2`);
   h = h.replace(/(<a class="fav-link" href=")[^"]*(")/, `$1${R.href(lang, 'favorites')}$2`);
