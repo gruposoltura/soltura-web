@@ -180,7 +180,7 @@
       '<ul class="ag-feats">' + t.f.map(function (f) { return '<li><span class="ag-fi">' + ICO[f[0]] + '</span><div><b>' + esc(f[1]) + '</b><span>' + esc(f[2]) + '</span></div></li>'; }).join('') + '</ul>' +
       '<p class="ag-alt">' + ICO.mail + esc(t.email_alt) + '</p></div>' +
       '<div class="sol-panel ag-panel" id="agPanel"><div class="sol-head"><div class="chat-av">' + avatar(46) + '<i class="online"></i></div>' +
-      '<div><h2>' + esc(NAME) + '</h2><p><span class="sol-dot"></span>' + esc(t.sub) + '</p></div>' +
+      '<div><h2>' + esc(NAME) + '</h2><p>' + esc(t.sub) + '</p></div>' +
       '<div class="ag-langs" role="group" aria-label="Language">' + CHAT_LANGS.map(function (c) { return '<button type="button" data-cl="' + c[0] + '"' + (c[0] === lang ? ' aria-pressed="true"' : '') + '>' + c[1] + '</button>'; }).join('') + '</div></div>' +
       '<div class="ag-test" id="agTest" hidden></div>' +
       '<div class="sol-log" id="solLog" aria-live="polite"></div><div class="sol-chips" id="solChips"></div>' +
