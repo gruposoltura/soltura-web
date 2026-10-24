@@ -30,8 +30,8 @@ const die = (msg) => { console.error('[build] AFGEBROKEN: ' + msg); process.exit
 
 // ---------- teksten uit de site zelf (i18n.js, pages.js) ----------
 const ctx = {}; ctx.window = ctx; vm.createContext(ctx);
-for (const f of ['js/i18n.js', 'js/pages.js', 'js/costs.js', 'js/gids.js']) vm.runInContext(fs.readFileSync(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
-const I18N = ctx.I18N, PAGES = ctx.PAGES, COSTS = ctx.COSTS, GIDS = ctx.GIDS;
+for (const f of ['js/i18n.js', 'js/pages.js', 'js/costs.js', 'js/gids.js', 'js/agents.js']) vm.runInContext(fs.readFileSync(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
+const I18N = ctx.I18N, PAGES = ctx.PAGES, COSTS = ctx.COSTS, GIDS = ctx.GIDS, PARTNERS = ctx.PARTNERS;
 // talen van de site (js/routes.js); Zweeds (sv) sinds 19-10-2026. tx({en,nl,sv}, lang) kiest een tekst (terugval Engels).
 const LANGS = R.LANGS;
 const tx = (o, lang) => o[lang] ?? o.en;
@@ -384,6 +384,8 @@ async function main() {
     }
     sm.pages.push({ alt, lastmod: fnc('en').lastmod || TODAY });
   }
+  // makelaarsportaal: alleen voor samenwerkende makelaars, niet indexeren en niet in de sitemap
+  for (const l of LANGS) write(R.href(l, 'agents'), page({ lang: l, key: 'agents', path: R.href(l, 'agents'), title: `${PARTNERS.text(l).title} · Grupo Soltura`, desc: PARTNERS.text(l).lead, noindex: true, body: PARTNERS.html(l) }));
   // favorieten: persoonlijk, niet indexeren
   for (const l of LANGS) write(R.href(l, 'favorites'), page({ lang: l, key: 'favorites', path: R.href(l, 'favorites'), title: `${T(l, 'fav_h')} · Grupo Soltura`, desc: T(l, 'fav_h'), noindex: true, body: `<div class="page-head"><h1>${esc(T(l, 'fav_h'))}</h1></div>` }));
 

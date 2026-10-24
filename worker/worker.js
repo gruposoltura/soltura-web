@@ -39,8 +39,10 @@ const WP_ORIGIN = '';
     privacy: { en: 'privacy', nl: 'privacy', sv: 'integritet' },
     favorites: { en: 'favorites', nl: 'favorieten', sv: 'favoriter' },
     property: { en: 'property', nl: 'woning', sv: 'bostad' },
-    // woon/koopgids met live assistent Sol (23-10-2026)
+    // woon/koopgids met live assistent Sola (23-10-2026)
     gids: { en: 'buying-guide', nl: 'woongids', sv: 'kopguide' },
+    // makelaarsportaal (24-10-2026): niet in menu of sitemap, noindex; agents.gruposoltura.com verwijst hierheen
+    agents: { en: 'agents', nl: 'makelaars', sv: 'maklare' },
   };
   // subpagina's onder een vaste pagina (22-10-2026): maandlastencalculator onder Emigreren
   // /nl/emigreren/maandlasten/ . /en/move-to-spain/monthly-costs/ . /sv/flytta-till-spanien/manadskostnader/

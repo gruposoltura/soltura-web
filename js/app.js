@@ -613,12 +613,12 @@ async function fillReviews(el) {
 function renderFooterStack() {
   const rv = $('#reviewsBand'); rv.dataset.done = ''; rv.innerHTML = '';
   const nl = $('#nlBand');
-  nl.hidden = !!ls.get('nl_done', 0);
+  nl.hidden = !!ls.get('nl_done', 0) || currentPage === 'agents'; // makelaarsportaal: geen nieuwsbrief
   nl.innerHTML = nl.hidden ? '' : `<div class="nl-band-in">${newsletterHtml('inline')}</div>`;
   bindNewsletters(nl);
   const sb = $('#socialBand'); sb.dataset.done = ''; sb.innerHTML = '';
   // op de woningenpagina staan de reviews al in de feed
-  rv.hidden = currentPage === 'home';
+  rv.hidden = currentPage === 'home' || currentPage === 'agents';
   const lazy = (el, fnc) => { if ('IntersectionObserver' in window) { const o = new IntersectionObserver(es => { if (es[0].isIntersecting) { o.disconnect(); fnc(el); } }, { rootMargin: '600px' }); o.observe(el); } else fnc(el); };
   if (!rv.hidden) lazy(rv, fillReviews);
   lazy(sb, renderSocialBand);
@@ -1605,6 +1605,13 @@ function pageGids() {
   main.innerHTML = GIDS.html(S.lang, { privacy: L('privacy'), buy: L('buy'), sell: L('sell'), move: L('move'), costs: L('costs'), area: L('area'), contact: L('contact') });
   GIDS.bind($('#solPanel'), S.lang, solDeps());
 }
+// Makelaarsportaal (24-10-2026): /en/agents/ · /nl/makelaars/ · /sv/maklare/ (js/agents.js, edge function agent-viewing)
+const ss = { get: (k, d) => { try { const v = sessionStorage.getItem('gs_' + k); return v ? JSON.parse(v) : d; } catch { return d; } }, set: (k, v) => { try { v == null ? sessionStorage.removeItem('gs_' + k) : sessionStorage.setItem('gs_' + k, JSON.stringify(v)); } catch {} } };
+function pageAgents() {
+  const main = $('#main');
+  main.innerHTML = PARTNERS.html(S.lang);
+  PARTNERS.bind(main, S.lang, { fn, track, ss, go, home: L('home'), test: new URLSearchParams(location.search).get('test') === '1', meta: () => ({ page_url: location.origin + location.pathname }) });
+}
 // Maandlastencalculator (22-10-2026) onder Emigreren; invoer alleen in localStorage 'gs_ml' (js/costs.js)
 function pageCosts() {
   const main = $('#main');
@@ -2073,6 +2080,7 @@ function renderPage(r) {
     case 'move': main.innerHTML = pageMove(); bindForm($('#moveForm')); break;
     case 'costs': pageCosts(); break;
     case 'gids': pageGids(); break;
+    case 'agents': pageAgents(); break;
     case 'news': pageNews(r.arg || ''); break;
     case 'area': pageArea(r.key === 'guide' ? r.arg : ''); break;
     case 'contact': main.innerHTML = pageContact(); bindForm($('#contactForm')); if ('IntersectionObserver' in window) { const o = new IntersectionObserver(es => { if (es[0].isIntersecting) { o.disconnect(); initMap(); } }, { rootMargin: '300px' }); o.observe($('#mapEl')); } else initMap(); break;
@@ -2089,6 +2097,7 @@ function renderPage(r) {
   const names = { buy: 'nav_buy', sell: 'nav_sell', move: 'nav_move', area: 'nav_areas', news: 'nav_news', contact: 'nav_contact', favorites: 'fav_h', privacy: 'privacy' };
   if (key === 'costs') { S.pageTitle = `${COSTS.text(S.lang).h} · Grupo Soltura`; document.title = S.pageTitle; }
   else if (key === 'gids') { S.pageTitle = `${GIDS.text(S.lang).title} · Grupo Soltura`; document.title = S.pageTitle; }
+  else if (key === 'agents') { S.pageTitle = `${PARTNERS.text(S.lang).title} · Grupo Soltura`; document.title = S.pageTitle; }
   else if (!((key === 'area' || key === 'news') && r.arg)) { S.pageTitle = key === 'home' || !names[key] ? 'Grupo Soltura · ' + t('hero_title') : `${t(names[key])} · Grupo Soltura`; document.title = S.pageTitle; }
   track('page', null, null, { p: key });
   // link met anker naar een andere pagina (bv. calculator -> /nl/emigreren/#moveForm): na het opbouwen naar het anker

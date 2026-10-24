@@ -1226,3 +1226,69 @@ img,video,svg{max-width:100%}
 @keyframes navWave{0%,60%,100%{transform:rotate(0)}66%{transform:rotate(-14deg) scale(1.08)}74%{transform:rotate(10deg) scale(1.08)}82%{transform:rotate(0)}}
 @media (max-width:1180px){.nav a[data-route="gids"] em{display:none}}
 @media (prefers-reduced-motion:reduce){.nav a[data-route="gids"],.nav a[data-route="gids"] .nav-ava{animation:none}}
+
+/* ---------- Makelaarsportaal (24-10-2026): /en/agents/ · /nl/makelaars/ — opmaak zoals de woongids ---------- */
+.ag-feats{list-style:none;margin:0 0 22px;padding:0;display:grid;gap:12px;max-width:46ch}
+.ag-feats li{display:flex;gap:14px;align-items:flex-start;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:12px 14px}
+.ag-feats b{display:block;font:600 18px/1.2 var(--serif);color:#fff}
+.ag-feats span{font-size:15px;color:#D6DEE1;line-height:1.45}
+.ag-fi{flex:0 0 38px;height:38px;border-radius:12px;background:var(--lemon);display:grid;place-items:center}
+.ag-fi svg{width:20px;height:20px;fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ag-alt{display:flex;align-items:center;gap:8px;margin:0;font-size:14px;color:#C9D3D7}
+.ag-alt svg{width:18px;height:18px;fill:none;stroke:var(--lemon);stroke-width:1.8;flex:0 0 auto}
+.ag-panel .sol-head{flex-wrap:wrap}
+.ag-langs{margin-left:auto;display:flex;gap:2px;background:var(--salt);border-radius:999px;padding:3px}
+.ag-langs button{border:0;background:none;border-radius:999px;padding:4px 9px;font:700 12px var(--sans);color:var(--ink-2);cursor:pointer}
+.ag-langs button[aria-pressed="true"]{background:var(--sea);color:#fff}
+.ag-test{background:#FFF3C4;color:var(--ink);font:700 12.5px/1.3 var(--sans);padding:7px 16px;border-bottom:1px solid #EAD37A}
+.ag-panel .sol-log{min-height:320px}
+.sol-chips button.go{background:var(--sea);border-color:var(--sea);color:#fff}
+.sol-chips button.go:hover{background:#A82828;color:#fff}
+.sol-chips button.ghost{background:#fff;border-color:var(--mist);color:var(--ink-2)}
+.sol-msg.ag-keys{background:#E9F7EE;border:1px solid #BFE6CC}
+.ag-home{position:relative;align-self:stretch;animation:solIn .35s var(--ease)}
+.ag-home.off{opacity:.65;filter:grayscale(.6)}
+.ag-home .ag-ref{font-weight:800;color:var(--sea);letter-spacing:.04em}
+.ag-home b{font-size:14.5px;line-height:1.25}
+.ag-key{margin-left:auto;flex:0 0 34px;height:34px;border-radius:50%;background:var(--mist);display:grid;place-items:center}
+.ag-key svg{width:18px;height:18px;fill:none;stroke:var(--ink-2);stroke-width:2;stroke-linecap:round}
+.ag-key.on{background:#1E9E57}.ag-key.on svg{stroke:#fff}
+.ag-sum{align-self:stretch;background:#fff;border:1.5px solid var(--sea);border-radius:16px;padding:12px 14px;animation:solIn .35s var(--ease)}
+.ag-sum-h{display:flex;align-items:center;gap:8px;font:600 17px/1.2 var(--serif);margin-bottom:8px}
+.ag-sum-h svg{width:18px;height:18px;fill:none;stroke:var(--sea);stroke-width:2}
+.ag-sum dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0;font-size:14.5px}
+.ag-sum dt{color:var(--muted)}.ag-sum dd{margin:0;font-weight:600}
+.ag-done{overflow:visible}
+.ag-done-ic{font-size:34px;line-height:1;animation:fly 1.2s var(--ease)}
+.ag-rep{align-self:stretch;display:flex;flex-direction:column;gap:4px;background:var(--salt);border-left:4px solid var(--sea);border-radius:12px;padding:10px 14px;font-size:14.5px;animation:solIn .35s var(--ease)}
+.ag-rep small{color:var(--muted);font-size:12.5px}
+.ag-rep b{font:600 18px/1.2 var(--serif)}
+.ag-rep a{display:inline-flex;align-items:center;gap:8px;color:var(--ink);text-decoration:none;font-weight:600}
+.ag-rep a:hover{color:var(--sea)}
+.ag-rep a svg{width:16px;height:16px;fill:none;stroke:var(--sea);stroke-width:1.9}
+.ag-rep .ag-wa{align-self:flex-start;margin-top:4px;background:#1FA855;color:#fff;border-radius:999px;padding:5px 12px;font-size:13px}
+.ag-rep .ag-wa:hover{color:#fff;background:#178A45}
+.ag-note{display:flex;justify-content:flex-end}
+.ag-logout{border:0;background:none;color:var(--muted);font:600 12.5px var(--sans);text-decoration:underline;cursor:pointer;padding:0}
+/* e-mailvenster */
+body.ag-locked{overflow:hidden}
+.ag-gate{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:16px;background:rgba(38,48,54,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);animation:solIn .3s var(--ease)}
+.ag-gate[hidden]{display:none}
+.ag-gate-box{position:relative;width:min(100%,420px);background:#fff;border-radius:22px;padding:28px 26px 22px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.45);overflow:hidden}
+.ag-gate-box::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:var(--sun)}
+.ag-gate-av{position:relative;width:96px;height:96px;margin:4px auto 14px}
+.ag-gate-av .ava-img{width:96px;height:96px;border-radius:28px;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.ag-gate-lock{position:absolute;right:-8px;bottom:-6px;width:34px;height:34px;border-radius:50%;background:var(--sea);display:grid;place-items:center;box-shadow:0 0 0 3px #fff}
+.ag-gate-lock svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2}
+.ag-gate h2{margin:0 0 6px;font:600 24px/1.15 var(--serif);color:var(--ink)}
+.ag-gate p{margin:0 0 16px;color:var(--ink-2);font-size:15px}
+.ag-gate input{width:100%;border:2px solid var(--mist);border-radius:14px;padding:13px 14px;font-size:16px;color:var(--ink);margin-bottom:10px}
+.ag-gate input:focus{border-color:var(--sea);outline:none}
+.ag-gate .btn{width:100%;justify-content:center}
+.ag-gate .btn:disabled{opacity:.7;cursor:default}
+.ag-gate-msg{min-height:1.2em;margin:12px 0 0 !important;font-weight:600;font-size:14px !important}
+.ag-gate-msg.err{color:var(--red-bright) !important}
+.ag-gate-msg.out{color:var(--ink) !important;background:var(--salina-soft);border-radius:12px;padding:10px 12px}
+.ag-gate-msg small{display:block;font-weight:500;color:var(--ink-2);margin-top:4px}
+@media (max-width:900px){.ag-feats{max-width:none}.ag-hero .gd-ava{display:none}}
+@media (prefers-reduced-motion:reduce){.ag-home,.ag-sum,.ag-rep,.ag-done-ic,.ag-gate{animation:none}}
