@@ -1109,8 +1109,9 @@ async function openSheet(ref) {
         <div class="sh-price">${p.price_from ? `<small style="font-size:16px;font-weight:500">${t('from')}</small>` : ''}${p.price != null ? eur(p.price) : ''}${reduced(p) ? `<s>${eur(p.previous_price)}</s>` : ''}</div>
         <div class="lv-prop" id="lvProp" hidden></div>
         <div class="quick-acts">
-          <button type="button" data-go="sendBox">${ICON.doc}<span>${broOk(p) ? t('qa_send_bro') : t('qa_send_info')}</span></button>
+          ${broOk(p) ? `<button type="button" data-go="sendBox">${ICON.doc}<span>${t('qa_send_bro')}</span></button>` : ''}
           <button type="button" data-go="viewBtn">${ICON.cal}<span>${isNotify(p) ? t('notify_btn') : t('qa_view')}</span></button>
+          ${broOk(p) ? '' : `<button type="button" data-go="chatBox">${ICON.chat}<span>${t('qa_ask')}</span></button>`}
         </div>
         <div class="keyfacts" id="keyfacts"></div>
         <div id="marketBox"></div>
@@ -1139,7 +1140,7 @@ async function openSheet(ref) {
         <div class="box social-box" id="socialBox"></div>
       </aside>
     </div>
-    <div class="sh-bar" id="shBar"><a class="btn wa" href="${waHref}" target="_blank" rel="noopener" data-track="whatsapp">${ICON.wa}<span>WhatsApp</span></a><button class="btn primary" type="button" id="barSend">${ICON.doc}<span>${broOk(p) ? t('bar_bro') : t('bar_info')}</span></button></div>
+    <div class="sh-bar" id="shBar"><a class="btn wa" href="${waHref}" target="_blank" rel="noopener" data-track="whatsapp">${ICON.wa}<span>WhatsApp</span></a><button class="btn primary" type="button" id="barSend">${broOk(p) ? `${ICON.doc}<span>${t('bar_bro')}</span>` : `${ICON.cal}<span>${isNotify(p) ? t('bar_notify') : t('bar_view')}</span>`}</button></div>
     <div class="sh-area" id="shArea"></div>
     <div class="sh-more" id="shMore"></div>
     <div class="sh-next"><button class="btn ghost" type="button" data-step="-1">← ${t('prev_home')}</button><button class="btn primary" type="button" data-step="1">${t('next_home')} →</button></div>`;
@@ -1201,101 +1202,57 @@ function bindMortgage(p) {
   $$('[data-ltv]', box).forEach(b => b.addEventListener('click', () => { $('#mAmt').value = num(Math.round(p.price * b.dataset.ltv / 100 / 1000) * 1000); onInput(); }));
   calc();
 }
-// ---------- Verzendblok "Wat mogen we je sturen over <ref>?" (24-10-2026) ----------
-// Eén formulier voor brochure (PDF), persoonlijk kostenoverzicht en koopgids (PDF). Elke aangevinkte optie gaat als eigen
-// aanvraag naar web-contact (kind brochure / costs / guide), na elkaar, zodat de bestaande ketens ongewijzigd blijven:
-// brochure -> LeadProcessor-v2 pdfbrochure, kosten -> request voor de makelaar, gids -> PurchaseInfoV2.
-// nexus2_submit_form koppelt alles aan één contact (zelfde e-mail). Brochure alleen bij broOk (beleid nieuwbouw 22-10-2026).
+// ---------- Brochureblok (24-10-2026) ----------
+// Bovenaan de rechterkolom, alleen bij broOk (beschikbaar, geen nieuwbouw; beleid 22-10-2026). kind brochure -> intake ->
+// LeadProcessor-v2 pdfbrochure -> PDF als bijlage. Koopgids en kostenoverzicht staan NIET meer op de woning (Rick, 24-10-2026):
+// de gids heeft zijn eigen pagina, en een persoonlijk kostenoverzicht bestaat nog niet (opvolging: memo in memos).
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i;
 const nameCase = v => String(v || '').replace(/[^\p{L}\p{M}' .-]/gu, ' ').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean).map(w => /^(van|de|der|den|het|ten|ter|von|da|del|la|le)$/i.test(w) ? w.toLowerCase() : w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-// berichten aan kantoor: Nederlands op de NL-site, anders Engels (Zweedse site communiceert Engels)
-const officeNl = () => S.lang === 'nl';
-function costMsg(ref, a) {
-  const nl = officeNl(), yn = v => v === 'yes' ? (nl ? 'ja' : 'yes') : v === 'no' ? (nl ? 'nee' : 'no') : (nl ? 'niet ingevuld' : 'not answered');
-  return nl ? `Ik wil graag een persoonlijk kostenoverzicht voor ${ref}.\nNIE nog nodig: ${yn(a.nie)}\nSpaanse hypotheek: ${yn(a.mort)}\nTekenen via volmacht: ${yn(a.poa)}`
-    : `I would like a personal cost overview for ${ref}.\nStill need an NIE: ${yn(a.nie)}\nSpanish mortgage: ${yn(a.mort)}\nSigning via power of attorney: ${yn(a.poa)}`;
-}
 function sendHtml(p) {
-  const g = ls.get('guide', null), gSent = !!(g && g.email);
-  const opt = (id, on, h, sub) => `<label class="sb-opt"><input type="checkbox" name="${id}"${on ? ' checked' : ''}><span class="sb-box" aria-hidden="true">${ICON.check}</span><span class="sb-txt"><b>${h}</b><small>${sub}</small></span></label>`;
-  const q = k => `<div class="sb-q"><span>${t('sb_q_' + k)}</span><div class="sb-seg" data-q="${k}" role="group" aria-label="${esc(t('sb_q_' + k))}"><button type="button" data-v="yes" aria-pressed="false">${t('sb_yes')}</button><button type="button" data-v="no" aria-pressed="false">${t('sb_no')}</button></div></div>`;
+  if (!broOk(p)) return '';
   return `<div class="box sendbox" id="sendBox">
     <h3>${t('sb_h', esc(p.reference))}</h3><p class="sb-sub">${t('sb_sub')}</p>
     <form class="form" id="sendForm" novalidate>
       <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <div class="sb-opts">
-        ${broOk(p) ? opt('bro', true, t('sb_bro_h'), t('sb_bro_s')) : ''}
-        ${opt('costs', true, t('sb_cost_h'), t('sb_cost_s'))}
-        <div class="sb-qs" id="sbQs">${q('nie')}${q('mort')}${q('poa')}</div>
-        ${opt('guide', !gSent, t('sb_guide_h'), gSent ? t('sb_guide_sent') : t('sb_guide_s'))}
-      </div>
       <div class="row2"><input name="first" placeholder="${t('bro_first')}" autocomplete="given-name" aria-label="${t('bro_first')}"><input name="last" placeholder="${t('bro_last')}" autocomplete="family-name" aria-label="${t('bro_last')}"></div>
       <input name="email" type="email" placeholder="${t('form_email')}" autocomplete="email" aria-label="${t('form_email')}">
-      <input name="phone" type="tel" placeholder="${t('sb_phone')}" autocomplete="tel" aria-label="${t('sb_phone')}">
       <button class="btn primary" type="submit">${t('sb_send')}</button><p class="ok" aria-live="polite"></p>
       <p class="sb-priv">${t('sb_priv', L('privacy'))}</p>
     </form>
     <div class="bro-done sb-done" id="sendDone" hidden role="status"></div>
   </div>`;
 }
-// open het blok (snelknop, balk onderin, kostenblok, Sola-chip); want = optie die zeker aan moet staan
-function openSend(p, want, via) {
+function openSend(p, via) {
   const box = $('#sendBox'), f = $('#sendForm'); if (!box) return;
-  if (want && f) { const c = $(`input[name=${want}]`, f); if (c && !c.checked) { c.checked = true; c.dispatchEvent(new Event('change')); } }
   box.scrollIntoView({ behavior: 'smooth', block: 'center' });
   box.classList.add('flash'); setTimeout(() => box.classList.remove('flash'), 1400);
   if (f && !f.hidden) setTimeout(() => { const i = $$('input[name=first],input[name=last],input[name=email]', f).find(x => !x.value); if (i) i.focus({ preventScroll: true }); }, 450);
-  track('send_open', p.id, null, { via: via || 'button' });
+  track('brochure_open', p.id, null, { via: via || 'button' });
 }
 function bindSend(p) {
   const f = $('#sendForm'); if (!f) return;
-  const qs = $('#sbQs'), costs = $('input[name=costs]', f), ans = {};
-  const syncQs = () => { qs.hidden = !costs.checked; };
-  costs.addEventListener('change', syncQs); syncQs();
-  $$('.sb-seg', f).forEach(seg => seg.addEventListener('click', e => {
-    const b = e.target.closest('button'); if (!b) return;
-    const k = seg.dataset.q; ans[k] = ans[k] === b.dataset.v ? null : b.dataset.v;
-    $$('button', seg).forEach(x => { const on = x.dataset.v === ans[k]; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
-  }));
   // eerder ingevulde gegevens (dit apparaat) alvast invullen
   const me = ls.get('me', null) || ls.get('guide', null);
-  if (me) [['first', me.first], ['last', me.last], ['email', me.email], ['phone', me.phone]].forEach(([k, v]) => { if (v) $(`input[name=${k}]`, f).value = v; });
+  if (me) [['first', me.first], ['last', me.last], ['email', me.email]].forEach(([k, v]) => { if (v) $(`input[name=${k}]`, f).value = v; });
   let opened = false;
-  f.addEventListener('focusin', () => { if (!opened) { opened = true; track('send_open', p.id, null, { via: 'form' }); } });
+  f.addEventListener('focusin', () => { if (!opened) { opened = true; track('brochure_open', p.id, null, { via: 'form' }); } });
   f.addEventListener('submit', async e => {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(f)), out = $('.ok', f), err = k => { out.style.color = 'var(--salina)'; out.textContent = t(k); };
     if (d.website) return;
-    const want = ['bro', 'costs', 'guide'].filter(k => { const c = $(`input[name=${k}]`, f); return c && c.checked; });
-    const first = nameCase(d.first), last = nameCase(d.last), email = String(d.email || '').trim().toLowerCase().replace(/\s+/g, ''), phone = String(d.phone || '').trim();
-    if (!want.length) return err('sb_err_none');
+    const first = nameCase(d.first), last = nameCase(d.last), email = String(d.email || '').trim().toLowerCase().replace(/\s+/g, '');
     if (!first || !last || !EMAIL_RE.test(email)) return err('sb_err');
     const btn = $('button[type=submit]', f); btn.disabled = true; btn.textContent = t('sb_busy'); out.textContent = '';
-    const base = { website: '', first, last, first_name: first, last_name: last, name: `${first} ${last}`, email, phone };
-    const done = [], failed = [];
-    for (const k of want) {
-      let body;
-      if (k === 'bro') body = { ...formMeta('sendForm', p, 'web-property-brochure'), ...base, kind: 'brochure',
-        message: officeNl() ? `Graag ontvang ik de PDF-brochure van ${p.reference}.` : `Please send me the PDF brochure of ${p.reference}.`, fields: { channel: 'sendbox' } };
-      else if (k === 'costs') body = { ...formMeta('sendForm', p, 'web-property-costs'), ...base, kind: 'costs', message: costMsg(p.reference, ans),
-        fields: { nie: ans.nie || null, mortgage: ans.mort || null, power_of_attorney: ans.poa || null, channel: 'sendbox' } };
-      else body = { ...formMeta('sendForm', p, 'web-property-buying-guide'), ...base, kind: 'guide', site_lang: S.lang,
-        message: officeNl() ? `Koopgids aangevraagd via woning ${p.reference} (verzendblok).` : `Buying guide requested via property ${p.reference} (send box).`,
-        fields: { guide_lang: S.lang, chat_lang: S.lang, channel: 'sendbox' } };
-      const r = await fn('web-contact', body).catch(() => ({ ok: false }));
-      (r && r.ok ? done : failed).push(k);
-    }
+    // bericht aan kantoor: Nederlands op de NL-site, anders Engels (Zweedse site communiceert Engels)
+    const r = await fn('web-contact', { ...formMeta('sendForm', p, 'web-property-brochure'), website: '', kind: 'brochure', first, last, first_name: first, last_name: last, name: `${first} ${last}`, email,
+      message: S.lang === 'nl' ? `Graag ontvang ik de PDF-brochure van ${p.reference}.` : `Please send me the PDF brochure of ${p.reference}.`, fields: { channel: 'sendbox' } }).catch(() => ({ ok: false }));
     btn.disabled = false; btn.textContent = t('sb_send');
-    if (!done.length) return err('form_err');
-    ls.set('me', { first, last, email, phone });
-    done.forEach(k => k === 'guide'
-      ? track('guide_request', p.id, null, { via: 'sendbox', glang: S.lang })
-      : track('contact_sent', p.id, null, { kind: k === 'bro' ? 'brochure' : 'costs', via: 'sendbox' }));
-    if (done.includes('guide')) ls.set('guide', { first, last, email, phone, glang: S.lang, clang: S.lang, at: Date.now() });
+    if (!r || !r.ok) return err('form_err');
+    ls.set('me', { ...(ls.get('me', null) || {}), first, last, email });
+    track('contact_sent', p.id, null, { kind: 'brochure', via: 'sendbox' });
     f.hidden = true;
     const box = $('#sendDone');
-    box.innerHTML = `<div class="bro-ico">${ICON.check}</div><div><b>${t('sb_ok_h', esc(first))}</b><ul class="sb-list">${done.map(k => `<li>${t('sb_ok_' + k, esc(p.reference), esc(email))}</li>`).join('')}</ul>`
-      + (failed.length ? `<p class="sb-fail">${t('sb_fail', failed.map(k => t('sb_' + (k === 'bro' ? 'bro' : k === 'costs' ? 'cost' : 'guide') + '_h')).join(', '))}</p>` : '') + `</div>`;
+    box.innerHTML = `<div class="bro-ico">${ICON.check}</div><div><b>${t('bro_ok_h', esc(first))}</b><p>${t('bro_ok', esc(p.reference), esc(email))}</p></div>`;
     box.hidden = false;
     const bar = $('#barSend'); if (bar) bar.hidden = true;
     $$('.sugg-send').forEach(x => x.remove());
@@ -1356,10 +1313,11 @@ function bindSheet(p, waHref) {
   $$('.quick-acts [data-go]', inner).forEach(b => b.addEventListener('click', () => {
     const id = b.dataset.go;
     track('quick_action', p.id, null, { id });
-    if (id === 'sendBox') return openSend(p, null, 'quick');
+    if (id === 'sendBox') return openSend(p, 'quick');
     const el = $('#' + id); if (!el) return;
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     if (id === 'viewBtn') setTimeout(() => { const f = openViewForm(); if (f) $('input[name=name]', f).focus({ preventScroll: true }); }, 400);
+    if (id === 'chatBox') setTimeout(() => $('#chatIn').focus({ preventScroll: true }), 500);
   }));
   // chat
   const hist = [];
@@ -1381,12 +1339,18 @@ function bindSheet(p, waHref) {
     $('#chatSugg').innerHTML = (r.suggestions || []).slice(0, 2).map(s => `<button type="button">${esc(s)}</button>`).join('');
     if (!$('#sendForm') || !$('#sendForm').hidden) sendChip();
   };
-  const sendChip = () => $('#chatSugg').insertAdjacentHTML('beforeend', `<button type="button" class="sugg-send" data-send>${ICON.doc}${esc(broOk(p) ? t('sb_chip_bro') : t('sb_chip_info'))}</button>`);
+  const sendChip = () => broOk(p) && $('#chatSugg').insertAdjacentHTML('beforeend', `<button type="button" class="sugg-send" data-send>${ICON.doc}${esc(t('sb_chip_bro'))}</button>`);
   sendChip();
-  $('#chatSugg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.send !== undefined) return openSend(p, null, 'sola'); ask(b.textContent); });
+  $('#chatSugg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.send !== undefined) return openSend(p, 'sola'); ask(b.textContent); });
   // mobiel: vaste balk onderin (WhatsApp + brochure); weg zolang het verzendblok zelf in beeld is
-  if ('IntersectionObserver' in window) new IntersectionObserver(es => { $('#shBar').classList.toggle('off', es[0].isIntersecting); }, { root: $('#sheetInner'), threshold: .25 }).observe($('#sendBox'));
-  $('#barSend').addEventListener('click', () => openSend(p, null, 'bar'));
+  const barTarget = $('#sendBox') || $('#viewBtn');
+  if ('IntersectionObserver' in window && barTarget) new IntersectionObserver(es => { $('#shBar').classList.toggle('off', es[0].isIntersecting); }, { root: $('#sheetInner'), threshold: .25 }).observe(barTarget);
+  $('#barSend').addEventListener('click', () => {
+    if (broOk(p)) return openSend(p, 'bar');
+    $('#viewBtn').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => { const f = openViewForm(); if (f) $('input[name=name]', f).focus({ preventScroll: true }); }, 400);
+    track('quick_action', p.id, null, { id: 'viewBtn', via: 'bar' });
+  });
   $('#chatForm').addEventListener('submit', e => { e.preventDefault(); const v = $('#chatIn').value; $('#chatIn').value = ''; ask(v); });
 }
 function fillFacts(p) {
@@ -1458,13 +1422,8 @@ function fillDetail(d) {
     $('#costBox').innerHTML = `<div class="costs"><h3>${t('costs_h')}</h3><table>${rows.map(r => `<tr><td>${r[0]}</td><td>${eur(r[1])}</td></tr>`).join('')}
       <tr class="total"><td>${allIn ? t('costs_total') : t('costs_total_ex')}</td><td>${eur(total)}</td></tr></table>
       <div class="allin"><b>${t('allin_h')}</b><p>${t('allin_p')}</p>
-        <ul class="allin-factors">${t('allin_factors').map(f => `<li>${f}</li>`).join('')}</ul>
-        <p>${t('allin_ask')}</p>
-        <div class="allin-cta"><button type="button" class="btn primary" id="costAsk">${t('allin_btn')}</button>
-        <a class="btn wa" href="https://wa.me/${agentOf(d).tel.replace('+', '')}?text=${encodeURIComponent(t('allin_wa', d.reference))}" target="_blank" rel="noopener" data-track="whatsapp_costs">WhatsApp</a></div></div>
+        <div class="allin-cta"><a class="btn wa" href="https://wa.me/${agentOf(d).tel.replace('+', '')}?text=${encodeURIComponent(t('allin_wa_q', d.reference))}" target="_blank" rel="noopener" data-track="whatsapp_costs">${t('allin_wa_btn')}</a></div></div>
       <p class="note">${t('costs_note')}</p></div>`;
-    // kostenoverzicht loopt via het verzendblok (vragen NIE / hypotheek / volmacht als knoppen, geen vrije tekst meer)
-    $('#costAsk').addEventListener('click', () => { const p = S.byId.get(d.id) || d; openSend(p, 'costs', 'costs'); track('costs_ask', d.id); });
   }
 }
 function gallery(urls) {
