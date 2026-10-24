@@ -55,7 +55,7 @@ function rid() { return Math.random().toString(36).slice(2) + Date.now().toStrin
 // Sinds 19-10-2026 echte paden (/nl/woning/rh550-.../); page_view gaat met het echte pad mee (send_page_view: false, eigen page_view per route).
 const GTAG = 'GT-T5MHQ45';
 const CONSENT_V = 3; // v2: Google Analytics genoemd; v3 (18-10-2026): aparte keuze marketing (Meta Pixel) -> eerdere keuzes opnieuw vragen
-const META_PIXEL = '1362466522519143';
+const META_PIXEL = '1136331222182037'; // dataset 'Soltura Website' (24-10-2026); was per abuis het app-ID 1362466522519143
 window.dataLayer = window.dataLayer || [];
 function gtag() { window.dataLayer.push(arguments); }
 const consentCurrent = () => ls.get('consent_v', 0) >= CONSENT_V;
