@@ -33,7 +33,8 @@ const R0 = R.parse(location.pathname);
 const S = {
   lang: (R0 && R0.lang) || ls.get('lang', browserLang()),
   all: [], byRef: new Map(), byId: new Map(), byWp: new Map(), // byId: core-uuid; byWp: oud WP-id (alleen voor bewaarde favorieten van voor 18-10)
-  f: blankFilters(), sort: 'foryou', type: 'all',
+  // ?type=resale | ?type=new (bio-links, 24-10-2026): aanbod direct gefilterd openen
+  f: blankFilters(), sort: 'foryou', type: (() => { try { const v = new URLSearchParams(location.search).get('type'); return v === 'resale' || v === 'new' ? v : 'all'; } catch { return 'all'; } })(),
   shown: PAGE, order: [],
   favs: new Set(ls.get('favs', [])),
   viewed: ls.get('viewed', []), // [property uuid] newest first
