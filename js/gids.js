@@ -308,7 +308,7 @@
     function scroll() { log.scrollTop = log.scrollHeight; if (!d.compact) { var r = log.getBoundingClientRect(); if (r.bottom > innerHeight) log.scrollIntoView({ block: 'end', behavior: 'smooth' }); } }
     function say(text, cls) {
       return new Promise(function (res) {
-        var ty = document.createElement('div'); ty.className = 'sol-msg a typing'; ty.innerHTML = '<span></span><span></span><span></span>';
+        var ty = document.createElement('div'); ty.className = 'sol-msg a ai-think'; ty.innerHTML = '<span class="ab-av">' + avatar(34) + '</span><div class="typing-dots"><span></span><span></span><span></span></div>';
         log.appendChild(ty); scroll();
         setTimeout(function () { ty.remove(); var m = document.createElement('div'); m.className = 'sol-msg a' + (cls ? ' ' + cls : ''); if (typeof text === 'string') m.textContent = text; else m.appendChild(text); log.appendChild(m); scroll(); res(m); }, Math.min(1100, 380 + String(text.textContent || text).length * 9));
       });
@@ -396,7 +396,7 @@
     function chats(q) {
       q = String(q || '').trim(); if (!q || st.busy) return;
       st.busy = true; chips.innerHTML = ''; me(q); input.value = '';
-      var ty = document.createElement('div'); ty.className = 'sol-msg a typing'; ty.innerHTML = '<span></span><span></span><span></span>'; log.appendChild(ty); scroll();
+      var ty = document.createElement('div'); ty.className = 'sol-msg a ai-think'; ty.innerHTML = '<span class="ab-av">' + avatar(34) + '</span><div class="typing-dots"><span></span><span></span><span></span></div>'; log.appendChild(ty); scroll();
       if (d.track) d.track('assistant', null, null, { via: 'guide' });
       d.fn('web-assistant', { mode: 'guide', lang: st.clang, query: q, name: st.first, history: hist }).catch(function () { return {}; }).then(function (r) {
         st.busy = false; ty.remove();

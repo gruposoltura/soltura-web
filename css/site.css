@@ -347,6 +347,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 .msg.a{align-self:flex-start;background:var(--salt);border-bottom-left-radius:4px}
 .msg.a.intro{background:var(--lemon-soft)}
 .msg.a.typing{color:var(--muted)}
+.msg.a.ai-think,.sol-msg.a.ai-think{display:flex;align-items:center;gap:10px;background:#FFF8E8;border:1.5px solid var(--sea);border-radius:18px 18px 18px 6px;padding:8px 16px 8px 8px;box-shadow:0 8px 20px rgba(0,0,0,.08)}
+.msg.a.ai-think .typing-dots,.sol-msg.a.ai-think .typing-dots{padding:0;gap:5px}
 .chat form{display:flex;gap:6px}
 .chat input{flex:1;border:2px solid var(--mist);border-radius:12px;padding:12px;min-width:0;font-size:16px}
 .chat input:focus{border-color:var(--sea);outline:none}

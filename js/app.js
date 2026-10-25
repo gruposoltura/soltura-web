@@ -1352,7 +1352,7 @@ function bindSheet(p, waHref) {
   const ask = async q => {
     q = q.trim(); if (!q) return;
     $('#chatSugg').innerHTML = '';
-    log.insertAdjacentHTML('beforeend', `<div class="msg u">${esc(q)}</div><div class="msg a typing">…</div>`);
+    log.insertAdjacentHTML('beforeend', `<div class="msg u">${esc(q)}</div><div class="msg a typing ai-think"><span class="ab-av">${GIDS.avatar(34)}</span><div class="typing-dots"><span></span><span></span><span></span></div></div>`);
     log.scrollTop = log.scrollHeight;
     track('assistant', p.id);
     const r = await fn('web-assistant', { mode: 'ask', lang: S.lang, id: p.id, reference: p.reference, wp_id: p.wp_id || null, query: q, history: hist }).catch(() => ({}));

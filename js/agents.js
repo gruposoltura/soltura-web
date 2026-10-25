@@ -215,7 +215,7 @@
     function scroll() { log.scrollTop = log.scrollHeight; }
     function say(text, cls) {
       return new Promise(function (res) {
-        var ty = document.createElement('div'); ty.className = 'sol-msg a typing'; ty.innerHTML = '<span></span><span></span><span></span>';
+        var ty = document.createElement('div'); ty.className = 'sol-msg a ai-think'; ty.innerHTML = '<span class="ab-av">' + avatar(34) + '</span><div class="typing-dots"><span></span><span></span><span></span></div>';
         log.appendChild(ty); scroll();
         var len = typeof text === 'string' ? text.length : 60;
         setTimeout(function () { ty.remove(); var m = document.createElement('div'); m.className = 'sol-msg a' + (cls ? ' ' + cls : ''); if (typeof text === 'string') m.textContent = text; else m.appendChild(text); log.appendChild(m); scroll(); res(m); }, Math.min(1000, 360 + len * 8));
