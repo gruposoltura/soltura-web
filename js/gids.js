@@ -71,6 +71,7 @@
       p_email: 'Je e-mailadres heb ik al. Nu nog je mobiele nummer, met landcode.',
       p_fake: 'Dat lijkt een voorbeeldnummer. Wil je je echte mobiele nummer invullen?',
       p_long: 'Dat nummer is te lang voor een mobiel nummer. Kijk je het even na?',
+      e_dom: function (x) { return 'Het domein ' + x + ' bestaat niet of ontvangt geen mail, dus daar komt de gids niet aan. Kijk je het adres even na?'; },
       pend: function (q) { return 'Dan je vraag van net: "' + q + '"'; }, p_q: 'Vraag tijdens het intakegesprek',
       typo: function (e) { return 'Bedoel je ' + e + '?'; }, yes: 'Ja, klopt', no: 'Nee, aanpassen',
       ask_phone: 'Top. En je mobiele nummer? Dan kan een collega je ook even appen als je vragen hebt. Graag met landcode.',
@@ -152,6 +153,7 @@
       p_email: 'I already have your email address. Now just your mobile number, with country code.',
       p_fake: 'That looks like a sample number. Could you enter your real mobile number?',
       p_long: 'That number is too long for a mobile number. Could you check it?',
+      e_dom: function (x) { return 'The domain ' + x + ' doesn\'t exist or doesn\'t receive email, so the guide won\'t reach you there. Could you check the address?'; },
       pend: function (q) { return 'Now your question from earlier: "' + q + '"'; }, p_q: 'Question during intake',
       typo: function (e) { return 'Did you mean ' + e + '?'; }, yes: 'Yes, that\'s it', no: 'No, let me fix it',
       ask_phone: 'Great. And your mobile number? Then a colleague can also message you if you have questions. Please include the country code.',
@@ -233,6 +235,7 @@
       p_email: 'Din e-postadress har jag redan. Nu bara ditt mobilnummer, med landsnummer.',
       p_fake: 'Det ser ut som ett exempelnummer. Kan du skriva ditt riktiga mobilnummer?',
       p_long: 'Numret är för långt för ett mobilnummer. Kan du kontrollera det?',
+      e_dom: function (x) { return 'Domänen ' + x + ' finns inte eller tar inte emot e-post, så guiden når dig inte där. Kan du kontrollera adressen?'; },
       pend: function (q) { return 'Nu din fråga från tidigare: "' + q + '"'; }, p_q: 'Fråga under samtalet',
       typo: function (e) { return 'Menar du ' + e + '?'; }, yes: 'Ja, det stämmer', no: 'Nej, ändra',
       ask_phone: 'Toppen. Och ditt mobilnummer? Då kan en kollega också skriva till dig om du har frågor. Gärna med landsnummer.',
@@ -410,6 +413,32 @@
     var a = em.split('@'), dom = a[1], fix = TYPO[dom];
     if (!fix) { var tld = dom.split('.').pop(); if (TLD_FIX[tld]) fix = dom.slice(0, -tld.length) + TLD_FIX[tld]; }
     return fix ? a[0] + '@' + fix : '';
+  }
+  // bestaat het domein en ontvangt het mail? DNS-over-HTTPS (Cloudflare, terugval Google). 'none' = zeker niet; bij twijfel of storing 'ok'
+  var MAIL_OK = /^(gmail\.com|googlemail\.com|(hotmail|outlook|live|msn|yahoo|gmx)\.[a-z.]+|icloud\.com|me\.com|mac\.com|proton(mail)?\.(me|com)|ziggo\.nl|kpnmail\.nl|planet\.nl|xs4all\.nl|home\.nl|telenet\.be|skynet\.be|telia\.com|spray\.se|bredband\.net|telefonica\.net|gruposoltura\.com)$/;
+  var dnsCache = {};
+  function dnsQ(name, type) {
+    var urls = ['https://cloudflare-dns.com/dns-query?name=' + encodeURIComponent(name) + '&type=' + type, 'https://dns.google/resolve?name=' + encodeURIComponent(name) + '&type=' + type];
+    function one(i) {
+      if (i >= urls.length) return Promise.resolve(null);
+      var ctl = window.AbortController ? new AbortController() : null, tm = setTimeout(function () { if (ctl) ctl.abort(); }, 2500);
+      return fetch(urls[i], { headers: { accept: 'application/dns-json' }, signal: ctl ? ctl.signal : undefined })
+        .then(function (r) { clearTimeout(tm); return r.ok ? r.json() : null; }).catch(function () { clearTimeout(tm); return null; })
+        .then(function (j) { return j && typeof j.Status === 'number' ? j : one(i + 1); });
+    }
+    return one(0);
+  }
+  function mailCheck(dom) {
+    if (MAIL_OK.test(dom)) return Promise.resolve('ok');
+    if (dnsCache[dom]) return Promise.resolve(dnsCache[dom]);
+    return dnsQ(dom, 'MX').then(function (mx) {
+      if (!mx) return 'ok';
+      if (mx.Status === 3) return 'none'; // NXDOMAIN: domein bestaat niet
+      if (mx.Status !== 0) return 'ok';
+      var recs = (mx.Answer || []).filter(function (a) { return a.type === 15; });
+      if (recs.length) return recs.every(function (a) { return /^\s*0\s+\.?\s*$/.test(a.data); }) ? 'none' : 'ok'; // null-MX = weigert mail
+      return dnsQ(dom, 'A').then(function (a) { return !a || a.Status !== 0 || (a.Answer || []).some(function (x) { return x.type === 1; }) ? 'ok' : 'none'; });
+    }).then(function (r) { dnsCache[dom] = r; return r; });
   }
   function fakePhone(digits) { return /(\d)\1{6,}/.test(digits) || /12345678|23456789|87654321|98765432/.test(digits); }
 
@@ -609,8 +638,16 @@
         var em = v.toLowerCase().replace(/\s+/g, '').replace(/[.,;]+$/, '');
         if (!EMAIL.test(em)) return bounce(v, 'email', t.bad_email, em);
         if (fakeEmail(em)) return bounce(v, 'email', t.e_fake);
-        me(em, 'email');
         var sug = emailFix(em);
+        if (!sug) {
+          input.disabled = true;
+          return mailCheck(em.split('@')[1]).then(function (res) {
+            input.disabled = false;
+            if (res === 'none') return bounce(v, 'email', t.e_dom(em.split('@')[1]), em);
+            me(em, 'email'); st.email = em; return askPhone();
+          });
+        }
+        me(em, 'email');
         if (sug) {
           form.hidden = true;
           return say(t.typo(sug)).then(function () { setChips([['y', t.yes], ['n', t.no]], function (c, lbl) { chips.innerHTML = ''; me(lbl); if (c === 'y') { st.email = sug; askPhone(); } else { ask('email', t.ph_email, 'email', 'email'); input.value = em; } }); });
