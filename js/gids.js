@@ -50,6 +50,28 @@
       ask_last: function (f) { return 'Leuk je te ontmoeten, ' + f + '. En je achternaam?'; },
       ask_email: function (f) { return 'Fijn je te ontmoeten, ' + f + '. Naar welk e-mailadres mag ik de gids sturen?'; },
       bad_email: 'Dat e-mailadres lijkt niet helemaal te kloppen. Kijk je het even na?',
+      // invoercontrole
+      nq: 'Dat klinkt als een vraag, niet als een naam.',
+      hold: 'Goede vraag trouwens, die bewaar ik: ik beantwoord hem zodra je gids onderweg is.',
+      hold_c: 'Goede vraag trouwens, die geef ik door aan een collega zodat je er antwoord op krijgt.',
+      again_name: 'Eerst even: hoe heet je? Voor- en achternaam is genoeg.', again_last: 'Eerst even je achternaam?',
+      again_email: 'Eerst je e-mailadres, anders kan de gids je niet bereiken.', again_phone: 'Eerst nog je mobiele nummer, met landcode.',
+      n_greet: 'Hoi! Hoe heet je? Voor- en achternaam is genoeg.',
+      n_email: 'Dat is je e-mailadres, dank je, dat noteer ik alvast. En hoe heet je?',
+      n_phone: 'Dat lijkt je telefoonnummer, dat bewaar ik voor straks. Maar hoe heet je?',
+      n_digits: 'Cijfers kom ik in een naam eigenlijk nooit tegen. Wat is je voor- en achternaam?',
+      n_long: 'Dat is meer een zin dan een naam. Alleen je voor- en achternaam is genoeg.',
+      n_junk: 'Hmm, dat lijkt me geen naam. Hoe mag ik je noemen? Voor- en achternaam is genoeg.',
+      n_fake: 'Ik heb je echte naam nodig, dan staat de gids ook echt op jouw naam. Hoe heet je?',
+      n_ex: 'Bijvoorbeeld: Anna de Vries.', l_bad: 'Dat lijkt me geen achternaam. Wat is je achternaam?',
+      e_none: 'Daar staat nog geen e-mailadres in. Ik heb iets nodig als naam@voorbeeld.nl.',
+      e_phone: 'Dat lijkt je telefoonnummer, daar vraag ik zo naar. Eerst je e-mailadres, iets als naam@voorbeeld.nl.',
+      e_fake: 'Dat lijkt een test- of wegwerpadres, en daar komt de gids niet aan. Op welk adres lees je je mail echt?',
+      p_letters: 'Dat lijkt me geen telefoonnummer. Alleen cijfers graag, met landcode, bijvoorbeeld +31 6 12345678.',
+      p_email: 'Je e-mailadres heb ik al. Nu nog je mobiele nummer, met landcode.',
+      p_fake: 'Dat lijkt een voorbeeldnummer. Wil je je echte mobiele nummer invullen?',
+      p_long: 'Dat nummer is te lang voor een mobiel nummer. Kijk je het even na?',
+      pend: function (q) { return 'Dan je vraag van net: "' + q + '"'; }, p_q: 'Vraag tijdens het intakegesprek',
       typo: function (e) { return 'Bedoel je ' + e + '?'; }, yes: 'Ja, klopt', no: 'Nee, aanpassen',
       ask_phone: 'Top. En je mobiele nummer? Dan kan een collega je ook even appen als je vragen hebt. Graag met landcode.',
       bad_phone: 'Dat nummer lijkt te kort. Wil je het met landcode invullen, bijvoorbeeld +31 6 12345678?',
@@ -110,6 +132,27 @@
       ask_last: function (f) { return 'Nice to meet you, ' + f + '. And your last name?'; },
       ask_email: function (f) { return 'Nice to meet you, ' + f + '. Which email address shall I send the guide to?'; },
       bad_email: 'That email address doesn\'t look quite right. Could you check it?',
+      nq: 'That sounds like a question rather than a name.',
+      hold: 'Good question though, I\'ll keep it: I\'ll answer it as soon as your guide is on its way.',
+      hold_c: 'Good question though, I\'ll pass it on to a colleague so you get an answer.',
+      again_name: 'First things first: what\'s your name? First and last name is fine.', again_last: 'First, your last name?',
+      again_email: 'First your email address, otherwise the guide can\'t reach you.', again_phone: 'First your mobile number, with country code.',
+      n_greet: 'Hi! What\'s your name? First and last name is fine.',
+      n_email: 'That\'s your email address, thanks, I\'ve noted it. And what\'s your name?',
+      n_phone: 'That looks like your phone number, I\'ll keep it for later. But what\'s your name?',
+      n_digits: 'I rarely see numbers in a name. What\'s your first and last name?',
+      n_long: 'That\'s more of a sentence than a name. Just your first and last name is enough.',
+      n_junk: 'Hmm, that doesn\'t look like a name to me. What should I call you? First and last name is fine.',
+      n_fake: 'I need your real name, so the guide is addressed to you personally. What\'s your name?',
+      n_ex: 'For example: Anna Smith.', l_bad: 'That doesn\'t look like a last name to me. What\'s your last name?',
+      e_none: 'There\'s no email address in that yet. I need something like name@example.com.',
+      e_phone: 'That looks like your phone number, I\'ll ask for it next. First your email address, something like name@example.com.',
+      e_fake: 'That looks like a test or throwaway address, and the guide won\'t reach you there. Which address do you actually read?',
+      p_letters: 'That doesn\'t look like a phone number. Digits only please, with country code, for example +44 7700 900123.',
+      p_email: 'I already have your email address. Now just your mobile number, with country code.',
+      p_fake: 'That looks like a sample number. Could you enter your real mobile number?',
+      p_long: 'That number is too long for a mobile number. Could you check it?',
+      pend: function (q) { return 'Now your question from earlier: "' + q + '"'; }, p_q: 'Question during intake',
       typo: function (e) { return 'Did you mean ' + e + '?'; }, yes: 'Yes, that\'s it', no: 'No, let me fix it',
       ask_phone: 'Great. And your mobile number? Then a colleague can also message you if you have questions. Please include the country code.',
       bad_phone: 'That number looks too short. Could you add the country code, for example +44 7700 900123?',
@@ -170,6 +213,27 @@
       ask_last: function (f) { return 'Trevligt att träffas, ' + f + '. Och ditt efternamn?'; },
       ask_email: function (f) { return 'Trevligt att träffas, ' + f + '. Vilken e-postadress ska jag skicka guiden till?'; },
       bad_email: 'Den e-postadressen ser inte riktigt rätt ut. Kan du kontrollera den?',
+      nq: 'Det låter som en fråga snarare än ett namn.',
+      hold: 'Bra fråga förresten, den sparar jag: jag svarar så fort din guide är på väg.',
+      hold_c: 'Bra fråga förresten, den skickar jag vidare till en kollega så att du får svar.',
+      again_name: 'Först: vad heter du? För- och efternamn räcker.', again_last: 'Först ditt efternamn?',
+      again_email: 'Först din e-postadress, annars når guiden dig inte.', again_phone: 'Först ditt mobilnummer, med landsnummer.',
+      n_greet: 'Hej! Vad heter du? För- och efternamn räcker.',
+      n_email: 'Det är din e-postadress, tack, den har jag noterat. Och vad heter du?',
+      n_phone: 'Det ser ut som ditt telefonnummer, det sparar jag till senare. Men vad heter du?',
+      n_digits: 'Siffror ser jag sällan i ett namn. Vad är ditt för- och efternamn?',
+      n_long: 'Det är mer en mening än ett namn. Bara för- och efternamn räcker.',
+      n_junk: 'Hmm, det ser inte ut som ett namn. Vad får jag kalla dig? För- och efternamn räcker.',
+      n_fake: 'Jag behöver ditt riktiga namn, så att guiden blir personlig. Vad heter du?',
+      n_ex: 'Till exempel: Anna Svensson.', l_bad: 'Det ser inte ut som ett efternamn. Vad är ditt efternamn?',
+      e_none: 'Där finns ingen e-postadress än. Jag behöver något som namn@exempel.se.',
+      e_phone: 'Det ser ut som ditt telefonnummer, det frågar jag om strax. Först din e-postadress, något som namn@exempel.se.',
+      e_fake: 'Det ser ut som en test- eller engångsadress, och dit når guiden inte. Vilken adress läser du faktiskt?',
+      p_letters: 'Det ser inte ut som ett telefonnummer. Bara siffror, med landsnummer, till exempel +46 70 123 45 67.',
+      p_email: 'Din e-postadress har jag redan. Nu bara ditt mobilnummer, med landsnummer.',
+      p_fake: 'Det ser ut som ett exempelnummer. Kan du skriva ditt riktiga mobilnummer?',
+      p_long: 'Numret är för långt för ett mobilnummer. Kan du kontrollera det?',
+      pend: function (q) { return 'Nu din fråga från tidigare: "' + q + '"'; }, p_q: 'Fråga under samtalet',
       typo: function (e) { return 'Menar du ' + e + '?'; }, yes: 'Ja, det stämmer', no: 'Nej, ändra',
       ask_phone: 'Toppen. Och ditt mobilnummer? Då kan en kollega också skriva till dig om du har frågor. Gärna med landsnummer.',
       bad_phone: 'Numret verkar för kort. Kan du skriva det med landsnummer, till exempel +46 70 123 45 67?',
@@ -293,6 +357,62 @@
     return s;
   }
 
+
+  // ---------- invoercontrole: wat typt de bezoeker eigenlijk? ----------
+  var STOP = {};
+  ('what how why when where which who whom is are am do does did could would should have has had the an im me my you your about know tell help please hello hi hey thanks thank yes no not and or but if with for from to of in on at it this that there buy buying price prices cost costs mortgage mortgages house home homes villa apartment property properties question ' +
+   'wat hoe waarom wanneer waar welke wie ben bent zijn doe doet kun kunt kunnen wil wilt heb hebt heeft het een ik mij mijn jij jou jouw je jullie weet weten iets over vertel graag hallo hoi bedankt dank ja nee niet maar als met voor naar kopen koop prijs kosten hypotheek hypotheken huis woning woningen appartement vraag vragen ' +
+   'vad hur varför när vilken vem är jag mig mitt du din vet något hej tack nej inte och eller för köpa pris kostnad kostnader bolån hus bostad lägenhet fråga ' +
+   'que qué como cómo cuanto cuánto donde dónde quiero hola gracias comprar precio hipoteca casa piso pregunta').split(' ').forEach(function (w) { STOP[w] = 1; });
+  var GREET = /^(hi|hello|hey|hoi|hallo|hej|hola|goedemorgen|goedemiddag|goedenavond|good (morning|afternoon|evening)|god morgon|buenos d[ií]as)[\s!.,]*$/i;
+  var INTRO = /^(?:(?:hi|hello|hey|hoi|hallo|hej|hola|goedemorgen|goedemiddag|goedenavond|good (?:morning|afternoon|evening))[\s,!.]+)?(?:(?:my name is|my name's|i am|i'm|im|it's|this is|name:|ik ben|ik heet|mijn naam is|naam:|jag heter|jag är|mitt namn är|me llamo|soy|mi nombre es)\s+)?/i;
+  var FAKE_NAME = /^(test|testing|tester|asdf\w*|qwert\w*|xxx+|abc|aaa+|naam|name|namn|nombre|voornaam|achternaam|lastname|firstname|surname|anonymous|anoniem|anon|nobody|niemand|none|geen|nvt|user|gebruiker|sola|soltura)$/i;
+  var FAKE_DOM = /^(example|voorbeeld|exempel|ejemplo|test|testing|mailinator|yopmail|guerrillamail|sharklasers|10minutemail|tempmail|temp-mail|trashmail|throwawaymail|getnada|dispostable|maildrop|fakeinbox|nomail|noemail|none)\./;
+  var FAKE_LOCAL = /^(test|testing|asdf\w*|qwert\w*|abc|aaa+|xxx+|x|a|noreply|no-reply|none|nobody|niemand|geen|fake|naam|name|namn|you|jouw|du)$/;
+  var TLD_FIX = { con: 'com', cmo: 'com', ocm: 'com', comm: 'com', vom: 'com', xom: 'com', cpm: 'com', nll: 'nl', nl1: 'nl', ent: 'net', nte: 'net', orgg: 'org', see: 'se' };
+  function words(s) { return String(s || '').toLowerCase().replace(/[^\p{L}\p{M}'\s]/gu, ' ').split(/\s+/).filter(Boolean); }
+  function isQuestion(s) {
+    if (/\?/.test(s)) return true;
+    var w = words(s), hits = w.filter(function (x) { return STOP[x]; }).length;
+    return w.length >= 3 && hits >= 2;
+  }
+  function phoneLike(s) { return s.replace(/\D/g, '').length >= 7 && /^[\d\s+()./-]+$/.test(s); }
+  // geeft {ok, parts} of {why: question|email|phone|greet|digits|long|junk|fake}
+  function checkName(raw) {
+    var s = String(raw || '').trim();
+    if (/@/.test(s)) { var em = s.toLowerCase().replace(/\s+/g, ''); return EMAIL.test(em) ? { why: 'email', email: em } : { why: 'junk' }; }
+    if (phoneLike(s)) return { why: 'phone', phone: s };
+    if (/https?:|www\.|\.(com|nl|se|es|net|org)\b/i.test(s)) return { why: 'junk' };
+    if (GREET.test(s)) return { why: 'greet' };
+    var body = s.replace(INTRO, '').replace(/[.!,;:]+$/, '').trim();
+    if (/\?/.test(s) || isQuestion(body)) return { why: 'question', q: s };
+    if (/\d/.test(body)) return { why: 'digits' };
+    var clean = body.replace(/[^\p{L}\p{M}' .-]/gu, ' ').replace(/\s+/g, ' ').trim();
+    if (!clean) return { why: 'junk' };
+    var w = clean.split(' ');
+    if (w.length > 5 || clean.length > 60) return { why: 'long' };
+    for (var i = 0; i < w.length; i++) {
+      var x = w[i].toLowerCase().replace(/[.'-]/g, '');
+      if (!x) continue;
+      if (STOP[x]) return { why: w.length >= 3 ? 'long' : 'junk' };
+      if (FAKE_NAME.test(x)) return { why: 'fake' };
+      if (x.length > 25 || /(.)\1\1/.test(x) || (x.length >= 4 && !/[aeiouyàáâäãåæèéêëìíîïòóôöõøùúûüýÿœ]/.test(x))) return { why: 'junk' };
+    }
+    if (w.length === 1 && w[0].replace(/\./g, '').length < 2) return { why: 'junk' };
+    return { ok: true, parts: titleCase(clean).split(' ') };
+  }
+  function fakeEmail(em) {
+    var a = em.split('@'), dom = a[1] || '';
+    if (FAKE_DOM.test(dom) || FAKE_LOCAL.test(a[0])) return true;
+    return Object.keys(TX).some(function (k) { return TX[k].ph_email === em; });
+  }
+  function emailFix(em) {
+    var a = em.split('@'), dom = a[1], fix = TYPO[dom];
+    if (!fix) { var tld = dom.split('.').pop(); if (TLD_FIX[tld]) fix = dom.slice(0, -tld.length) + TLD_FIX[tld]; }
+    return fix ? a[0] + '@' + fix : '';
+  }
+  function fakePhone(digits) { return /(\d)\1{6,}/.test(digits) || /12345678|23456789|87654321|98765432/.test(digits); }
+
   // root: element met #solLog/#solChips/#solForm/#solIn (pagina) of de compacte variant (woningpagina).
   // d: { fn, meta(formName), track, href(key), ls: {get,set}, compact, formName, property }
   function bind(rootEl, lang, d) {
@@ -300,7 +420,7 @@
     var $ = function (s) { return rootEl.querySelector(s); };
     var log = $('#solLog'), chips = $('#solChips'), form = $('#solForm'), input = $('#solIn');
     if (!log || !form) return;
-    var st = { step: 'name', first: '', last: '', email: '', phone: '', plan: '', glang: lang, clang: lang, sent: false, busy: false };
+    var st = { step: 'name', first: '', last: '', email: '', phone: '', plan: '', glang: lang, clang: lang, sent: false, busy: false, pending: [], pre: {}, miss: {} };
     function setChatLang(l) { st.clang = TX[l] ? l : lang; t = L(st.clang); input.placeholder = t.ph_chat; }
     var hist = [], answers = [];
     var saved = d.ls ? d.ls.get('guide', null) : null;
@@ -335,8 +455,34 @@
       else if (step === 'email') { ask('email', t.ph_email, 'email', 'email'); input.value = st.email; }
       else if (step === 'phone') { ask('phone', t.ph_phone, 'tel', 'tel'); input.value = st.phone; }
     }
-    function askEmail() { return say(t.ask_email(st.first)).then(function () { ask('email', t.ph_email, 'email', 'email'); }); }
-    function askPhone() { return say(t.ask_phone).then(function () { ask('phone', t.ph_phone, 'tel', 'tel'); }); }
+    function askEmail() { return say(t.ask_email(st.first)).then(function () { ask('email', t.ph_email, 'email', 'email'); if (st.pre.email) input.value = st.pre.email; }); }
+    function askPhone() { return say(t.ask_phone).then(function () { ask('phone', t.ph_phone, 'tel', 'tel'); if (st.pre.phone) input.value = st.pre.phone; }); }
+    // invoer afgewezen: toon wat er stond, leg uit wat Sola ziet en vraag opnieuw (op dezelfde stap)
+    function reask(step, val) {
+      if (step === 'name') ask('name', t.ph_name, 'text', 'name');
+      else if (step === 'last') ask('last', t.ph_last, 'text', 'family-name');
+      else if (step === 'email') ask('email', t.ph_email, 'email', 'email');
+      else ask('phone', t.ph_phone, 'tel', 'tel');
+      if (val) input.value = val;
+    }
+    function bounce(v, step, msg, keep) {
+      me(v); st.miss[step] = (st.miss[step] || 0) + 1;
+      if ((step === 'name' || step === 'last') && st.miss[step] >= 2) msg += ' ' + t.n_ex;
+      if (d.track) d.track('sol_input_rejected', null, null, { step: step });
+      return say(msg).then(function () { reask(step, keep); });
+    }
+    function holdQ(v, step) {
+      if (st.pending.indexOf(v) < 0 && st.pending.length < 3) st.pending.push(v);
+      var again = { name: t.again_name, last: t.again_last, email: t.again_email, phone: t.again_phone }[step];
+      return bounce(v, step, (step === 'name' || step === 'last' ? t.nq + ' ' : '') + (d.compact ? t.hold_c : t.hold) + ' ' + again);
+    }
+    function nameIssue(v, step, r) {
+      if (r.why === 'question') return holdQ(v, step);
+      if (r.why === 'email') { st.pre.email = r.email; return bounce(v, step, step === 'name' ? t.n_email : t.l_bad); }
+      if (r.why === 'phone') { st.pre.phone = r.phone; return bounce(v, step, step === 'name' ? t.n_phone : t.l_bad); }
+      if (step === 'last') return bounce(v, step, r.why === 'long' ? t.n_long : t.l_bad);
+      return bounce(v, step, { greet: t.n_greet, digits: t.n_digits, long: t.n_long, fake: t.n_fake }[r.why] || t.n_junk);
+    }
     function askPlan() {
       form.hidden = true;
       return say(t.ask_plan).then(function () { setChips(t.plans.map(function (p) { return [p, p]; }), function (v, lbl) { st.plan = v; chips.innerHTML = ''; me(lbl); askLang(); }); });
@@ -351,10 +497,10 @@
       var wait = document.createElement('div'); wait.className = 'sol-msg a sol-sending'; wait.innerHTML = '<span class="sol-env">' + ICO.mail + '</span>' + esc(t.sending); log.appendChild(wait); scroll();
       var gl = GLANGS.filter(function (g) { return g[0] === st.glang; })[0];
       var gLbl = gl ? gl[1] : st.glang;
-      var lines = [d.compact ? tSite.p_via_prop + (d.property ? ' ' + d.property.reference : '') + '.' : tSite.p_via, (st.plan ? tSite.p_plan + ': ' + st.plan : ''), tSite.p_lang + ': ' + gLbl].filter(Boolean);
+      var lines = [d.compact ? tSite.p_via_prop + (d.property ? ' ' + d.property.reference : '') + '.' : tSite.p_via, (st.plan ? tSite.p_plan + ': ' + st.plan : ''), tSite.p_lang + ': ' + gLbl, (st.pending.length ? tSite.p_q + ': ' + st.pending.join(' | ') : '')].filter(Boolean);
       var body = Object.assign({ kind: 'guide' }, d.meta(d.formName), {
         lang: pdfLang(st.glang), site_lang: lang, name: st.first + ' ' + st.last, first: st.first, last: st.last, first_name: st.first, last_name: st.last,
-        email: st.email, phone: st.phone, message: lines.join('\n'), fields: { plan: st.plan || null, guide_lang: st.glang, chat_lang: st.clang, channel: 'sol' } });
+        email: st.email, phone: st.phone, message: lines.join('\n'), fields: { plan: st.plan || null, guide_lang: st.glang, chat_lang: st.clang, channel: 'sol', intake_question: st.pending.join(' | ') || null } });
       d.fn('web-contact', body).catch(function () { return { ok: false }; }).then(function (r) {
         st.busy = false; wait.remove();
         if (!r || !r.ok) {
@@ -370,7 +516,11 @@
             var a = document.createElement('a'); a.className = 'sol-more'; a.href = d.href('gids'); a.innerHTML = esc(t.cmp_more) + ICO.arrow;
             return say(a);
           }
-          return say(t.after).then(function () { chatMode(); });
+          return say(t.after).then(function () {
+            chatMode();
+            var q = st.pending.shift();
+            if (q) say(t.pend(q)).then(function () { chats(q, true); });
+          });
         });
       });
     }
@@ -393,9 +543,9 @@
         '<span><b>' + esc(price) + '</b><small>' + esc([d.catName ? d.catName(p.category) : p.category, p.town].filter(Boolean).join(' · ')) + '</small><small>' + esc([p.bedrooms ? p.bedrooms + ' ' + (d.word ? d.word('beds') : 'bd') : '', p.reference].filter(Boolean).join(' · ')) + '</small></span>';
       return a;
     }
-    function chats(q) {
+    function chats(q, quiet) {
       q = String(q || '').trim(); if (!q || st.busy) return;
-      st.busy = true; chips.innerHTML = ''; me(q); input.value = '';
+      st.busy = true; chips.innerHTML = ''; if (!quiet) me(q); input.value = '';
       var ty = document.createElement('div'); ty.className = 'sol-msg a ai-think'; ty.innerHTML = '<span class="ab-av">' + avatar(34) + '</span><div class="typing-dots"><span></span><span></span><span></span></div>'; log.appendChild(ty); scroll();
       if (d.track) d.track('assistant', null, null, { via: 'guide' });
       d.fn('web-assistant', { mode: 'guide', lang: st.clang, query: q, name: st.first, history: hist }).catch(function () { return {}; }).then(function (r) {
@@ -437,28 +587,43 @@
       var v = input.value.trim(); if (!v) return;
       if (st.step === 'chat') return chats(v);
       if (st.step === 'name') {
-        var parts = titleCase(v.replace(/[^\p{L}\p{M}' .-]/gu, ' ')).split(' ').filter(Boolean);
-        if (!parts.length) return;
+        var rn = checkName(v);
+        if (!rn.ok) return nameIssue(v, 'name', rn);
+        var parts = rn.parts;
         me(parts.join(' '), 'name');
         st.first = parts[0]; st.last = parts.slice(1).join(' ');
         if (!st.last) return say(t.ask_last(st.first)).then(function () { ask('last', t.ph_last, 'text', 'family-name'); });
         return askEmail();
       }
-      if (st.step === 'last') { st.last = titleCase(v.replace(/[^\p{L}\p{M}' .-]/gu, ' ')); if (!st.last) return; me(st.last, 'name'); return askEmail(); }
+      if (st.step === 'last') {
+        var rl = checkName(v);
+        if (!rl.ok) return nameIssue(v, 'last', rl);
+        st.last = rl.parts.join(' '); me(st.last, 'name'); return askEmail();
+      }
       if (st.step === 'email') {
-        var em = v.toLowerCase().replace(/\s+/g, '');
-        if (!EMAIL.test(em)) { me(v); return say(t.bad_email).then(function () { ask('email', t.ph_email, 'email', 'email'); input.value = em; }); }
+        if (!/@/.test(v)) {
+          if (phoneLike(v)) { st.pre.phone = v; return bounce(v, 'email', t.e_phone); }
+          if (isQuestion(v)) return holdQ(v, 'email');
+          return bounce(v, 'email', t.e_none);
+        }
+        var em = v.toLowerCase().replace(/\s+/g, '').replace(/[.,;]+$/, '');
+        if (!EMAIL.test(em)) return bounce(v, 'email', t.bad_email, em);
+        if (fakeEmail(em)) return bounce(v, 'email', t.e_fake);
         me(em, 'email');
-        var dom = em.split('@')[1], fix = TYPO[dom];
-        if (fix) {
-          var sug = em.split('@')[0] + '@' + fix; form.hidden = true;
+        var sug = emailFix(em);
+        if (sug) {
+          form.hidden = true;
           return say(t.typo(sug)).then(function () { setChips([['y', t.yes], ['n', t.no]], function (c, lbl) { chips.innerHTML = ''; me(lbl); if (c === 'y') { st.email = sug; askPhone(); } else { ask('email', t.ph_email, 'email', 'email'); input.value = em; } }); });
         }
         st.email = em; return askPhone();
       }
       if (st.step === 'phone') {
-        var ph = normPhone(v, lang);
-        if (ph.replace(/\D/g, '').length < 9) { me(v); return say(t.bad_phone).then(function () { ask('phone', t.ph_phone, 'tel', 'tel'); input.value = v; }); }
+        if (/@/.test(v)) return bounce(v, 'phone', t.p_email);
+        if (/\p{L}{2,}/u.test(v)) return isQuestion(v) ? holdQ(v, 'phone') : bounce(v, 'phone', t.p_letters);
+        var ph = normPhone(v, lang), dg = ph.replace(/\D/g, '');
+        if (dg.length < 9) return bounce(v, 'phone', t.bad_phone, v);
+        if (dg.length > 15) return bounce(v, 'phone', t.p_long, v);
+        if (fakePhone(dg)) return bounce(v, 'phone', t.p_fake);
         me(ph, 'phone'); st.phone = ph;
         return d.compact ? askLang() : askPlan();
       }
