@@ -5,7 +5,7 @@ function buildBrochure(data, lang, A) {
   const L = ['nl', 'en', 'es', 'sv'].includes(lang) ? lang : 'en';
   const T = {
     nl: { kicker: 'Woningbrochure', forSale: 'Te koop', reserved: 'Gereserveerd', sold: 'Verkocht', price: 'Vraagprijs', from: 'vanaf', onReq: 'Prijs op aanvraag',
-      beds: 'slaapkamers', bed1: 'slaapkamer', baths: 'badkamers', bath1: 'badkamer', built: 'woonoppervlak', plot: 'perceel', poolP: 'privézwembad', poolC: 'gem. zwembad', year: 'bouwjaar', solarium: 'solarium',
+      beds: 'slaapkamers', bed1: 'slaapkamer', baths: 'badkamers', bath1: 'badkamer', built: 'woonoppervlak', plot: 'perceel', poolU: 'zwembad', poolP: 'privézwembad', poolC: 'gem. zwembad', year: 'bouwjaar', solarium: 'solarium',
       about: 'Over deze <em>woning</em>', features: 'Kenmerken', location: 'Ligging', beach: 'Strand', airport: 'Luchthaven', shops: 'Winkels', drive: 'min rijden', approx: 'ca.',
       energy: 'Energielabel', energyR: 'aangevraagd', energyX: 'vrijgesteld', orient: 'Oriëntatie', view: 'Uitzicht', aircon: 'Airconditioning', newb: 'Nieuwbouw', resale: 'Bestaande bouw',
       visitH: 'Zelf komen kijken?', visitP: (n, t) => `Plan een bezichtiging met ${n}: bel of app ${t}. We laten je graag ook vergelijkbare woningen in de buurt zien.`, contactH: 'Jouw contactpersoon', contactP: 'Kent deze woning en vertelt je er graag meer over. Bel, app of mail, of plan direct een bezichtiging.',
@@ -19,7 +19,7 @@ function buildBrochure(data, lang, A) {
       views: { sea: 'zee', mountain: 'bergen', country: 'landelijk', golf: 'golfbaan', green: 'groen', lake: 'zoutmeer', panoramic: 'panorama', residential: 'woonwijk', valley: 'vallei' },
       feat: { furnished: 'Gemeubileerd', 'semi furnished': 'Deels gemeubileerd', fireplace: 'Open haard', 'secure parking': 'Afgesloten parkeerplaats', 'security system': 'Beveiligingssysteem', 'central heating': 'Centrale verwarming', basement: 'Kelder', 'air conditioning preinstalled': 'Airco voorbereid', intercom: 'Intercom', 'fully fenced': 'Volledig omheind', 'split heating': 'Verwarming via split-units', 'underfloor heating': 'Vloerverwarming', 'remote garage': 'Garage met afstandsbediening', 'ducted heating': 'Verwarming via kanalen', 'ducted cooling': 'Koeling via kanalen', 'outdoor entertaining': 'Buitenkeuken / loungeplek' } },
     en: { kicker: 'Property brochure', forSale: 'For sale', reserved: 'Reserved', sold: 'Sold', price: 'Asking price', from: 'from', onReq: 'Price on request',
-      beds: 'bedrooms', bed1: 'bedroom', baths: 'bathrooms', bath1: 'bathroom', built: 'living area', plot: 'plot', poolP: 'private pool', poolC: 'communal pool', year: 'year built', solarium: 'solarium',
+      beds: 'bedrooms', bed1: 'bedroom', baths: 'bathrooms', bath1: 'bathroom', built: 'living area', plot: 'plot', poolU: 'pool', poolP: 'private pool', poolC: 'communal pool', year: 'year built', solarium: 'solarium',
       about: 'About this <em>home</em>', features: 'Features', location: 'Location', beach: 'Beach', airport: 'Airport', shops: 'Shops', drive: 'min drive', approx: 'approx.',
       energy: 'Energy rating', energyR: 'requested', energyX: 'exempt', orient: 'Orientation', view: 'Views', aircon: 'Air conditioning', newb: 'New build', resale: 'Resale',
       visitH: 'Want to see it?', visitP: (n, t) => `Book a viewing with ${n}: call or WhatsApp ${t}. We are happy to show you similar homes nearby too.`, contactH: 'Your contact', contactP: 'Knows this home inside out and is happy to tell you more. Call, message or email, or book a viewing straight away.',
@@ -33,7 +33,7 @@ function buildBrochure(data, lang, A) {
       views: { country: 'countryside', lake: 'salt lake', panoramic: 'panoramic' },
       feat: { 'semi furnished': 'Part furnished', 'air conditioning preinstalled': 'Air conditioning pre-installed', 'remote garage': 'Garage with remote door', 'outdoor entertaining': 'Outdoor entertaining area' } },
     es: { kicker: 'Folleto de la vivienda', forSale: 'En venta', reserved: 'Reservada', sold: 'Vendida', price: 'Precio', from: 'desde', onReq: 'Precio a consultar',
-      beds: 'dormitorios', bed1: 'dormitorio', baths: 'baños', bath1: 'baño', built: 'superficie', plot: 'parcela', poolP: 'piscina privada', poolC: 'piscina comunitaria', year: 'año', solarium: 'solárium',
+      beds: 'dormitorios', bed1: 'dormitorio', baths: 'baños', bath1: 'baño', built: 'superficie', plot: 'parcela', poolU: 'piscina', poolP: 'piscina privada', poolC: 'piscina comunitaria', year: 'año', solarium: 'solárium',
       about: 'Sobre esta <em>vivienda</em>', features: 'Características', location: 'Ubicación', beach: 'Playa', airport: 'Aeropuerto', shops: 'Tiendas', drive: 'min en coche', approx: 'aprox.',
       energy: 'Certificado energético', energyR: 'en trámite', energyX: 'exento', orient: 'Orientación', view: 'Vistas', aircon: 'Aire acondicionado', newb: 'Obra nueva', resale: 'Segunda mano',
       visitH: '¿Quieres verla?', visitP: (n, t) => `Reserva una visita con ${n}: llama o escribe al ${t}. También te enseñamos viviendas parecidas en la zona.`, contactH: 'Tu persona de contacto', contactP: 'Conoce bien esta vivienda y te cuenta con gusto más detalles. Llama, escribe o reserva una visita.',
@@ -47,7 +47,7 @@ function buildBrochure(data, lang, A) {
       views: { sea: 'mar', mountain: 'montaña', country: 'campo', golf: 'golf', green: 'zonas verdes', lake: 'laguna salada', panoramic: 'panorámicas', residential: 'urbanización', valley: 'valle' },
       feat: { furnished: 'Amueblada', 'semi furnished': 'Semiamueblada', fireplace: 'Chimenea', 'secure parking': 'Aparcamiento cerrado', 'security system': 'Sistema de seguridad', 'central heating': 'Calefacción central', basement: 'Sótano', 'air conditioning preinstalled': 'Preinstalación de aire acondicionado', intercom: 'Portero automático', 'fully fenced': 'Totalmente vallada', 'split heating': 'Calefacción por splits', 'underfloor heating': 'Suelo radiante', 'remote garage': 'Garaje con mando', 'ducted heating': 'Calefacción por conductos', 'ducted cooling': 'Aire por conductos', 'outdoor entertaining': 'Zona exterior de ocio' } },
     sv: { kicker: 'Bostadsbroschyr', forSale: 'Till salu', reserved: 'Reserverad', sold: 'Såld', price: 'Utgångspris', from: 'från', onReq: 'Pris på förfrågan',
-      beds: 'sovrum', bed1: 'sovrum', baths: 'badrum', bath1: 'badrum', built: 'boyta', plot: 'tomt', poolP: 'egen pool', poolC: 'gemensam pool', year: 'byggår', solarium: 'solarium',
+      beds: 'sovrum', bed1: 'sovrum', baths: 'badrum', bath1: 'badrum', built: 'boyta', plot: 'tomt', poolU: 'pool', poolP: 'egen pool', poolC: 'gemensam pool', year: 'byggår', solarium: 'solarium',
       about: 'Om den här <em>bostaden</em>', features: 'Egenskaper', location: 'Läge', beach: 'Strand', airport: 'Flygplats', shops: 'Butiker', drive: 'min med bil', approx: 'ca',
       energy: 'Energiklass', energyR: 'begärd', energyX: 'undantagen', orient: 'Väderstreck', view: 'Utsikt', aircon: 'Luftkonditionering', newb: 'Nyproduktion', resale: 'Befintlig bostad',
       visitH: 'Vill du se den?', visitP: (n, t) => `Boka en visning med ${n}: ring eller skicka WhatsApp till ${t}. Vi visar gärna liknande bostäder i närheten också.`, contactH: 'Din kontaktperson', contactP: 'Känner bostaden väl och berättar gärna mer. Ring, skriv eller boka en visning direkt.',
@@ -127,7 +127,7 @@ function buildBrochure(data, lang, A) {
   if (has(p.bathrooms)) stats.push(['bath', p.bathrooms, Number(p.bathrooms) === 1 ? T.bath1 : T.baths]);
   if (has(p.build_area)) stats.push(['area', n0(p.build_area) + '<small> m²</small>', T.built]);
   if (has(p.plot_area)) stats.push(['plot', n0(p.plot_area) + '<small> m²</small>', T.plot]);
-  if (p.pool_private) stats.push(['pool', '✓', T.poolP]); else if (p.pool_communal) stats.push(['pool', '✓', T.poolC]);
+  if (p.pool_private) stats.push(['pool', '✓', T.poolP]); else if (p.pool_communal) stats.push(['pool', '✓', T.poolC]); else if (p.pool_unspecified) stats.push(['pool', '✓', T.poolU]);
   if (stats.length < 6 && has(p.year_built)) stats.push(['year', esc(p.year_built), T.year]);
   if (stats.length < 6 && p.solarium) stats.push(['sun', '✓', T.solarium]);
 
@@ -136,7 +136,7 @@ function buildBrochure(data, lang, A) {
   feats.push(p.is_newbuild ? T.newb : T.resale);
   if (p.aircon) feats.push(T.aircon);
   if (p.solarium) feats.push(cap(T.solarium));
-  if (p.pool_private) feats.push(cap(T.poolP)); else if (p.pool_communal) feats.push(cap(T.poolC));
+  if (p.pool_private) feats.push(cap(T.poolP)); else if (p.pool_communal) feats.push(cap(T.poolC)); else if (p.pool_unspecified) feats.push(cap(T.poolU));
   String(p.features || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean).forEach(f => { const v = (T.feat && T.feat[f]) || cap(f); if (!feats.includes(v)) feats.push(v); });
   if (has(p.terraces)) feats.push((L === 'nl' ? 'Terras ' : L === 'es' ? 'Terraza ' : L === 'sv' ? 'Terrass ' : 'Terrace ') + n0(p.terraces) + ' m²');
   const rows = [];

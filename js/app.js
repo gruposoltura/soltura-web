@@ -20,7 +20,7 @@ const OFFICE = 2;
 const PAGE = 24;
 const CAT_NL = { villa: 'Villa', apartment: 'Appartement', bungalow: 'Bungalow', detached: 'Vrijstaand huis', townhouse: 'Rijtjeshuis', penthouse: 'Penthouse', quadrant: 'Hoekwoning (quad)', duplex: 'Duplex', finca: 'Finca', 'semi-detached': 'Twee-onder-een-kap', commercial: 'Bedrijfspand', other: 'Woning', plot: 'Bouwgrond', attic: 'Penthouse' };
 const CAT_EN = { quadrant: 'Quad house', 'semi-detached': 'Semi-detached', attic: 'Penthouse', other: 'Home' };
-const LIST_COLS = 'id,wp_id,reference,category,is_newbuild,town,suburb,price,price_from,previous_price,price_changedate,bedrooms,bathrooms,build_area,plot_area,pool_private,pool_communal,dist_sea_m,label_exclusive,label_new,featured,under_offer,list_date,image,photo_count,market_deviation_pct,popularity,agent_wp_id,status,is_own';
+const LIST_COLS = 'id,wp_id,reference,category,is_newbuild,town,suburb,price,price_from,previous_price,price_changedate,bedrooms,bathrooms,build_area,plot_area,pool_private,pool_communal,pool_unspecified,dist_sea_m,label_exclusive,label_new,featured,under_offer,list_date,image,photo_count,market_deviation_pct,popularity,agent_wp_id,status,is_own';
 
 // ---------- state ----------
 const ls = {
@@ -148,6 +148,8 @@ const ICON = {
   info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>',
   wa: '<svg viewBox="0 0 24 24"><path d="M4 20l1.3-4.3A8 8 0 1 1 8.6 19z"/></svg>',
   pool: '<svg viewBox="0 0 24 24"><path d="M8 15V5a2 2 0 0 1 4 0M14 15V5a2 2 0 0 1 4 0M8 8h6M8 12h6M2 18c1.5 0 1.5-1 3-1s1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1 1.5 1 3 1"/></svg>',
+  // zwembad zonder opgegeven type (25-10-2026): alleen water, geen trapje en geen C; claimt dus niet privé en niet gemeenschappelijk
+  poolU: '<svg viewBox="0 0 24 24"><path d="M2 9c1.5 0 1.5-1 3-1s1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1M2 13.5c1.5 0 1.5-1 3-1s1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1M2 18c1.5 0 1.5-1 3-1s1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1"/></svg>',
   // gemeenschappelijk zwembad: hetzelfde trapje met een "C" ernaast (zoals op de oude site)
   poolC: '<svg viewBox="0 0 24 24"><path d="M4 15V5a2 2 0 0 1 4 0M10 15V5a2 2 0 0 1 4 0M4 8h6M4 12h6M22.2 6.4a3.6 3.6 0 1 0 0 5.2M2 18c1.5 0 1.5-1 3-1s1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1 1.5 1 3 1"/></svg>',
   chat: '<svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8M8 13h5"/></svg>',
@@ -340,7 +342,7 @@ function match(p, f = S.f, type = S.type) {
   if (f.baths_min && (p.bathrooms || 0) < f.baths_min) return false;
   if (f.pool === 'private' && !p.pool_private) return false;
   if (f.pool === 'communal' && !p.pool_communal) return false;
-  if (f.pool === 'any' && !p.pool_private && !p.pool_communal) return false;
+  if (f.pool === 'any' && !p.pool_private && !p.pool_communal && !p.pool_unspecified) return false;
   if (f.max_sea_km && p.dist_sea_m != null && p.dist_sea_m !== 7000 && p.dist_sea_m > f.max_sea_km * 1000) return false;
   if (f.reduced_only && !reduced(p)) return false;
   return true;
@@ -403,6 +405,7 @@ function specs(p) {
   if (p.plot_area) s.push(`<span title="${t('plot')}">${num(p.plot_area)} m² ${tx({ en: 'plot', nl: 'perceel', sv: 'tomt' })}</span>`);
   if (p.pool_private) s.push(`<span class="pool own" title="${t('pool_private')}">${ICON.pool}${t('pool_short_private')}</span>`);
   if (p.pool_communal) s.push(`<span class="pool shared" title="${t('pool_communal')}">${ICON.poolC}${t('pool_short_communal')}</span>`);
+  if (p.pool_unspecified && !p.pool_private && !p.pool_communal) s.push(`<span class="pool any" title="${t('pool_unspecified')}">${ICON.poolU}${t('pool_short_unspecified')}</span>`);
   return `<div class="specs">${s.join('')}</div>`;
 }
 function card(p, opts = {}) {
@@ -1387,6 +1390,7 @@ function fillFacts(p) {
   add(dist(p.dist_sea_m), t('sh_sea'));
   if (p.pool_private) add(`<i class="kf-ic own">${ICON.pool}</i>`, t('pool_private'));
   if (p.pool_communal) add(`<i class="kf-ic shared">${ICON.poolC}</i>`, t('pool_communal'));
+  if (p.pool_unspecified && !p.pool_private && !p.pool_communal) add(`<i class="kf-ic any">${ICON.poolU}</i>`, t('pool_unspecified'));
   $('#keyfacts').innerHTML = kf.join('');
 }
 function fillDetail(d) {
@@ -1429,7 +1433,7 @@ function fillDetail(d) {
   } else desc.innerHTML = d.summary_en ? `<p>${esc(d.summary_en)}</p>` : '';
   // features
   const feats = [];
-  if (d.pool_private) feats.push(t('pool_private')); if (d.pool_communal) feats.push(t('pool_communal'));
+  if (d.pool_private) feats.push(t('pool_private')); if (d.pool_communal) feats.push(t('pool_communal')); if (d.pool_unspecified && !d.pool_private && !d.pool_communal) feats.push(t('pool_unspecified'));
   if (d.aircon) feats.push(t('aircon')); if (d.solarium) feats.push(t('solarium'));
   (d.features || '').split(',').map(s => s.trim()).filter(Boolean).forEach(s => feats.push(cap(s)));
   (d.terraces || '').split(',').map(s => s.trim()).filter(Boolean).forEach(s => feats.push(cap(s) + tx({ en: ' terrace', nl: ' terras', sv: ' terrass' })));

@@ -188,6 +188,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .reel-cap .specs .pool.own{color:var(--lemon)}.reel-cap .specs .pool svg{stroke:var(--lemon)}
 .specs .pool.own{color:var(--sea);font-weight:600}
 .specs .pool.shared svg{stroke:var(--ink-2)}
+.specs .pool.any svg{stroke:var(--ink-2)}
 .price{font-weight:700;font-size:23px;letter-spacing:-.01em;display:flex;align-items:baseline;gap:10px}
 .price s{color:var(--muted);font-weight:400;font-size:15px}
 .price small{font-weight:500;font-size:14px;color:var(--muted)}

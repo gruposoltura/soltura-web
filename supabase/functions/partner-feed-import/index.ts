@@ -18,6 +18,18 @@
 //  - een tekst wordt alleen overschreven als de feedtekst echt veranderd is (vingerafdruk in core.property_texts.feed_hash).
 //    Zo blijft de Engelse tekst van Agent SEO staan en worden vertalingen niet elke nacht opnieuw gemaakt.
 //  - eerste keer (feed_hash nog leeg bij een bestaande tekst): alleen de vingerafdruk opslaan, tekst en updated_at ongemoeid.
+// v7 (19-10-2026, besluit Rick: 9 woningtypen): whitelist.
+//  - Alleen woningen waarvan het feedtype via core.property_type_rules uitkomt op een van de 9 types in core.property_types
+//    (villa, apartment, penthouse, bungalow, quadrant, semi-detached, townhouse, duplex, finca) worden geïmporteerd.
+//  - Al het andere (commercial, plot, other, rental, maar ook varianten als "villa detached" of "quad villa") wordt volledig
+//    overgeslagen: niet aangemaakt, niet bijgewerkt, niet heractiveerd. Alleen geteld in het runlog (skipped_type + skipped_types).
+//  - De vaste TYPE_MAP in de code is weg; de aliaslijst staat uitsluitend in core.property_type_rules.
+// v8 (25-10-2026, Rick: geen privé-claim zonder bron): derde zwembadwaarde 'pool_unspecified'.
+//  - Noemt de feed alleen een zwembad (<pool>1 of een kenmerk "Pool"/"Swimming pool"/"Piscina") zonder type,
+//    dan wordt dat 'pool_unspecified' (zwembad, type niet opgegeven) in plaats van 'pool' (privé).
+//  - Noemt de feed een type, dan wint dat type en verdwijnen de andere twee zwembadwaarden.
+//  - Bestaande woning zonder type in de feed: 'pool_unspecified' alleen erbij als er nog geen zwembadwaarde staat;
+//    een keuze die het team in NEXUS maakte (privé/gemeenschappelijk) blijft dus staan.
 import postgres from "npm:postgres@3.4.5";
 
 type Sql = ReturnType<typeof postgres>;
@@ -25,35 +37,60 @@ export type FeedItem = {
   id: string; date: string; ref: string; price: number | null; new_build: boolean; type: string; town: string;
   province: string; country: string; location_detail: string; lat: number | null; lng: number | null; beds: number | null;
   baths: number | null; pool: boolean; built: number | null; plot: number | null; energy: string; url: string;
-  desc: Record<string, string>; features: string[]; images: string[];
+  desc: Record<string, string>; features: string[]; images: string[]; category?: string;
 };
 
 export const norm = (t: string | null | undefined) =>
-  (t ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  (t ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 
-const TYPE_MAP: Record<string, string> = {
-  "apartment": "apartment", "flat": "apartment", "ground floor apartment": "apartment", "penthouse": "penthouse",
-  "town house": "townhouse", "townhouse": "townhouse", "terraced house": "townhouse", "quad house": "quadrant",
-  "quad": "quadrant", "quadrant": "quadrant", "bungalow": "bungalow", "villa": "villa", "detached": "villa",
-  "detached villa": "villa", "house": "villa", "semi detached": "semi-detached", "semi detached house": "semi-detached",
-  "semi detached villa": "semi-detached", "duplex": "duplex", "finca": "finca", "country house": "finca", "estate": "finca",
-  "studio": "studio", "country property": "finca", "rustic": "finca", "cave house": "other", "commercial": "commercial", "plot": "plot", "land": "plot", "attic": "penthouse",
-};
+/** v7: woningtype-whitelist uit de database (core.property_types + core.property_type_rules). */
+export type TypeRules = Map<string, string>; // genormaliseerde feedwaarde -> standaardtype
+export async function loadTypeRules(sql: Sql): Promise<TypeRules> {
+  const std = new Set<string>();
+  for (const t of await sql`select code from core.property_types`) std.add(t.code as string);
+  const out: TypeRules = new Map();
+  for (const r of await sql`select type, action, target from core.property_type_rules`) {
+    const code = r.action === "keep" ? (r.type as string) : (r.target as string | null);
+    if (code && std.has(code)) out.set(norm(r.type as string), code);
+  }
+  return out;
+}
+export const resolveType = (rules: TypeRules, raw: string): string | null => rules.get(norm(raw)) ?? null;
+
+/** v7: haalt alle niet-standaard woningen uit de lijst en zet category op de rest. */
+export function applyTypeWhitelist(parsed: Parsed, rules: TypeRules) {
+  const keep: FeedItem[] = [];
+  const skipped: Record<string, number> = {};
+  for (const it of parsed.items) {
+    const cat = resolveType(rules, it.type);
+    if (cat) { it.category = cat; keep.push(it); }
+    else { const k = it.type || "(leeg)"; skipped[k] = (skipped[k] ?? 0) + 1; }
+  }
+  parsed.skipped_type = parsed.items.length - keep.length;
+  parsed.skipped_types = skipped;
+  parsed.items = keep;
+}
 
 /** Zwembadtype en open parkeerplekken uit de feedkenmerken. */
 const RX_COMMUNAL = /(communal|community|shared)( swimming)? pool|pool,? communal|piscina comunitaria/;
 const RX_PRIVATE = /private( swimming)? pool|pool,? private|piscina privada/;
+const RX_ANY_POOL = /\b(swimming )?pool\b(?! table)|piscina/;
+export const POOL_KEYS = ["pool", "communal_pool", "pool_unspecified"];
 const RX_PARK_N = /number of parking spaces: *(\d+)/;
 const RX_PARK_OPEN = /(^|\| )(parking - space|off road parking|parking off-road|off-road parking|parking, uncovered|parking space|parking|communal parking|parking communal)( \||$)/;
 export function featureDerive(it: FeedItem) {
   const f = it.features.map((x) => x.toLowerCase().trim()).join(" | ");
   const communal = RX_COMMUNAL.test(f), priv = RX_PRIVATE.test(f);
   const pools: string[] = [];
-  if (priv || (it.pool && !communal)) pools.push("pool");
+  if (priv) pools.push("pool");
   if (communal) pools.push("communal_pool");
+  const typed = communal || priv;
+  // v8: zwembad zonder type = neutraal, nooit stilzwijgend privé
+  const untyped = !typed && (it.pool || RX_ANY_POOL.test(f));
+  if (untyped) pools.push("pool_unspecified");
   const n = f.match(RX_PARK_N);
   const parking = n ? Math.min(99, Number(n[1])) : (RX_PARK_OPEN.test(f) ? 1 : null);
-  return { pools, typed: communal || priv, parking };
+  return { pools, typed, untyped, parking };
 }
 
 // ---------- teksten: welke talen de feed schrijft, en een vingerafdruk per tekst (v6) ----------
@@ -141,6 +178,7 @@ export function parseProperty(block: string): FeedItem {
 
 export type FeedRules = { build_filter: string | null; city_whitelist: string[] | null; city_blacklist?: string[] | null; ref_exclude_prefix: string | null };
 export type Parsed = { in_feed: number; skipped_build: number; skipped_city: number; skipped_excluded: number; skipped_ref: number;
+  skipped_type?: number; skipped_types?: Record<string, number>;
   items: FeedItem[]; towns: Map<string, { name: string; n: number; status: string }> };
 
 /** Streamt Kyero-XML, knipt per <property> en houdt alleen woningen vast die door build/plaats/ref-filters komen. */
@@ -200,7 +238,7 @@ export async function parseKyero(stream: ReadableStream<Uint8Array>, rules: Feed
 export type Report = Record<string, unknown>;
 
 export async function runFeedImport(sql: Sql, code: string, parsed: Parsed, dryRun: boolean, offset = 0, limit = 100): Promise<Report> {
-  const all = parsed.items;
+  const all = parsed.items; // v7: bevat alleen nog woningen met een standaardtype (applyTypeWhitelist)
   const page = all.slice(offset, offset + limit);
   const isLast = offset + limit >= all.length;
   const report: Report = { feed: code, dry_run: dryRun, in_feed: parsed.in_feed, offset, limit, page_items: page.length,
@@ -208,8 +246,6 @@ export async function runFeedImport(sql: Sql, code: string, parsed: Parsed, dryR
   const run = async (tx: Sql) => {
     const [feed] = await tx`select * from core.partner_feeds where code = ${code} for update`;
     if (!feed) throw new Error(`onbekende feed ${code}`);
-    const rules = new Map<string, { action: string; target: string | null }>();
-    for (const r of await tx`select type, action, target from core.property_type_rules`) rules.set(r.type, r);
     const aliases = new Map<string, number>();
     for (const a of await tx`select alias, location_id from core.location_aliases`) aliases.set(a.alias, a.location_id);
     const locs = new Map<number, { name: string; parent_id: number | null }>();
@@ -223,17 +259,9 @@ export async function runFeedImport(sql: Sql, code: string, parsed: Parsed, dryR
       const areaId = (d && muni ? aliases.get(`${d}|${munName}`) : undefined) ?? (townId && locs.get(townId)?.parent_id ? townId : undefined);
       return { location_id: areaId ?? muni ?? null, city: muni ? locs.get(muni)!.name : town || null, area: areaId ? locs.get(areaId)!.name : (detail || null) };
     };
-    let skippedType = 0;
-    const accepted: (FeedItem & { category: string })[] = [];
-    for (const it of page) {
-      let cat = TYPE_MAP[norm(it.type)] ?? (norm(it.type) || "other");
-      const rule = rules.get(cat);
-      if (rule?.action === "merge" && rule.target) cat = rule.target;
-      if (rule?.action === "block") skippedType++;   // CPR importeert deze wel (bijv. commercial); alleen tellen
-      accepted.push({ ...it, category: cat });
-    }
+    const accepted = page.filter((it) => !!it.category) as (FeedItem & { category: string })[];
     Object.assign(report, { skipped_build_type: parsed.skipped_build, skipped_city: parsed.skipped_city, skipped_excluded: parsed.skipped_excluded,
-      skipped_ref: parsed.skipped_ref, blocked_type_imported: skippedType, accepted: all.length });
+      skipped_ref: parsed.skipped_ref, skipped_type: parsed.skipped_type ?? 0, skipped_types: parsed.skipped_types ?? {}, accepted: all.length });
 
     const existing = new Map<string, Record<string, unknown>>();
     for (const p of await tx`select id, external_ref, status, price from core.properties where partner_feed_id = ${feed.id}`) existing.set(p.external_ref as string, p);
@@ -283,9 +311,12 @@ export async function runFeedImport(sql: Sql, code: string, parsed: Parsed, dryR
                    price_changed_at = case when ${priceChanged} then now() else price_changed_at end
                  where id = ${pid}`;
         if (der.typed) {
-          await tx`update core.properties set features = array(select distinct e from unnest(
-                     array_remove(array_remove(coalesce(features, '{}'::text[]), 'pool'), 'communal_pool') || ${tx.array(der.pools)}::text[]) e)
+          await tx`update core.properties set features = array(select distinct e from unnest(coalesce(features, '{}'::text[])) e
+                     where e <> all(${tx.array(POOL_KEYS)}::text[])) || ${tx.array(der.pools)}::text[]
                    where id = ${pid}`;
+        } else if (der.untyped) {
+          await tx`update core.properties set features = coalesce(features, '{}'::text[]) || array['pool_unspecified']::text[]
+                   where id = ${pid} and not (coalesce(features, '{}'::text[]) && ${tx.array(POOL_KEYS)}::text[])`;
         }
         if (priceChanged) { priceChanges++; await tx`insert into core.property_price_history (property_id, price, source) values (${pid}, ${it.price}, ${"feed:" + code})`; }
         if (wasOff) { reactivated++; await tx`update core.property_media set delete_after = null where property_id = ${pid}`; }
@@ -370,7 +401,8 @@ export async function previewFeed(sql: Sql, code: string, parsed: Parsed, feedId
   const tooSmall = prev > 0 && parsed.items.length < prev * ratio;
   const towns = [...parsed.towns.values()].sort((a, b) => b.n - a.n).slice(0, 150);
   return { feed: code, preview: true, in_feed: parsed.in_feed, skipped_build_type: parsed.skipped_build, skipped_city: parsed.skipped_city,
-    skipped_excluded: parsed.skipped_excluded, skipped_ref: parsed.skipped_ref, accepted: parsed.items.length, new: isNew,
+    skipped_excluded: parsed.skipped_excluded, skipped_ref: parsed.skipped_ref, skipped_type: parsed.skipped_type ?? 0,
+    skipped_types: parsed.skipped_types ?? {}, accepted: parsed.items.length, new: isNew,
     existing: parsed.items.length - isNew, would_withdraw: tooSmall ? 0 : missing,
     withdraw_guard: tooSmall ? `feed levert ${parsed.items.length} tegen ${prev} vorige run; er zou niets worden ingetrokken` : null, towns };
 }
@@ -450,6 +482,7 @@ if (globalThis.Deno?.env.get("SUPABASE_URL")) {
         return json({ ok: false, feed: code, error: err }, 502);
       }
       const parsed = await parseKyero(res.body, rules);
+      applyTypeWhitelist(parsed, await loadTypeRules(sql)); // v7: alleen de 9 standaardtypen
       if (preview) {
         const report = await previewFeed(sql, code, parsed, feed?.id ?? null, feed?.last_item_count ?? null, Number(feed?.withdraw_min_ratio ?? 0.7));
         if (feed) await logRun(sql, code, true, "nexus", true, { ...report, towns: undefined, by: admin ?? "service" }, null);

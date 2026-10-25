@@ -26,7 +26,7 @@ window.I18N = {
     // detail
     close: 'Close', share: 'Share', prev_home: 'Previous home', next_home: 'Next home',
     sh_ref: 'Ref.', sh_bed: 'Bedrooms', sh_bath: 'Bathrooms', sh_built: 'Built', sh_plot: 'Plot', sh_sea: 'To the sea', sh_shops: 'To the shops', sh_airport: 'To the airport', sh_year: 'Built in', sh_energy: 'Energy label', sh_orient: 'Facing',
-    pool_private: 'Private pool', pool_communal: 'Communal pool', pool_short_private: 'Private pool', pool_short_communal: 'Communal pool', aircon: 'Air conditioning', solarium: 'Solarium',
+    pool_unspecified: 'Pool', pool_short_unspecified: 'Pool', pool_private: 'Private pool', pool_communal: 'Communal pool', pool_short_private: 'Private pool', pool_short_communal: 'Communal pool', aircon: 'Air conditioning', solarium: 'Solarium',
     market_h: 'Asking price compared with the market',
     market_txt: (dev, med, n, town) => `This home asks ${Math.abs(dev)}% ${dev < 0 ? 'less' : 'more'} per m² than the median of ${n} comparable listings in ${town} (${med} per m²).`,
     cheaper: 'below market', pricier: 'above market',
@@ -110,7 +110,7 @@ window.I18N = {
     story_sell_h: 'Je woning verkopen?', story_sell_p: 'De meeste verkopers staan binnen een dag online en krijgen elke week een update over bezichtigingen en vragen.', story_sell_btn: 'Vraag een waardebepaling aan',
     close: 'Sluiten', share: 'Delen', prev_home: 'Vorige woning', next_home: 'Volgende woning',
     sh_ref: 'Ref.', sh_bed: 'Slaapkamers', sh_bath: 'Badkamers', sh_built: 'Woonruimte', sh_plot: 'Perceel', sh_sea: 'Naar zee', sh_shops: 'Naar winkels', sh_airport: 'Naar vliegveld', sh_year: 'Bouwjaar', sh_energy: 'Energielabel', sh_orient: 'Ligging',
-    pool_private: 'Eigen zwembad', pool_communal: 'Gemeenschappelijk zwembad', pool_short_private: 'Eigen zwembad', pool_short_communal: 'Gem. zwembad', aircon: 'Airconditioning', solarium: 'Solarium',
+    pool_unspecified: 'Zwembad', pool_short_unspecified: 'Zwembad', pool_private: 'Eigen zwembad', pool_communal: 'Gemeenschappelijk zwembad', pool_short_private: 'Eigen zwembad', pool_short_communal: 'Gem. zwembad', aircon: 'Airconditioning', solarium: 'Solarium',
     market_h: 'Vraagprijs vergeleken met de markt',
     market_txt: (dev, med, n, town) => `Deze woning vraagt ${Math.abs(dev)}% ${dev < 0 ? 'minder' : 'meer'} per m² dan de mediaan van ${n} vergelijkbare woningen in ${town} (${med} per m²).`,
     cheaper: 'onder de markt', pricier: 'boven de markt',
@@ -194,7 +194,7 @@ window.I18N = {
     // detail
     close: 'Stäng', share: 'Dela', prev_home: 'Föregående bostad', next_home: 'Nästa bostad',
     sh_ref: 'Ref.', sh_bed: 'Sovrum', sh_bath: 'Badrum', sh_built: 'Boyta', sh_plot: 'Tomt', sh_sea: 'Till havet', sh_shops: 'Till butiker', sh_airport: 'Till flygplatsen', sh_year: 'Byggår', sh_energy: 'Energiklass', sh_orient: 'Läge',
-    pool_private: 'Egen pool', pool_communal: 'Gemensam pool', pool_short_private: 'Egen pool', pool_short_communal: 'Gem. pool', aircon: 'Luftkonditionering', solarium: 'Solarium',
+    pool_unspecified: 'Pool', pool_short_unspecified: 'Pool', pool_private: 'Egen pool', pool_communal: 'Gemensam pool', pool_short_private: 'Egen pool', pool_short_communal: 'Gem. pool', aircon: 'Luftkonditionering', solarium: 'Solarium',
     market_h: 'Utgångspriset jämfört med marknaden',
     market_txt: (dev, med, n, town) => `Den här bostaden begär ${Math.abs(dev)} % ${dev < 0 ? 'mindre' : 'mer'} per m² än medianen för ${n} jämförbara bostäder i ${town} (${med} per m²).`,
     cheaper: 'under marknaden', pricier: 'över marknaden',
