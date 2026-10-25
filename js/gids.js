@@ -1,5 +1,6 @@
 /* Grupo Soltura website — Woon/koopgids met live assistent Sola (23-10-2026).
-   23-10-2026: na de gidstaalkeuze (NL/EN/ES/SV) loopt het hele gesprek in die taal verder; SV krijgt sinds 23-10-2026 de Zweedse PDF (mail Engels).
+   23-10-2026: na de gidstaalkeuze loopt het gesprek in die taal verder. 25-10-2026: geen Zweedse gids (keuze NL/EN/ES, Zweden krijgen EN);
+   Sola volgt de taal waarin de bezoeker schrijft (detectLang), ook tijdens de intake.
    /nl/woongids/ · /en/buying-guide/ · /sv/kopguide/
    Geen formulier maar een gesprek: Sola vraagt naam, e-mail, mobiel (en plannen + gidstaal), meldt enthousiast dat de gids
    onderweg is en praat daarna door over kopen, verkopen, kosten, gebieden en onze woningen (edge function web-assistant, mode=guide).
@@ -18,7 +19,7 @@
       hi: 'Hoi, ik ben ' + NAME + ', jouw live assistent',
       lead: 'Ik stuur je onze exclusieve gids "Thuis aan de Costa Blanca" en daarna beantwoord ik al je vragen: over het koopproces, de kosten, de dorpen en onze woningen.',
       guideTitle: 'Thuis aan de Costa Blanca', guideSub: 'Woon- en koopgids Vega Baja',
-      coverTag: 'Gratis · PDF · NL / EN / ES / SV',
+      coverTag: 'Gratis · PDF · NL / EN / ES',
       inside_h: 'Wat staat erin', inside_p: 'Zeven delen en een checklist, van de eerste vraag aan jezelf tot het leven na de sleutel. Met checklists, tijdlijnen en rekenvoorbeelden in plaats van lappen tekst.',
       parts: [
         ['Eerst nadenken, dan kijken', 'De 10 vragen vóór je koopt, vakantiehuis of emigratie, je moet-hebben-lijst'],
@@ -102,7 +103,7 @@
       hi: 'Hi, I\'m ' + NAME + ', your live assistant',
       lead: 'I\'ll send you our exclusive guide "At home on the Costa Blanca", and then I\'ll answer all your questions: about the buying process, the costs, the towns and our homes.',
       guideTitle: 'At home on the Costa Blanca', guideSub: 'Living & buying guide Vega Baja',
-      coverTag: 'Free · PDF · EN / NL / ES / SV',
+      coverTag: 'Free · PDF · EN / NL / ES',
       inside_h: 'What\'s inside', inside_p: 'Seven parts and a checklist, from the first question to ask yourself to life after the keys. With checklists, timelines and worked examples instead of walls of text.',
       parts: [
         ['Think first, then look', 'The 10 questions before you buy, holiday home or moving here, your must-have list'],
@@ -180,11 +181,11 @@
     },
     sv: {
       after2: 'Jag finns här igen för alla dina frågor. Om köpprocessen, kostnaderna, orterna eller våra bostäder: fråga på.', read: 'Läs mer:', cta_chat: 'Börja chatta med ' + NAME, kicker: 'Kostnadsfri bo- och köpguide', crumb: 'Köpguide', title: 'Kostnadsfri köpguide Costa Blanca',
-      desc: 'Hemma på Costa Blanca: vår kostnadsfria bo- och köpguide för Vega Baja. Be Sola, vår live-assistent, om ditt exemplar och fråga sedan om allt kring köp, kostnader och boende.',
+      desc: 'At home on the Costa Blanca: vår kostnadsfria bo- och köpguide för Vega Baja (på engelska). Be Sola, vår live-assistent, om ditt exemplar och fråga sedan om allt kring köp, kostnader och boende.',
       hi: 'Hej, jag är ' + NAME + ', din live-assistent',
-      lead: 'Jag skickar vår exklusiva guide "Hemma på Costa Blanca" och svarar sedan på alla dina frågor: om köpprocessen, kostnaderna, orterna och våra bostäder.',
-      guideTitle: 'Hemma på Costa Blanca', guideSub: 'Bo- och köpguide Vega Baja',
-      coverTag: 'Gratis · PDF · SV / EN / NL / ES',
+      lead: 'Jag skickar vår exklusiva guide "At home on the Costa Blanca" (på engelska) och svarar sedan på alla dina frågor: om köpprocessen, kostnaderna, orterna och våra bostäder.',
+      guideTitle: 'At home on the Costa Blanca', guideSub: 'Bo- och köpguide Vega Baja (på engelska)',
+      coverTag: 'Gratis · PDF · EN / NL / ES',
       inside_h: 'Det här står i den', inside_p: 'Sju delar och en checklista, från den första frågan till dig själv till livet efter nycklarna. Med checklistor, tidslinjer och räkneexempel i stället för textmassor.',
       parts: [
         ['Tänk först, titta sedan', 'De 10 frågorna innan du köper, semesterbostad eller flytt, din måste-ha-lista'],
@@ -244,7 +245,7 @@
       plans: ['Semesterbostad', 'Flytta hit', 'Uthyrning eller investering', 'Jag orienterar mig'],
       ask_lang: 'På vilket språk vill du ha guiden?',
       sending: 'Gör i ordning din guide…',
-      done_h: 'Din guide är på väg', done: function (f, e) { return 'Klart, ' + f + '! Din exklusiva guide "Hemma på Costa Blanca" är på väg till ' + e + '. Titta i inkorgen om några minuter, och i skräpposten för säkerhets skull.'; },
+      done_h: 'Din guide är på väg', done: function (f, e) { return 'Klart, ' + f + '! Din exklusiva guide "At home on the Costa Blanca" (på engelska) är på väg till ' + e + '. Titta i inkorgen om några minuter, och i skräpposten för säkerhets skull.'; },
       after: 'Under tiden finns jag här för alla dina frågor. Om köpprocessen, kostnaderna, orterna eller våra bostäder: fråga på.',
       fail: 'Hmm, det gick inte riktigt. Försök igen, eller skicka ett WhatsApp till +34 664 414 515.', retry: 'Skicka igen',
       welcome: function (f, e) { return 'Välkommen tillbaka, ' + f + '. Din guide skickades tidigare till ' + e + '.'; },
@@ -264,6 +265,41 @@
 
   // Spaans: alleen het gesprek NA de taalkeuze (de site zelf bestaat in en/nl/sv); de rest valt terug op Engels
   TX.es = Object.assign({}, TX.en, {
+    // intake in het Spaans (sinds 25-10-2026: Sola schakelt over als de bezoeker Spaans schrijft)
+    g2: '¿Cómo te llamas? Nombre y apellido, por favor.',
+    ph_name: 'Nombre y apellido', ph_last: 'Apellido', ph_email: 'tu@email.com', ph_phone: '+34 600 123 456',
+    ask_last: function (f) { return 'Encantada, ' + f + '. ¿Y tu apellido?'; },
+    ask_email: function (f) { return 'Encantada, ' + f + '. ¿A qué dirección de email te envío la guía?'; },
+    bad_email: 'Esa dirección de email no parece del todo correcta. ¿Puedes revisarla?',
+    nq: 'Eso parece más una pregunta que un nombre.',
+    hold: 'Buena pregunta, la guardo: te respondo en cuanto tu guía esté en camino.',
+    hold_c: 'Buena pregunta, se la paso a un compañero para que te responda.',
+    again_name: 'Primero lo primero: ¿cómo te llamas? Nombre y apellido.', again_last: 'Primero, ¿tu apellido?',
+    again_email: 'Primero tu email, si no la guía no te llega.', again_phone: 'Primero tu número de móvil, con prefijo internacional.',
+    n_greet: '¡Hola! ¿Cómo te llamas? Nombre y apellido, por favor.',
+    n_email: 'Eso es tu email, gracias, lo apunto. ¿Y cómo te llamas?',
+    n_phone: 'Eso parece tu teléfono, lo guardo para luego. Pero ¿cómo te llamas?',
+    n_digits: 'Casi nunca veo números en un nombre. ¿Cuál es tu nombre y apellido?',
+    n_long: 'Eso es más una frase que un nombre. Con tu nombre y apellido basta.',
+    n_junk: 'Hmm, eso no me parece un nombre. ¿Cómo te llamo? Nombre y apellido, por favor.',
+    n_fake: 'Necesito tu nombre real, para que la guía vaya a tu nombre. ¿Cómo te llamas?',
+    n_ex: 'Por ejemplo: Ana García.', l_bad: 'Eso no me parece un apellido. ¿Cuál es tu apellido?',
+    e_none: 'Ahí todavía no hay un email. Necesito algo como nombre@ejemplo.com.',
+    e_phone: 'Eso parece tu teléfono, te lo pido enseguida. Primero tu email, algo como nombre@ejemplo.com.',
+    e_fake: 'Eso parece una dirección de prueba o temporal, y la guía no te llegaría. ¿Qué dirección lees de verdad?',
+    p_letters: 'Eso no parece un número de teléfono. Solo cifras, con prefijo, por ejemplo +34 600 123 456.',
+    p_email: 'Tu email ya lo tengo. Ahora solo tu número de móvil, con prefijo.',
+    p_fake: 'Eso parece un número de ejemplo. ¿Puedes poner tu móvil real?',
+    p_long: 'Ese número es demasiado largo para un móvil. ¿Puedes revisarlo?',
+    e_dom: function (x) { return 'El dominio ' + x + ' no existe o no recibe email, así que la guía no te llegaría. ¿Puedes revisar la dirección?'; },
+    pend: function (q) { return 'Ahora tu pregunta de antes: "' + q + '"'; },
+    typo: function (e) { return '¿Querías decir ' + e + '?'; }, yes: 'Sí, eso es', no: 'No, lo corrijo',
+    ask_phone: 'Genial. ¿Y tu número de móvil? Así un compañero también puede escribirte si tienes preguntas. Con prefijo internacional, por favor.',
+    bad_phone: 'Ese número parece demasiado corto. ¿Puedes añadir el prefijo, por ejemplo +34 600 123 456?',
+    ask_plan: 'Última pregunta: ¿qué encaja mejor con tus planes?',
+    plans: ['Casa de vacaciones', 'Vivir aquí', 'Alquilar o invertir', 'Solo estoy mirando'],
+    ask_lang: '¿En qué idioma quieres la guía?',
+    cmp_intro: '¿Te envío la guía de compra gratuita? Solo necesito tu nombre, email y móvil.', cmp_start: 'Sí, envíala',
     after2: 'Aquí estoy de nuevo para todas tus preguntas. Sobre el proceso de compra, los costes, los pueblos o nuestras viviendas: pregunta lo que quieras.', read: 'Sigue leyendo:',
     guideTitle: 'En casa en la Costa Blanca',
     ph_chat: 'Hazle una pregunta a ' + NAME + '…',
@@ -280,11 +316,25 @@
     page: { buy: 'Comprar', sell: 'Vender', move: 'Vivir en España', costs: 'Calculadora de gastos mensuales', area: 'Pueblos', contact: 'Contacto' },
     cmp_done: function (f) { return '¡Listo, ' + f + '! La guía va de camino a tu bandeja de entrada.'; }, cmp_more: 'Sigue hablando con ' + NAME + ' sobre la compra',
   });
-  // gidstalen. De PDF bestaat in NL, EN, ES en SV (Zweeds sinds 23-10-2026); de mail aan Zweedse kiezers blijft Engels, de knop gaat naar de Zweedse PDF.
-  // Na de keuze gaat het hele gesprek (Sola's teksten, knoppen, antwoorden) verder in die taal (Rick, 23-10-2026).
-  var GLANGS = [['nl', 'Nederlands'], ['en', 'English'], ['es', 'Español'], ['sv', 'Svenska']];
-  // mailLang: taal van de mail en het contact (Zweeds -> Engels); de gidstaal zelf (st.glang, ook sv) bepaalt welke PDF de mail linkt
+  // gidstalen: de PDF bestaat in NL, EN en ES. Er is GEEN Zweedse gids (Rick 25-10-2026): Zweden krijgen de Engelse.
+  // Na de keuze gaat het gesprek verder in die taal, behalve als de bezoeker zelf in een andere taal schrijft (st.wlang) of de Zweedse site Engels kiest.
+  var GLANGS = [['nl', 'Nederlands'], ['en', 'English'], ['es', 'Español']];
   function pdfLang(g) { return g === 'nl' || g === 'es' ? g : 'en'; }
+  // in welke taal schrijft de bezoeker? Alleen op woorden (niet op accenten: die staan ook in namen). null = geen duidelijk signaal.
+  var LW = {
+    nl: 'ik je jij jou het een niet wat hoe waar wanneer waarom welke mijn naam heet ben bent hallo hoi goedemorgen goedemiddag goedenavond graag wil wilt huis woning woningen kosten kost bedankt dank dat dit ook nog zijn hebben heb hoeveel kopen verkopen mag zou kunnen dag doei alsjeblieft',
+    en: 'i the my name what how hello hi hey please thanks thank you your and of to for with it want would could should house home homes cost costs where when which why yes not am im it\'s this that much buy sell have has does do',
+    sv: 'jag är och det att inte vad hur hej tack heter mitt namn du din vill hus bostad kostar kostnad var när vilken varför också hejsan tjena morgon köpa sälja hur mycket finns',
+    es: 'hola yo soy llamo nombre que qué como cómo cuánto cuanto cuesta quiero casa piso gracias por favor el los las es y con para una dónde donde cuándo cuando sí buenos buenas días comprar vender tengo',
+  };
+  var LWS = {}; Object.keys(LW).forEach(function (k) { LWS[k] = {}; LW[k].split(' ').forEach(function (w) { LWS[k][w] = 1; }); });
+  function detectLang(s) {
+    var w = String(s || '').toLowerCase().replace(/[^\p{L}\p{M}'\s]/gu, ' ').split(/\s+/).filter(Boolean), sc = {}, best = null, top = 0, second = 0;
+    if (/[¿¡]/.test(s)) sc.es = 2;
+    w.forEach(function (x) { Object.keys(LWS).forEach(function (k) { if (LWS[k][x]) sc[k] = (sc[k] || 0) + 1; }); });
+    Object.keys(sc).forEach(function (k) { if (sc[k] > top) { second = top; top = sc[k]; best = k; } else if (sc[k] > second) second = sc[k]; });
+    return top >= 1 && top > second ? best : null;
+  }
 
   function L(lang) { return TX[lang] || TX.en; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -295,9 +345,9 @@
     mail: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3z"/><path d="M3 6l9 7 9-7"/></svg>',
     arrow: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
   };
-  // echte pagina's uit de PDF-gids (img/gids/<taal>-<pagina>.webp; nl, en of es, sv valt terug op en)
+  // echte pagina's uit de PDF-gids (img/gids/<taal>-<pagina>.webp; nl, en of es)
   var FAN = [26, 14, 16, 5, 1]; // van achter naar voor; 1 = omslag
-  function pg(lang, n) { return '/img/gids/' + (lang === 'nl' || lang === 'es' || lang === 'sv' ? lang : 'en') + '-' + n + '.webp'; }
+  function pg(lang, n) { return '/img/gids/' + (lang === 'nl' || lang === 'es' ? lang : 'en') + '-' + n + '.webp'; } // geen Zweedse gids: sv toont de Engelse
   function fan(lang) {
     var t = L(lang);
     return '<div class="gd-fan" aria-label="' + esc(t.guideTitle) + '">' + FAN.map(function (n, i) {
@@ -449,7 +499,7 @@
     var $ = function (s) { return rootEl.querySelector(s); };
     var log = $('#solLog'), chips = $('#solChips'), form = $('#solForm'), input = $('#solIn');
     if (!log || !form) return;
-    var st = { step: 'name', first: '', last: '', email: '', phone: '', plan: '', glang: lang, clang: lang, sent: false, busy: false, pending: [], pre: {}, miss: {} };
+    var st = { step: 'name', first: '', last: '', email: '', phone: '', plan: '', glang: pdfLang(lang), clang: lang, wlang: null, sent: false, busy: false, pending: [], pre: {}, miss: {} };
     function setChatLang(l) { st.clang = TX[l] ? l : lang; t = L(st.clang); input.placeholder = t.ph_chat; }
     var hist = [], answers = [];
     var saved = d.ls ? d.ls.get('guide', null) : null;
@@ -519,7 +569,7 @@
     function askLang() {
       form.hidden = true;
       var order = GLANGS.slice().sort(function (a, b) { return (a[0] === st.glang ? -1 : 0) - (b[0] === st.glang ? -1 : 0); });
-      return say(t.ask_lang).then(function () { setChips(order, function (v, lbl) { st.glang = v; setChatLang(v); chips.innerHTML = ''; me(lbl); submit(); }); });
+      return say(t.ask_lang).then(function () { setChips(order, function (v, lbl) { st.glang = v; if (!st.wlang && !(lang === 'sv' && v === 'en')) setChatLang(v); chips.innerHTML = ''; me(lbl); submit(); }); });
     }
     function submit() {
       if (st.busy) return; st.busy = true; form.hidden = true;
@@ -558,7 +608,8 @@
       card.innerHTML = '<div class="sol-done-fly">' + cover(st.glang, true) + '<span class="sol-done-env">' + ICO.mail + '</span></div><div><b>' + esc(t.done_h) + '</b><span>' + esc(st.email) + '</span></div>';
       log.appendChild(card); scroll();
       for (var i = 0; i < 14; i++) { var c = document.createElement('i'); c.className = 'sol-conf'; c.style.setProperty('--x', (Math.random() * 220 - 110) + 'px'); c.style.setProperty('--r', (Math.random() * 540 - 270) + 'deg'); c.style.setProperty('--d', (Math.random() * .4) + 's'); c.style.background = ['#F03838', '#FF7068', '#FBCC10', '#384850'][i % 4]; card.appendChild(c); }
-      return say(d.compact ? t.cmp_done(st.first) : t.done(st.first, st.email), 'big');
+      var gt = L(st.glang).guideTitle; // titel van de gids die echt komt (bv. Engelse gids in een Nederlands gesprek)
+      return say(d.compact ? t.cmp_done(st.first) : t.done(st.first, st.email).replace(t.guideTitle, gt), 'big');
     }
     // vrij gesprek met Sola na de intake
     function chatMode() {
@@ -614,6 +665,11 @@
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var v = input.value.trim(); if (!v) return;
+      // schrijft de bezoeker in een andere taal dan de site? Dan praat Sola vanaf nu in die taal (Rick 25-10-2026)
+      if (st.step !== 'email' || !/@/.test(v)) {
+        var wl = detectLang(v);
+        if (wl && TX[wl]) { st.wlang = wl; if (wl !== st.clang) setChatLang(wl); if (!st.sent && GLANGS.some(function (g) { return g[0] === wl; })) st.glang = wl; }
+      }
       if (st.step === 'chat') return chats(v);
       if (st.step === 'name') {
         var rn = checkName(v);
@@ -675,7 +731,7 @@
     }
     if (saved && saved.email && saved.first) {
       log.innerHTML = '';
-      Object.assign(st, { first: saved.first, last: saved.last || '', email: saved.email, phone: saved.phone || '', glang: saved.glang || st.glang });
+      Object.assign(st, { first: saved.first, last: saved.last || '', email: saved.email, phone: saved.phone || '', glang: pdfLang(saved.glang || st.glang) });
       setChatLang(saved.clang || (saved.glang && TX[saved.glang] ? saved.glang : lang));
       form.hidden = true;
       say(t.welcome(saved.first, saved.email)).then(function () {
@@ -684,7 +740,7 @@
           var extra = [['resend', t.resend], ['other', t.other]];
           setChips(extra.concat(t.starters.slice(0, 2).map(function (s) { return [s, s]; })), function (v, lbl) {
             if (v === 'resend') { chips.innerHTML = ''; me(lbl); st.sent = false; submit(); }
-            else if (v === 'other') { chips.innerHTML = ''; me(lbl); st.sent = false; if (d.ls) d.ls.set('guide', null); Object.assign(st, { first: '', last: '', email: '', phone: '', plan: '', glang: lang }); setChatLang(lang); say(t.g2).then(function () { ask('name', t.ph_name, 'text', 'name'); }); }
+            else if (v === 'other') { chips.innerHTML = ''; me(lbl); st.sent = false; if (d.ls) d.ls.set('guide', null); Object.assign(st, { first: '', last: '', email: '', phone: '', plan: '', glang: pdfLang(lang), wlang: null }); setChatLang(lang); say(t.g2).then(function () { ask('name', t.ph_name, 'text', 'name'); }); }
             else chats(v);
           });
         });
