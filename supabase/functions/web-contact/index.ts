@@ -20,10 +20,12 @@
 // v13 (24-10-2026): kind 'brochure' (link "Brochure per e-mail ontvangen" op de woning, form_id web-property-brochure).
 //   Voornaam, achternaam en e-mail verplicht; referentie verplicht. Intake -> request type pdfbrochure -> LeadProcessor-v2
 //   (maakt de PDF-brochure en mailt hem als bijlage; nieuwbouw krijgt volgens het antwoordbeleid geen brochure).
+// v14 (26-10-2026): noodroute koopgids (intake onbereikbaar) gaat naar PurchaseInfoV2 (jarvis-purchase-info-v2; v1 is gearchiveerd)
+//   en stuurt de gekozen gidstaal mee (guide_lang nl/en/es/sv; Zweden krijgen de Zweedse PDF in een Engelse mail).
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type', 'Access-Control-Allow-Methods': 'POST, OPTIONS' };
 const sb = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
-const GUIDE_HOOK = 'https://gruposoltura.app.n8n.cloud/webhook/jarvis-purchase-info';
+const GUIDE_HOOK = 'https://gruposoltura.app.n8n.cloud/webhook/jarvis-purchase-info-v2';
 const INTAKE_HOOK = 'https://gruposoltura.app.n8n.cloud/webhook/jarvis-web-intake-v2';
 const FAV_HOOK = 'https://gruposoltura.app.n8n.cloud/webhook/jarvis-favorites-mail';
 const INTERESTS = ['market_report', 'monthly_matches', 'price_reduced', 'weekly_news'];
@@ -121,10 +123,12 @@ Deno.serve(async (req) => {
   // 2. koopgids: alleen zelf doorsturen als de intake niet bereikbaar was (anders doet de intake het)
   let forwarded: boolean | null = null;
   if (row.kind === 'guide' && !intakeOk) {
+    const gl = str((b.fields && b.fields.guide_lang) || '', 5).toLowerCase().slice(0, 2);
     try {
       const r = await fetch(GUIDE_HOOK, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
         email: row.email, name: row.name, first_name: row.first_name || '', last_name: row.last_name || '', phone: row.phone,
         kind: 'buying_guide', lang: row.lang, request_type: 'request-purchaseinfo', message: '', source: 'website-new', reference: row.reference,
+        guide_lang: ['nl', 'en', 'es', 'sv'].includes(gl) ? gl : '',
       }), signal: AbortSignal.timeout(8000) });
       forwarded = r.ok;
     } catch { forwarded = false; }
