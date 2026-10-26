@@ -1,5 +1,5 @@
 """Eenmalig gebruikt (26-10-2026): haalt de vectoriconen uit de originele infotorial-PDF (EN) als SVG.
-Gebruik: python allin-src/extract_icons.py downloads/Soltura-all-in-fee.pdf allin-src/assets
+Gebruik: python allin-src/extract_icons.py downloads/All-in-one-fee.pdf allin-src/assets
 De roze cirkel achter de iconen zit niet in de SVG; die tekent style.css."""
 import sys, pymupdf as fitz
 src = fitz.open(sys.argv[1]); out = sys.argv[2]

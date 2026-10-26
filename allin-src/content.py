@@ -110,5 +110,5 @@ T = {
 }
 
 # Bestandsnamen in downloads/ (Rick 26-10-2026).
-FILES = {'nl': 'Soltura-alles-in-een-tarief.pdf', 'en': 'Soltura-all-in-fee.pdf',
-         'es': 'Soltura-tarifa-todo-incluido.pdf', 'sv': 'Soltura-allt-i-ett-arvode.pdf'}
+FILES = {'nl': 'Alles-in-een-tarief.pdf', 'en': 'All-in-one-fee.pdf',
+         'es': 'Tarifa-todo-incluido.pdf', 'sv': 'Allt-i-ett-arvode.pdf'}
