@@ -1,0 +1,17 @@
+name: Check web-contact (tijdelijk)
+on:
+  push:
+    paths: ['.github/workflows/check-webcontact.yml']
+permissions:
+  contents: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          R=$(curl -sS -m 20 -X POST https://wuvpbwowdycsdlrqkaoq.supabase.co/functions/v1/web-contact -H 'content-type: application/json' -d '{"website":"x","kind":"guide"}' -w " HTTP %{http_code}")
+          R2=$(curl -sS -m 20 -X POST https://wuvpbwowdycsdlrqkaoq.supabase.co/functions/v1/web-contact -H 'content-type: application/json' -d '{"kind":"guide","email":"geen-adres"}' -w " HTTP %{http_code}")
+          git rm -q .github/workflows/check-webcontact.yml
+          git config user.name "JARVIS" && git config user.email "noreply@gruposoltura.com"
+          git commit -m "tijdelijke web-contact-controle verwijderd" -m "honeypot: $R" -m "validatie: $R2" && git push
