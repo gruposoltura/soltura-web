@@ -1,0 +1,48 @@
+/* Infotorial verkoopbegeleiding: maten in pt, afgeleid van het origineel (Chromium/Skia, Cloudinary-PDF NL/EN). */
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 595.3pt; }
+body { font-family: 'Liberation Sans', Arial, sans-serif; color: #555; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+a { text-decoration: none; color: inherit; }
+.page { width: 595.3pt; height: 842pt; overflow: hidden; position: relative; page-break-after: always; break-after: page; background: #fff; }
+.page:last-child { page-break-after: auto; break-after: auto; }
+.hdr { display: block; width: 100%; height: 127pt; object-fit: cover; }
+.bar { height: 21.3pt; background: #e3201b; color: #fff; font: bold 8.38pt/21.3pt 'Liberation Sans', sans-serif; padding: 0 20.6pt; display: flex; justify-content: space-between; }
+.k { font: bold 7.73pt/1 'Liberation Sans', sans-serif; letter-spacing: 1.9pt; text-transform: uppercase; color: #e3201b; }
+.k.gold { color: #b8801c; }
+.hero { background: #fbeeee; border-bottom: 2pt solid #e3201b; height: 130.8pt; padding: 24.3pt 20.6pt 0; }
+.hero h1 { font: bold 22.55pt/1 'Liberation Serif', Georgia, serif; color: #2a2a2a; margin-top: 9pt; }
+.hero p { font-size: 9.99pt; line-height: 17.4pt; margin-top: 11.4pt; }
+.fee { margin: 16.7pt 20.6pt 0; height: 115.3pt; background: #faefd6; border: .4pt solid #e1bb6a; border-left: 2.3pt solid #e0a12e; border-radius: 4pt; display: flex; align-items: center; padding: 0 16pt 0 19.3pt; gap: 17pt; }
+.badge { position: relative; width: 54.8pt; height: 54.8pt; flex: none; color: #fff; text-align: center; border-radius: 50%; background: #e3201b; box-shadow: 0 0 0 3.2pt #d8a23a inset; }
+.badge .x { position: absolute; left: 0; right: 0; top: 14.8pt; font: bold 15.46pt/1 'Liberation Serif', serif; }
+.badge .f { position: absolute; left: 0; right: 0; top: 34.9pt; font: bold 6.12pt/1 'Liberation Sans', sans-serif; letter-spacing: 1.2pt; text-transform: uppercase; padding-left: 1.2pt; }
+.badge .f.long { letter-spacing: .3pt; padding-left: .3pt; font-size: 5.4pt; }
+.fee h2 { font: bold 14.82pt/1 'Liberation Serif', serif; color: #2a2a2a; margin-top: 6pt; }
+.fee p { font-size: 9.34pt; line-height: 15.45pt; margin-top: 4.7pt; }
+.fee p b, .also b, .ctap b { color: #e3201b; }
+.also { margin: 14.2pt 20.6pt 0; height: 52.8pt; border: .3pt solid #e3201b; border-left: 2.1pt solid #e3201b; border-radius: 4pt; display: flex; align-items: center; padding: 0 14pt 0 17pt; gap: 13.2pt; color: #333; }
+.also img { width: 23.7pt; height: 23.7pt; flex: none; }
+.also p { font-size: 9.34pt; line-height: 15.45pt; }
+.gk { margin: 21.7pt 20.6pt 0; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: .6pt .6pt; background: #ecdcdc; padding-top: .6pt; }
+.p1 .grid { position: absolute; left: 0; right: 0; top: 519.4pt; align-content: start; padding-bottom: .6pt; }
+.p2 .grid { margin-top: 1.1pt; padding-bottom: .6pt; }
+.card { background: #fff; padding: 14.2pt 16pt 13.1pt 16.8pt; }
+.card:nth-child(even) { padding-left: 16.5pt; padding-right: 17.5pt; }
+.ic { width: 34.75pt; height: 34.75pt; border-radius: 50%; background: #fbe4e4; }
+.ic img { display: block; width: 34.75pt; height: 34.75pt; }
+.card h3 { font: bold 11.92pt/1 'Liberation Serif', serif; color: #2a2a2a; margin-top: 10.9pt; }
+.card p { font-size: 9.15pt; line-height: 14.8pt; color: #666; margin-top: 7pt; }
+.card .tag { font-size: 7.28pt; line-height: 1; letter-spacing: .4pt; color: #999; margin-top: 9pt; }
+.cta { background: #fbeeee; border-top: 1.9pt solid #e3201b; padding: 17.1pt 20.6pt 0; height: 153.3pt; }
+.note { font: italic 7.73pt/1 'Liberation Sans', sans-serif; color: #666; }
+.cta h2 { font: bold 14.82pt/1 'Liberation Serif', serif; color: #2a2a2a; margin-top: 15.5pt; }
+.ctap { font-size: 9.66pt; line-height: 16.8pt; margin-top: 7.8pt; color: #444; }
+.btns { display: flex; gap: 6.5pt; margin-top: 11.7pt; }
+.btn { display: inline-block; height: 25.8pt; padding: 0 15.5pt; font: bold 7.73pt/25.8pt 'Liberation Sans', sans-serif; letter-spacing: .64pt; text-transform: uppercase; color: #fff; border-radius: 2pt; }
+.btn.red { background: #e3201b; } .btn.dark { background: #333; }
+.foot { background: #efefef; height: 215.8pt; text-align: center; padding-top: 19.7pt; font-size: 7.41pt; line-height: 14.15pt; color: #666; }
+.foot .www { font: bold 8.7pt/1 'Liberation Sans', sans-serif; color: #e3201b; }
+.foot p { margin-top: 1.2pt; } .foot p + p { margin-top: 10pt; }
+.foot .pv { display: inline-block; margin-top: 10.2pt; color: #888; text-decoration: underline; text-underline-offset: 1.4pt; }
