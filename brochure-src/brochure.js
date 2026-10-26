@@ -368,20 +368,21 @@ h2{font-family:var(--serif);font-weight:600;font-size:20pt;line-height:1.08;lett
 .w-hero{position:absolute;top:42mm;left:12mm;right:12mm;height:118mm;border-radius:6mm;background:#ddd center/cover no-repeat}
 .w-thumbs{position:absolute;top:164mm;left:12mm;right:12mm;height:42mm;display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}
 .w-thumbs div{border-radius:4mm;background:#ddd center/cover no-repeat}
-.w-title{position:absolute;top:211mm;left:12mm;right:12mm;text-align:center}
+.w-low{position:absolute;top:209mm;bottom:22mm;left:12mm;right:12mm;display:flex;flex-direction:column}
+.w-title{text-align:center}
 .w-title h1{font-family:var(--serif);font-weight:600;font-size:23pt;line-height:1.1;color:var(--ink)}
 .w-title h1 em{font-weight:700}
 .w-title .cat{font-size:11.5pt;font-weight:600;color:var(--ink2);margin-top:.8mm}
 .w-title .pr{font-family:var(--serif);font-weight:700;font-size:40pt;line-height:1.05;color:var(--red);margin-top:1.6mm}
 .w-title .pr.pst{display:inline-block;font-size:30pt;color:var(--ink);background:var(--lemon);border-radius:99px;padding:1mm 9mm 2mm;margin-top:3mm}
-.w-stats{position:absolute;top:252mm;left:12mm;right:12mm;display:grid;grid-template-columns:repeat(${Math.max(wstats.length, 1)},1fr);gap:3mm}
+.w-stats{margin:auto 0;display:grid;grid-template-columns:repeat(${Math.max(wstats.length, 1)},1fr);gap:3mm}
 .w-stat{background:var(--salt);border-radius:3.5mm;padding:2.2mm 2mm;text-align:center}
 .w-stat .ic{width:6.4mm;height:6.4mm;display:block;margin:0 auto 1mm}
 .w-stat .v{font-weight:800;font-size:12pt;line-height:1.15}
 .w-stat .v small{font-size:8.5pt;font-weight:700}
 .w-stat .l{font-size:7.4pt;color:var(--muted);font-weight:600;margin-top:.4mm}
-.welab{display:inline-block;min-width:8mm;border-radius:1.6mm;color:#fff;font-weight:800;padding:.6mm 1.6mm;margin:1.6mm 0 1.4mm}
-.w-stat .v .welab{font-size:12pt}
+.welab{display:inline-block;min-width:8mm;border-radius:1.6mm;color:#fff;font-weight:800;padding:0 1.6mm;line-height:1.3}
+.w-stat .v .welab{font-size:11pt}
 .w-bar{position:absolute;left:0;right:0;bottom:7mm;height:15mm;background:var(--sun);display:grid;grid-template-columns:repeat(3,1fr);align-items:center;padding:0 12mm}
 .w-bar a{color:#fff;font-weight:800;font-size:11pt;display:flex;align-items:center;gap:2.4mm;text-decoration:none}
 .w-bar a:nth-child(2){justify-content:center}.w-bar a:nth-child(3){justify-content:flex-end}
@@ -393,8 +394,8 @@ h2{font-family:var(--serif);font-weight:600;font-size:20pt;line-height:1.08;lett
     <div class="w-qr"><img src="${qr(homeUrl)}" alt=""><span>${W.scan}</span></div></div>
   <div class="w-hero" ${bg(ph(0))}></div>
   <div class="w-thumbs"><div ${bg(ph(1))}></div><div ${bg(ph(2))}></div><div ${bg(ph(3))}></div></div>
-  <div class="w-title"><h1>${sub && sub !== town ? sub + ' ' : ''}<em>${town}</em></h1><div class="cat">${esc(cat)}</div>${st !== T.forSale ? `<div class="pr pst">${st}</div>` : `<div class="pr">${price}</div>`}</div>
-  <div class="w-stats">${wstats.map(s => `<div class="w-stat">${s[0] ? ic(s[0]) : ''}<div class="v">${s[1]}</div><div class="l">${esc(s[2])}</div></div>`).join('')}</div>
+  <div class="w-low"><div class="w-title"><h1>${sub && sub !== town ? sub + ' ' : ''}<em>${town}</em></h1><div class="cat">${esc(cat)}</div>${st !== T.forSale ? `<div class="pr pst">${st}</div>` : `<div class="pr">${price}</div>`}</div>
+  <div class="w-stats">${wstats.map(s => `<div class="w-stat">${s[0] ? ic(s[0]) : ''}<div class="v">${s[1]}</div><div class="l">${esc(s[2])}</div></div>`).join('')}</div></div>
   <div class="w-bar"><a>${ic('phone')}+34 966 792 113</a><a>${ic('globe')}www.gruposoltura.com</a><a>${ic('mail')}info@gruposoltura.com</a></div>
   <div class="w-api">${W.api}</div>
 </section>`;
