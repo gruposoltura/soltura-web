@@ -1452,10 +1452,59 @@ function fillDetail(d) {
     $('#costBox').innerHTML = `<div class="costs"><h3>${t('costs_h')}</h3><table>${rows.map(r => `<tr><td>${r[0]}</td><td>${eur(r[1])}</td></tr>`).join('')}
       <tr class="total"><td>${allIn ? t('costs_total') : t('costs_total_ex')}</td><td>${eur(total)}</td></tr></table>
       <div class="allin"><b>${t('allin_h')}</b><p>${t('allin_p')}</p>
-        <div class="allin-cta">${isOpen(S.byId.get(d.id) || d) ? `<button type="button" class="btn primary" id="costAsk">${t('sb_cost_btn')}</button>` : ''}<a class="btn wa" href="https://wa.me/${agentOf(d).tel.replace('+', '')}?text=${encodeURIComponent(t('allin_wa_q', d.reference))}" target="_blank" rel="noopener" data-track="whatsapp_costs">WhatsApp</a></div></div>
+        <div class="allin-cta">${isOpen(S.byId.get(d.id) || d) ? `<button type="button" class="btn primary" id="costAsk" aria-expanded="false" aria-controls="allinForm">${t('sb_cost_btn')}</button>` : ''}<a class="btn wa" href="https://wa.me/${agentOf(d).tel.replace('+', '')}?text=${encodeURIComponent(t('allin_wa_q', d.reference))}" target="_blank" rel="noopener" data-track="whatsapp_costs">WhatsApp</a></div>
+        ${isOpen(S.byId.get(d.id) || d) ? allinFormHtml() : ''}</div>
       <p class="note">${t('costs_note')}</p></div>`;
-    const ca = $('#costAsk'); if (ca) ca.addEventListener('click', () => { openSend(S.byId.get(d.id) || d, 'costs', 'costs'); track('costs_ask', d.id); });
+    bindAllin(S.byId.get(d.id) || d);
   }
+}
+// ---------- Infotorial all-in tarief (26-10-2026) ----------
+// Knop 'Send me the all-in-one info' in het all-in-blok klapt een eigen formulier open (voornaam, achternaam, e-mail).
+// Eigen aanvraag, los van brochure/kostenoverzicht: web-contact kind 'allin' (form_id web-property-allin) -> WebFormIntake-v2
+// (type purchaseinfo) -> LeadProcessor-v2 (leadcard naar de makelaar) -> PurchaseInfoV2 kind purchase_info: mail met downloadknop
+// naar de infotorial 'Eén vast tarief' in NL/EN/ES/SV (contacttaal, voor een nieuw contact de browsertaal).
+function allinFormHtml() {
+  return `<form class="form allin-form" id="allinForm" hidden novalidate>
+    <p class="allin-sub">${t('ai_sub')}</p>
+    <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <div class="row2"><input name="first" placeholder="${t('bro_first')}" autocomplete="given-name" aria-label="${t('bro_first')}"><input name="last" placeholder="${t('bro_last')}" autocomplete="family-name" aria-label="${t('bro_last')}"></div>
+    <input name="email" type="email" placeholder="${t('form_email')}" autocomplete="email" aria-label="${t('form_email')}">
+    <button class="btn primary" type="submit">${t('sb_send')}</button><p class="ok" aria-live="polite"></p>
+    <p class="sb-priv">${t('sb_priv', L('privacy'))}</p>
+  </form><div class="bro-done allin-done" id="allinDone" hidden role="status"></div>`;
+}
+function bindAllin(p) {
+  const btn0 = $('#costAsk'), f = $('#allinForm'); if (!btn0 || !f) return;
+  const me = ls.get('me', null) || ls.get('guide', null);
+  if (me) [['first', me.first], ['last', me.last], ['email', me.email]].forEach(([k, v]) => { if (v) $(`input[name=${k}]`, f).value = v; });
+  btn0.addEventListener('click', () => {
+    const open = f.hidden;
+    f.hidden = !open; btn0.setAttribute('aria-expanded', String(open));
+    if (open) {
+      track('allin_open', p.id);
+      setTimeout(() => { const i = $$('input[name=first],input[name=last],input[name=email]', f).find(x => !x.value) || $('button[type=submit]', f); if (i) i.focus({ preventScroll: true }); f.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 60);
+    }
+  });
+  f.addEventListener('submit', async e => {
+    e.preventDefault();
+    const d = Object.fromEntries(new FormData(f)), out = $('.ok', f), err = k => { out.style.color = 'var(--salina)'; out.textContent = t(k); };
+    if (d.website) return;
+    const first = nameCase(d.first), last = nameCase(d.last), email = String(d.email || '').trim().toLowerCase().replace(/\s+/g, '');
+    if (!first || !last || !EMAIL_RE.test(email)) return err('sb_err');
+    const btn = $('button[type=submit]', f); btn.disabled = true; btn.textContent = t('sb_busy'); out.textContent = '';
+    const nl = S.lang === 'nl';
+    const msg = nl ? `Graag ontvang ik de infotorial over jullie all-in tarief (woning ${p.reference}).` : `Please send me the infotorial about your all-in fee (home ${p.reference}).`;
+    const r = await fn('web-contact', { ...formMeta('allinForm', p, 'web-property-allin'), website: '', kind: 'allin', first, last, first_name: first, last_name: last, name: `${first} ${last}`, email,
+      browser_lang: (navigator.language || '').slice(0, 20), message: msg, fields: { channel: 'allin-box' } }).catch(() => ({ ok: false }));
+    btn.disabled = false; btn.textContent = t('sb_send');
+    if (!r || !r.ok) return err(r && r.error === 'rate' ? 'ai_rate' : 'form_err');
+    ls.set('me', { ...(ls.get('me', null) || {}), first, last, email });
+    track('contact_sent', p.id, null, { kind: 'allin', via: 'allin-box' });
+    f.hidden = true; btn0.hidden = true;
+    const box = $('#allinDone');
+    box.innerHTML = `<div class="bro-ico">${ICON.check}</div><div><b>${t('bro_ok_h', esc(first))}</b><p>${t('ai_ok', esc(email))}</p></div>`;
+    box.hidden = false;
+  });
 }
 function gallery(urls) {
   const track_ = $('#galTrack'), thumbs = $('#thumbs'), count = $('#galCount');

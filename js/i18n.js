@@ -257,6 +257,9 @@ window.I18N = {
 
 // Brochureblok (brochure + kostenoverzicht), snelknoppen, balk onderin en kostenblok op de woning (24-10-2026)
 Object.assign(I18N.en, {
+  ai_sub: 'We email you our infotorial: everything our one fixed fee covers, from NIE to notary.',
+  ai_ok: e => `The infotorial about our all-in fee is on its way to <b>${e}</b>. It will be in your inbox within a few minutes (check your spam folder just in case).`,
+  ai_rate: 'You have already requested this a few times. Check your inbox, or send us a WhatsApp.',
   qa_send_bro: 'Send me the brochure + costs', qa_send_costs: 'Send me the cost overview',
   bar_bro: 'Brochure', bar_costs: 'Costs', bar_view: 'Plan a viewing', bar_notify: 'Let me know',
   sb_h: ref => `What shall we send you about ${ref}?`, sb_sub: 'Tick what you would like. Both PDFs arrive together in one email.',
@@ -274,6 +277,9 @@ Object.assign(I18N.en, {
   allin_wa_q: ref => `gruposoltura.com: I have a question about the costs of ${ref}.`,
 });
 Object.assign(I18N.nl, {
+  ai_sub: 'We mailen je onze infotorial: alles wat onder ons ene vaste tarief valt, van NIE tot notaris.',
+  ai_ok: e => `De infotorial over ons all-in tarief is onderweg naar <b>${e}</b>. Binnen een paar minuten in je inbox (kijk voor de zekerheid ook even in je spam).`,
+  ai_rate: 'Je hebt dit al een paar keer aangevraagd. Kijk even in je inbox, of stuur ons een WhatsApp.',
   qa_send_bro: 'Stuur me de brochure + kosten', qa_send_costs: 'Stuur me het kostenoverzicht',
   bar_bro: 'Brochure', bar_costs: 'Kosten', bar_view: 'Bezichtiging', bar_notify: 'Hou me op de hoogte',
   sb_h: ref => `Wat mogen we je sturen over ${ref}?`, sb_sub: 'Vink aan wat je wilt ontvangen. Beide PDF\'s komen samen in één mail.',
@@ -291,6 +297,9 @@ Object.assign(I18N.nl, {
   allin_wa_q: ref => `gruposoltura.com: ik heb een vraag over de kosten van ${ref}.`,
 });
 Object.assign(I18N.sv, {
+  ai_sub: 'Vi mejlar dig vårt informationsblad: allt som ingår i vårt fasta arvode, från NIE till notarie.',
+  ai_ok: e => `Informationsbladet om vårt allt-i-ett-arvode är på väg till <b>${e}</b>. Det kommer inom några minuter (titta även i skräpposten).`,
+  ai_rate: 'Du har redan begärt detta några gånger. Titta i inkorgen, eller skicka ett WhatsApp till oss.',
   qa_send_bro: 'Skicka broschyren + kostnader', qa_send_costs: 'Skicka kostnadsöversikten',
   bar_bro: 'Broschyr', bar_costs: 'Kostnader', bar_view: 'Visning', bar_notify: 'Håll mig uppdaterad',
   sb_h: ref => `Vad ska vi skicka till dig om ${ref}?`, sb_sub: 'Kryssa i det du vill ha. Båda PDF-filerna kommer tillsammans i ett mejl.',

@@ -22,6 +22,9 @@
 //   (maakt de PDF-brochure en mailt hem als bijlage; nieuwbouw krijgt volgens het antwoordbeleid geen brochure).
 // v14 (26-10-2026): noodroute koopgids (intake onbereikbaar) gaat naar PurchaseInfoV2 (jarvis-purchase-info-v2; v1 is gearchiveerd)
 //   en stuurt de gekozen gidstaal mee (guide_lang nl/en/es/sv; Zweden krijgen de Zweedse PDF in een Engelse mail).
+// v15 (26-10-2026): kind 'allin' (knop 'Send me the all-in-one info' in het all-in-blok op de woning, form_id web-property-allin).
+//   Voornaam, achternaam en e-mail verplicht; max 5 per e-mailadres per uur. Intake -> type purchaseinfo -> LeadProcessor-v2
+//   -> PurchaseInfoV2 (kind purchase_info): infotorial 'Eén vast tarief' als downloadknop in NL/EN/ES/SV.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type', 'Access-Control-Allow-Methods': 'POST, OPTIONS' };
 const sb = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
@@ -33,7 +36,7 @@ const LANGS = ['nl', 'en', 'es', 'de', 'fr', 'no', 'da', 'fi', 'ru'];
 // talen waarin de site wel bestaat maar waarin we NIET communiceren -> Engels
 const COMM_EN = ['sv'];
 // terugval per soort als de pagina geen form_id meestuurt
-const FORM_BY_KIND: Record<string, string> = { viewing: 'web-property-viewing', guide: 'web-property-buying-guide', costs: 'web-buy-costs', valuation: 'web-sell-valuation', move: 'web-move-intake', contact: 'web-contact', newsletter: 'web-newsletter-footer', favorites: 'web-favorites-mail', notify: 'web-property-notify', brochure: 'web-property-brochure' };
+const FORM_BY_KIND: Record<string, string> = { viewing: 'web-property-viewing', guide: 'web-property-buying-guide', costs: 'web-buy-costs', valuation: 'web-sell-valuation', move: 'web-move-intake', contact: 'web-contact', newsletter: 'web-newsletter-footer', favorites: 'web-favorites-mail', notify: 'web-property-notify', brochure: 'web-property-brochure', allin: 'web-property-allin' };
 // oude technische element-ID's (pagina van voor v7 nog in cache)
 const LEGACY_ID: Record<string, string> = { viewForm: 'web-property-viewing', guideForm: 'web-property-buying-guide', buyForm: 'web-buy-costs', sellForm: 'web-sell-valuation', moveForm: 'web-move-intake', contactForm: 'web-contact', broForm: 'web-property-brochure' };
 const NL_VARIANT: Record<string, string> = { pop: 'web-newsletter-popup', feed: 'web-newsletter-feed', inline: 'web-newsletter-footer' };
@@ -89,6 +92,7 @@ Deno.serve(async (req) => {
   const emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(row.email);
   if (!emailOk && (row.kind === 'newsletter' || row.kind === 'guide' || row.kind === 'notify' || row.kind === 'brochure' || isFav || row.phone.length < 6)) return json({ ok: false, error: 'contact' }, 400);
   if (row.kind === 'brochure' && (!row.first_name || !row.last_name || !row.reference)) return json({ ok: false, error: 'brochure' }, 400);
+  if (row.kind === 'allin' && (!emailOk || !row.first_name || !row.last_name)) return json({ ok: false, error: 'allin' }, 400);
   if (row.kind === 'newsletter' && !interests.length) return json({ ok: false, error: 'interests' }, 400);
   if (isFav && !favorites.length) return json({ ok: false, error: 'favorites' }, 400);
 
@@ -103,8 +107,8 @@ Deno.serve(async (req) => {
     } catch { ok = false; }
     return json({ ok, test: true });
   }
-  // Favorieten en brochures - limiet tegen misbruik: max 5 per e-mailadres per uur.
-  if (isFav || row.kind === 'brochure') {
+  // Favorieten, brochures en all-in-infotorial - limiet tegen misbruik: max 5 per e-mailadres per uur.
+  if (isFav || row.kind === 'brochure' || row.kind === 'allin') {
     const since = new Date(Date.now() - 3600_000).toISOString();
     const { count } = await sb.from('web_contact_requests').select('id', { count: 'exact', head: true }).eq('kind', row.kind).ilike('email', row.email).gte('at', since);
     if ((count || 0) >= 5) return json({ ok: false, error: 'rate' }, 429);
