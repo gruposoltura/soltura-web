@@ -1,0 +1,16 @@
+name: Test allin (tijdelijk)
+on:
+  push:
+    paths: ['.github/workflows/test-allin.yml']
+permissions:
+  contents: write
+jobs:
+  t:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          R=$(curl -sS -m 20 -X POST https://wuvpbwowdycsdlrqkaoq.supabase.co/functions/v1/web-contact -H 'content-type: application/json' -d '{"kind":"allin","form_id":"web-property-allin","lang":"en","browser_lang":"sv-SE","first":"Rick","last":"Test","first_name":"Rick","last_name":"Test","name":"Rick Test","email":"rick@gruposoltura.com","reference":"PL880","page_url":"https://gruposoltura.com/en/","message":"TEST: Please send me the infotorial about your all-in fee (home PL880).","fields":{"channel":"allin-box"}}' -w " HTTP %{http_code}")
+          git rm -q .github/workflows/test-allin.yml
+          git config user.name "JARVIS" && git config user.email "noreply@gruposoltura.com"
+          git commit -m "tijdelijke allin-test verwijderd" -m "$R" && git push
