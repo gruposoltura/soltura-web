@@ -2,7 +2,7 @@
 // Taken: oude WordPress-URL's en verouderde nieuwe URL's -> 301 naar de echte pagina, partner-exportfeeds transparant doorsturen
 // naar Supabase, oude en nieuwe afmeldlinks afhandelen, www en andere domeinen -> https://gruposoltura.com.
 // Alle andere verzoeken gaan ongewijzigd door naar GitHub Pages.
-// v2 (19-10-2026): echte URL's per taal (/en/..., /nl/...). Doelen komen uit /redirects.json (oude WordPress-paden)
+// v2 (19-10-2026): echte URL's per taal (/en/..., /nl/..., /sv/..., sinds 26-10-2026 /es/...). Doelen komen uit /redirects.json (oude WordPress-paden)
 // en /routes.json (uit de nachtelijke build: woning -> canonieke URL, verdwenen woning -> woonplaatsgids).
 // GEGENEREERD door scripts/make-worker.mjs uit worker/worker.template.js + js/routes.js + js/resolve.js — niet met de hand bewerken.
 // Plakklaar: Cloudflare -> Workers & Pages -> gruposoltura-legacy -> Edit code -> alles vervangen -> Deploy.
@@ -68,9 +68,9 @@ export default {
       if (r.ok) return new Response(r.body, { status: 200, headers: { 'content-type': r.headers.get('content-type') || 'application/octet-stream', 'cache-control': 'public, max-age=604800' } });
     }
 
-    // 6. homepage met ?lang=nl|en (oude links, ook /?lang=nl#/area/rojales) -> /nl/ of /en/. De browser neemt #... mee;
+    // 6. homepage met ?lang=nl|en|es (oude links, ook /?lang=nl#/area/rojales) -> /nl/ of /en/. De browser neemt #... mee;
     //    de app zet een oude hash-route daarna om naar het echte pad.
-    if (path === '/' && /(^|&)lang=(nl|en)(&|$)/i.test(url.search.slice(1)) && !LEGACY_ROOT_QUERY.test(url.search.slice(1))) {
+    if (path === '/' && /(^|&)lang=(nl|en|es)(&|$)/i.test(url.search.slice(1)) && !LEGACY_ROOT_QUERY.test(url.search.slice(1))) {
       const lang = url.searchParams.get('lang').toLowerCase();
       url.searchParams.delete('lang');
       return Response.redirect(SITE + '/' + lang + '/' + (url.searchParams.toString() ? '?' + url.searchParams.toString() : ''), 301);

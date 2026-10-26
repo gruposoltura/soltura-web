@@ -25,6 +25,8 @@
 // v15 (26-10-2026): kind 'allin' (knop 'Send me the all-in-one info' in het all-in-blok op de woning, form_id web-property-allin).
 //   Voornaam, achternaam en e-mail verplicht; max 5 per e-mailadres per uur. Intake -> type purchaseinfo -> LeadProcessor-v2
 //   -> PurchaseInfoV2 (kind purchase_info): infotorial 'Eén vast tarief' als downloadknop in NL/EN/ES/SV.
+// v16 (26-10-2026): Spaanse website (/es/): lang 'es' blijft 'es' als contact-/communicatietaal voor ALLE soorten (niet alleen koopgids).
+//   Spaans is een communicatietaal (brochure, DocumentSender, FavoritesMail). Zweeds blijft Engels (COMM_EN).
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type', 'Access-Control-Allow-Methods': 'POST, OPTIONS' };
 const sb = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
@@ -77,8 +79,8 @@ Deno.serve(async (req) => {
   const rawBrowser = str(b.browser_lang || b.lang, 10).toLowerCase().slice(0, 2);
   const browserLang = COMM_EN.includes(rawBrowser) || COMM_EN.includes(siteLang) ? 'en' : rawBrowser;
   const utm = b.utm && typeof b.utm === 'object' && !Array.isArray(b.utm) ? b.utm : null;
-  // taal van het contact: nl of en; koopgids ook es (gekozen gidstaal)
-  const formLang = b.lang === 'nl' ? 'nl' : (kind === 'guide' && b.lang === 'es') ? 'es' : 'en';
+  // taal van het contact: nl, es (Spaanse site; ook de gekozen koopgidstaal 'es') of en
+  const formLang = b.lang === 'nl' ? 'nl' : b.lang === 'es' ? 'es' : 'en';
   const row = {
     kind, lang: isFav ? (LANGS.includes(browserLang) ? browserLang : 'en') : formLang,
     name: str(b.name || [b.first || b.first_name, b.last || b.last_name].filter(Boolean).join(' '), 120), email: str(b.email, 160).trim(), phone: str(b.phone, 40),

@@ -5,6 +5,11 @@
 // mode=guide  : gesprek op de woon/koopgids-pagina (na de intake): koop- en verkoopproces, kosten, gebieden, emigreren,
 //               gegrond in web_guide_knowledge + web_town_info; kan ook onze woningen zoeken (max 3 kaartjes terug)
 // POST {mode, lang, query, id?, reference?, wp_id?, history?, name?}  of  GET ?mode=&lang=&q=&id=&ref=&wp_id=
+// v25 (26-10-2026): Spaanse website (/es/): lang 'es' als terugvaltaal (Spaans van Spanje, tú), Spaanse knopteksten en
+//   foutmeldingen, Spaanse omschrijving (body_es, terugval body_en) als die er is. Overige talen ongewijzigd.
+// v24 (24-10-2026): web_guide_knowledge is de ene kennisbron voor alle modi: ook search en ask lezen de gids
+//   (hypotheek + documenten, proces, NIE e.d.). Kennis toevoegen = rij in web_guide_knowledge, nooit in deze code.
+//   search: algemene koop/hypotheekvragen lopen via intent 'local' (filters null, town null) - geen frontend-wijziging nodig.
 // v23 (23-10-2026): de assistent heet Sola (vrouwelijk), niet meer Ava.
 // v22 (23-10-2026): commerciële naam Soltura Real Estate (niet Grupo Soltura) naar bezoekers.
 // v21 (23-10-2026): de assistent heet Ava (vrouwelijk), niet meer Sol.
@@ -49,6 +54,7 @@ How we talk:
 - Warm, direct and confident, like an experienced local agent talking to a client. Short sentences. No hype, no exclamation marks, no filler.
 - Dutch: informal "je/jij", natural Dutch, never a literal translation of English phrasing.
 - Swedish: informal "du", natural Swedish, never a literal translation of English phrasing.
+- Spanish: Spanish from Spain (es-ES), informal "tú", natural Spanish, never a literal translation of English phrasing.
 - Give concrete numbers (km, minutes, euros, m²) whenever you have them, rounded sensibly ("about 7 km, roughly a quarter of an hour by car").
 - Never say you cannot answer or that something is unknown in a distant way. If a detail is genuinely not known to us yet (for example community fees or the exact year of a renovation), say it the way an agent would: "That is something we will check for you with the owner." and offer to arrange it. Do not invent such details.
 - You may use general, stable local knowledge about the Vega Baja and Costa Blanca South (towns, beaches, golf courses, airports, healthcare, supermarkets, the climate, the AP-7 and CV-905), but never invent facts about a specific home.
@@ -130,6 +136,7 @@ async function townInfo() {
   return TOWNINFO.v;
 }
 // Kennis uit de woon/koopgids (web_guide_knowledge); {itp} e.d. komen uit web_config.
+// Sinds v24 de ene kennisbron voor ALLE modi (search, ask, guide).
 let GUIDE: { at: number; v: string } | null = null;
 async function guideKnowledge() {
   if (GUIDE && Date.now() - GUIDE.at < 600_000) return GUIDE.v;
@@ -267,22 +274,22 @@ Deno.serve(async (req) => {
     try { body = await req.json(); } catch { return json({ error: 'bad json' }, 400); }
   }
   const mode = String(body.mode || 'search');
-  const lang = body.lang === 'nl' || body.lang === 'sv' ? body.lang : 'en';
+  const lang = body.lang === 'nl' || body.lang === 'sv' || body.lang === 'es' ? body.lang : 'en';
   const tx = (o: Record<string, string>) => o[lang] ?? o.en;
   const query = String(body.query || '').slice(0, 500);
   // Taal: altijd de taal waarin de bezoeker schrijft; de paginataal is alleen de terugval.
-  const LANG = `Always reply in the language the visitor writes in (Dutch, English, Spanish, German, French, Swedish, Norwegian, Polish or any other), also when the website is set to another language. Only when the message gives no clear language, reply in ${tx({ en: 'English', nl: 'Dutch', sv: 'Swedish' })}. Suggestions use the same language as your reply.`;
+  const LANG = `Always reply in the language the visitor writes in (Dutch, English, Spanish, German, French, Swedish, Norwegian, Polish or any other), also when the website is set to another language. Only when the message gives no clear language, reply in ${tx({ en: 'English', nl: 'Dutch', sv: 'Swedish', es: 'Spanish (Spain, informal tú)' })}. Suggestions use the same language as your reply.`;
   if (!query) return json({ error: 'empty' }, 400);
 
   // eenvoudige rate limit: 40 vragen per uur per (gehasht) IP
   const since = new Date(Date.now() - 3600_000).toISOString();
   const { count } = await sb.from('web_assistant_log').select('id', { count: 'exact', head: true }).eq('ip_hash', ipHash).gte('at', since);
-  if ((count || 0) > 40) return json({ reply: tx({ en: 'You have asked a lot of questions. Feel free to call or WhatsApp us and we will help you personally.', nl: 'Je hebt veel vragen gesteld. Bel of app ons gerust, dan helpen we je persoonlijk verder.', sv: 'Du har ställt många frågor. Ring eller skicka ett WhatsApp till oss, så hjälper vi dig personligen.' }) }, 429);
+  if ((count || 0) > 40) return json({ reply: tx({ en: 'You have asked a lot of questions. Feel free to call or WhatsApp us and we will help you personally.', nl: 'Je hebt veel vragen gesteld. Bel of app ons gerust, dan helpen we je persoonlijk verder.', sv: 'Du har ställt många frågor. Ring eller skicka ett WhatsApp till oss, så hjälper vi dig personligen.', es: 'Has hecho muchas preguntas. Llámanos o escríbenos por WhatsApp y te ayudamos personalmente.' }) }, 429);
 
   let out: any = {}, ok = true, wpId: number | null = null;
   try {
     if (mode === 'search') {
-      const [f, ti, tg] = await Promise.all([facets(), townInfo(), townGeo()]);
+      const [f, ti, tg, gk] = await Promise.all([facets(), townInfo(), townGeo(), guideKnowledge()]);
       const localFacts = ti.map((r: any) => `- ${r.town}${r.place ? ' / ' + r.place : ''} [${r.topic}, confidence ${r.confidence}]: ${r.fact}`).join('\n');
       const townCounts = f.towns.map((t) => `${t} (${f.counts[t]})`).join(', ');
       const sys = `${VOICE}
@@ -303,9 +310,14 @@ ${tg}
    - If you are not sure a facility (health centre, school, station, hospital) exists in that exact town, say what is nearby in general terms and offer to check it for them.
    - Never offer services nobody asked for (airport pickup, car rental, bookings). The only offers you make: more about the area, showing our homes there, or checking a detail for them.
    - End with one short, natural bridge to living there, only when it fits, for example that we have homes in that town. Never pushy.
-   - Set "town" to the one town from our list the question is mainly about (exact spelling from the list), else null. Set "cta" to a short button label in the reply language, like "Bekijk onze woningen in Rojales" / "See our homes in Rojales" / "Se våra bostäder i Rojales", only when town is set; else null.
+   - Set "town" to the one town from our list the question is mainly about (exact spelling from the list), else null. Set "cta" to a short button label in the reply language, like "Bekijk onze woningen in Rojales" / "See our homes in Rojales" / "Se våra bostäder i Rojales" / "Ver nuestras viviendas en Rojales", only when town is set; else null.
 
-3. intent "off_topic": anything not about homes or about life around our towns (programming, recipes, homework, politics, other countries or regions of Spain far from us). Reply in one or two friendly sentences that this is not something we help with here, and that we are happy to tell them about homes and life on the Costa Blanca South. No filters, town null.
+   Also intent "local": a general question about buying, selling or moving here (the purchase process, costs and taxes, mortgages and the documents a bank needs, NIE, bank account, power of attorney, legal checks, new build, renting out, life after the purchase). Answer from OUR GUIDE below: it is our own knowledge and the source of truth for these topics; never contradict it and never mention a knowledge base. Concrete, in at most 90 words; a list of documents may be named in full in one or two plain sentences. Taxes and legal points: the general rule, figures indicative, and we confirm it for their situation. Prices of our services (buyer guidance, mortgage mediation, commission) are never mentioned: they are on request. When they want something personal (a cost overview, a mortgage in principle, a call), say a colleague gladly helps. For these questions set "town" and "cta" to null.
+
+OUR GUIDE:
+${gk}
+
+3. intent "off_topic": anything not about homes, buying or selling here, or life around our towns (programming, recipes, homework, politics, other countries or regions of Spain far from us). Reply in one or two friendly sentences that this is not something we help with here, and that we are happy to tell them about homes and life on the Costa Blanca South. No filters, town null.
 
 Answer with the respond tool. The reply is plain text: no markdown, no asterisks, no bullet lists. For intent "local" and "off_topic" set "filters" to null. For intent "search" set "town" and "cta" to null.
 Filter rules (intent "search" only): towns must come from this list (pick nearby towns if the visitor names an area: 'Quesada' or 'La Marquesa' -> Rojales; 'near the beach' -> Guardamar del Segura, Torrevieja, Orihuela Costa, La Manga del Mar Menor, Los Alcázares, San Fulgencio): ${f.towns.join(', ')}. categories from: ${f.cats.join(', ')}. pool: "private"|"communal"|"any"|null. newbuild: true|false|null. sort: "price_asc"|"price_desc"|"newest"|"value"|null ('value' = best price vs market). Prices in euro as numbers. Leave unknown fields null/empty; prefer towns over max_sea_km for beach wishes. A message that only names a town or street is a search. Never refuse a search; if the wish is vague, return broad filters and ask one short follow-up in the reply.
@@ -318,7 +330,7 @@ ${LANG}`;
       out.intent = intent;
       if (intent !== 'search') out.filters = null;
       if (!out.town || !f.towns.includes(out.town) || intent !== 'local') { out.town = null; out.cta = null; }
-      if (out.town && !out.cta) out.cta = tx({ en: 'See our homes in ', nl: 'Bekijk onze woningen in ', sv: 'Se våra bostäder i ' }) + out.town;
+      if (out.town && !out.cta) out.cta = tx({ en: 'See our homes in ', nl: 'Bekijk onze woningen in ', sv: 'Se våra bostäder i ', es: 'Ver nuestras viviendas en ' }) + out.town;
     } else if (mode === 'relax') {
       // De site vond niets dat precies past en geeft alternatieven mee (al geteld en gekozen). Wij maken er één antwoord van.
       const alts = Array.isArray(body.alts) ? body.alts.slice(0, 6).map((a: any) => ({ desc: String(a.desc || '').slice(0, 200), n: Number(a.n) || 0 })) : [];
@@ -413,12 +425,13 @@ Answer with the respond tool.`;
         energy_label: p.energy_label === 'R' ? 'in progress' : p.energy_label, orientation: p.orientation, view: p.view_type, features: p.features, terraces: p.terraces,
         solarium: p.solarium, aircon: p.aircon, status: p.status || (p.under_offer ? 'under_offer' : 'available'),
         price_vs_market_pct: p.is_newbuild ? null : p.market_deviation_pct, market_median_eur_m2: p.is_newbuild ? null : p.market_median_m2,
-        description: strip(lang === 'nl' ? (p.body_nl || p.body_en) : lang === 'sv' ? (p.body_sv || p.body_en || p.body_nl) : (p.body_en || p.body_nl)).slice(0, 3500),
+        description: strip(lang === 'nl' ? (p.body_nl || p.body_en) : lang === 'sv' ? (p.body_sv || p.body_en || p.body_nl) : lang === 'es' ? (p.body_es || p.body_en || p.body_nl) : (p.body_en || p.body_nl)).slice(0, 3500),
       };
       // Lokale feiten van de plaats van deze woning (bijv. de weekmarkt), zodat ook die vragen goed gaan.
-      const ti = await townInfo();
+      const [ti, gk] = await Promise.all([townInfo(), guideKnowledge()]);
       const near = ti.filter((r: any) => r.town === p.town).map((r: any) => `- ${r.town}${r.place ? ' / ' + r.place : ''} [confidence ${r.confidence}]: ${r.fact}`).join('\n');
-      const sys = `${VOICE}\n${LANG}\nToday in Spain it is ${todayES()}.\nThe visitor is looking at this home of ours right now. What we know about it (use it, but never mention that it comes from a list or data):\n${JSON.stringify(facts)}\n${near ? 'Verified local facts about ' + p.town + ' (use exactly; for low confidence suggest a quick check at the town hall):\n' + near + '\n' : ''}The visitor may also ask about life around this home (markets, beaches, shops, healthcare, golf, getting around). Answer those like a helpful local; never invent exact days, opening hours, phone numbers or prices that are not given above, say where to check instead or offer that we check it. Questions that have nothing to do with this home or the area: one friendly sentence that we stick to homes and life here.\nDistances: use nearest_beach and airports. When measured_from is the centre of a town or area, say "from the centre of <place>" naturally. Purchase costs in the Comunidad Valenciana (current rates, use exactly these): resale ${c.itp_resale_pct}% transfer tax (ITP); new build ${c.iva_newbuild_pct}% VAT (IVA) plus ${c.ajd_newbuild_pct}% stamp duty (AJD); Calculate the tax for this home when asked. Important: Soltura Real Estate does not work a la carte. Our service is ONE all-in fee, agreed up front. Never list or estimate separate costs for notary, land registry, lawyer/legal fees, NIE or power of attorney, not even for comparison. Explain that what comes on top of price and tax depends on the buyer's situation (do they still need an NIE / tax number, will they sign via a power of attorney, do they take a Spanish mortgage) and encourage them to ask us for a personal cost overview (offer it, and set handoff true when they want it). ${c.buyer_all_in_eur > 0 ? 'Our all-in fee is EUR ' + c.buyer_all_in_eur + '.' : 'Do not quote an amount for our fee.'} Always label cost figures as indicative. New build: before sending any project information (prices lists, plans, brochures, payment schedules) we want personal contact and preferably a visit to the project; ask when they could come to Spain and set handoff true. Status: 'available' = for sale; 'under_offer' or 'reserved' = reserved by a buyer: we have stopped viewings and expect the sale to complete; if it falls through it comes back on the market, so offer to let them know (the "back on the market" button) and to show similar homes; 'sold' = sold, say so plainly and offer to find something similar. Mention the status only when it is not 'available' or when asked. Keep answers under 80 words. End with a natural next step only when it helps (a viewing, a call, a related question), not every time. Reply ONLY with JSON: {"reply":"...","suggestions":["two or three short follow-up questions the visitor might ask next, in the same language as the reply"],"handoff":false}. Set handoff true when the visitor wants a viewing, negotiation, or anything only a person can do.`;
+      const guideBlock = gk ? `General buying questions (the purchase process, mortgages and the documents a bank needs, NIE, bank account, power of attorney, legal checks, new build, renting out, life after the purchase): answer from OUR GUIDE below, applied to this home where it fits. It is our own knowledge and the source of truth for these topics; never contradict it and never mention a knowledge base. A list of documents may be named in full (up to 100 words for that answer). Prices of our services (buyer guidance, mortgage mediation, commission) are never mentioned: they are on request. Terms: the land registry (Registro de la Propiedad) is not the cadastre (Catastro).\nOUR GUIDE:\n${gk}\n` : '';
+      const sys = `${VOICE}\n${LANG}\nToday in Spain it is ${todayES()}.\nThe visitor is looking at this home of ours right now. What we know about it (use it, but never mention that it comes from a list or data):\n${JSON.stringify(facts)}\n${near ? 'Verified local facts about ' + p.town + ' (use exactly; for low confidence suggest a quick check at the town hall):\n' + near + '\n' : ''}${guideBlock}The visitor may also ask about life around this home (markets, beaches, shops, healthcare, golf, getting around). Answer those like a helpful local; never invent exact days, opening hours, phone numbers or prices that are not given above, say where to check instead or offer that we check it. Questions that have nothing to do with this home, buying here or the area: one friendly sentence that we stick to homes and life here.\nDistances: use nearest_beach and airports. When measured_from is the centre of a town or area, say "from the centre of <place>" naturally. Purchase costs in the Comunidad Valenciana (current rates, use exactly these): resale ${c.itp_resale_pct}% transfer tax (ITP); new build ${c.iva_newbuild_pct}% VAT (IVA) plus ${c.ajd_newbuild_pct}% stamp duty (AJD); Calculate the tax for this home when asked. Important: Soltura Real Estate does not work a la carte. Our service is ONE all-in fee, agreed up front. Never list or estimate separate costs for notary, land registry, lawyer/legal fees, NIE or power of attorney, not even for comparison. Explain that what comes on top of price and tax depends on the buyer's situation (do they still need an NIE / tax number, will they sign via a power of attorney, do they take a Spanish mortgage) and encourage them to ask us for a personal cost overview (offer it, and set handoff true when they want it). ${c.buyer_all_in_eur > 0 ? 'Our all-in fee is EUR ' + c.buyer_all_in_eur + '.' : 'Do not quote an amount for our fee.'} Always label cost figures as indicative. New build: before sending any project information (prices lists, plans, brochures, payment schedules) we want personal contact and preferably a visit to the project; ask when they could come to Spain and set handoff true. Status: 'available' = for sale; 'under_offer' or 'reserved' = reserved by a buyer: we have stopped viewings and expect the sale to complete; if it falls through it comes back on the market, so offer to let them know (the "back on the market" button) and to show similar homes; 'sold' = sold, say so plainly and offer to find something similar. Mention the status only when it is not 'available' or when asked. Keep answers under 80 words. End with a natural next step only when it helps (a viewing, a call, a related question), not every time. Reply ONLY with JSON: {"reply":"...","suggestions":["two or three short follow-up questions the visitor might ask next, in the same language as the reply"],"handoff":false}. Set handoff true when the visitor wants a viewing, negotiation, or anything only a person can do.`;
       const hist = Array.isArray(body.history) ? body.history.slice(-6).map((h: any) => ({ role: h.role === 'assistant' ? 'assistant' : 'user', content: String(h.content || '').slice(0, 800) })) : [];
       const t = await claude(sys, [...hist, { role: 'user', content: query }], 900);
       out = parseJson(t);
@@ -427,7 +440,7 @@ Answer with the respond tool.`;
     }
   } catch (e) {
     ok = false;
-    out = { reply: tx({ en: 'Our assistant is briefly unavailable. Feel free to WhatsApp or call us, we reply quickly.', nl: 'Even geen verbinding met onze assistent. App of bel ons gerust, we reageren snel.', sv: 'Vår assistent är inte tillgänglig just nu. Skicka gärna ett WhatsApp eller ring oss, vi svarar snabbt.' }), error: String(e).slice(0, 200) };
+    out = { reply: tx({ en: 'Our assistant is briefly unavailable. Feel free to WhatsApp or call us, we reply quickly.', nl: 'Even geen verbinding met onze assistent. App of bel ons gerust, we reageren snel.', sv: 'Vår assistent är inte tillgänglig just nu. Skicka gärna ett WhatsApp eller ring oss, vi svarar snabbt.', es: 'Nuestra asistente no está disponible en este momento. Escríbenos por WhatsApp o llámanos, respondemos enseguida.' }), error: String(e).slice(0, 200) };
   }
   await sb.from('web_assistant_log').insert({ ip_hash: ipHash, mode, lang, query, wp_id: wpId, result: out, ms: Date.now() - t0, ok });
   const { error: _e, ...pub } = out;

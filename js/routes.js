@@ -1,32 +1,32 @@
 /* Grupo Soltura — URL-schema (echte paden per taal). Gedeeld door de app (window.ROUTES),
    het buildscript (scripts/build.mjs) en de redirects (404.html / Cloudflare Worker).
-   Schema (besluit 19-10-2026): /en/, /nl/ en (sinds 19-10) /sv/ met voorvoegsel, / = Engelse inhoud met canonical naar /en/.
+   Schema (besluit 19-10-2026): /en/, /nl/, /sv/ (sinds 19-10) en /es/ (sinds 26-10-2026) met voorvoegsel, / = Engelse inhoud met canonical naar /en/.
    Woning: /en/property/<ref>-<soort>-<plaats>/ · /nl/woning/<ref>-<soort>-<plaats>/ — de referentie is de sleutel,
    de rest is leesbaar en mag veranderen (een afwijkend leesbaar deel wordt doorgestuurd naar de canonieke vorm). */
 (function (root) {
   'use strict';
-  var LANGS = ['en', 'nl', 'sv'];
+  var LANGS = ['en', 'nl', 'sv', 'es'];
   // routesleutel -> padsegment per taal ('' = startpagina van die taal)
   var SEG = {
-    home: { en: '', nl: '', sv: '' },
-    buy: { en: 'buying', nl: 'kopen', sv: 'kopa' },
-    sell: { en: 'selling', nl: 'verkopen', sv: 'salja' },
-    move: { en: 'move-to-spain', nl: 'emigreren', sv: 'flytta-till-spanien' },
-    area: { en: 'areas', nl: 'woonplaatsen', sv: 'orter' },
-    guide: { en: 'living-in', nl: 'wonen-in', sv: 'bo-i' },
-    news: { en: 'news', nl: 'nieuws', sv: 'nyheter' },
-    contact: { en: 'contact', nl: 'contact', sv: 'kontakt' },
-    privacy: { en: 'privacy', nl: 'privacy', sv: 'integritet' },
-    favorites: { en: 'favorites', nl: 'favorieten', sv: 'favoriter' },
-    property: { en: 'property', nl: 'woning', sv: 'bostad' },
+    home: { en: '', nl: '', sv: '', es: '' },
+    buy: { en: 'buying', nl: 'kopen', sv: 'kopa', es: 'comprar' },
+    sell: { en: 'selling', nl: 'verkopen', sv: 'salja', es: 'vender' },
+    move: { en: 'move-to-spain', nl: 'emigreren', sv: 'flytta-till-spanien', es: 'vivir-en-espana' },
+    area: { en: 'areas', nl: 'woonplaatsen', sv: 'orter', es: 'pueblos' },
+    guide: { en: 'living-in', nl: 'wonen-in', sv: 'bo-i', es: 'vivir-en' },
+    news: { en: 'news', nl: 'nieuws', sv: 'nyheter', es: 'noticias' },
+    contact: { en: 'contact', nl: 'contact', sv: 'kontakt', es: 'contacto' },
+    privacy: { en: 'privacy', nl: 'privacy', sv: 'integritet', es: 'privacidad' },
+    favorites: { en: 'favorites', nl: 'favorieten', sv: 'favoriter', es: 'favoritos' },
+    property: { en: 'property', nl: 'woning', sv: 'bostad', es: 'vivienda' },
     // woon/koopgids met live assistent Sola (23-10-2026)
-    gids: { en: 'buying-guide', nl: 'woongids', sv: 'kopguide' },
+    gids: { en: 'buying-guide', nl: 'woongids', sv: 'kopguide', es: 'guia-de-compra' },
     // makelaarsportaal (24-10-2026): niet in menu of sitemap, noindex; agents.gruposoltura.com verwijst hierheen
-    agents: { en: 'agents', nl: 'makelaars', sv: 'maklare' },
+    agents: { en: 'agents', nl: 'makelaars', sv: 'maklare', es: 'agentes' },
   };
   // subpagina's onder een vaste pagina (22-10-2026): maandlastencalculator onder Emigreren
-  // /nl/emigreren/maandlasten/ . /en/move-to-spain/monthly-costs/ . /sv/flytta-till-spanien/manadskostnader/
-  var COSTS = { en: 'monthly-costs', nl: 'maandlasten', sv: 'manadskostnader' };
+  // /nl/emigreren/maandlasten/ . /en/move-to-spain/monthly-costs/ . /sv/flytta-till-spanien/manadskostnader/ . /es/vivir-en-espana/gastos-mensuales/
+  var COSTS = { en: 'monthly-costs', nl: 'maandlasten', sv: 'manadskostnader', es: 'gastos-mensuales' };
   function isCosts(s) { s = String(s || '').toLowerCase(); for (var l in COSTS) if (COSTS[l] === s) return true; return false; }
   // segment -> sleutel (beide talen; ook een segment uit de andere taal wordt herkend en daarna rechtgezet)
   var BYSEG = {};
@@ -35,6 +35,7 @@
   var CAT = {
     en: { quadrant: 'Quad house', 'semi-detached': 'Semi-detached', attic: 'Penthouse', other: 'Home' },
     sv: { villa: 'Villa', apartment: 'L\u00e4genhet', bungalow: 'Bungalow', detached: 'Frist\u00e5ende hus', townhouse: 'Radhus', penthouse: 'Takv\u00e5ning', quadrant: 'Kedjehus (quad)', duplex: 'Duplex', finca: 'Finca', 'semi-detached': 'Parhus', commercial: 'Lokal', other: 'Bostad', plot: 'Tomt', attic: 'Takv\u00e5ning' },
+    es: { villa: 'Villa', apartment: 'Apartamento', bungalow: 'Bungalow', detached: 'Chalet independiente', townhouse: 'Adosado', penthouse: '\u00c1tico', quadrant: 'Quad', duplex: 'D\u00faplex', finca: 'Finca', 'semi-detached': 'Pareado', commercial: 'Local comercial', other: 'Vivienda', plot: 'Parcela', attic: '\u00c1tico' },
     nl: { villa: 'Villa', apartment: 'Appartement', bungalow: 'Bungalow', detached: 'Vrijstaand huis', townhouse: 'Rijtjeshuis', penthouse: 'Penthouse', quadrant: 'Hoekwoning (quad)', duplex: 'Duplex', finca: 'Finca', 'semi-detached': 'Twee-onder-een-kap', commercial: 'Bedrijfspand', other: 'Woning', plot: 'Bouwgrond', attic: 'Penthouse' },
   };
   function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
@@ -152,7 +153,7 @@
     if (!m) return null;
     var p = (m[1] || '/').toLowerCase(), g = p.match(/\/(?:woning-kopen-in-|buying-property-in-|wonen-in\/|living-in\/|area\/|woonplaatsen\/|areas\/)([a-z0-9\-]+)/);
     if (g && slugs && slugs[g[1]]) return href(lang, 'guide', g[1]);
-    if (/^\/(en|nl|sv)\//.test(p) && parse(p)) return p;
+    if (/^\/(en|nl|sv|es)\//.test(p) && parse(p)) return p;
     return href(lang, 'home');
   }
   // html: al opgeschoonde omschrijving. guides: woonplaatsgidsen in deze taal (slug, town, aliases).

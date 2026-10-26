@@ -53,7 +53,7 @@ Doel: meer aanvragen, rustiger pagina (besluiten Rick 24-10-2026).
 - **Schermvullend bladeren**: verticale swipe door het aanbod, zoals Reels.
 - **Personalisatie zonder cookies van derden**: bekeken en bewaarde woningen (localStorage) sturen de volgorde "Voor jou gekozen".
 - **Bewegend beeld**: drie sfeerclips (Higgsfield, eenmalig) alleen als decoratie op home/emigreren/verkopen; op hover scrubt een kaart door de foto's.
-- Talen: EN + NL + SV (Zweeds sinds 19-10-2026).
+- Talen: EN + NL + SV (Zweeds sinds 19-10-2026) + ES (Spaans sinds 26-10-2026).
 
 ## Data (Supabase `wuvpbwowdycsdlrqkaoq`) — sinds 18-10-2026 volledig op NEXUS core
 Migratie: `nexus_core_011_site_views` (bron in het NEXUS-pakket `011_site_views.sql`). De site gebruikt de anon key; core-tabellen blijven dicht, de views draaien met `security_invoker=false`.
@@ -92,6 +92,16 @@ Besluit Rick: de website is volledig Zweeds onder `/sv/` (taalkiezer met Zweedse
 - **Nieuws:** geen Zweedse berichten; `/sv/nyheter/` toont de Engelse versie.
 - **Assistent:** `web-assistant` v14 antwoordt in de taal van de bezoeker, terugval Zweeds op `/sv/`.
 - **Communicatie Engels:** `web-contact` v9 zet `sv` om naar `en` (contacttaal en FavoritesMail); `nexus2_submit_form` maakt een contact van de Zweedse site aan met taal `en`. De sitetaal blijft zichtbaar in `payload.site_lang` en `page_url`.
+
+## Spaans (sinds 26-10-2026)
+Rick: vierde sitetaal onder `/es/`, Spaanse vlag rechtsboven in de taalkiezer. Anders dan bij Zweeds communiceren we met Spaanse bezoekers **in het Spaans** (mails, brochure, DocumentSender en Sola kennen ES al).
+- **Paden:** `/es/` · `/es/comprar/` · `/es/vender/` · `/es/vivir-en-espana/` (+ `/gastos-mensuales/`) · `/es/pueblos/` · `/es/vivir-en/<slug>/` · `/es/vivienda/<ref>-<soort>-<plaats>/` · `/es/noticias/` · `/es/contacto/` · `/es/privacidad/` · `/es/favoritos/` (noindex) · `/es/guia-de-compra/` · `/es/agentes/` (noindex). hreflang `es` / og:locale `es_ES` overal. Een Spaanse browser op `/` gaat naar `/es/`.
+- **Oude WordPress-paden onder `/es/`** (`/es/propiedad/...`, `/es/comprar-casa-en-<plaats>/`, oude berichten) gaan nu naar de Spaanse tegenhanger (`js/resolve.js`); bestaande sitepagina's worden nooit meer als oud pad behandeld. Worker opnieuw gegenereerd: **`worker/worker.js` opnieuw plakken in Cloudflare** (`gruposoltura-legacy`).
+- **Teksten:** `I18N.es` (`js/i18n.js` + `js/pages.js`), `PAGES.es`, `TX.es` (`js/gids.js`), `COSTS` es, `PARTNERS` es, inline `tx({...es})` in app en build. Berichten aan kantoor op de ES-site in het Spaans.
+- **Woningteksten:** kolommen `body_es`/`heading_es`/`summary_es` in `web_properties`. Engels is de bron (edge function `property-translate` v4, `lang es`, n8n **JARVIS-Web-TranslateES** `SUvhIGet4cZQAgwF`, token `TranslateES`, elke 5 min). **Uitzondering:** een Spaanse feedtekst van een partner (`core.property_texts.feed_hash` gevuld) blijft staan; alleen ontbrekende en eigen vertalingen (feed_hash leeg) worden (opnieuw) vertaald. Migratie `site_spanish_es`.
+- **Woonplaatsgidsen:** `core.town_guides` lang `es` (16 plaatsen, zelfde slugs).
+- **Nieuws:** geen Spaanse blogberichten; `/es/noticias/` toont de Engelse versie, koppen van Spaanse bronnen (idealista, vegabajadigital) in het origineel.
+- **Edge functions:** `web-assistant` v25 (lang es, `body_es`), `web-contact` v16 (lang es blijft es voor alle aanvragen).
 
 ## Pagina's
 Woningen, Kopen, Verkopen, Emigreren, Woonplaatsen, Nieuws, Contact, Privacy (zie de URL-tabel hierboven). Team is opgegaan in Contact (`#/team` stuurt door). Onderaan elke pagina: Google-reviews, nieuwsbrief, socials, footer.

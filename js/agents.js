@@ -1,5 +1,5 @@
 /* Grupo Soltura website — Makelaarsportaal met live assistent Sola (24-10-2026).
-   /en/agents/ · /nl/makelaars/ · /sv/maklare/  (agents.gruposoltura.com verwijst hierheen via een Cloudflare-regel; geen link op de site, noindex)
+   /en/agents/ · /nl/makelaars/ · /sv/maklare/ · /es/agentes/  (agents.gruposoltura.com verwijst hierheen via een Cloudflare-regel; geen link op de site, noindex)
    1. Venster: e-mailadres. Alleen een bekende samenwerkende makelaar (contact met label agent in NEXUS) komt verder;
       een onbekend adres gaat terug naar de homepage.
    2. Gesprek met Sola, dezelfde stappen en verplichte velden als een mail aan viewing@gruposoltura.com

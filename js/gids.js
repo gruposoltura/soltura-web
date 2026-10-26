@@ -1,7 +1,7 @@
 /* Grupo Soltura website — Woon/koopgids met live assistent Sola (23-10-2026).
    23-10-2026: na de gidstaalkeuze loopt het gesprek in die taal verder. Sola volgt de taal waarin de bezoeker schrijft (detectLang), ook tijdens de intake.
    26-10-2026 (Rick): weer vier gidstalen NL/EN/ES/SV; Zweden krijgen de Zweedse PDF (de mail zelf blijft Engels).
-   /nl/woongids/ · /en/buying-guide/ · /sv/kopguide/
+   /nl/woongids/ · /en/buying-guide/ · /sv/kopguide/ · /es/guia-de-compra/ (26-10-2026: Spaans als vierde sitetaal)
    Geen formulier maar een gesprek: Sola vraagt naam, e-mail, mobiel (en plannen + gidstaal), meldt enthousiast dat de gids
    onderweg is en praat daarna door over kopen, verkopen, kosten, gebieden en onze woningen (edge function web-assistant, mode=guide).
    Elke aanvraag is een lead zoals de andere formulieren: web-contact kind 'guide' -> WebFormIntake-v2 -> LeadProcessor-v2 -> PurchaseInfoV2.
@@ -263,8 +263,45 @@
     },
   };
 
-  // Spaans: alleen het gesprek NA de taalkeuze (de site zelf bestaat in en/nl/sv); de rest valt terug op Engels
+  // Spaans: volledige sitetaal sinds 26-10-2026 (/es/guia-de-compra/), plus het gesprek na de taalkeuze of als de bezoeker Spaans schrijft.
+  // Object.assign over TX.en blijft als vangnet, maar elke sleutel van TX.en heeft hier een Spaanse tekst.
   TX.es = Object.assign({}, TX.en, {
+    // pagina (sinds 26-10-2026)
+    cta_chat: 'Empieza a hablar con ' + NAME, kicker: 'Guía gratuita para vivir y comprar', crumb: 'Guía de compra', title: 'Guía de compra gratuita Costa Blanca',
+    desc: 'En casa en la Costa Blanca: nuestra guía gratuita para vivir y comprar en la Vega Baja. Pídesela a Sola, nuestra asistente en directo, y luego pregúntale todo lo que quieras sobre la compra, los gastos y la vida aquí.',
+    hi: 'Hola, soy ' + NAME + ', tu asistente en directo',
+    lead: 'Te envío nuestra guía exclusiva "En casa en la Costa Blanca" y después respondo a todas tus preguntas: sobre el proceso de compra, los costes, los pueblos y nuestras viviendas.',
+    guideSub: 'Guía para vivir y comprar en la Vega Baja',
+    coverTag: 'Gratis · PDF · ES / EN / NL / SV',
+    inside_h: 'Qué incluye', inside_p: 'Siete partes y una checklist, desde la primera pregunta que debes hacerte hasta la vida después de recibir las llaves. Con checklists, plazos y ejemplos de cálculo en lugar de párrafos interminables.',
+    parts: [
+      ['Primero piensa, luego mira', 'Las 10 preguntas antes de comprar, casa de vacaciones o mudarte, tu lista de imprescindibles'],
+      ['¿Dónde quieres vivir?', 'La Vega Baja pueblo a pueblo, costa o interior, clima y aeropuertos'],
+      ['¿Cuánto cuesta de verdad?', 'Las tres capas de gastos, impuestos en la Comunitat Valenciana, hipoteca para no residentes'],
+      ['¿Qué tipo de vivienda?', 'Apartamento, bungalow, quad o villa, obra nueva o reventa, alquilar: qué se permite y dónde'],
+      ['La compra paso a paso', 'NIE, poder notarial, reserva, contrato de arras, notaría, las comprobaciones legales y los 12 errores más caros'],
+      ['Tu viaje de visitas', 'Lo que necesitamos de antemano, un día de visitas, qué llevar y nuestra oficina'],
+      ['Después de las llaves', 'Suministros, impuestos como propietario, testamento español, mudarte con tu familia, mascotas'],
+      ['¿Listo para comprar?', 'La checklist para ir marcando, nuestros servicios y cómo contactarnos'],
+    ],
+    why_h: 'Por qué esta guía es diferente',
+    why: [
+      ['Local, no toda España', 'Escrita para la Vega Baja y la Costa Blanca Sur, donde vivimos y trabajamos desde 2002.'],
+      ['Comprar y vivir después', 'No solo hasta la notaría: también los impuestos como propietario, tu testamento, colegios y sanidad.'],
+      ['Revisada y actual', 'Las normas actuales de la Comunitat Valenciana, como el ITP del 9%.'],
+    ],
+    sol_h: '¿Y después? Sigue hablando con ' + NAME,
+    sol_p: NAME + ' conoce toda la guía, todas nuestras viviendas y los pueblos donde vendemos. Pregunta lo que quieras: cómo funciona el contrato de arras, qué villa consigues por hasta 400.000 € en Benijófar o qué día hay mercado en Rojales. Para algo importante, un compañero se encarga personalmente.',
+    more_h: 'Sigue leyendo',
+    links: [['buy', 'Comprar en España'], ['move', 'Vivir en España'], ['costs', 'Calculadora de gastos mensuales'], ['area', 'Pueblos'], ['sell', 'Vender']],
+    online: 'en línea', panelSub: 'Asistente en directo de Soltura Real Estate',
+    privacy: 'Usamos tus datos para enviarte la guía y ayudarte personalmente. Lee nuestra <a href="{p}">política de privacidad</a>.',
+    noscript: 'Activa JavaScript para hablar con ' + NAME + ', o escríbenos por WhatsApp al +34 664 414 515.',
+    g1: '¡Hola! Soy ' + NAME + ', tu asistente en directo en Soltura Real Estate. Me encantaría enviarte nuestra guía gratuita para vivir y comprar.',
+    promo_h: 'Guía gratuita para vivir y comprar', promo_p: 'Todo sobre comprar y vivir en la Costa Blanca, explicado con claridad. Sola te la envía y después responde a tus preguntas.',
+    promo_items: ['Cada paso, de la reserva a las llaves', 'Lo que cuesta de verdad, en tres capas', 'Los pueblos de la Vega Baja'], promo_btn: 'Pídesela a ' + NAME,
+    p_plan: 'Planes', p_lang: 'Idioma de la guía', p_via: 'Solicitada en una conversación con ' + NAME + ' en la página de la guía.', p_via_prop: 'Solicitada a través de ' + NAME + ' en la página de la vivienda',
+    p_q: 'Pregunta durante la conversación',
     // intake in het Spaans (sinds 25-10-2026: Sola schakelt over als de bezoeker Spaans schrijft)
     g2: '¿Cómo te llamas? Nombre y apellido, por favor.',
     ph_name: 'Nombre y apellido', ph_last: 'Apellido', ph_email: 'tu@email.com', ph_phone: '+34 600 123 456',
@@ -307,7 +344,7 @@
     done_h: 'Tu guía está en camino', done: function (f, e) { return '¡Listo, ' + f + '! Tu guía exclusiva "En casa en la Costa Blanca" va de camino a ' + e + '. Revisa tu bandeja de entrada en unos minutos, y la carpeta de spam por si acaso.'; },
     after: 'Mientras tanto, estoy aquí para todas tus preguntas. Sobre el proceso de compra, los costes, los pueblos o nuestras viviendas: pregunta lo que quieras.',
     fail: 'Vaya, algo no ha funcionado. Inténtalo de nuevo o escríbenos por WhatsApp al +34 664 414 515.', retry: 'Enviar de nuevo',
-    welcome: function (f, e) { return 'Bienvenido de nuevo, ' + f + '. Ya te enviamos la guía a ' + e + '.'; },
+    welcome: function (f, e) { return 'Hola de nuevo, ' + f + '. Ya te enviamos la guía a ' + e + '.'; },
     resend: 'Envíala de nuevo', other: 'Usar otros datos',
     starters: ['¿Cómo funciona la compra?', '¿Qué gastos hay además del precio?', 'Villas hasta 400.000 €', '¿Qué pueblo me conviene?'],
     edit: 'Cambiar', homes_n: function (n) { return n === 1 ? '1 vivienda encaja' : n + ' viviendas encajan'; }, homes_all: 'Ver todas',
@@ -407,7 +444,7 @@
     if (s.charAt(0) !== '+') {
       if (lang === 'nl' && /^06\d{8}$/.test(s)) s = '+31' + s.slice(1);
       else if (lang === 'sv' && /^07\d{8}$/.test(s)) s = '+46' + s.slice(1);
-      else if (/^[67]\d{8}$/.test(s)) s = '+34' + s;
+      else if (/^[67]\d{8}$/.test(s)) s = '+34' + s; // Spaans mobiel (6xx/7xx, 9 cijfers): op elke sitetaal, dus ook /es/
     }
     return s;
   }
@@ -419,9 +456,9 @@
    'wat hoe waarom wanneer waar welke wie ben bent zijn doe doet kun kunt kunnen wil wilt heb hebt heeft het een ik mij mijn jij jou jouw je jullie weet weten iets over vertel graag hallo hoi bedankt dank ja nee niet maar als met voor naar kopen koop prijs kosten hypotheek hypotheken huis woning woningen appartement vraag vragen ' +
    'vad hur varför när vilken vem är jag mig mitt du din vet något hej tack nej inte och eller för köpa pris kostnad kostnader bolån hus bostad lägenhet fråga ' +
    'que qué como cómo cuanto cuánto donde dónde quiero hola gracias comprar precio hipoteca casa piso pregunta').split(' ').forEach(function (w) { STOP[w] = 1; });
-  var GREET = /^(hi|hello|hey|hoi|hallo|hej|hola|goedemorgen|goedemiddag|goedenavond|good (morning|afternoon|evening)|god morgon|buenos d[ií]as)[\s!.,]*$/i;
-  var INTRO = /^(?:(?:hi|hello|hey|hoi|hallo|hej|hola|goedemorgen|goedemiddag|goedenavond|good (?:morning|afternoon|evening))[\s,!.]+)?(?:(?:my name is|my name's|i am|i'm|im|it's|this is|name:|ik ben|ik heet|mijn naam is|naam:|jag heter|jag är|mitt namn är|me llamo|soy|mi nombre es)\s+)?/i;
-  var FAKE_NAME = /^(test|testing|tester|asdf\w*|qwert\w*|xxx+|abc|aaa+|naam|name|namn|nombre|voornaam|achternaam|lastname|firstname|surname|anonymous|anoniem|anon|nobody|niemand|none|geen|nvt|user|gebruiker|sola|soltura)$/i;
+  var GREET = /^(hi|hello|hey|hoi|hallo|hej|hola|goedemorgen|goedemiddag|goedenavond|good (morning|afternoon|evening)|god morgon|buenos d[ií]as|buenas( tardes| noches)?)[\s!.,]*$/i;
+  var INTRO = /^(?:(?:hi|hello|hey|hoi|hallo|hej|hola|goedemorgen|goedemiddag|goedenavond|good (?:morning|afternoon|evening)|buenos d[ií]as|buenas(?: tardes| noches)?)[\s,!.]+)?(?:(?:my name is|my name's|i am|i'm|im|it's|this is|name:|ik ben|ik heet|mijn naam is|naam:|jag heter|jag är|mitt namn är|me llamo|soy|mi nombre es)\s+)?/i;
+  var FAKE_NAME = /^(test|testing|tester|asdf\w*|qwert\w*|xxx+|abc|aaa+|naam|name|namn|nombre|voornaam|achternaam|lastname|firstname|surname|anonymous|anoniem|anon|nobody|niemand|none|geen|nvt|user|gebruiker|apellido|nadie|usuario|sola|soltura)$/i;
   var FAKE_DOM = /^(example|voorbeeld|exempel|ejemplo|test|testing|mailinator|yopmail|guerrillamail|sharklasers|10minutemail|tempmail|temp-mail|trashmail|throwawaymail|getnada|dispostable|maildrop|fakeinbox|nomail|noemail|none)\./;
   var FAKE_LOCAL = /^(test|testing|asdf\w*|qwert\w*|abc|aaa+|xxx+|x|a|noreply|no-reply|none|nobody|niemand|geen|fake|naam|name|namn|you|jouw|du)$/;
   var TLD_FIX = { con: 'com', cmo: 'com', ocm: 'com', comm: 'com', vom: 'com', xom: 'com', cpm: 'com', nll: 'nl', nl1: 'nl', ent: 'net', nte: 'net', orgg: 'org', see: 'se' };

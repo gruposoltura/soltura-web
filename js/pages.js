@@ -1,4 +1,4 @@
-// Grupo Soltura website — inhoud van de vaste pagina's (Kopen, Verkopen, Emigreren, Privacy), NL + EN + SV.
+// Grupo Soltura website — inhoud van de vaste pagina's (Kopen, Verkopen, Emigreren, Privacy), NL + EN + SV + ES.
 // Gebaseerd op de huidige gruposoltura.com, bijgewerkt: ITP 9%, één all-in tarief, geen losse kostenposten.
 window.PAGES = {
   en: {
@@ -211,6 +211,76 @@ window.PAGES = {
       change: 'Ändra mitt cookieval',
     },
   },
+  es: {
+    buy: {
+      h: 'Compra tu vivienda con nosotros',
+      lead: 'Desde la primera visita hasta la notaría y el día en que recibes las llaves. Un solo equipo, en tu idioma, desde 2002.',
+      intro: 'Comprar en España funciona de forma distinta a la mayoría de los países: otros trámites, otros impuestos, otras comprobaciones. Te acompañamos en todo, desde una búsqueda ajustada a lo que quieres hasta la firma en la notaría y los meses posteriores.',
+      steps_h: 'Cómo funciona una compra',
+      steps: [
+        ['Reserva', 'Cuando acordamos un precio con el vendedor, firmas un contrato de reserva y pagas una señal, normalmente de 3.000 a 5.000 €. La vivienda sale del mercado y el precio queda fijado.'],
+        ['Contrato privado de compraventa', 'Este contrato fija la fecha de la escritura. Si faltan más de cuatro semanas, completas la señal hasta el 10 % del precio de compra.'],
+        ['Comprobaciones y preparación', 'Registro de la Propiedad, deudas, licencias, cuotas de comunidad: lo comprobamos todo y te contamos lo que encontramos. Preparamos tu documentación y coordinamos notaría, abogado y banco.'],
+        ['Firma en la notaría', 'Uno de nosotros te acompaña ese día. Pagas el importe restante al firmar la escritura.'],
+        ['Las llaves, y después', 'Ya eres propietario. Ponemos a tu nombre los suministros, el IBI y las cuotas de comunidad, y seguimos siendo tu contacto durante los meses siguientes.'],
+      ],
+      costs_h: 'Lo que pagas además del precio',
+      costs: ['<b>Vivienda de reventa:</b> impuesto de transmisiones (ITP) del 9 % del precio de compra, Comunidad Valenciana.', '<b>Obra nueva:</b> 10 % de IVA más 1,5 % de actos jurídicos documentados (AJD).', '<b>Nuestro servicio:</b> una única tarifa todo incluido, acordada de antemano. Sin facturas aparte por abogado, apoyo en notaría, NIE o poder notarial.'],
+      costs_note: 'Lo que pagas en total depende de tu situación: ¿todavía necesitas un NIE / número fiscal, vas a firmar mediante un poder notarial, vas a pedir una hipoteca española? Pídenos tu resumen de costes personalizado.',
+      fin_h: 'Organiza tu financiación con tiempo',
+      fin_p: 'Conocer tu presupuesto te dice qué viviendas están a tu alcance y te permite actuar rápido cuando aparece la adecuada. Los no residentes suelen poder financiar entre el 60 y el 70 % del valor. Gestionamos tu hipoteca con un banco español.',
+      services_h: 'Lo que hacemos por ti',
+      services: ['Una búsqueda ajustada a lo que quieres, a menudo antes de que las viviendas salgan en internet', 'Visitas organizadas en un solo viaje eficiente', 'Comprobaciones legales y coordinación con notaría, abogado y banco', 'Un compañero contigo el día de la firma', 'Atención posventa en tu propio idioma'],
+      cta: 'Pide tu resumen de costes personalizado',
+    },
+    sell: {
+      h: 'Vende tu vivienda', lead: 'Todo lo que necesita tu venta, bajo un mismo techo. Un solo equipo desde la primera foto hasta la notaría, en tu idioma.',
+      feats: [
+        ['Desde 2002', 'Más de 24 años vendiendo viviendas en Rojales, Formentera del Segura y la Vega Baja.'],
+        ['Equipo multilingüe', 'Inglés, neerlandés, alemán, francés y español, para llegar a los compradores en su propio idioma.'],
+        ['Fotos profesionales', 'Cada vivienda se fotografía de forma profesional antes de publicarse en internet.'],
+        ['Vídeo con dron y tours 3D', 'Imágenes aéreas de la vivienda y su entorno, y tours 3D que los compradores pueden recorrer las 24 horas.'],
+        ['Grandes portales', 'Idealista, Kyero y los principales portales internacionales.'],
+        ['Primero, nuestros compradores', 'Antes de que tu vivienda llegue a los portales, se la enviamos a compradores que ya buscan algo así.'],
+        ['Informe semanal', 'Cada semana sabes cuántas personas han visto tu vivienda, han preguntado por ella o han venido a visitarla.'],
+        ['Asesoramiento legal', 'Del contrato de reserva a la notaría, te acompañamos en cada paso. Inscritos en API, AIPP y GIPE.'],
+      ],
+      steps_h: 'Cómo vendemos tu vivienda',
+      steps: [['Valoración gratuita', 'Te visitamos, analizamos el mercado y te damos un precio de salida honesto.'], ['Lista en un día', 'Fotos, descripción y anuncio en internet, normalmente en 24 horas.'], ['Marketing y visitas', 'Portales, nuestros propios compradores, redes sociales y el informe semanal para ti.'], ['Oferta y reserva', 'Negociamos, comprobamos al comprador y preparamos el contrato de reserva.'], ['Notaría', 'Preparamos la documentación y te acompañamos en la firma.']],
+      form_h: 'Pide una valoración gratuita', form_p: 'Sin compromiso. Dinos dónde está la vivienda y qué tipo de vivienda es; te contactamos en un día laborable.',
+      legal: '¿Ya has vendido y necesitas ayuda legal con la transmisión? También nos encargamos de eso.',
+    },
+    move: {
+      h: 'Mudarse a España', lead: 'Comprar la casa es un paso. Construir una vida aquí es todo lo demás. Ayudamos a familias a instalarse en la Vega Baja desde 2002.',
+      stages: [['Antes de comprar', 'Documentación, finanzas y un presupuesto realista.'], ['Mientras compras', 'Reserva, comprobaciones legales independientes, contrato privado y notaría, todo coordinado por nosotros.'], ['Después de comprar', 'Suministros, empadronamiento, residencia, sanidad, colegios e impuestos, con nosotros como tu contacto.']],
+      topics: [
+        ['NIE: tu número de identidad de extranjero', 'Lo necesitas para la notaría, una cuenta bancaria española, los suministros y los impuestos sobre la vivienda. Solicítalo con tiempo: en una comisaría de policía en España, en un consulado español en el extranjero o a través de un representante con poder notarial. Los ciudadanos de la UE que pasan más de tres meses al año se registran como residentes; los ciudadanos de fuera de la UE necesitan el visado o permiso de residencia adecuado. Te ayudamos con los formularios y las citas, o lo tramitamos por ti con un poder notarial.'],
+        ['Hipoteca y finanzas', 'Los no residentes suelen poder financiar entre el 60 y el 70 % del precio o de la tasación, los residentes algo más. Abre una cuenta bancaria española y reúne justificantes de ingresos, declaraciones de la renta y extractos bancarios. El banco tasa la vivienda (tasación) y recibes la oferta vinculante (FEIN) al menos diez días antes de la firma. Te presentamos a bancos y gestionamos la hipoteca.'],
+        ['Colegios', 'Colegios públicos españoles, colegios concertados y colegios internacionales con currículo británico u otros. La elección del colegio puede decidir dónde compras, y los colegios internacionales suelen tener lista de espera. Para matricularse en un colegio público hace falta el empadronamiento (padrón); el plazo de solicitud suele abrirse en primavera. Las clases son en español y valenciano, con apoyo lingüístico para los recién llegados.'],
+        ['Sanidad', 'Un sistema público sólido, además de clínicas privadas y médicos que hablan varios idiomas. Los residentes que trabajan están cubiertos a través de la Seguridad Social; los pensionistas de la UE a menudo pueden trasladar su cobertura con un formulario S1. Tras la mudanza, te inscribes en tu centro de salud y solicitas la tarjeta SIP. Teléfono de emergencias: 112.'],
+        ['Legal', 'Antes: Registro de la Propiedad (nota simple), deudas, licencias, cédula de habitabilidad, IBI o cuotas de comunidad pendientes. Durante: reserva, contrato privado, escritura en la notaría e inscripción a tu nombre. Después: suministros, IBI y cuotas de comunidad a tu nombre, declaraciones de impuestos de no residente cuando proceda y un testamento español.'],
+        ['Después de las llaves', 'Suministros, empadronamiento, profesionales de la zona y dudas sobre el IBI. Nuestro equipo de posventa te acompaña en tu propio idioma durante los primeros meses.'],
+      ],
+      disclaimer: 'Esto es información general, no asesoramiento legal, fiscal ni financiero personalizado. Las normas y los porcentajes cambian; estudiamos tu situación de forma individual.',
+      form_h: '¿Listo para dar el paso?', form_p: 'Cuéntanos tus plazos, tu situación familiar, tu presupuesto y el tipo de vivienda que buscas. Te enviamos un plan personal paso a paso.',
+    },
+    privacy: {
+      h: 'Privacidad y cookies', updated: 'Última actualización: 25 de octubre de 2026',
+      sections: [
+        ['Quiénes somos', 'Grupo Soltura SL (CIF B54286042), Avenida de la Constitución s/n, 03179 Formentera del Segura (Alicante), España. Teléfono +34 966 792 113, correo electrónico info@gruposoltura.com. Inscrita en el Registro de Agentes de Intermediación Inmobiliaria de la Comunitat Valenciana (RAICV 5781) y colegiada n.º 992 del Colegio de API de Alicante. Esta política se aplica a este sitio web y al contacto por teléfono, correo electrónico, WhatsApp o en persona.'],
+        ['Qué datos recogemos', '<b>Lo que nos facilitas:</b> nombre, correo electrónico, teléfono, tu mensaje, lo que buscas en una vivienda, tus preferencias de boletines y, en caso de compra, venta o servicio legal, los documentos que exige la ley (como el pasaporte o el NIE). <b>Preguntas a nuestro asistente en línea:</b> el texto de tu pregunta y la vivienda a la que se refiere. <b>En este sitio web:</b> datos de uso anónimos, como qué páginas y viviendas se consultan y durante cuánto tiempo, sin tu nombre y sin almacenar nada en tu dispositivo para ello. <b>Solo con tu consentimiento</b> guardamos además un código de visitante aleatorio en tu navegador, para poder vincular tus visitas entre sí. Utilizamos Google Analytics (Google Ireland Ltd.) para medir las visitas. Sin tu consentimiento solo recibe señales sin cookies, sin que se almacene ningún identificador en tu dispositivo; con tu consentimiento puede instalar sus cookies de estadística (_ga). <b>Solo con tu consentimiento para marketing</b> utilizamos el Meta Pixel (Meta Platforms Ireland Ltd.): informa a Meta de qué páginas y viviendas has visto y de si has enviado una solicitud, para que podamos medir nuestros anuncios en Facebook e Instagram y mostrarte allí viviendas relevantes. Sin ese consentimiento no se envía ningún dato a Meta.'],
+        ['Tu perfil de búsqueda', 'Si has dado tu consentimiento para estadísticas y después nos envías una solicitud (por ejemplo, un folleto, una visita o una pregunta), vinculamos tus visitas anteriores y posteriores a esa solicitud mediante el código de visitante. A partir de las viviendas que has visto, las búsquedas que has hecho y las preguntas que has planteado a nuestro asistente, elaboramos un perfil de búsqueda: rango de precio, tipo de vivienda, obra nueva o reventa, zonas, dormitorios e imprescindibles. Nuestros agentes lo utilizan para atenderte mejor y, si te has suscrito a nuestras propuestas de viviendas, lo usamos para elegir las viviendas que te enviamos. Lo que tú mismo nos cuentas prevalece siempre sobre lo que deducimos de tus visitas. Conservamos el perfil mientras conservemos tus preferencias de búsqueda (hasta dos años después del último contacto) y nunca se utiliza para decisiones con efectos jurídicos. Puedes oponerte en cualquier momento (art. 21 RGPD) escribiendo a info@gruposoltura.com, o retirar tu consentimiento para estadísticas mediante el enlace al pie de cada página; a partir de entonces dejamos de vincular nuevas visitas. Base jurídica: tu consentimiento para el código de visitante (art. 6.1.a) y nuestro interés legítimo en responder adecuadamente a tu búsqueda (art. 6.1.f).'],
+        ['Para qué los utilizamos', 'Para responder a tus preguntas y organizar visitas y valoraciones; para acompañar una compra, una venta o un servicio legal; para cumplir obligaciones legales (prevención del blanqueo de capitales, fiscalidad); para enviarte los boletines que hayas elegido; y, con tu consentimiento, para mejorar el sitio web y para medir y orientar nuestra publicidad en Facebook e Instagram.'],
+        ['Base jurídica', 'Ejecución de un contrato o aplicación de medidas precontractuales (art. 6.1.b RGPD) para preguntas, visitas y operaciones; obligación legal (art. 6.1.c) para la prevención del blanqueo de capitales (Ley 10/2010) y la fiscalidad; consentimiento (art. 6.1.a) para boletines, cookies de estadística (código de visitante, Google Analytics) y cookies de marketing (Meta Pixel); interés legítimo (art. 6.1.f) para el recuento anónimo de visitas y la seguridad del sitio web.'],
+        ['Nuestro asistente en línea (IA)', 'El asistente de este sitio web funciona con Claude, un modelo de Anthropic. Tu pregunta y los datos de la vivienda se envían a Anthropic para generar la respuesta; Anthropic los trata como proveedor de servicios nuestro y no los utiliza para entrenar sus modelos. Guardamos tu pregunta junto con un código abreviado e irreversible de tu dirección IP para evitar abusos. No compartas datos personales sensibles en el asistente. Siempre hay un compañero responsable; no se toman decisiones con efectos jurídicos de forma automática.'],
+        ['Cuánto tiempo los conservamos', 'Preguntas y preferencias de búsqueda sin operación: hasta dos años después del último contacto. Expedientes de compra, venta y servicios legales: diez años desde su cierre (normativa de prevención del blanqueo de capitales y fiscal). Boletines: hasta que te des de baja. Estadísticas anónimas del sitio web: hasta 26 meses.'],
+        ['Quién trata datos por encargo nuestro', 'Supabase (base de datos y almacenamiento, servidores en Fráncfort, UE); Brevo (correo electrónico, UE); Anthropic (asistente en línea, EE. UU.); GitHub (alojamiento web, EE. UU.); OpenStreetMap (mapa de la página de contacto, que solo se carga en esa página, Reino Unido/UE); Google Ireland (Google Analytics, estadísticas); Meta Platforms Ireland (Meta Pixel, solo con consentimiento para marketing; para ello Meta es corresponsable del tratamiento junto con nosotros, art. 26 RGPD). Las transferencias fuera del EEE están amparadas por el Marco de Privacidad de Datos UE-EE. UU. o por las cláusulas contractuales tipo de la Comisión Europea. En una operación compartimos lo necesario con notarías, abogados, bancos y la otra parte. Nunca vendemos tus datos.'],
+        ['Almacenamiento en tu dispositivo', '<b>Necesarias (no requieren consentimiento):</b> tu elección de idioma, tus viviendas guardadas, las viviendas que has visto (para volver a mostrártelas), lo que introduces en la calculadora de costes mensuales y tu elección de cookies. Todo ello permanece en tu navegador. <b>Estadística (solo con consentimiento):</b> un código de visitante aleatorio propio que vincula tus visitas, y las cookies de Google Analytics (_ga, _ga_*), conservadas hasta 14 meses. <b>Marketing (solo con consentimiento):</b> las cookies del Meta Pixel (_fbp, _fbc), conservadas hasta 3 meses. Puedes cambiar tu elección en cualquier momento mediante el enlace al pie de cada página.'],
+        ['Tus derechos', 'Puedes solicitar el acceso, la rectificación o la supresión de tus datos, la limitación de su tratamiento u oponerte a él, y recibirlos en un formato portable. Puedes retirar tu consentimiento en cualquier momento. Escribe a info@gruposoltura.com; respondemos en el plazo de un mes y podemos pedirte que acredites tu identidad. También puedes presentar una reclamación ante la Agencia Española de Protección de Datos (www.aepd.es).'],
+      ],
+      change: 'Cambiar mi elección de cookies',
+    },
+  },
 };
 
 // extra UI-teksten voor reviews, formulieren, contact, nieuws en cookiekeuze
@@ -351,4 +421,42 @@ Object.assign(I18N.sv, {
   ref_missing_h: r => `${r} ligger inte ute just nu.`, ref_missing_p: 'Den kan vara såld eller reserverad, eller så skiljer sig numret lite. Skicka det till oss så återkommer vi direkt.',
   ref_short: 'Ref.', ref_prefix_ok: (n, p) => `Vi hittade ${n} bostäder vars referens börjar med ${p}. De visas nedan.`,
   ref_prefix_none: p => `Det finns ingen bostad online med en referens som börjar med ${p}.`, ref_prefix_tip: 'Kontrollera bokstäverna, eller skriv hela referensnumret, till exempel RH500.',
+});
+
+// español: extra UI-teksten (reviews, formulieren, cookiekeuze, zoeken, koopgids, status, referentie)
+Object.assign(I18N.es = I18N.es || {}, {
+  rv_h: 'Lo que dicen nuestros clientes', rv_p: 'Opiniones reales de compradores y vendedores, directamente de Google.',
+  rv_count: n => `${n} opiniones`, rv_all: n => `Lee las ${n} opiniones`, rv_write: 'Escribe una opinión', rv_on_google: 'Opinión en Google', rv_answered: 'respondida por nosotros',
+  cc_hi: '¡Hola! Una pregunta rápida sobre cookies', cc_short: 'Medimos visitas y anuncios con cookies.', cc_info: 'Info', cc_ok: 'Vale', cc_refuse: 'Rechazar', cc_h: 'Bienvenido a Grupo Soltura', cc_p: '¿Podemos usar cookies? Así vemos qué viviendas te interesan, las recordamos en tu próxima visita y podemos mostrarte viviendas relevantes en Facebook e Instagram. Siempre puedes decir que no: la web funciona igual.', cc_set: 'Elegir por categoría', cc_yes: 'Sí, de acuerdo', cc_no: 'Solo las necesarias', cc_save: 'Guardar mi elección', cc_all: 'Aceptar todas', cc_nec: 'Necesarias', cc_nec_d: 'idioma, viviendas guardadas y tu elección de cookies. Siempre activas.', cc_stat: 'Estadística', cc_stat_d: 'nuestro propio código de visitante y Google Analytics: qué viviendas te interesan a lo largo de varias visitas. Si nos envías una solicitud, vinculamos tus visitas a ella para entender lo que buscas.', cc_ads: 'Marketing', cc_ads_d: 'Meta Pixel (Facebook/Instagram): mide qué anuncios llevan a una visita o solicitud, y muestra en nuestros anuncios viviendas que has visto.', cookie_settings: 'Configuración de cookies',
+  form_privacy: 'Solo usamos tus datos para responderte.',
+  f_budget: 'Presupuesto', f_when: 'Cuándo', f_when_opts: ['En menos de 3 meses', 'De 3 a 6 meses', 'De 6 a 12 meses', 'Más adelante / solo me estoy informando'],
+  f_buy_msg: 'Me gustaría recibir un resumen de costes personalizado. ¿Todavía necesito un NIE, firmaré mediante un poder notarial, necesito una hipoteca? Por favor, contactad conmigo.',
+  f_town: 'Municipio o zona', f_type: 'Tipo de vivienda', f_type_opts: ['Villa', 'Casa independiente', 'Quad', 'Bungalow', 'Adosado', 'Apartamento', 'Ático', 'Parcela / otro'],
+  f_household: 'Quién se muda', f_household_ph: 'p. ej. pareja, familia con 2 hijos', f_area: 'Zona preferida', f_area_ph: 'p. ej. cerca de la costa, un pueblo',
+  f_topic: 'Asunto', f_topic_opts: ['Comprar una vivienda', 'Vender mi vivienda', 'Mudarme a España', 'Servicios legales', 'Otra cosa'], f_lang: 'Idioma preferido',
+  news_all: 'Todas', news_market: 'Mercado inmobiliario', news_region: 'Vega Baja', news_spain: 'España', news_none: 'Todavía no hay noticias en esta categoría.', news_more: 'Más noticias', c_find: 'Encuentra nuestra oficina', c_map: 'Mapa de nuestra oficina en Formentera del Segura', c_office_alt: 'Nuestra sala de reuniones en Formentera del Segura', news_in: l => l ? `artículo en ${l}` : 'artículo en otro idioma', move_plan_btn: 'Quiero mi plan paso a paso',
+  c_wa: 'Lo más rápido: normalmente respuesta en menos de una hora', c_call: 'De lunes a viernes, en horario de oficina', c_mail: 'Respondemos en un día laborable', c_route: 'Planifica tu ruta', c_team: 'Habla directamente con uno de nosotros', c_form_h: 'Envíanos un mensaje',
+  none_h: 'No hay nada que coincida exactamente.', none_applied: (l, n) => `Dentro de tu presupuesto sí tenemos esto: <b>${l}</b> da ${n} viviendas, que ves abajo.`,
+  none_budget_ask: (v, n) => `Dentro de tu presupuesto ahora no tenemos nada que encaje, ni siquiera con un pequeño cambio. ¿Quieres subir tu presupuesto a ${v}? Entonces tenemos ${n} viviendas para ti.`, none_budget_yes: v => `Sí, mostrar viviendas hasta ${v}`,
+  rx_town_to: x => `En ${x}`, rx_cat_to: x => `Tipo: ${x}`,
+  none_try: 'O ajusta tu búsqueda de otra manera:', none_bar: 'Cambia un solo deseo y volverás a ver viviendas:',
+  none_tip: 'Consejo: indica un rango de precio, un municipio o zona y el tipo de vivienda. Por ejemplo, «villa con piscina cerca de Rojales hasta 400.000 €».',
+  none_contact: '¿Prefieres que busquemos por ti? Muchas viviendas llegan primero a nuestros propios buscadores.',
+  ai_fail_h: 'No hemos podido entender bien esa pregunta.', ai_fail_p: 'Vuelve a intentarlo en pocas palabras, o elige uno de los ejemplos de arriba.',
+  rx_budget: v => `Presupuesto hasta ${v}`, rx_pmin: 'Sin precio mínimo', rx_towns: x => `También fuera de ${x}`, rx_cat: x => `Otros tipos además de ${x.toLowerCase()}`,
+  rx_beds: n => `${n}+ dormitorios`, rx_baths: 'Menos baños', rx_pool_any: 'También piscina comunitaria', rx_pool: 'Sin piscina', rx_newbuild: 'Reventa y obra nueva', rx_sea: km => `Hasta ${km} km del mar`, rx_reduced: 'No solo rebajadas',
+  qa_guide: 'Guía de compra', guide_h: 'Guía de compra gratuita', guide_p: 'Todo sobre comprar una vivienda en España, en lenguaje claro. Te la enviamos por correo electrónico.',
+  guide_items: ['Cada paso, de la reserva a las llaves', 'Impuestos y nuestra única tarifa todo incluido', 'NIE, poder notarial e hipoteca', 'Las comprobaciones que hacemos antes de que firmes'],
+  guide_btn: 'Envíame la guía de compra', guide_send: 'Solicitar la guía',
+  guide_err: 'Rellena tu nombre, tus apellidos y una dirección de correo electrónico válida.', guide_ok: n => `Gracias, ${n}. La guía de compra va de camino a tu bandeja de entrada.`,
+  guide_msg: 'Guía de compra solicitada desde la página de la vivienda.',
+  st_available: 'Disponible', st_under_offer: 'Con oferta', st_reserved: 'Reservada', st_sold: 'Vendida',
+  st_note_under_offer: 'Esta vivienda tiene una oferta. Hemos dejado de hacer visitas y esperamos que la venta se cierre. Si no sale adelante, la vivienda volverá al mercado.',
+  st_note_reserved: 'Esta vivienda está reservada. Hemos dejado de hacer visitas y esperamos que la venta se cierre. Si no sale adelante, la vivienda volverá al mercado.',
+  st_note_sold: 'Esta vivienda se ha vendido. A menudo tenemos algo parecido, a veces antes de que salga en internet.',
+  st_similar: 'Ver viviendas similares',
+  ref_open: r => `Te abrimos ${r}.`, ref_many: 'Hay varias viviendas con ese número. ¿Cuál buscas?',
+  ref_missing_h: r => `${r} no está publicada en este momento.`, ref_missing_p: 'Puede que se haya vendido o reservado, o que el número sea ligeramente distinto. Envíanoslo y te lo decimos enseguida.',
+  ref_short: 'Ref.', ref_prefix_ok: (n, p) => `Hemos encontrado ${n} viviendas cuya referencia empieza por ${p}. Las tienes abajo.`,
+  ref_prefix_none: p => `No hay ninguna vivienda publicada con una referencia que empiece por ${p}.`, ref_prefix_tip: 'Revisa las letras, o escribe el número de referencia completo, por ejemplo RH500.',
 });

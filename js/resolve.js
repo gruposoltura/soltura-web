@@ -21,7 +21,7 @@ function legacyTarget(path, search, M) {
   if (!M._live) { M._live = {}; String(M.live || '').split(' ').forEach(function (r) { if (r) M._live[key(r)] = r; }); }
   if (!M._ts) { M._ts = Object.keys(M.ts || {}).sort(function (a, b) { return b.length - a.length; }); }
   var lang = null, rest = p, m = p.match(/^\/(nl|en|es|de)(\/.*)$/);
-  if (m) { lang = m[1] === 'nl' ? 'nl' : (m[1] === 'en' ? 'en' : null); rest = m[2]; }
+  if (m) { lang = m[1] === 'nl' || m[1] === 'en' || m[1] === 'es' ? m[1] : null; rest = m[2]; } // /es/ is sinds 26-10-2026 een eigen sitetaal
   var out = function (hash, town) {
     var q = [];
     if (lang) q.push('lang=' + lang);
@@ -98,7 +98,7 @@ function convert(target, lang, RT) {
   i = u.indexOf('?'); if (i >= 0) { q = u.slice(i + 1); u = u.slice(0, i); }
   if (u !== '/' && u !== '') return u; // al een pad (bv. /sitemap.xml)
   var town = null;
-  q.split('&').forEach(function (kv) { var p = kv.split('='); if (p[0] === 'lang' && (p[1] === 'nl' || p[1] === 'en')) lang = p[1]; if (p[0] === 'town') { try { town = decodeURIComponent(p[1].replace(/\+/g, ' ')); } catch (e) { town = p[1]; } } });
+  q.split('&').forEach(function (kv) { var p = kv.split('='); if (p[0] === 'lang' && (p[1] === 'nl' || p[1] === 'en' || p[1] === 'es')) lang = p[1]; if (p[0] === 'town') { try { town = decodeURIComponent(p[1].replace(/\+/g, ' ')); } catch (e) { town = p[1]; } } });
   lang = lang || 'en';
   var m = hash.match(/^#\/home\/([^\/?]+)/);
   if (m) return propPath(m[1], lang, RT);
@@ -130,19 +130,21 @@ function solturaResolve(path, search, M, RT) {
       return g ? R.href(r.lang, 'guide', g) : R.href(r.lang, 'area');
     } else if (r.key === 'news' && r.arg) {
       return R.href(r.lang, 'news');
+    } else if (r.key !== 'property') {
+      return null; // gewone pagina van de site (ook /es/comprar/ e.d.): niet als oud WordPress-pad behandelen
     }
   }
   // 2. oude locatiepagina's: eerst de wijk/plaats uit het pad zelf (Ciudad Quesada heeft een eigen gids, WordPress hing hem onder Rojales)
   var lm0 = String(p).toLowerCase().match(/^\/(?:(nl|en|es|de)\/)?(?:(?:location|locations|locatie|locaties)\/([^\/]+)\/(?:([^\/]+)\/)?|(?:buying-property-in|woning-kopen-in|comprar-casa-en)-([^\/]+)\/)/);
   if (lm0) {
     var gl = guideOfTown((lm0[3] || '').replace(/-/g, ' '), RT) || guideOfTown((lm0[2] || lm0[4] || '').replace(/-/g, ' '), RT);
-    var ll = lm0[1] === 'nl' || (!lm0[1] && /^\/(locatie|woning-kopen-in)/.test(String(p).toLowerCase())) ? 'nl' : 'en';
+    var lp0 = String(p).toLowerCase(), ll = lm0[1] === 'nl' || (!lm0[1] && /^\/(locatie|woning-kopen-in)/.test(lp0)) ? 'nl' : lm0[1] === 'es' || /^\/(es\/)?comprar-casa-en/.test(lp0) ? 'es' : 'en';
     if (gl) return R.href(ll, 'guide', gl);
   }
   // 3. oude WordPress-paden
   var t = legacyTarget(path, search, M);
   if (!t) return null;
-  var lp = String(p).toLowerCase(), lang = null, lm = lp.match(/^\/(nl|en)\//);
+  var lp = String(p).toLowerCase(), lang = null, lm = lp.match(/^\/(nl|en|es)\//);
   if (lm) lang = lm[1]; else if (NL_WORDS.test(lp)) lang = 'nl';
   // oude woning-URL's: referentie staat achteraan; met routes.json direct naar de canonieke URL
   var out = convert(t, lang, RT);

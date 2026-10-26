@@ -45,8 +45,8 @@ const S = {
   lastRoute: '/', openSince: 0, openId: null, sheetDepth: 0, pageTitle: '',
 };
 if (S.vid) ls.set('vid', S.vid); else { try { localStorage.removeItem('gs_vid'); } catch {} }
-// browsertaal -> sitetaal (nl, sv, anders en)
-function browserLang() { const b = (navigator.language || 'en').toLowerCase(); return b.startsWith('nl') ? 'nl' : b.startsWith('sv') ? 'sv' : 'en'; }
+// browsertaal -> sitetaal (nl, sv, es, anders en)
+function browserLang() { const b = (navigator.language || 'en').toLowerCase(); return b.startsWith('nl') ? 'nl' : b.startsWith('sv') ? 'sv' : b.startsWith('es') ? 'es' : 'en'; }
 function blankFilters() { return { towns: [], categories: [], price_min: null, price_max: null, beds_min: null, baths_min: null, pool: null, newbuild: null, max_sea_km: null, reduced_only: false, ref_prefix: null }; }
 function rid() { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
 // sessie-code per tabblad (sessionStorage, geen cookie, verdwijnt bij sluiten) - sinds 24-10-2026; daarvoor was elke paginalading een nieuwe sid
@@ -119,9 +119,9 @@ const L = (key, arg) => R.href(S.lang, key, arg);
 const ph = p => R.href(S.lang, 'property', p);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const t = (k, ...a) => { const v = (I18N[S.lang] || I18N.en)[k] ?? I18N.en[k]; return typeof v === 'function' ? v(...a) : v; };
-// taalafhankelijke opmaak: tx({ en, nl, sv }) kiest de tekst in de taal van de pagina (valt terug op Engels)
+// taalafhankelijke opmaak: tx({ en, nl, sv, es }) kiest de tekst in de taal van de pagina (valt terug op Engels)
 const tx = o => o[S.lang] ?? o.en;
-const LOCALE = { en: 'en-GB', nl: 'nl-NL', sv: 'sv-SE' };
+const LOCALE = { en: 'en-GB', nl: 'nl-NL', sv: 'sv-SE', es: 'es-ES' };
 const loc = () => LOCALE[S.lang] || 'en-GB';
 const dec = () => S.lang === 'en' ? '.' : ',';
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -130,7 +130,7 @@ const num = n => new Intl.NumberFormat(loc()).format(n);
 const dist = m => m == null || m === 7000 ? null : (m >= 1000 ? (Math.round(m / 100) / 10).toString().replace('.', dec()) + ' km' : Math.round(m) + ' m');
 const catName = c => S.lang === 'en' ? (CAT_EN[c] || cap(c)) : R.catName(c, S.lang);
 const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
-const title = p => `${catName(p.category)} ${S.lang === 'sv' ? 'i' : 'in'} ${R.placeLabel(p)}`;
+const title = p => `${catName(p.category)} ${S.lang === 'sv' ? 'i' : S.lang === 'es' ? 'en' : 'in'} ${R.placeLabel(p)}`;
 const agentOf = p => AGENTS[p.agent_wp_id] || AGENTS[OFFICE];
 const reduced = p => p.previous_price && p.previous_price > p.price;
 const dropPct = p => reduced(p) ? Math.round((1 - p.price / p.previous_price) * 100) : 0;
@@ -286,7 +286,7 @@ function sanitize(html) {
     [...n.children].forEach(c => {
       walk(c);
       if (c.tagName === 'A') { // alleen interne links houden (oude eigen WordPress-links worden omgezet), de rest wordt platte tekst
-        const h = c.getAttribute('href') || '', own = /^\/(en|nl|sv)\//.test(h) ? h : R.ownLink(h, S.lang, slugs);
+        const h = c.getAttribute('href') || '', own = /^\/(en|nl|sv|es)\//.test(h) ? h : R.ownLink(h, S.lang, slugs);
         if (!own) { c.replaceWith(...c.childNodes); return; }
         const cls = c.getAttribute('class');
         [...c.attributes].forEach(a => c.removeAttribute(a.name));
@@ -394,7 +394,7 @@ function badges(p) {
   return b.slice(0, isOpen(p) ? 2 : 1).join('');
 }
 function priceHtml(p) {
-  if (p.price == null) return `<div class="price">${tx({ en: 'Price on request', nl: 'Prijs op aanvraag', sv: 'Pris på förfrågan' })}</div>`;
+  if (p.price == null) return `<div class="price">${tx({ en: 'Price on request', nl: 'Prijs op aanvraag', sv: 'Pris på förfrågan', es: 'Precio a consultar' })}</div>`;
   return `<div class="price">${p.price_from ? `<small>${t('from')}</small>` : ''}${eur(p.price)}${reduced(p) ? `<s>${eur(p.previous_price)}</s>` : ''}</div>`;
 }
 function specs(p) {
@@ -402,7 +402,7 @@ function specs(p) {
   if (p.bedrooms) s.push(`<span title="${t('beds')}">${ICON.bed}${p.bedrooms}</span>`);
   if (p.bathrooms) s.push(`<span title="${t('baths')}">${ICON.bath}${p.bathrooms}</span>`);
   if (p.build_area) s.push(`<span title="${t('built')}">${ICON.area}${num(p.build_area)} m²</span>`);
-  if (p.plot_area) s.push(`<span title="${t('plot')}">${num(p.plot_area)} m² ${tx({ en: 'plot', nl: 'perceel', sv: 'tomt' })}</span>`);
+  if (p.plot_area) s.push(`<span title="${t('plot')}">${num(p.plot_area)} m² ${tx({ en: 'plot', nl: 'perceel', sv: 'tomt', es: 'parcela' })}</span>`);
   if (p.pool_private) s.push(`<span class="pool own" title="${t('pool_private')}">${ICON.pool}${t('pool_short_private')}</span>`);
   if (p.pool_communal) s.push(`<span class="pool shared" title="${t('pool_communal')}">${ICON.poolC}${t('pool_short_communal')}</span>`);
   if (p.pool_unspecified && !p.pool_private && !p.pool_communal) s.push(`<span class="pool any" title="${t('pool_unspecified')}">${ICON.poolU}${t('pool_short_unspecified')}</span>`);
@@ -417,7 +417,7 @@ function card(p, opts = {}) {
       ${p.image ? `<img class="kb" src="${esc(p.image)}" alt="${esc(title(p))}" loading="${opts.eager ? 'eager' : 'lazy'}" decoding="async">` : ''}
       <div class="badges">${badges(p)}</div>
       ${stOf(p) === 'sold' ? `<span class="sold-band">${t('st_sold')}</span>` : ''}
-      <button class="heart" type="button" aria-pressed="${fav}" aria-label="${tx({ en: 'Save', nl: 'Bewaren', sv: 'Spara' })}" data-fav="${p.id}">${ICON.heart}</button>
+      <button class="heart" type="button" aria-pressed="${fav}" aria-label="${tx({ en: 'Save', nl: 'Bewaren', sv: 'Spara', es: 'Guardar' })}" data-fav="${p.id}">${ICON.heart}</button>
       ${n > 1 ? `<div class="dots">${'<i></i>'.repeat(n)}</div>` : ''}
       <span class="ref-tag">${esc(p.reference)}</span>
     </div>
@@ -822,7 +822,7 @@ function renderBar() {
   if (f.beds_min) pill(`${f.beds_min}+ ${t('beds')}`, 'beds_min');
   if (f.baths_min) pill(`${f.baths_min}+ ${t('baths')}`, 'baths_min');
   if (f.pool) pill(f.pool === 'communal' ? t('pool_communal') : t('pool_private'), 'pool');
-  if (f.max_sea_km) pill(`≤ ${f.max_sea_km} km ${tx({ en: 'to the sea', nl: 'tot zee', sv: 'till havet' })}`, 'max_sea_km');
+  if (f.max_sea_km) pill(`≤ ${f.max_sea_km} km ${tx({ en: 'to the sea', nl: 'tot zee', sv: 'till havet', es: 'al mar' })}`, 'max_sea_km');
   if (f.reduced_only) pill(t('reduced'), 'reduced_only');
   if (f.newbuild != null) pill(f.newbuild ? t('newbuild') : t('resale'), 'newbuild');
   const sorts = ['foryou', 'newest', 'price_asc', 'price_desc', 'value', 'reduced'];
@@ -1082,7 +1082,7 @@ const MARKET_SHOW_MAX = 5; // marktvergelijking op de woning alleen tot en met +
 async function openSheet(ref) {
   const p = S.byRef.get(ref.toUpperCase());
   const sh = $('#sheet'), inner = $('#sheetInner');
-  if (!p) { inner.innerHTML = `<div class="empty"><h2>${tx({ en: 'This home is no longer available', nl: 'Deze woning is niet meer beschikbaar', sv: 'Den här bostaden är inte längre till salu' })}</h2><p><a class="btn primary" href="${L('home')}">${t('see_all')}</a></p></div>`; sh.hidden = false; return; }
+  if (!p) { inner.innerHTML = `<div class="empty"><h2>${tx({ en: 'This home is no longer available', nl: 'Deze woning is niet meer beschikbaar', sv: 'Den här bostaden är inte längre till salu', es: 'Esta vivienda ya no está disponible' })}</h2><p><a class="btn primary" href="${L('home')}">${t('see_all')}</a></p></div>`; sh.hidden = false; return; }
   closeSheetTracking();
   S.openId = p.id; S.openSince = Date.now();
   document.title = `${title(p)} · ${p.reference} · Grupo Soltura`;
@@ -1268,11 +1268,11 @@ function bindSend(p) {
     if (!docs.length) return err('sb_err_none');
     if (!first || !last || !EMAIL_RE.test(email)) return err('sb_err');
     const btn = $('button[type=submit]', f); btn.disabled = true; btn.textContent = t('sb_busy'); out.textContent = '';
-    // bericht aan kantoor: Nederlands op de NL-site, anders Engels (Zweedse site communiceert Engels)
-    const nl = S.lang === 'nl', yn = v => v === 'yes' ? (nl ? 'ja' : 'yes') : v === 'no' ? (nl ? 'nee' : 'no') : (nl ? 'niet ingevuld' : 'not answered');
-    const what = docs.map(x => x === 'brochure' ? (nl ? 'de PDF-brochure' : 'the PDF brochure') : (nl ? 'het kostenoverzicht' : 'the cost overview')).join(nl ? ' en ' : ' and ');
-    const lines = [nl ? `Graag ontvang ik ${what} van ${p.reference}.` : `Please send me ${what} of ${p.reference}.`];
-    if (docs.includes('costs')) lines.push(nl ? `NIE nog nodig: ${yn(ans.nie)}\nSpaanse hypotheek: ${yn(ans.mort)}\nTekenen via volmacht: ${yn(ans.poa)}` : `Still need an NIE: ${yn(ans.nie)}\nSpanish mortgage: ${yn(ans.mort)}\nSigning via power of attorney: ${yn(ans.poa)}`);
+    // bericht aan kantoor: Nederlands op de NL-site, Spaans op de ES-site, anders Engels (Zweedse site communiceert Engels)
+    const nl = S.lang === 'nl', es = S.lang === 'es', yn = v => v === 'yes' ? (nl ? 'ja' : es ? 'sí' : 'yes') : v === 'no' ? (nl ? 'nee' : 'no') : (nl ? 'niet ingevuld' : es ? 'sin responder' : 'not answered');
+    const what = docs.map(x => x === 'brochure' ? (nl ? 'de PDF-brochure' : es ? 'el folleto en PDF' : 'the PDF brochure') : (nl ? 'het kostenoverzicht' : es ? 'el resumen de gastos' : 'the cost overview')).join(nl ? ' en ' : es ? ' y ' : ' and ');
+    const lines = [nl ? `Graag ontvang ik ${what} van ${p.reference}.` : es ? `Por favor, enviadme ${what} de ${p.reference}.` : `Please send me ${what} of ${p.reference}.`];
+    if (docs.includes('costs')) lines.push(nl ? `NIE nog nodig: ${yn(ans.nie)}\nSpaanse hypotheek: ${yn(ans.mort)}\nTekenen via volmacht: ${yn(ans.poa)}` : es ? `Todavía necesito NIE: ${yn(ans.nie)}\nHipoteca española: ${yn(ans.mort)}\nFirma mediante poder notarial: ${yn(ans.poa)}` : `Still need an NIE: ${yn(ans.nie)}\nSpanish mortgage: ${yn(ans.mort)}\nSigning via power of attorney: ${yn(ans.poa)}`);
     const r = await fn('web-contact', { ...formMeta('sendForm', p, 'web-property-brochure'), website: '', kind: 'brochure', first, last, first_name: first, last_name: last, name: `${first} ${last}`, email,
       browser_lang: (navigator.language || '').slice(0, 20), message: lines.join('\n'), fields: { docs, nie: docs.includes('costs') ? ans.nie || null : null, mortgage: docs.includes('costs') ? ans.mort || null : null, power_of_attorney: docs.includes('costs') ? ans.poa || null : null, channel: 'sendbox' } }).catch(() => ({ ok: false }));
     btn.disabled = false; btn.textContent = t('sb_send');
@@ -1359,7 +1359,7 @@ function bindSheet(p, waHref) {
     log.scrollTop = log.scrollHeight;
     track('assistant', p.id);
     const r = await fn('web-assistant', { mode: 'ask', lang: S.lang, id: p.id, reference: p.reference, wp_id: p.wp_id || null, query: q, history: hist }).catch(() => ({}));
-    const reply = r.reply || tx({ en: "I'm not sure about that. Feel free to WhatsApp us.", nl: 'Dat weet ik niet zeker. Stuur ons gerust een WhatsApp.', sv: 'Det är jag inte säker på. Skicka gärna ett WhatsApp till oss.' });
+    const reply = r.reply || tx({ en: "I'm not sure about that. Feel free to WhatsApp us.", nl: 'Dat weet ik niet zeker. Stuur ons gerust een WhatsApp.', sv: 'Det är jag inte säker på. Skicka gärna ett WhatsApp till oss.', es: 'No estoy segura de eso. Escríbenos por WhatsApp sin problema.' });
     hist.push({ role: 'user', content: q }, { role: 'assistant', content: reply });
     $('.typing', log).remove();
     log.insertAdjacentHTML('beforeend', `<div class="msg a">${esc(reply)}${r.handoff ? `<br><br>${t('handoff')} <a href="${waHref}" target="_blank" rel="noopener">WhatsApp</a>` : ''}</div>`);
@@ -1412,7 +1412,7 @@ function fillDetail(d) {
       <p style="margin:10px 0 0">${t('market_txt', dev, eur(d.market_median_m2), d.market_n, d.town)}</p></div>`;
   }
   // description
-  let body = S.lang === 'nl' ? (d.body_nl || d.body_en) : S.lang === 'sv' ? (d.body_sv || d.body_en || d.body_nl) : (d.body_en || d.body_nl);
+  let body = S.lang === 'nl' ? (d.body_nl || d.body_en) : S.lang === 'sv' ? (d.body_sv || d.body_en || d.body_nl) : S.lang === 'es' ? (d.body_es || d.body_en || d.body_nl) : (d.body_en || d.body_nl);
   if (body) {
     // partnerteksten: dubbel ge-escapete entiteiten herstellen en losse regels als alinea's tonen
     body = body.replace(/&amp;(nbsp|amp|quot|apos|lt|gt|#\d+);/g, '&$1;');
@@ -1436,7 +1436,7 @@ function fillDetail(d) {
   if (d.pool_private) feats.push(t('pool_private')); if (d.pool_communal) feats.push(t('pool_communal')); if (d.pool_unspecified && !d.pool_private && !d.pool_communal) feats.push(t('pool_unspecified'));
   if (d.aircon) feats.push(t('aircon')); if (d.solarium) feats.push(t('solarium'));
   (d.features || '').split(',').map(s => s.trim()).filter(Boolean).forEach(s => feats.push(cap(s)));
-  (d.terraces || '').split(',').map(s => s.trim()).filter(Boolean).forEach(s => feats.push(cap(s) + tx({ en: ' terrace', nl: ' terras', sv: ' terrass' })));
+  (d.terraces || '').split(',').map(s => s.trim()).filter(Boolean).forEach(s => feats.push(cap(s) + tx({ en: ' terrace', nl: ' terras', sv: ' terrass', es: ' terraza' })));
   if (feats.length) $('#featBox').innerHTML = `<div class="feat" style="margin:20px 0"><h3>${t('feat_h')}</h3><ul>${[...new Set(feats)].map(f => `<li>${esc(f)}</li>`).join('')}</ul></div>`;
   // costs: belastingtarieven uit web_config; wij werken met één vast all-in tarief, geen losse rekeningen
   if (d.price) {
@@ -1492,8 +1492,8 @@ function bindAllin(p) {
     const first = nameCase(d.first), last = nameCase(d.last), email = String(d.email || '').trim().toLowerCase().replace(/\s+/g, '');
     if (!first || !last || !EMAIL_RE.test(email)) return err('sb_err');
     const btn = $('button[type=submit]', f); btn.disabled = true; btn.textContent = t('sb_busy'); out.textContent = '';
-    const nl = S.lang === 'nl';
-    const msg = nl ? `Graag ontvang ik de infotorial over jullie all-in tarief (woning ${p.reference}).` : `Please send me the infotorial about your all-in fee (home ${p.reference}).`;
+    const nl = S.lang === 'nl', es = S.lang === 'es';
+    const msg = nl ? `Graag ontvang ik de infotorial over jullie all-in tarief (woning ${p.reference}).` : es ? `Por favor, enviadme el infotorial sobre vuestra tarifa todo incluido (vivienda ${p.reference}).` : `Please send me the infotorial about your all-in fee (home ${p.reference}).`;
     const r = await fn('web-contact', { ...formMeta('allinForm', p, 'web-property-allin'), website: '', kind: 'allin', first, last, first_name: first, last_name: last, name: `${first} ${last}`, email,
       browser_lang: (navigator.language || '').slice(0, 20), message: msg, fields: { channel: 'allin-box' } }).catch(() => ({ ok: false }));
     btn.disabled = false; btn.textContent = t('sb_send');
@@ -1560,14 +1560,14 @@ async function liveTick() {
   if (pid === null) {
     const el = $('#lvSite'); if (!el) { liveStart(false); return; } // homepage niet meer in beeld
     el.hidden = !(d && d.site);
-    if (d && d.site) el.innerHTML = `<i></i>${tx({ en: `${d.site} people browsing`, nl: `${d.site} bezoekers kijken rond`, sv: `${d.site} besökare tittar runt` })}`;
+    if (d && d.site) el.innerHTML = `<i></i>${tx({ en: `${d.site} people browsing`, nl: `${d.site} bezoekers kijken rond`, sv: `${d.site} besökare tittar runt`, es: `${d.site} personas mirando viviendas` })}`;
     return;
   }
   const el = $('#lvProp'); if (!el) { liveStart(false); return; }
   el.hidden = !(d && d.week);
   if (!d || !d.week) return;
   const w = d.week, n = d.now;
-  el.innerHTML = `${ICON.eye}<span><b>${tx({ en: `${w} people`, nl: `${w} mensen`, sv: `${w} personer` })}</b> ${tx({ en: 'viewed this home this week', nl: 'bekeken deze woning deze week', sv: 'har tittat på den här bostaden den här veckan' })}${n ? `<em><i></i>${tx({ en: `${n} viewing right now`, nl: `${n} kijken er nu naar`, sv: `${n} tittar just nu` })}</em>` : ''}</span>`;
+  el.innerHTML = `${ICON.eye}<span><b>${tx({ en: `${w} people`, nl: `${w} mensen`, sv: `${w} personer`, es: `${w} personas` })}</b> ${tx({ en: 'viewed this home this week', nl: 'bekeken deze woning deze week', sv: 'har tittat på den här bostaden den här veckan', es: 'han visto esta vivienda esta semana' })}${n ? `<em><i></i>${tx({ en: `${n} viewing right now`, nl: `${n} kijken er nu naar`, sv: `${n} tittar just nu`, es: `${n} la están viendo ahora` })}</em>` : ''}</span>`;
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden && livePid !== false) liveTick(); });
 function closeSheetTracking() {
@@ -1628,7 +1628,7 @@ function openLightbox(urls, start = 0, plain = false) {
 function openReel(startIdx) {
   const list = (S.order.length ? S.order : computeOrder()).filter(p => p.image).slice(0, 120);
   const reel = $('#reel');
-  reel.innerHTML = `<button class="reel-close" type="button" aria-label="${t('close')}">${ICON.x}</button><span class="reel-hint">${tx({ en: 'Swipe up for the next home', nl: 'Veeg omhoog voor de volgende woning', sv: 'Svep uppåt för nästa bostad' })}</span>` +
+  reel.innerHTML = `<button class="reel-close" type="button" aria-label="${t('close')}">${ICON.x}</button><span class="reel-hint">${tx({ en: 'Swipe up for the next home', nl: 'Veeg omhoog voor de volgende woning', sv: 'Svep uppåt för nästa bostad', es: 'Desliza hacia arriba para la siguiente vivienda' })}</span>` +
     list.map((p, i) => `<section class="reel-item" data-id="${p.id}"><img src="${esc(p.image)}" alt="${esc(title(p))}" loading="${i < 2 ? 'eager' : 'lazy'}"><span class="ref-tag reel-ref">${esc(p.reference)}</span>
       <div class="reel-cap"><div class="t"><div class="badges" style="display:flex;gap:6px;margin-bottom:6px">${badges(p)}</div>${priceHtml(p)}<h3>${esc(title(p))}</h3>${specs(p)}</div>
       <div class="reel-side"><button type="button" data-fav="${p.id}" aria-pressed="${S.favs.has(p.id)}" aria-label="Save">${ICON.heart}</button>
@@ -1713,7 +1713,7 @@ function pageMove() {
       <div class="stages">${c.stages.map(([h, p], i) => `<div class="stage"><span>${i + 1}</span><h3>${h}</h3><p>${p}</p></div>`).join('')}</div>
       ${COSTS.teaser(S.lang, L('costs'))}
       ${GIDS.promo(S.lang, L('gids'))}
-      <p class="move-areas"><a href="${L('area')}">${t('areas_h')}: ${tx({ en: 'read about schools, healthcare, shops and festivals per town', nl: 'lees per woonplaats over scholen, zorg, winkels en feesten', sv: 'läs om skolor, vård, affärer och fester ort för ort' })} →</a></p>
+      <p class="move-areas"><a href="${L('area')}">${t('areas_h')}: ${tx({ en: 'read about schools, healthcare, shops and festivals per town', nl: 'lees per woonplaats over scholen, zorg, winkels en feesten', sv: 'läs om skolor, vård, affärer och fester ort för ort', es: 'lee sobre colegios, sanidad, tiendas y fiestas en cada pueblo' })} →</a></p>
       <div class="buy-grid move-grid">
         <div class="acc">${c.topics.map(([h, p], i) => `<details${i === 0 ? ' open' : ''}><summary>${h}</summary><p>${p}</p></details>`).join('')}
           <p class="disclaimer">${c.disclaimer}</p></div>
@@ -1767,7 +1767,7 @@ function pageCosts() {
   main.innerHTML = COSTS.html(S.lang, { move: L('move'), home: L('home'), buy: L('buy') }, ls.get('ml', null));
   COSTS.bind(main, S.lang, { get: () => ls.get('ml', null), set: v => ls.set('ml', v) });
 }
-const LANG_NAME = { es: { en: 'Spanish', nl: 'Spaans', sv: 'spanska' }, nl: { en: 'Dutch', nl: 'Nederlands', sv: 'nederländska' }, en: { en: 'English', nl: 'Engels', sv: 'engelska' }, de: { en: 'German', nl: 'Duits', sv: 'tyska' }, fr: { en: 'French', nl: 'Frans', sv: 'franska' }, ca: { en: 'Valencian', nl: 'Valenciaans', sv: 'valencianska' }, sv: { en: 'Swedish', nl: 'Zweeds', sv: 'svenska' } };
+const LANG_NAME = { es: { en: 'Spanish', nl: 'Spaans', sv: 'spanska', es: 'español' }, nl: { en: 'Dutch', nl: 'Nederlands', sv: 'nederländska', es: 'neerlandés' }, en: { en: 'English', nl: 'Engels', sv: 'engelska', es: 'inglés' }, de: { en: 'German', nl: 'Duits', sv: 'tyska', es: 'alemán' }, fr: { en: 'French', nl: 'Frans', sv: 'franska', es: 'francés' }, ca: { en: 'Valencian', nl: 'Valenciaans', sv: 'valencianska', es: 'valenciano' }, sv: { en: 'Swedish', nl: 'Zweeds', sv: 'svenska', es: 'sueco' } };
 // taal van het artikel zelf (de koppen in news_posts zijn al naar het Nederlands herschreven)
 const artLang = r => ({ idealista: 'es', 'vegabajadigital.com': 'es', 'Spanje Vandaag': 'nl' }[r.source]);
 const NEWS_SRC = { all: null, market: 'idealista', region: 'vegabajadigital.com', spain: 'Spanje Vandaag' };
@@ -1786,7 +1786,7 @@ function sanitizeRich(html) {
       const href = c.getAttribute('href'), src = c.getAttribute('src'), alt = c.getAttribute('alt');
       [...c.attributes].forEach(a => c.removeAttribute(a.name));
       if (c.tagName === 'A') {
-        if (href && /^(https?:|mailto:|#\/|\/(en|nl|sv)\/)/i.test(href.trim())) { c.setAttribute('href', href.trim()); if (/^https?:/i.test(href.trim())) { c.setAttribute('target', '_blank'); c.setAttribute('rel', 'noopener nofollow'); } }
+        if (href && /^(https?:|mailto:|#\/|\/(en|nl|sv|es)\/)/i.test(href.trim())) { c.setAttribute('href', href.trim()); if (/^https?:/i.test(href.trim())) { c.setAttribute('target', '_blank'); c.setAttribute('rel', 'noopener nofollow'); } }
         else c.replaceWith(...c.childNodes);
       }
       if (c.tagName === 'IMG') {
@@ -1842,7 +1842,7 @@ async function pagePost(slug) {
   const r = await api(`web_blog_posts?select=*&slug=eq.${encodeURIComponent(slug)}&limit=1`).then(x => x[0]).catch(() => null);
   if (currentPage !== 'news' || cur().arg !== slug) return;
   if (!r) {
-    main.innerHTML = `<div class="empty"><h2>${tx({ en: 'This article is no longer available', nl: 'Dit bericht is niet (meer) beschikbaar', sv: 'Den här artikeln finns inte längre' })}</h2><p><a class="btn primary" href="${L('news')}">${t('nav_news')}</a></p></div>${homesRail()}`;
+    main.innerHTML = `<div class="empty"><h2>${tx({ en: 'This article is no longer available', nl: 'Dit bericht is niet (meer) beschikbaar', sv: 'Den här artikeln finns inte längre', es: 'Este artículo ya no está disponible' })}</h2><p><a class="btn primary" href="${L('news')}">${t('nav_news')}</a></p></div>${homesRail()}`;
     observeCards(main); return;
   }
   // andere taal gekozen en er is een vertaling: daarheen
@@ -1858,7 +1858,7 @@ async function pagePost(slug) {
       ${r.image_url ? `<figure class="post-img"><img src="${esc(r.image_url)}" alt="" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></figure>` : ''}
       ${r.excerpt ? `<p class="post-lead">${esc(r.excerpt)}</p>` : ''}
       <div class="post-body">${sanitizeRich(r.body_html)}</div>
-      ${r.source_url && /^https?:/i.test(r.source_url) ? `<p class="post-src">${tx({ en: 'Source', nl: 'Bron', sv: 'Källa' })}: <a href="${esc(r.source_url)}" target="_blank" rel="noopener nofollow">${esc(r.source_name || new URL(r.source_url).hostname)}</a></p>` : ''}
+      ${r.source_url && /^https?:/i.test(r.source_url) ? `<p class="post-src">${tx({ en: 'Source', nl: 'Bron', sv: 'Källa', es: 'Fuente' })}: <a href="${esc(r.source_url)}" target="_blank" rel="noopener nofollow">${esc(r.source_name || new URL(r.source_url).hostname)}</a></p>` : ''}
       <p class="post-share"><a class="btn ghost" href="${L('news')}">${t('news_more')}</a> <a class="btn wa" href="https://wa.me/?text=${encodeURIComponent(r.title + ' ' + shareUrl(L('news', r.slug), 'whatsapp', r.slug))}" target="_blank" rel="noopener" data-social="share_wa">${t('share_wa')}</a></p>
     </article>${homesRail()}`;
   observeCards(main);
@@ -1872,7 +1872,7 @@ async function newsLinks() {
   const fmt = d => new Date(d).toLocaleDateString(loc(), { day: 'numeric', month: 'long' });
   const label = src => ({ idealista: t('news_market'), 'vegabajadigital.com': t('news_region'), 'Spanje Vandaag': t('news_spain') }[src] || src);
   // koppen in de taal van de site (vertaald door web-news-images); het artikel zelf staat in de brontaal
-  const head = r => (S.lang === 'nl' ? r.title_nl : r.title_en) || r.title; // SV: Engelse kop // NL: altijd informeel (je/jij)
+  const head = r => (S.lang === 'nl' ? r.title_nl : S.lang === 'es' && r.lang === 'es' ? r.title : r.title_en) || r.title; // SV: Engelse kop; ES: Spaanse bron in het origineel, anders Engels // NL: altijd informeel (je/jij)
   let src = 'all', shown = 17;
   const draw = () => {
     const list = rows.filter(r => !NEWS_SRC[src] || r.source === NEWS_SRC[src]);
@@ -1975,7 +1975,7 @@ async function pageArea(slug) {
     return `<a class="area-card" href="${L('guide', g.slug)}">
       ${ph ? `<span class="ac-img"><img src="${esc(tgImg(ph, 640))}" alt="${esc(ph.alt || g.town)}" loading="lazy"></span>` : '<span class="ac-img"></span>'}
       <span class="ac-txt"><h3>${esc(g.town)}</h3><p>${esc(g.lead || '')}</p>${n ? `<small>${t('areas_n', n)}</small>` : ''}</span></a>`;
-  }).join('') || `<p>${tx({ en: 'The guides could not load. Please try again shortly.', nl: 'De gidsen laden even niet. Probeer het zo opnieuw.', sv: 'Guiderna kunde inte laddas. Försök igen om en stund.' })}</p>`;
+  }).join('') || `<p>${tx({ en: 'The guides could not load. Please try again shortly.', nl: 'De gidsen laden even niet. Probeer het zo opnieuw.', sv: 'Guiderna kunde inte laddas. Försök igen om en stund.', es: 'Las guías no se han podido cargar. Inténtalo de nuevo en un momento.' })}</p>`;
   observeCards(main);
 }
 async function pageAreaDetail(slug) {
@@ -1985,7 +1985,7 @@ async function pageAreaDetail(slug) {
   const g = await api(`web_town_guides?select=*&slug=eq.${encodeURIComponent(slug)}&lang=eq.${S.lang}&limit=1`).then(x => x[0]).catch(() => null);
   if (currentPage !== 'area' || cur().arg !== slug) return;
   if (!g) {
-    main.innerHTML = `<div class="empty"><h2>${tx({ en: "We haven't written about this place yet", nl: 'Deze plaats hebben we (nog) niet beschreven', sv: 'Den här orten har vi inte skrivit om än' })}</h2><p><a class="btn primary" href="${L('area')}">${t('nav_areas')}</a></p></div>${homesRail()}`;
+    main.innerHTML = `<div class="empty"><h2>${tx({ en: "We haven't written about this place yet", nl: 'Deze plaats hebben we (nog) niet beschreven', sv: 'Den här orten har vi inte skrivit om än', es: 'Todavía no hemos escrito sobre este pueblo' })}</h2><p><a class="btn primary" href="${L('area')}">${t('nav_areas')}</a></p></div>${homesRail()}`;
     observeCards(main); return;
   }
   document.title = `${g.title} · Grupo Soltura`;
@@ -1993,7 +1993,7 @@ async function pageAreaDetail(slug) {
   const photos = g.photos || [];
   const homes = guideHomes(g);
   const table = s => `<div class="tbl-wrap"><table class="area-tbl${s.key === 'festivals' ? ' fest' : ''}">${s.key === 'festivals'
-      ? `<thead><tr><th>${tx({ en: 'Festival', nl: 'Feest', sv: 'Fest' })}</th><th>${tx({ en: 'When', nl: 'Wanneer', sv: 'När' })}</th><th>${tx({ en: 'What', nl: 'Wat', sv: 'Vad' })}</th></tr></thead>` : ''}<tbody>${s.rows.map(r => `<tr>${r.map((c, i) => `<td${i === 0 ? ' class="k"' : ''}>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+      ? `<thead><tr><th>${tx({ en: 'Festival', nl: 'Feest', sv: 'Fest', es: 'Fiesta' })}</th><th>${tx({ en: 'When', nl: 'Wanneer', sv: 'När', es: 'Cuándo' })}</th><th>${tx({ en: 'What', nl: 'Wat', sv: 'Vad', es: 'Qué' })}</th></tr></thead>` : ''}<tbody>${s.rows.map(r => `<tr>${r.map((c, i) => `<td${i === 0 ? ' class="k"' : ''}>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
   // eerste foto staat in de kop; de andere klein naast de tekst
   const fig = i => photos[i] ? `<figure class="area-fig" data-i="${i}"><img src="${esc(tgImg(photos[i], 900))}" alt="${esc(photos[i].alt || '')}" loading="lazy"><figcaption>${esc(photos[i].alt || '')} <span>· ${tgCredit(photos[i])}</span></figcaption></figure>` : '';
   const at = { 1: 1, 5: 2 };
@@ -2004,15 +2004,15 @@ async function pageAreaDetail(slug) {
       <div class="buy-grid area-grid2">
         <div class="area-main">
           <div class="post-body area-body">${secs.map((s, i) => `<section id="sec-${esc(s.key)}">${at[i] ? fig(at[i]) : ''}<h2 class="pg-h">${esc(s.heading)}</h2>${s.rows ? table(s) : sanitizeRich(s.html)}</section>`).join('')}</div>
-          <details class="area-src"><summary>${tx({ en: 'Sources and photos', nl: 'Bronnen en foto\'s', sv: 'Källor och foton' })}</summary>
-            <p class="muted">${tx({ en: 'We compile this guide carefully from public sources. Figures and dates can change; if in doubt, check with the town hall.', nl: 'Wij stellen deze gids met zorg samen uit openbare bronnen. Cijfers en data kunnen veranderen; check bij twijfel de gemeente.', sv: 'Vi sammanställer guiden noggrant utifrån offentliga källor. Siffror och datum kan ändras; kontrollera med kommunen om du är osäker.' })} ${tx({ en: 'Updated', nl: 'Bijgewerkt', sv: 'Uppdaterad' })} ${fmtDate(g.updated_at, true)}.</p>
+          <details class="area-src"><summary>${tx({ en: 'Sources and photos', nl: 'Bronnen en foto\'s', sv: 'Källor och foton', es: 'Fuentes y fotos' })}</summary>
+            <p class="muted">${tx({ en: 'We compile this guide carefully from public sources. Figures and dates can change; if in doubt, check with the town hall.', nl: 'Wij stellen deze gids met zorg samen uit openbare bronnen. Cijfers en data kunnen veranderen; check bij twijfel de gemeente.', sv: 'Vi sammanställer guiden noggrant utifrån offentliga källor. Siffror och datum kan ändras; kontrollera med kommunen om du är osäker.', es: 'Elaboramos esta guía con cuidado a partir de fuentes públicas. Las cifras y fechas pueden cambiar; ante la duda, consulta al ayuntamiento.' })} ${tx({ en: 'Updated', nl: 'Bijgewerkt', sv: 'Uppdaterad', es: 'Actualizado' })} ${fmtDate(g.updated_at, true)}.</p>
             <ul>${(g.sources || []).filter(x => x && /^https?:/i.test(x.url || '')).map(x => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener nofollow">${esc(x.title || new URL(x.url).hostname)}</a></li>`).join('')}</ul>
-            ${photos.length ? `<p class="muted">${tx({ en: 'Photos via Wikimedia Commons', nl: 'Foto\'s via Wikimedia Commons', sv: 'Foton via Wikimedia Commons' })}: ${photos.map(tgCredit).join(' · ')}</p>` : ''}</details>
+            ${photos.length ? `<p class="muted">${tx({ en: 'Photos via Wikimedia Commons', nl: 'Foto\'s via Wikimedia Commons', sv: 'Foton via Wikimedia Commons', es: 'Fotos vía Wikimedia Commons' })}: ${photos.map(tgCredit).join(' · ')}</p>` : ''}</details>
           <section class="area-near" id="areaNear" hidden></section>
         </div>
         <aside class="box side-cta area-side">
           <h2>${esc(g.town)}</h2>
-          <nav class="area-toc" aria-label="${tx({ en: 'Topics', nl: 'Onderwerpen', sv: 'Ämnen' })}">${secs.map(s => `<a href="#sec-${esc(s.key)}" data-sec="${esc(s.key)}">${esc(s.heading)}</a>`).join('')}</nav>
+          <nav class="area-toc" aria-label="${tx({ en: 'Topics', nl: 'Onderwerpen', sv: 'Ämnen', es: 'Temas' })}">${secs.map(s => `<a href="#sec-${esc(s.key)}" data-sec="${esc(s.key)}">${esc(s.heading)}</a>`).join('')}</nav>
           ${homes.length ? `<p>${t('areas_cta', g.town, homes.length)}</p>` : ''}
           ${homesBtn}
           <a class="btn ghost" href="${L('contact')}">${t('nav_contact')}</a>
@@ -2035,7 +2035,7 @@ async function pageAreaDetail(slug) {
   townGuides().then(list => {
     const near = nearGuides(g, list), box = $('#areaNear');
     if (!box || !near.length || cur().arg !== g.slug) return;
-    box.innerHTML = `<h2 class="pg-h">${tx({ en: 'Nearby', nl: 'In de buurt', sv: 'I närheten' })}</h2><ul class="near-list">${near.map(x => `<li><a href="${L('guide', x.g.slug)}">${esc(x.g.town)}</a> <small>${Math.round(x.km)} km</small></li>`).join('')}</ul>`;
+    box.innerHTML = `<h2 class="pg-h">${tx({ en: 'Nearby', nl: 'In de buurt', sv: 'I närheten', es: 'Cerca' })}</h2><ul class="near-list">${near.map(x => `<li><a href="${L('guide', x.g.slug)}">${esc(x.g.town)}</a> <small>${Math.round(x.km)} km</small></li>`).join('')}</ul>`;
     box.hidden = false;
   });
   track('area_view', null, null, { slug: g.slug });
@@ -2236,7 +2236,7 @@ function renderPage(r) {
     case 'contact': main.innerHTML = pageContact(); bindForm($('#contactForm')); if ('IntersectionObserver' in window) { const o = new IntersectionObserver(es => { if (es[0].isIntersecting) { o.disconnect(); initMap(); } }, { rootMargin: '300px' }); o.observe($('#mapEl')); } else initMap(); break;
     case 'privacy': main.innerHTML = pagePrivacy(); break;
     case 'favorites': importFavs(); main.innerHTML = pageFavs(); bindFavMail(); break;
-    case 'notfound': main.innerHTML = `<div class="empty"><h2>${tx({ en: 'This page does not exist', nl: 'Deze pagina bestaat niet (meer)', sv: 'Den här sidan finns inte' })}</h2><p><a class="btn primary" href="${L('home')}">${t('see_all')}</a> <a class="btn ghost" href="${L('area')}">${t('nav_areas')}</a></p></div>`; break;
+    case 'notfound': main.innerHTML = `<div class="empty"><h2>${tx({ en: 'This page does not exist', nl: 'Deze pagina bestaat niet (meer)', sv: 'Den här sidan finns inte', es: 'Esta página no existe' })}</h2><p><a class="btn primary" href="${L('home')}">${t('see_all')}</a> <a class="btn ghost" href="${L('area')}">${t('nav_areas')}</a></p></div>`; break;
     default: currentPage = 'home'; renderHome();
   }
   if (key !== 'favorites') document.body.classList.remove('favmail-open');
@@ -2335,8 +2335,8 @@ async function boot() {
   else if (location.pathname === '/' || location.pathname === '/index.html') {
     const want = R.LANGS.includes(qp.get('lang')) ? qp.get('lang') : S.lang;
     qp.delete('lang'); const q = qp.toString() ? '?' + qp.toString() : '';
-    // '/' toont Engels (canonical /en/); wie Nederlands/Zweeds koos of zo'n browser heeft, gaat naar /nl/ of /sv/
-    if (want === 'nl' || want === 'sv') history.replaceState(null, '', '/' + want + '/' + q + location.hash);
+    // '/' toont Engels (canonical /en/); wie Nederlands/Zweeds/Spaans koos of zo'n browser heeft, gaat naar /nl/, /sv/ of /es/
+    if (want === 'nl' || want === 'sv' || want === 'es') history.replaceState(null, '', '/' + want + '/' + q + location.hash);
     else { S.lang = 'en'; if (location.search !== q) history.replaceState(null, '', '/' + q + location.hash); }
   }
   const r0 = R.parse(location.pathname);
@@ -2351,7 +2351,7 @@ async function boot() {
   try {
     S.all = await api(`web_properties?select=${LIST_COLS}`);
   } catch (e) {
-    $('#main').insertAdjacentHTML('afterbegin', `<div class="empty"><h2>${tx({ en: 'Listings could not load', nl: 'Het aanbod laadt even niet', sv: 'Utbudet kunde inte laddas' })}</h2><p>${tx({ en: 'Refresh the page, or call us on +34 966 792 113.', nl: 'Ververs de pagina, of bel ons op +34 966 792 113.', sv: 'Ladda om sidan eller ring oss på +34 966 792 113.' })}</p></div>`);
+    $('#main').insertAdjacentHTML('afterbegin', `<div class="empty"><h2>${tx({ en: 'Listings could not load', nl: 'Het aanbod laadt even niet', sv: 'Utbudet kunde inte laddas', es: 'Las viviendas no se han podido cargar' })}</h2><p>${tx({ en: 'Refresh the page, or call us on +34 966 792 113.', nl: 'Ververs de pagina, of bel ons op +34 966 792 113.', sv: 'Ladda om sidan eller ring oss på +34 966 792 113.', es: 'Recarga la página o llámanos al +34 966 792 113.' })}</p></div>`);
     return;
   }
   S.all.forEach(p => { S.byRef.set(String(p.reference).toUpperCase(), p); S.byId.set(p.id, p); if (p.wp_id) S.byWp.set(Number(p.wp_id), p); });

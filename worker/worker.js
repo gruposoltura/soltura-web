@@ -2,7 +2,7 @@
 // Taken: oude WordPress-URL's en verouderde nieuwe URL's -> 301 naar de echte pagina, partner-exportfeeds transparant doorsturen
 // naar Supabase, oude en nieuwe afmeldlinks afhandelen, www en andere domeinen -> https://gruposoltura.com.
 // Alle andere verzoeken gaan ongewijzigd door naar GitHub Pages.
-// v2 (19-10-2026): echte URL's per taal (/en/..., /nl/...). Doelen komen uit /redirects.json (oude WordPress-paden)
+// v2 (19-10-2026): echte URL's per taal (/en/..., /nl/..., /sv/..., sinds 26-10-2026 /es/...). Doelen komen uit /redirects.json (oude WordPress-paden)
 // en /routes.json (uit de nachtelijke build: woning -> canonieke URL, verdwenen woning -> woonplaatsgids).
 // GEGENEREERD door scripts/make-worker.mjs uit worker/worker.template.js + js/routes.js + js/resolve.js — niet met de hand bewerken.
 // Plakklaar: Cloudflare -> Workers & Pages -> gruposoltura-legacy -> Edit code -> alles vervangen -> Deploy.
@@ -20,33 +20,33 @@ const WP_ORIGIN = '';
 // ---- js/routes.js ----
 /* Grupo Soltura — URL-schema (echte paden per taal). Gedeeld door de app (window.ROUTES),
    het buildscript (scripts/build.mjs) en de redirects (404.html / Cloudflare Worker).
-   Schema (besluit 19-10-2026): /en/, /nl/ en (sinds 19-10) /sv/ met voorvoegsel, / = Engelse inhoud met canonical naar /en/.
+   Schema (besluit 19-10-2026): /en/, /nl/, /sv/ (sinds 19-10) en /es/ (sinds 26-10-2026) met voorvoegsel, / = Engelse inhoud met canonical naar /en/.
    Woning: /en/property/<ref>-<soort>-<plaats>/ · /nl/woning/<ref>-<soort>-<plaats>/ — de referentie is de sleutel,
    de rest is leesbaar en mag veranderen (een afwijkend leesbaar deel wordt doorgestuurd naar de canonieke vorm). */
 (function (root) {
   'use strict';
-  var LANGS = ['en', 'nl', 'sv'];
+  var LANGS = ['en', 'nl', 'sv', 'es'];
   // routesleutel -> padsegment per taal ('' = startpagina van die taal)
   var SEG = {
-    home: { en: '', nl: '', sv: '' },
-    buy: { en: 'buying', nl: 'kopen', sv: 'kopa' },
-    sell: { en: 'selling', nl: 'verkopen', sv: 'salja' },
-    move: { en: 'move-to-spain', nl: 'emigreren', sv: 'flytta-till-spanien' },
-    area: { en: 'areas', nl: 'woonplaatsen', sv: 'orter' },
-    guide: { en: 'living-in', nl: 'wonen-in', sv: 'bo-i' },
-    news: { en: 'news', nl: 'nieuws', sv: 'nyheter' },
-    contact: { en: 'contact', nl: 'contact', sv: 'kontakt' },
-    privacy: { en: 'privacy', nl: 'privacy', sv: 'integritet' },
-    favorites: { en: 'favorites', nl: 'favorieten', sv: 'favoriter' },
-    property: { en: 'property', nl: 'woning', sv: 'bostad' },
+    home: { en: '', nl: '', sv: '', es: '' },
+    buy: { en: 'buying', nl: 'kopen', sv: 'kopa', es: 'comprar' },
+    sell: { en: 'selling', nl: 'verkopen', sv: 'salja', es: 'vender' },
+    move: { en: 'move-to-spain', nl: 'emigreren', sv: 'flytta-till-spanien', es: 'vivir-en-espana' },
+    area: { en: 'areas', nl: 'woonplaatsen', sv: 'orter', es: 'pueblos' },
+    guide: { en: 'living-in', nl: 'wonen-in', sv: 'bo-i', es: 'vivir-en' },
+    news: { en: 'news', nl: 'nieuws', sv: 'nyheter', es: 'noticias' },
+    contact: { en: 'contact', nl: 'contact', sv: 'kontakt', es: 'contacto' },
+    privacy: { en: 'privacy', nl: 'privacy', sv: 'integritet', es: 'privacidad' },
+    favorites: { en: 'favorites', nl: 'favorieten', sv: 'favoriter', es: 'favoritos' },
+    property: { en: 'property', nl: 'woning', sv: 'bostad', es: 'vivienda' },
     // woon/koopgids met live assistent Sola (23-10-2026)
-    gids: { en: 'buying-guide', nl: 'woongids', sv: 'kopguide' },
+    gids: { en: 'buying-guide', nl: 'woongids', sv: 'kopguide', es: 'guia-de-compra' },
     // makelaarsportaal (24-10-2026): niet in menu of sitemap, noindex; agents.gruposoltura.com verwijst hierheen
-    agents: { en: 'agents', nl: 'makelaars', sv: 'maklare' },
+    agents: { en: 'agents', nl: 'makelaars', sv: 'maklare', es: 'agentes' },
   };
   // subpagina's onder een vaste pagina (22-10-2026): maandlastencalculator onder Emigreren
-  // /nl/emigreren/maandlasten/ . /en/move-to-spain/monthly-costs/ . /sv/flytta-till-spanien/manadskostnader/
-  var COSTS = { en: 'monthly-costs', nl: 'maandlasten', sv: 'manadskostnader' };
+  // /nl/emigreren/maandlasten/ . /en/move-to-spain/monthly-costs/ . /sv/flytta-till-spanien/manadskostnader/ . /es/vivir-en-espana/gastos-mensuales/
+  var COSTS = { en: 'monthly-costs', nl: 'maandlasten', sv: 'manadskostnader', es: 'gastos-mensuales' };
   function isCosts(s) { s = String(s || '').toLowerCase(); for (var l in COSTS) if (COSTS[l] === s) return true; return false; }
   // segment -> sleutel (beide talen; ook een segment uit de andere taal wordt herkend en daarna rechtgezet)
   var BYSEG = {};
@@ -55,6 +55,7 @@ const WP_ORIGIN = '';
   var CAT = {
     en: { quadrant: 'Quad house', 'semi-detached': 'Semi-detached', attic: 'Penthouse', other: 'Home' },
     sv: { villa: 'Villa', apartment: 'L\u00e4genhet', bungalow: 'Bungalow', detached: 'Frist\u00e5ende hus', townhouse: 'Radhus', penthouse: 'Takv\u00e5ning', quadrant: 'Kedjehus (quad)', duplex: 'Duplex', finca: 'Finca', 'semi-detached': 'Parhus', commercial: 'Lokal', other: 'Bostad', plot: 'Tomt', attic: 'Takv\u00e5ning' },
+    es: { villa: 'Villa', apartment: 'Apartamento', bungalow: 'Bungalow', detached: 'Chalet independiente', townhouse: 'Adosado', penthouse: '\u00c1tico', quadrant: 'Quad', duplex: 'D\u00faplex', finca: 'Finca', 'semi-detached': 'Pareado', commercial: 'Local comercial', other: 'Vivienda', plot: 'Parcela', attic: '\u00c1tico' },
     nl: { villa: 'Villa', apartment: 'Appartement', bungalow: 'Bungalow', detached: 'Vrijstaand huis', townhouse: 'Rijtjeshuis', penthouse: 'Penthouse', quadrant: 'Hoekwoning (quad)', duplex: 'Duplex', finca: 'Finca', 'semi-detached': 'Twee-onder-een-kap', commercial: 'Bedrijfspand', other: 'Woning', plot: 'Bouwgrond', attic: 'Penthouse' },
   };
   function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
@@ -172,7 +173,7 @@ const WP_ORIGIN = '';
     if (!m) return null;
     var p = (m[1] || '/').toLowerCase(), g = p.match(/\/(?:woning-kopen-in-|buying-property-in-|wonen-in\/|living-in\/|area\/|woonplaatsen\/|areas\/)([a-z0-9\-]+)/);
     if (g && slugs && slugs[g[1]]) return href(lang, 'guide', g[1]);
-    if (/^\/(en|nl|sv)\//.test(p) && parse(p)) return p;
+    if (/^\/(en|nl|sv|es)\//.test(p) && parse(p)) return p;
     return href(lang, 'home');
   }
   // html: al opgeschoonde omschrijving. guides: woonplaatsgidsen in deze taal (slug, town, aliases).
@@ -233,7 +234,7 @@ function legacyTarget(path, search, M) {
   if (!M._live) { M._live = {}; String(M.live || '').split(' ').forEach(function (r) { if (r) M._live[key(r)] = r; }); }
   if (!M._ts) { M._ts = Object.keys(M.ts || {}).sort(function (a, b) { return b.length - a.length; }); }
   var lang = null, rest = p, m = p.match(/^\/(nl|en|es|de)(\/.*)$/);
-  if (m) { lang = m[1] === 'nl' ? 'nl' : (m[1] === 'en' ? 'en' : null); rest = m[2]; }
+  if (m) { lang = m[1] === 'nl' || m[1] === 'en' || m[1] === 'es' ? m[1] : null; rest = m[2]; } // /es/ is sinds 26-10-2026 een eigen sitetaal
   var out = function (hash, town) {
     var q = [];
     if (lang) q.push('lang=' + lang);
@@ -310,7 +311,7 @@ function convert(target, lang, RT) {
   i = u.indexOf('?'); if (i >= 0) { q = u.slice(i + 1); u = u.slice(0, i); }
   if (u !== '/' && u !== '') return u; // al een pad (bv. /sitemap.xml)
   var town = null;
-  q.split('&').forEach(function (kv) { var p = kv.split('='); if (p[0] === 'lang' && (p[1] === 'nl' || p[1] === 'en')) lang = p[1]; if (p[0] === 'town') { try { town = decodeURIComponent(p[1].replace(/\+/g, ' ')); } catch (e) { town = p[1]; } } });
+  q.split('&').forEach(function (kv) { var p = kv.split('='); if (p[0] === 'lang' && (p[1] === 'nl' || p[1] === 'en' || p[1] === 'es')) lang = p[1]; if (p[0] === 'town') { try { town = decodeURIComponent(p[1].replace(/\+/g, ' ')); } catch (e) { town = p[1]; } } });
   lang = lang || 'en';
   var m = hash.match(/^#\/home\/([^\/?]+)/);
   if (m) return propPath(m[1], lang, RT);
@@ -342,19 +343,21 @@ function solturaResolve(path, search, M, RT) {
       return g ? R.href(r.lang, 'guide', g) : R.href(r.lang, 'area');
     } else if (r.key === 'news' && r.arg) {
       return R.href(r.lang, 'news');
+    } else if (r.key !== 'property') {
+      return null; // gewone pagina van de site (ook /es/comprar/ e.d.): niet als oud WordPress-pad behandelen
     }
   }
   // 2. oude locatiepagina's: eerst de wijk/plaats uit het pad zelf (Ciudad Quesada heeft een eigen gids, WordPress hing hem onder Rojales)
   var lm0 = String(p).toLowerCase().match(/^\/(?:(nl|en|es|de)\/)?(?:(?:location|locations|locatie|locaties)\/([^\/]+)\/(?:([^\/]+)\/)?|(?:buying-property-in|woning-kopen-in|comprar-casa-en)-([^\/]+)\/)/);
   if (lm0) {
     var gl = guideOfTown((lm0[3] || '').replace(/-/g, ' '), RT) || guideOfTown((lm0[2] || lm0[4] || '').replace(/-/g, ' '), RT);
-    var ll = lm0[1] === 'nl' || (!lm0[1] && /^\/(locatie|woning-kopen-in)/.test(String(p).toLowerCase())) ? 'nl' : 'en';
+    var lp0 = String(p).toLowerCase(), ll = lm0[1] === 'nl' || (!lm0[1] && /^\/(locatie|woning-kopen-in)/.test(lp0)) ? 'nl' : lm0[1] === 'es' || /^\/(es\/)?comprar-casa-en/.test(lp0) ? 'es' : 'en';
     if (gl) return R.href(ll, 'guide', gl);
   }
   // 3. oude WordPress-paden
   var t = legacyTarget(path, search, M);
   if (!t) return null;
-  var lp = String(p).toLowerCase(), lang = null, lm = lp.match(/^\/(nl|en)\//);
+  var lp = String(p).toLowerCase(), lang = null, lm = lp.match(/^\/(nl|en|es)\//);
   if (lm) lang = lm[1]; else if (NL_WORDS.test(lp)) lang = 'nl';
   // oude woning-URL's: referentie staat achteraan; met routes.json direct naar de canonieke URL
   var out = convert(t, lang, RT);
@@ -416,9 +419,9 @@ export default {
       if (r.ok) return new Response(r.body, { status: 200, headers: { 'content-type': r.headers.get('content-type') || 'application/octet-stream', 'cache-control': 'public, max-age=604800' } });
     }
 
-    // 6. homepage met ?lang=nl|en (oude links, ook /?lang=nl#/area/rojales) -> /nl/ of /en/. De browser neemt #... mee;
+    // 6. homepage met ?lang=nl|en|es (oude links, ook /?lang=nl#/area/rojales) -> /nl/ of /en/. De browser neemt #... mee;
     //    de app zet een oude hash-route daarna om naar het echte pad.
-    if (path === '/' && /(^|&)lang=(nl|en)(&|$)/i.test(url.search.slice(1)) && !LEGACY_ROOT_QUERY.test(url.search.slice(1))) {
+    if (path === '/' && /(^|&)lang=(nl|en|es)(&|$)/i.test(url.search.slice(1)) && !LEGACY_ROOT_QUERY.test(url.search.slice(1))) {
       const lang = url.searchParams.get('lang').toLowerCase();
       url.searchParams.delete('lang');
       return Response.redirect(SITE + '/' + lang + '/' + (url.searchParams.toString() ? '?' + url.searchParams.toString() : ''), 301);

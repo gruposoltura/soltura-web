@@ -50,7 +50,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .wa-top svg{width:20px;height:20px;fill:#fff}
 .wa-top:hover{background:#178C46}
 .nav{display:flex;gap:2px}
-.nav a{padding:7px 12px;border-radius:var(--radius-ui);color:var(--ink);text-decoration:none;font-weight:600;font-size:16px}
+.nav a{padding:7px 12px;border-radius:var(--radius-ui);color:var(--ink);text-decoration:none;font-weight:600;font-size:16px;white-space:nowrap;flex-shrink:0}
 .nav a:hover{color:var(--sea)}
 .nav a[aria-current="page"]{color:var(--sea);background:var(--lemon-soft);font-weight:700}
 .fav-link{display:flex;align-items:center;gap:6px;text-decoration:none;color:var(--ink);font-weight:700;padding:6px 8px;border-radius:var(--radius-ui)}

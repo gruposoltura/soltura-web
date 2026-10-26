@@ -1,5 +1,5 @@
 /* Grupo Soltura website — Maandlastencalculator (22-10-2026), onder Emigreren:
-   /nl/emigreren/maandlasten/ · /en/move-to-spain/monthly-costs/ · /sv/flytta-till-spanien/manadskostnader/
+   /nl/emigreren/maandlasten/ · /en/move-to-spain/monthly-costs/ · /sv/flytta-till-spanien/manadskostnader/ · /es/vivir-en-espana/gastos-mensuales/ (26-10-2026)
    Gedeeld door de app (js/app.js: COSTS.html + COSTS.bind) en de statische build (scripts/build.mjs: COSTS.html).
    Bedragen = voorbeeldbedragen, gelijk aan de calculator op SpanjeKompas (spanjekompas/js/maandlasten.js); de bezoeker past ze aan.
    Wat de bezoeker invult blijft in de eigen browser (localStorage 'gs_ml'); er gaat niets naar een server. */
@@ -31,7 +31,7 @@
     { id: 'vrij', g: 5, per: 'm', v: 150, maal: 'volw' },
   ];
   var DEF = { woning: 'bungalow', volw: 2, kind: 0, school: 'openbaar', zorg: 'particulier', auto: 1, nu: '', custom: {} };
-  var LOCALE = { en: 'en-IE', nl: 'nl-NL', sv: 'sv-SE' };
+  var LOCALE = { en: 'en-IE', nl: 'nl-NL', sv: 'sv-SE', es: 'es-ES' };
 
   var TX = {
     nl: {
@@ -117,6 +117,34 @@
       title: 'Månadskostnadskalkylator: vad kostar det att bo i Spanien?',
       desc: 'Räkna ut vad det kostar att bo på södra Costa Blanca per månad: bostad, energi, vård, skola, bil och vardag, och jämför med vad du betalar i dag.',
       teaserH: 'Vad kostar det att bo här per månad?', teaserP: 'Välj bostad, hushåll, skola, vård och bilar och se dina månadskostnader direkt, uppdelade per grupp och jämförda med i dag.', teaserBtn: 'Öppna månadskostnadskalkylatorn',
+    },
+    es: {
+      kicker: 'Vivir en España', crumb: 'Gastos mensuales',
+      h: 'Calculadora de gastos mensuales', lead: 'No es el precio de compra, sino los gastos mensuales lo que decide lo tranquila que es la vida aquí. Elige tu vivienda y tu hogar, ajusta los importes y compáralos con lo que gastas ahora.',
+      sit: 'Tu situación', woning: 'Tipo de vivienda',
+      types: { apartment: 'Apartamento', penthouse: 'Ático', bungalow: 'Bungalow', quadrant: 'Quad (casa de cuatro)', semi: 'Pareado', townhouse: 'Adosado', duplex: 'Dúplex', villa: 'Villa independiente con piscina', finca: 'Finca' },
+      volw: 'Adultos', kind: 'Niños', school: 'Colegio', schools: { openbaar: 'Colegio público español', internationaal: 'Colegio internacional' },
+      zorg: 'Sanidad para adultos', zorgs: { s1: 'A través de tu pensión (formulario S1)', werk: 'A través de un trabajo en España', particulier: 'Seguro privado' },
+      auto: 'Coches',
+      hint: 'Los importes de abajo son <b>importes de ejemplo</b> para empezar, no medias. Sustitúyelos por cifras reales, por ejemplo de los recibos de una vivienda que estés valorando.',
+      items: 'Las partidas', groups: ['Vivienda', 'Energía y agua', 'Sanidad', 'Colegio', 'Coche', 'Día a día'],
+      labels: { ibi: 'IBI (impuesto municipal sobre bienes inmuebles)', basura: 'Tasa de basura', comunidad: 'Comunidad de propietarios', verz: 'Seguro de hogar (continente y contenido)', onderhoud: 'Mantenimiento de jardín y piscina', stroom: 'Electricidad (aire acondicionado y calefacción)', water: 'Agua', gas: 'Gas (butano)', internet: 'Internet y teléfono', zorgV: 'Seguro médico por adulto', zorgK: 'Seguro médico por niño', school: 'Gastos de colegio por niño', autoVerz: 'Seguro del coche por coche', autoBel: 'Impuesto de circulación e ITV por coche', brandstof: 'Combustible por coche', bood: 'Compra por adulto', boodK: 'Compra por niño', vrij: 'Comer fuera y ocio por adulto' },
+      pm: 'al mes', pj: 'al año', maal: { volw: ['adulto', 'adultos'], kind: ['niño', 'niños'], auto: ['coche', 'coches'] },
+      nuH: 'Compara con ahora', nu: '¿Cuánto gastas ahora al mes en estas partidas?', nuPh: 'Por ejemplo 2400',
+      nuHelp: 'Suma las mismas partidas: gastos de vivienda sin hipoteca ni alquiler, energía, sanidad, colegio, coche y día a día.',
+      reset: 'Volver a los importes de ejemplo',
+      outK: 'Tu estimación', outM: 'Al mes', year: function (v) { return 'Eso son unos ' + v + ' al año.'; },
+      same: 'Más o menos lo mismo que ahora.', diff: function (v, less) { return 'Son <b>' + v + ' al mes ' + (less ? 'menos' : 'más') + '</b> de lo que gastas ahora.'; },
+      excl: 'Sin incluir hipoteca ni alquiler, ni el impuesto sobre la renta. Lo que introduces se queda solo en este navegador.',
+      ctaPlan: 'Cuéntanos tus planes', ctaHomes: 'Ver viviendas', ctaMort: 'Calcula también tu hipoteca',
+      expH: '¿Qué incluyen estas partidas?',
+      exp: ['El <b>IBI</b> es el impuesto municipal anual sobre bienes inmuebles, calculado sobre el valor catastral. La <b>basura</b> es la tasa municipal de recogida de residuos. La <b>comunidad</b> es la cuota de la comunidad de propietarios, en apartamentos y en urbanizaciones con piscina o zonas verdes comunes.',
+        'Con la sanidad a través de tu pensión normalmente no pagas nada extra en España; con el formulario S1 tu cobertura corre a cargo de tu país de origen. Si trabajas en España, cotizas a través de tu nómina o como autónomo.',
+        'Los gastos varían según el municipio, la vivienda y el año. ¿Estás valorando una vivienda concreta? Pídenos los importes reales de IBI, basura y comunidad; normalmente los tenemos.'],
+      disc: 'Esta calculadora da una primera impresión y no es asesoramiento financiero. Los importes varían según la vivienda, el municipio y el año.',
+      title: 'Calculadora de gastos mensuales: ¿cuánto cuesta vivir en España?',
+      desc: 'Calcula cuánto cuesta al mes vivir en la Costa Blanca Sur: vivienda, energía, sanidad, colegio, coche y día a día, y compáralo con lo que gastas ahora.',
+      teaserH: '¿Cuánto cuesta vivir aquí al mes?', teaserP: 'Elige tu vivienda, tu hogar, colegio, sanidad y coches y ve al instante tus gastos mensuales, desglosados por grupo y comparados con ahora.', teaserBtn: 'Abre la calculadora de gastos mensuales',
     },
   };
   function L(lang) { return TX[lang] || TX.en; }
