@@ -1,6 +1,6 @@
 // Soltura woningbrochure (A4, 2 pagina's) in de huisstijl van de woon- en koopgids.
-// buildBrochure(data, lang, A) -> HTML. data = brochure_data(ref) (p, geo, reviews). A = asset-basis (logo's, fonts).
-function buildBrochure(data, lang, A) {
+// buildBrochure(data, lang, A, opt) -> HTML. opt.variant 'window' = een A4 voor NEXUS (print), anders de klantbrochure (2 pagina's). data = brochure_data(ref) (p, geo, reviews). A = asset-basis (logo's, fonts).
+function buildBrochure(data, lang, A, opt) {
   const p = (data && data.p) || {}, geo = (data && data.geo) || {}, rev = (data && data.reviews) || {};
   const L = ['nl', 'en', 'es', 'sv'].includes(lang) ? lang : 'en';
   const T = {
@@ -117,6 +117,7 @@ function buildBrochure(data, lang, A) {
     star: '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>',
     book: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M8 7.5h8M8 11h6"/>',
     euro: '<path d="M17.5 6.5A6.5 6.5 0 1 0 17.5 17.5M4.5 10.5h9M4.5 13.5h9"/>',
+    bolt: '<path d="M13 2.5L4.5 13.5H11l-1 8 8.5-11H12z"/>',
     key: '<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3M14 9l2 2"/>',
   };
   const ic = (k, cls) => `<svg class="${cls || 'ic'}" viewBox="0 0 24 24">${I[k]}</svg>`;
@@ -342,6 +343,63 @@ h2{font-family:var(--serif);font-weight:600;font-size:20pt;line-height:1.08;lett
   <div class="disc"><b>${T.office}: Avda. de la Constitución s/n, 03179 Formentera del Segura · ${T.officeHours}</b>${T.disc}</div>
   <div class="sunbar"></div>
 </section>`;
+
+  // ---------- variant 'window': een A4 voor intern gebruik (NEXUS-knop Brochure, etalage), Rick 26-10-2026 ----------
+  // Zelfde data en huisstijl; kantoornummer en info@ i.p.v. de makelaar. Gereserveerd/verkocht: die tekst op de plek van de prijs, geen prijs.
+  if (opt && opt.variant === 'window') {
+    const W = { nl: { disc: 'Deze gegevens zijn een leidraad en maken geen deel uit van een contract.', scan: 'Scan voor alle foto\'s', api: 'Grupo Soltura SL is ingeschreven lid (nr. 992) van het Colegio Oficial de Agentes de la Propiedad Inmobiliaria de Alicante (API)' },
+      en: { disc: 'These details are intended as a guide and do not form part of a contract.', scan: 'Scan for all photos', api: 'Grupo Soltura SL is a registered member (No. 992) of the Colegio Oficial de Agentes de la Propiedad Inmobiliaria de Alicante (API)' },
+      es: { disc: 'Estos datos son orientativos y no forman parte de ningún contrato.', scan: 'Escanea para ver las fotos', api: 'Grupo Soltura SL es miembro colegiado (nº 992) del Colegio Oficial de Agentes de la Propiedad Inmobiliaria de Alicante (API)' },
+      sv: { disc: 'Uppgifterna är vägledande och ingår inte i något avtal.', scan: 'Skanna för alla bilder', api: 'Grupo Soltura SL är registrerad medlem (nr 992) i Colegio Oficial de Agentes de la Propiedad Inmobiliaria de Alicante (API)' } }[L];
+    const wstats = stats.filter(s => s[0] !== 'year' && s[0] !== 'sun').slice(0, 5);
+    const elTxt = /^[A-G]$/.test(el) ? `<span class="welab e${el}">${el}</span>` : el === 'R' ? T.energyR : el === 'X' ? T.energyX : '';
+    if (elTxt) wstats.push(['bolt', elTxt, T.energy]);
+    const town = esc(p.town || ''), sub = esc(p.suburb || '');
+    const wcss = css + `
+.w-top{position:absolute;top:8mm;left:12mm;right:12mm;height:30mm;display:flex;align-items:center;justify-content:space-between}
+.w-top .lg{height:17mm;display:block}
+.w-mid{flex:1;text-align:center;padding:0 6mm}
+.w-disc{font-size:7.2pt;color:var(--muted);margin-bottom:2.4mm}
+.w-ref{display:inline-block;border:.5mm solid var(--red);border-radius:99px;padding:1.4mm 4.4mm;font-weight:800;font-size:10pt;letter-spacing:.14em;color:var(--ink)}
+.w-ref b{color:var(--red)}
+.w-qr{text-align:center;width:28mm}
+.w-qr img{width:24mm;height:24mm;display:block;margin:0 auto}
+.w-qr span{display:block;font-size:6.6pt;font-weight:700;color:var(--ink2);margin-top:1mm;line-height:1.2}
+.w-hero{position:absolute;top:42mm;left:12mm;right:12mm;height:118mm;border-radius:6mm;background:#ddd center/cover no-repeat}
+.w-thumbs{position:absolute;top:164mm;left:12mm;right:12mm;height:42mm;display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}
+.w-thumbs div{border-radius:4mm;background:#ddd center/cover no-repeat}
+.w-title{position:absolute;top:211mm;left:12mm;right:12mm;text-align:center}
+.w-title h1{font-family:var(--serif);font-weight:600;font-size:23pt;line-height:1.1;color:var(--ink)}
+.w-title h1 em{font-weight:700}
+.w-title .cat{font-size:11.5pt;font-weight:600;color:var(--ink2);margin-top:.8mm}
+.w-title .pr{font-family:var(--serif);font-weight:700;font-size:40pt;line-height:1.05;color:var(--red);margin-top:1.6mm}
+.w-title .pr.pst{display:inline-block;font-size:30pt;color:var(--ink);background:var(--lemon);border-radius:99px;padding:1mm 9mm 2mm;margin-top:3mm}
+.w-stats{position:absolute;top:252mm;left:12mm;right:12mm;display:grid;grid-template-columns:repeat(${Math.max(wstats.length, 1)},1fr);gap:3mm}
+.w-stat{background:var(--salt);border-radius:3.5mm;padding:2.2mm 2mm;text-align:center}
+.w-stat .ic{width:6.4mm;height:6.4mm;display:block;margin:0 auto 1mm}
+.w-stat .v{font-weight:800;font-size:12pt;line-height:1.15}
+.w-stat .v small{font-size:8.5pt;font-weight:700}
+.w-stat .l{font-size:7.4pt;color:var(--muted);font-weight:600;margin-top:.4mm}
+.welab{display:inline-block;min-width:8mm;border-radius:1.6mm;color:#fff;font-weight:800;padding:.6mm 1.6mm;margin:1.6mm 0 1.4mm}
+.w-stat .v .welab{font-size:12pt}
+.w-bar{position:absolute;left:0;right:0;bottom:7mm;height:15mm;background:var(--sun);display:grid;grid-template-columns:repeat(3,1fr);align-items:center;padding:0 12mm}
+.w-bar a{color:#fff;font-weight:800;font-size:11pt;display:flex;align-items:center;gap:2.4mm;text-decoration:none}
+.w-bar a:nth-child(2){justify-content:center}.w-bar a:nth-child(3){justify-content:flex-end}
+.w-bar .ic{stroke:#fff;width:5.6mm;height:5.6mm}
+.w-api{position:absolute;left:12mm;right:12mm;bottom:1.8mm;text-align:center;font-size:6.6pt;color:var(--muted)}`;
+    const wpage = `<section class="page">
+  <div class="w-top"><img class="lg" src="${A.logoWide}" alt="Soltura Real Estate">
+    <div class="w-mid"><div class="w-disc">${W.disc}</div><span class="w-ref">REF <b>${esc(ref)}</b></span></div>
+    <div class="w-qr"><img src="${qr(homeUrl)}" alt=""><span>${W.scan}</span></div></div>
+  <div class="w-hero" ${bg(ph(0))}></div>
+  <div class="w-thumbs"><div ${bg(ph(1))}></div><div ${bg(ph(2))}></div><div ${bg(ph(3))}></div></div>
+  <div class="w-title"><h1>${sub && sub !== town ? sub + ' ' : ''}<em>${town}</em></h1><div class="cat">${esc(cat)}</div>${st !== T.forSale ? `<div class="pr pst">${st}</div>` : `<div class="pr">${price}</div>`}</div>
+  <div class="w-stats">${wstats.map(s => `<div class="w-stat">${s[0] ? ic(s[0]) : ''}<div class="v">${s[1]}</div><div class="l">${esc(s[2])}</div></div>`).join('')}</div>
+  <div class="w-bar"><a>${ic('phone')}+34 966 792 113</a><a>${ic('globe')}www.gruposoltura.com</a><a>${ic('mail')}info@gruposoltura.com</a></div>
+  <div class="w-api">${W.api}</div>
+</section>`;
+    return `<!DOCTYPE html><html lang="${L}"><head><meta charset="utf-8"><title>${esc(T.kicker)} ${esc(ref)}</title><style>${wcss}</style></head><body>${wpage}</body></html>`;
+  }
 
   return `<!DOCTYPE html><html lang="${L}"><head><meta charset="utf-8"><title>${esc(T.kicker)} ${esc(ref)}</title><style>${css}</style></head><body>${page1}${page2}</body></html>`;
 }

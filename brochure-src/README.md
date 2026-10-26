@@ -8,6 +8,9 @@ pas je hier iets aan, zet het daar ook neer (en andersom).
 - Talen: nl, en, es, sv (overige -> en). Huisstijl gelijk aan de woon- en koopgids (`gids-src/style.css`).
 - Assets: `/img/brand/logo-square.png` en `/img/brand/logo-wide.png` op gruposoltura.com, fonts via Google Fonts.
 - PDF: PDFShift (A4, marge 0).
+- Variant `window` (`buildBrochure(data, lang, A, { variant: 'window' })`): een A4 voor intern gebruik, geprint via de knop
+  Brochure in NEXUS. Gebouwd door dezelfde agent (LeadProcessor-v2, webhook `NEXUS Brochure Hook`), niet per mail verstuurd.
+  Gereserveerd/verkocht staat op de plek van de prijs.
 
 # Kostenoverzicht (statisch PDF)
 
