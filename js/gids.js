@@ -533,6 +533,13 @@
 
   // root: element met #solLog/#solChips/#solForm/#solIn (pagina) of de compacte variant (woningpagina).
   // d: { fn, meta(formName), track, href(key), ls: {get,set}, compact, formName, property }
+  // Gedeeld gespreksgeheugen van Sola (27-10-2026), zelfde sessionStorage-sleutel en vorm als CONV in app.js:
+  // het gidsgesprek blijft bewaard bij herladen (alleen voor Sola, niet opnieuw getoond) en Sola weet wat de bezoeker
+  // op de homepage en in woningvensters vroeg.
+  function memAll() { try { var v = JSON.parse(sessionStorage.getItem('gs_sola_all') || 'null'); if (v && Date.now() - v.at < 3600000 && Array.isArray(v.h)) return v.h; } catch (e) {} return []; }
+  function memGet(w) { return memAll().filter(function (x) { return x.w === w; }).map(function (x) { return { role: x.r, content: x.c }; }); }
+  function memPush(q, a, w) { try { var h = memAll().concat([{ w: w, r: 'user', c: String(q).slice(0, 600) }, { w: w, r: 'assistant', c: String(a || '').slice(0, 600) }]).slice(-40); sessionStorage.setItem('gs_sola_all', JSON.stringify({ at: Date.now(), h: h })); } catch (e) {} }
+  function memCtx(w) { return memAll().filter(function (x) { return x.w !== w; }).slice(-12).map(function (x) { return '[' + (x.w === 'home' ? 'homepage search' : x.w === 'guide' ? 'buying guide page' : 'home ' + String(x.w).slice(4)) + '] ' + (x.r === 'user' ? 'Visitor' : 'Sola') + ': ' + String(x.c).slice(0, 300); }); }
   function bind(rootEl, lang, d) {
     var t = L(lang), tSite = t; // t = taal van het gesprek (wisselt bij de gidstaalkeuze), tSite = sitetaal (teamregels)
     var $ = function (s) { return rootEl.querySelector(s); };
@@ -540,7 +547,7 @@
     if (!log || !form) return;
     var st = { step: 'name', first: '', last: '', email: '', phone: '', plan: '', glang: gLang(lang), clang: lang, wlang: null, sent: false, busy: false, pending: [], pre: {}, miss: {} };
     function setChatLang(l) { st.clang = TX[l] ? l : lang; t = L(st.clang); input.placeholder = t.ph_chat; }
-    var hist = [], answers = [];
+    var hist = memGet('guide'), answers = [];
     var saved = d.ls ? d.ls.get('guide', null) : null;
 
     function scroll() { log.scrollTop = log.scrollHeight; if (!d.compact) { var r = log.getBoundingClientRect(); if (r.bottom > innerHeight) log.scrollIntoView({ block: 'end', behavior: 'smooth' }); } }
@@ -667,10 +674,11 @@
       st.busy = true; chips.innerHTML = ''; if (!quiet) me(q); input.value = '';
       var ty = document.createElement('div'); ty.className = 'sol-msg a ai-think'; ty.innerHTML = '<span class="ab-av">' + avatar(34) + '</span><div class="typing-dots"><span></span><span></span><span></span></div>'; log.appendChild(ty); scroll();
       if (d.track) d.track('assistant', null, null, { via: 'guide' });
-      d.fn('web-assistant', { mode: 'guide', lang: st.clang, query: q, name: st.first, history: hist }).catch(function () { return {}; }).then(function (r) {
+      d.fn('web-assistant', { mode: 'guide', lang: st.clang, query: q, name: st.first, history: hist, context: memCtx('guide') }).catch(function () { return {}; }).then(function (r) {
         st.busy = false; ty.remove();
         var reply = (r && r.reply) || t.sorry;
         hist.push({ role: 'user', content: q }, { role: 'assistant', content: reply });
+        if (r && r.reply) memPush(q, reply, 'guide');
         var m = document.createElement('div'); m.className = 'sol-msg a'; m.textContent = reply; log.appendChild(m);
         if (r && r.homes && r.homes.length) {
           var box = document.createElement('div'); box.className = 'sol-homes';

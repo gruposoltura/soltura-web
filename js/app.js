@@ -935,11 +935,14 @@ function findRef(q) {
   if (/^[A-Z]{2,4}[.\-]?\d{3,5}$/.test(bare)) return { missing: bare.replace(/[.\-]/g, '') };
   return null;
 }
-// Gespreksgeheugen van Sola op de homepage (27-10-2026): per tabblad (sessionStorage), max 12 berichten, vervalt na 1 uur stilte.
-// Met de huidige zoekstand (S.f + aantal treffers) erbij weet Sola dat "doe maar 3 slaapkamers" bij "iets in Benijófar" hoort.
+// Gespreksgeheugen van Sola (27-10-2026): een geheugen per tabblad (sessionStorage gs_sola_all, max 40 berichten, vervalt na 1 uur stilte)
+// voor alle plekken waar Sola praat: zoekbalk homepage (w 'home'), woningvenster (w 'ref:<REF>') en koopgids (w 'guide', in gids.js).
+// get(w) = het gesprek op die plek (history); ctx(w) = wat de bezoeker elders op de site met Sola besprak (context).
 const CONV = {
-  get() { try { const v = JSON.parse(sessionStorage.getItem('gs_sola') || 'null'); if (v && Date.now() - v.at < 3600000 && Array.isArray(v.h)) return v.h; } catch {} return []; },
-  push(q, a) { try { const h = CONV.get().concat([{ role: 'user', content: String(q).slice(0, 600) }, { role: 'assistant', content: String(a || '').slice(0, 600) }]).slice(-12); sessionStorage.setItem('gs_sola', JSON.stringify({ at: Date.now(), h })); } catch {} },
+  all() { try { const v = JSON.parse(sessionStorage.getItem('gs_sola_all') || 'null'); if (v && Date.now() - v.at < 3600000 && Array.isArray(v.h)) return v.h; } catch {} return []; },
+  get(w = 'home') { return CONV.all().filter(x => x.w === w).map(x => ({ role: x.r, content: x.c })); },
+  push(q, a, w = 'home') { try { const h = CONV.all().concat([{ w, r: 'user', c: String(q).slice(0, 600) }, { w, r: 'assistant', c: String(a || '').slice(0, 600) }]).slice(-40); sessionStorage.setItem('gs_sola_all', JSON.stringify({ at: Date.now(), h })); } catch {} },
+  ctx(w) { const name = x => x === 'home' ? 'homepage search' : x === 'guide' ? 'buying guide page' : 'home ' + x.slice(4); return CONV.all().filter(x => x.w !== w).slice(-12).map(x => `[${name(x.w)}] ${x.r === 'user' ? 'Visitor' : 'Sola'}: ${x.c.slice(0, 300)}`); },
 };
 function convState() {
   const f = Object.assign({}, S.f); delete f.ref_prefix;
@@ -986,7 +989,7 @@ async function aiSearch(q) {
   out.hidden = false; out.className = 'ai-bubble'; out.innerHTML = `<span class="ab-av">${GIDS.avatar(34)}</span><div class="ab-body"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
   track('search', null, null, { q: q.slice(0, 200) });
   const hist = CONV.get();
-  const r = await fn('web-assistant', { mode: 'search', lang: S.lang, query: q, history: hist, state: S.f && !S.f.ref_prefix ? convState() : null }).catch(() => ({}));
+  const r = await fn('web-assistant', { mode: 'search', lang: S.lang, query: q, history: hist, context: CONV.ctx('home'), state: S.f && !S.f.ref_prefix ? convState() : null }).catch(() => ({}));
   if (r.filters) {
     const f = Object.assign(blankFilters(), r.filters);
     f.towns = Array.isArray(f.towns) ? f.towns : []; f.categories = Array.isArray(f.categories) ? f.categories : [];
@@ -1362,9 +1365,11 @@ function bindSheet(p, waHref) {
     if (id === 'viewBtn') setTimeout(() => { const f = openViewForm(); if (f) $('input[name=name]', f).focus({ preventScroll: true }); }, 400);
     if (id === 'chatBox') setTimeout(() => $('#chatIn').focus({ preventScroll: true }), 500);
   }));
-  // chat
-  const hist = [];
+  // chat - het gesprek over deze woning blijft bewaard zolang het tabblad open is (CONV, w 'ref:<REF>')
+  const cw = 'ref:' + p.reference;
+  const hist = CONV.get(cw);
   const log = $('#chatLog');
+  hist.forEach(h => log.insertAdjacentHTML('beforeend', `<div class="msg ${h.role === 'user' ? 'u' : 'a'}">${esc(h.content)}</div>`));
   setTimeout(() => { const intro = $('.intro', log); if (intro) { intro.classList.remove('typing-dots'); intro.textContent = t('ask_intro'); } }, 1100);
   const ask = async q => {
     q = q.trim(); if (!q) return;
@@ -1372,9 +1377,10 @@ function bindSheet(p, waHref) {
     log.insertAdjacentHTML('beforeend', `<div class="msg u">${esc(q)}</div><div class="msg a typing ai-think"><span class="ab-av">${GIDS.avatar(34)}</span><div class="typing-dots"><span></span><span></span><span></span></div></div>`);
     log.scrollTop = log.scrollHeight;
     track('assistant', p.id);
-    const r = await fn('web-assistant', { mode: 'ask', lang: S.lang, id: p.id, reference: p.reference, wp_id: p.wp_id || null, query: q, history: hist }).catch(() => ({}));
+    const r = await fn('web-assistant', { mode: 'ask', lang: S.lang, id: p.id, reference: p.reference, wp_id: p.wp_id || null, query: q, history: hist, context: CONV.ctx(cw), state: S.f && !S.f.ref_prefix ? convState() : null }).catch(() => ({}));
     const reply = r.reply || tx({ en: "I'm not sure about that. Feel free to WhatsApp us.", nl: 'Dat weet ik niet zeker. Stuur ons gerust een WhatsApp.', sv: 'Det är jag inte säker på. Skicka gärna ett WhatsApp till oss.', es: 'No estoy segura de eso. Escríbenos por WhatsApp sin problema.' });
     hist.push({ role: 'user', content: q }, { role: 'assistant', content: reply });
+    if (r.reply) CONV.push(q, reply, cw);
     $('.typing', log).remove();
     log.insertAdjacentHTML('beforeend', `<div class="msg a">${esc(reply)}${r.handoff ? `<br><br>${t('handoff')} <a href="${waHref}" target="_blank" rel="noopener">WhatsApp</a>` : ''}</div>`);
     log.scrollTop = log.scrollHeight;
