@@ -5,6 +5,12 @@
 // mode=guide  : gesprek op de woon/koopgids-pagina (na de intake): koop- en verkoopproces, kosten, gebieden, emigreren,
 //               gegrond in web_guide_knowledge + web_town_info; kan ook onze woningen zoeken (max 3 kaartjes terug)
 // POST {mode, lang, query, id?, reference?, wp_id?, history?, name?}  of  GET ?mode=&lang=&q=&id=&ref=&wp_id=
+// v26 (27-10-2026): search onthoudt het gesprek (Rick): de site stuurt de gesprekshistorie (sessie) en de huidige zoekstand
+//   (state: filters + aantal treffers) mee. Een vervolgbericht ("doe maar 3 slaapkamers") verfijnt de lopende zoekvraag;
+//   alleen een duidelijk nieuwe zoekvraag (new_search) of een expliciet losgelaten wens (cleared) wist eerdere filters.
+//   Server-side samenvoegen als vangnet. pool alleen als de bezoeker een zwembad noemt. relax kent het gesprek en vraagt
+//   bij een botsing of de eerdere wens nog geldt ("Zoek je nog steeds in Benijófar? Daar heb ik met 3 slaapkamers niets.").
+//   Plaatsnamen worden accent-ongevoelig op de plaatslijst gezet, gangbaarste schrijfwijze (Benijofar -> Benijófar).
 // v25 (26-10-2026): Spaanse website (/es/): lang 'es' als terugvaltaal (Spaans van Spanje, tú), Spaanse knopteksten en
 //   foutmeldingen, Spaanse omschrijving (body_es, terugval body_en) als die er is. Overige talen ongewijzigd.
 // v24 (24-10-2026): web_guide_knowledge is de ene kennisbron voor alle modi: ook search en ask lezen de gids
@@ -197,12 +203,58 @@ const SEARCH_SCHEMA = {
         reduced_only: { type: 'boolean' }, sort: { type: ['string', 'null'], enum: ['price_asc', 'price_desc', 'newest', 'value', null] },
       },
     },
+    new_search: { type: 'boolean' },
+    cleared: { type: 'array', items: { type: 'string', enum: ['towns', 'categories', 'price_min', 'price_max', 'beds_min', 'baths_min', 'pool', 'newbuild', 'max_sea_km', 'reduced_only', 'sort'] } },
     reply: { type: 'string' },
     town: { type: ['string', 'null'] },
     cta: { type: ['string', 'null'] },
   },
-  required: ['intent', 'filters', 'reply', 'town', 'cta'],
+  required: ['intent', 'filters', 'new_search', 'cleared', 'reply', 'town', 'cta'],
 };
+// Zoekstand van de site (filters die nu actief zijn) netjes inlezen; alleen bekende velden.
+const FKEYS = ['towns', 'categories', 'price_min', 'price_max', 'beds_min', 'baths_min', 'pool', 'newbuild', 'max_sea_km', 'reduced_only', 'sort'];
+const isEmpty = (v: any) => v == null || v === false || v === '' || (Array.isArray(v) && !v.length);
+function readState(st: any, towns: string[], cats: string[]) {
+  if (!st || typeof st !== 'object' || !st.filters || typeof st.filters !== 'object') return null;
+  const f: any = {};
+  for (const k of FKEYS) {
+    let v = st.filters[k];
+    if (k === 'towns') v = (Array.isArray(v) ? v : []).filter((t: any) => towns.includes(t));
+    else if (k === 'categories') v = (Array.isArray(v) ? v : []).map((c: any) => String(c).toLowerCase()).filter((c: string) => cats.includes(c));
+    else if (k === 'pool') v = ['private', 'communal', 'any'].includes(v) ? v : null;
+    else if (k === 'sort') v = ['price_asc', 'price_desc', 'newest', 'value'].includes(v) ? v : null;
+    else if (k === 'newbuild' || k === 'reduced_only') v = v === true ? true : (k === 'newbuild' && v === false ? false : (k === 'reduced_only' ? false : null));
+    else v = Number(v) > 0 ? Number(v) : null;
+    f[k] = v;
+  }
+  if (FKEYS.every((k) => isEmpty(f[k]))) return null;
+  return { filters: f, n: Number.isFinite(Number(st.n)) ? Number(st.n) : null };
+}
+function describeState(f: any) {
+  const p: string[] = [];
+  if (f.towns?.length) p.push('towns: ' + f.towns.join(', '));
+  if (f.categories?.length) p.push('types: ' + f.categories.join(', '));
+  if (f.price_min) p.push('from EUR ' + f.price_min);
+  if (f.price_max) p.push('up to EUR ' + f.price_max);
+  if (f.beds_min) p.push('at least ' + f.beds_min + ' bedrooms');
+  if (f.baths_min) p.push('at least ' + f.baths_min + ' bathrooms');
+  if (f.pool) p.push('pool: ' + f.pool);
+  if (f.newbuild === true) p.push('new build only'); else if (f.newbuild === false) p.push('resale only');
+  if (f.max_sea_km) p.push('within ' + f.max_sea_km + ' km of the sea');
+  if (f.reduced_only) p.push('price-reduced only');
+  return p.join('; ');
+}
+// Gesprekshistorie: user/assistant afwisselend, begint met user, laatste n beurten.
+function cleanHist(h: any, n: number, len: number) {
+  const a = (Array.isArray(h) ? h : []).map((x: any) => ({ role: x && x.role === 'assistant' ? 'assistant' : 'user', content: String((x && x.content) || '').slice(0, len).trim() })).filter((x: any) => x.content);
+  const out: { role: string; content: string }[] = [];
+  for (const m of a) { if (out.length && out[out.length - 1].role === m.role) out[out.length - 1].content += '\n' + m.content; else out.push(m); }
+  let r = out.slice(-n);
+  while (r.length && r[0].role !== 'user') r = r.slice(1);
+  if (r.length && r[r.length - 1].role === 'user') r = r.slice(0, -1); // laatste beurt moet van ons zijn; de nieuwe vraag volgt
+  return r;
+}
+const POOL_WORD = /zwembad|pool|piscin|bassäng|bassang|schwimm|piscine|basen/i;
 const RELAX_SCHEMA = {
   type: 'object',
   properties: {
@@ -292,6 +344,10 @@ Deno.serve(async (req) => {
       const [f, ti, tg, gk] = await Promise.all([facets(), townInfo(), townGeo(), guideKnowledge()]);
       const localFacts = ti.map((r: any) => `- ${r.town}${r.place ? ' / ' + r.place : ''} [${r.topic}, confidence ${r.confidence}]: ${r.fact}`).join('\n');
       const townCounts = f.towns.map((t) => `${t} (${f.counts[t]})`).join(', ');
+      const state = readState(body.state, f.towns, f.cats);
+      const stateTxt = state
+        ? `The search currently shown on the site (built from this conversation and any filters the visitor set by hand): ${describeState(state.filters)}.${state.n != null ? ` That shows ${state.n} home(s) now.` : ''}`
+        : 'There is no active search yet.';
       const sys = `${VOICE}
 Today in Spain it is ${todayES()}.
 
@@ -320,15 +376,40 @@ ${gk}
 3. intent "off_topic": anything not about homes, buying or selling here, or life around our towns (programming, recipes, homework, politics, other countries or regions of Spain far from us). Reply in one or two friendly sentences that this is not something we help with here, and that we are happy to tell them about homes and life on the Costa Blanca South. No filters, town null.
 
 Answer with the respond tool. The reply is plain text: no markdown, no asterisks, no bullet lists. For intent "local" and "off_topic" set "filters" to null. For intent "search" set "town" and "cta" to null.
-Filter rules (intent "search" only): towns must come from this list (pick nearby towns if the visitor names an area: 'Quesada' or 'La Marquesa' -> Rojales; 'near the beach' -> Guardamar del Segura, Torrevieja, Orihuela Costa, La Manga del Mar Menor, Los Alcázares, San Fulgencio): ${f.towns.join(', ')}. categories from: ${f.cats.join(', ')}. pool: "private"|"communal"|"any"|null. newbuild: true|false|null. sort: "price_asc"|"price_desc"|"newest"|"value"|null ('value' = best price vs market). Prices in euro as numbers. Leave unknown fields null/empty; prefer towns over max_sea_km for beach wishes. A message that only names a town or street is a search. Never refuse a search; if the wish is vague, return broad filters and ask one short follow-up in the reply.
+Filter rules (intent "search" only): towns must come from this list (pick nearby towns if the visitor names an area: 'Quesada' or 'La Marquesa' -> Rojales; 'near the beach' -> Guardamar del Segura, Torrevieja, Orihuela Costa, La Manga del Mar Menor, Los Alcázares, San Fulgencio): ${f.towns.join(', ')}. categories from: ${f.cats.join(', ')}. pool: "private"|"communal"|"any"|null. newbuild: true|false|null. sort: "price_asc"|"price_desc"|"newest"|"value"|null ('value' = best price vs market). Prices in euro as numbers. Leave unknown fields null/empty; prefer towns over max_sea_km for beach wishes. A message that only names a town or street is a search. Never refuse a search; if the wish is vague, return broad filters and ask one short follow-up in the reply. Set pool ONLY when the visitor mentions a pool; otherwise null.
+
+THE CONVERSATION (this is a conversation, not a series of separate searches):
+${stateTxt}
+- Remember what the visitor told you earlier in this conversation (town, budget, type, bedrooms, pool...). A follow-up like "3 bedrooms then", "a bit cheaper", "with a pool", "doe maar 3 slaapkamers" or an answer to your own question REFINES the current search: return the COMPLETE filters = everything still wanted from before plus the change. Never drop an earlier wish just because the new message does not repeat it. new_search false, cleared [].
+- Only when the visitor clearly lets go of an earlier wish ("other towns are fine too", "any type", "forget the budget", "doesn't have to be Benijófar") put that field name in "cleared" and leave it out of the filters.
+- Only when the visitor clearly starts a different search (a new town instead of the old one, "now something completely different", a different kind of home with a new budget) set new_search true and give just the new filters. A new town that REPLACES the old one ("rather in Rojales") is a change of towns, not a new search: keep the other wishes.
+- In the reply, show you understood the whole wish in one natural sentence (for example "Three bedrooms in Benijófar, here is what we have."). Do not repeat earlier local insights.
+- For intent "local" and "off_topic" the current search stays as it is; new_search false, cleared [].
 ${LANG}`;
-      const hist = Array.isArray(body.history) ? body.history.slice(-4).map((h: any) => ({ role: h.role === 'assistant' ? 'assistant' : 'user', content: String(h.content || '').slice(0, 600) })) : [];
+      const hist = cleanHist(body.history, 10, 600);
       out = await claudeTool(sys, [...hist, { role: 'user', content: query }], SEARCH_SCHEMA, 900);
       if (typeof out.reply === 'string') out.reply = out.reply.replace(/\*\*?/g, '').trim();
       // Server-side bewaken: een lokale of onderwerpvreemde vraag mag de zoekfilters op de site nooit wijzigen.
       const intent = ['search', 'local', 'off_topic'].includes(out.intent) ? out.intent : (out.filters ? 'search' : 'local');
       out.intent = intent;
       if (intent !== 'search') out.filters = null;
+      // Vangnet gespreksgeheugen: eerdere wensen blijven staan tenzij het een nieuwe zoekvraag is of de wens expliciet is losgelaten.
+      if (intent === 'search' && out.filters && typeof out.filters === 'object') {
+        const nf: any = { ...out.filters };
+        // plaatsnamen exact zoals op de site (Benijofar -> Benijófar), anders vindt de site niets
+        const fold = (x: any) => String(x || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+        if (Array.isArray(nf.towns)) nf.towns = [...new Set(nf.towns.map((t: any) => f.towns.filter((x) => fold(x) === fold(t)).sort((a, b) => (f.counts[b] || 0) - (f.counts[a] || 0))[0]).filter(Boolean))];
+        const cleared = new Set(Array.isArray(out.cleared) ? out.cleared.filter((k: any) => FKEYS.includes(k)) : []);
+        const kept: string[] = [];
+        if (state && out.new_search !== true) {
+          for (const k of FKEYS) if (isEmpty(nf[k]) && !cleared.has(k) && !isEmpty(state.filters[k])) { nf[k] = state.filters[k]; kept.push(k); }
+        }
+        // zwembad alleen als de bezoeker er (nu of eerder) om vroeg
+        if (nf.pool && !POOL_WORD.test(query) && nf.pool !== (state && out.new_search !== true ? state.filters.pool : null)) nf.pool = state && out.new_search !== true ? state.filters.pool : null;
+        out.filters = nf;
+        out.context = { had_state: !!state, new_search: out.new_search === true, cleared: [...cleared], kept };
+      }
+      delete out.new_search; delete out.cleared;
       if (!out.town || !f.towns.includes(out.town) || intent !== 'local') { out.town = null; out.cta = null; }
       if (out.town && !out.cta) out.cta = tx({ en: 'See our homes in ', nl: 'Bekijk onze woningen in ', sv: 'Se våra bostäder i ', es: 'Ver nuestras viviendas en ' }) + out.town;
     } else if (mode === 'relax') {
@@ -337,6 +418,8 @@ ${LANG}`;
       if (!alts.length) return json({ error: 'no alts' }, 400);
       const applied = !!body.applied;
       const prev = String(body.reply || '').slice(0, 1200);
+      const rhist = cleanHist(body.history, 10, 400);
+      const convo = rhist.length ? rhist.map((h) => (h.role === 'user' ? 'Visitor: ' : 'Us: ') + h.content).join('\n') : '';
       const sys = `${VOICE}
 ${LANG}
 The language of the visitor is the language of THEIR search message (not of our earlier reply, not of the website). Write everything in that language.
@@ -348,13 +431,14 @@ ${applied
   ? '  - The FIRST alternative below is already being shown underneath. Say what it is and how many homes, with the exact numbers and place names given (correct singular/plural). The other alternatives are buttons the visitor can choose; you may mention briefly that there are other options below, without listing them.'
   : '  - Within the budget we have nothing that fits, not even with a small change. The ONLY alternative is a higher maximum budget. Ask the visitor, as a question, whether they would like to raise their budget to that amount, and say how many homes we then have. Do NOT say it has been done: the visitor decides with the button. Format the amount like "€ 450.000" (Dutch style) or "€450,000" (English style) to fit the language.'}
 - Never invent homes, numbers, places or prices other than those given. Never present a budget increase as done.
+- If the wish was built up over several messages (see the conversation below), the newest wish may clash with an earlier one. Then name that clearly and ask whether the earlier wish still holds, in the visitor's language, for example: "In Benijófar we have nothing with 3 bedrooms right now. Are you still looking in Benijófar, or may it be nearby?" Keep the place and the newest wish together in that sentence.
 - Say nothing about the alternative places themselves (no distances, beaches, character, not even that they are near or next to another town): the local insight from the first reply belongs to the town the visitor asked for only. Never carry it over to another place.
 Also give:
 - labels: a short button label for EACH alternative, same order, same count (${alts.length}), in the visitor's language, at most 6 words, without the number of homes (we show the count ourselves). Each alternative starts with its kind (place, type, change, budget): translate its meaning faithfully. place: just "In <places>". budget: "Yes, show homes up to <amount>". Only a budget alternative may mention an amount; never turn another alternative into a budget label.
 - try_label: ${applied ? 'a short lead-in for the other buttons, like "Or adjust your wish another way:" in the visitor\'s language; null if there is only one alternative.' : 'null.'}
 - tip: one short sentence in the visitor's language: ${applied ? 'a tip that a price range, a town or area and the type of home give the best results.' : 'that they can also ask us to search for them, because many homes are offered to people registered with us before they go online.'}
 Answer with the respond tool.`;
-      const msg = `Visitor's search message: ${query}\nOur first reply: ${prev}\nAlternatives (in order):\n${alts.map((a: any, i: number) => `${i + 1}. ${a.desc} -> ${a.n} home(s)`).join('\n')}`;
+      const msg = `${convo ? 'Conversation so far:\n' + convo + '\n\n' : ''}Visitor's search message: ${query}\nOur first reply: ${prev}\nAlternatives (in order):\n${alts.map((a: any, i: number) => `${i + 1}. ${a.desc} -> ${a.n} home(s)`).join('\n')}`;
       out = await claudeTool(sys, [{ role: 'user', content: msg }], RELAX_SCHEMA, 700);
       if (typeof out.reply === 'string') out.reply = out.reply.replace(/\*\*?/g, '').trim();
       if (!Array.isArray(out.labels) || out.labels.length !== alts.length) out.labels = null;

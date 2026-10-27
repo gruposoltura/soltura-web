@@ -334,7 +334,8 @@ function match(p, f = S.f, type = S.type) {
   if (type === 'new' && !p.is_newbuild) return false;
   if (f.newbuild === true && !p.is_newbuild) return false;
   if (f.newbuild === false && p.is_newbuild) return false;
-  if (f.towns.length && !f.towns.includes(p.town)) return false;
+  // plaatsnaam accent-ongevoelig (27-10-2026): eigen woningen staan als 'Benijofar', partnerwoningen als 'Benijófar'
+  if (f.towns.length && !f.towns.includes(p.town) && !f.towns.some(t => fold(t) === (p._tk ??= fold(p.town)))) return false;
   if (f.categories.length && !f.categories.includes(p.category)) return false;
   if (f.price_min && (p.price || 0) < f.price_min) return false;
   if (f.price_max && (p.price || Infinity) > f.price_max) return false;
@@ -934,6 +935,17 @@ function findRef(q) {
   if (/^[A-Z]{2,4}[.\-]?\d{3,5}$/.test(bare)) return { missing: bare.replace(/[.\-]/g, '') };
   return null;
 }
+// Gespreksgeheugen van Sola op de homepage (27-10-2026): per tabblad (sessionStorage), max 12 berichten, vervalt na 1 uur stilte.
+// Met de huidige zoekstand (S.f + aantal treffers) erbij weet Sola dat "doe maar 3 slaapkamers" bij "iets in Benijófar" hoort.
+const CONV = {
+  get() { try { const v = JSON.parse(sessionStorage.getItem('gs_sola') || 'null'); if (v && Date.now() - v.at < 3600000 && Array.isArray(v.h)) return v.h; } catch {} return []; },
+  push(q, a) { try { const h = CONV.get().concat([{ role: 'user', content: String(q).slice(0, 600) }, { role: 'assistant', content: String(a || '').slice(0, 600) }]).slice(-12); sessionStorage.setItem('gs_sola', JSON.stringify({ at: Date.now(), h })); } catch {} },
+};
+function convState() {
+  const f = Object.assign({}, S.f); delete f.ref_prefix;
+  if (S.sort && S.sort !== 'reduced') f.sort = S.sort;
+  return { filters: f, type: S.type, n: S.all.filter(p => match(p)).length };
+}
 async function aiSearch(q) {
   q = (q || '').trim(); if (!q) return;
   const btn = $('#askBtn'), out = $('#aiReply');
@@ -973,7 +985,8 @@ async function aiSearch(q) {
   btn.disabled = true; btn.textContent = t('asking');
   out.hidden = false; out.className = 'ai-bubble'; out.innerHTML = `<span class="ab-av">${GIDS.avatar(34)}</span><div class="ab-body"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
   track('search', null, null, { q: q.slice(0, 200) });
-  const r = await fn('web-assistant', { mode: 'search', lang: S.lang, query: q }).catch(() => ({}));
+  const hist = CONV.get();
+  const r = await fn('web-assistant', { mode: 'search', lang: S.lang, query: q, history: hist, state: S.f && !S.f.ref_prefix ? convState() : null }).catch(() => ({}));
   if (r.filters) {
     const f = Object.assign(blankFilters(), r.filters);
     f.towns = Array.isArray(f.towns) ? f.towns : []; f.categories = Array.isArray(f.categories) ? f.categories : [];
@@ -991,7 +1004,7 @@ async function aiSearch(q) {
     const apply = sug.length && !sug[0].budget;
     if (apply) { S.f = sug[0].f; S.type = sug[0].type; S.shown = PAGE; }
     // de assistent verwerkt de alternatieven in zijn eigen antwoord, in de taal van de bezoeker (ook de knoppen)
-    const rx = sug.length ? await fn('web-assistant', { mode: 'relax', lang: S.lang, query: q, reply, applied: !!apply, alts: sug.map(x => ({ desc: x.desc, n: x.n })) }).catch(() => ({})) : {};
+    const rx = sug.length ? await fn('web-assistant', { mode: 'relax', lang: S.lang, query: q, reply, history: hist, applied: !!apply, alts: sug.map(x => ({ desc: x.desc, n: x.n })) }).catch(() => ({})) : {};
     const ok = rx && rx.reply && Array.isArray(rx.labels) && rx.labels.length === sug.length;
     if (ok) { reply = rx.reply; sug.forEach((x, i) => { if (rx.labels[i]) x.label = rx.labels[i]; }); }
     const rest = apply ? sug.slice(1) : sug;
@@ -1012,6 +1025,7 @@ async function aiSearch(q) {
     if (n) { S.sugg = [{ f, type: 'all', n }]; cta = `<div class="ab-sugg"><button type="button" data-sug="0">${esc(r.cta)} <small>${n}</small></button></div>`; }
     track('search_local', null, n, { q: q.slice(0, 120), town: r.town });
   } else if (!r.filters && r.reply) track(r.intent === 'off_topic' ? 'search_offtopic' : 'search_local', null, null, { q: q.slice(0, 120) });
+  if (r.reply || reply) CONV.push(q, reply || r.reply);
   out.className = 'ai-bubble in' + (note.includes('ab-none') ? ' warn' : '');
   btn.disabled = false; btn.textContent = t('ask_btn');
   out.innerHTML = `<span class="ab-av">${GIDS.avatar(34)}</span><div class="ab-body">${reply ? `<p class="ab-reply">${esc(reply)}</p>` : ''}${cta}${note}</div>`;
