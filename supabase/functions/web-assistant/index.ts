@@ -5,6 +5,9 @@
 // mode=guide  : gesprek op de woon/koopgids-pagina (na de intake): koop- en verkoopproces, kosten, gebieden, emigreren,
 //               gegrond in web_guide_knowledge + web_town_info; kan ook onze woningen zoeken (max 3 kaartjes terug)
 // POST {mode, lang, query, id?, reference?, wp_id?, history?, name?}  of  GET ?mode=&lang=&q=&id=&ref=&wp_id=
+// v29 (27-10-2026): taal hard (Rick zag 'Rojales is a good choice ... Wat zoekt u precies'): de server herkent de taal van de
+//   bezoeker (woordlijsten NL/EN/ES/SV/DE/FR, bij twijfel de eerdere berichten) en zegt die expliciet; search en relax leggen
+//   eerst reply_language vast vóór de reply. Nooit twee talen in één antwoord, Nederlands altijd je/jij.
 // v26 (27-10-2026): search onthoudt het gesprek (Rick): de site stuurt de gesprekshistorie (sessie) en de huidige zoekstand
 //   (state: filters + aantal treffers) mee. Een vervolgbericht ("doe maar 3 slaapkamers") verfijnt de lopende zoekvraag;
 //   alleen een duidelijk nieuwe zoekvraag (new_search) of een expliciet losgelaten wens (cleared) wist eerdere filters.
@@ -203,13 +206,14 @@ const SEARCH_SCHEMA = {
         reduced_only: { type: 'boolean' }, sort: { type: ['string', 'null'], enum: ['price_asc', 'price_desc', 'newest', 'value', null] },
       },
     },
+    reply_language: { type: 'string', description: 'The language the visitor writes in; the whole reply is in this language.' },
     new_search: { type: 'boolean' },
     cleared: { type: 'array', items: { type: 'string', enum: ['towns', 'categories', 'price_min', 'price_max', 'beds_min', 'baths_min', 'pool', 'newbuild', 'max_sea_km', 'reduced_only', 'sort'] } },
     reply: { type: 'string' },
     town: { type: ['string', 'null'] },
     cta: { type: ['string', 'null'] },
   },
-  required: ['intent', 'filters', 'new_search', 'cleared', 'reply', 'town', 'cta'],
+  required: ['intent', 'filters', 'reply_language', 'new_search', 'cleared', 'reply', 'town', 'cta'],
 };
 // Zoekstand van de site (filters die nu actief zijn) netjes inlezen; alleen bekende velden.
 const FKEYS = ['towns', 'categories', 'price_min', 'price_max', 'beds_min', 'baths_min', 'pool', 'newbuild', 'max_sea_km', 'reduced_only', 'sort'];
@@ -255,15 +259,33 @@ function cleanHist(h: any, n: number, len: number) {
   return r;
 }
 const POOL_WORD = /zwembad|pool|piscin|bassäng|bassang|schwimm|piscine|basen/i;
+// Taal van de bezoeker herkennen aan typische woorden; null bij twijfel (dan beslist het model).
+const LANG_WORDS: Record<string, string[]> = {
+  Dutch: ['ik', 'zoek', 'zoeken', 'een', 'het', 'met', 'voor', 'naar', 'wat', 'hoe', 'mag', 'maar', 'doe', 'graag', 'niet', 'ook', 'slaapkamers', 'slaapkamer', 'zwembad', 'huis', 'woning', 'woningen', 'tot', 'bij', 'van', 'iets', 'heb', 'wil', 'kan', 'dichtbij', 'buurt', 'nieuwbouw', 'vrijstaand', 'geen', 'waar', 'wanneer', 'hebben', 'jullie', 'liever', 'zijn', 'wij', 'dan', 'nog', 'welke', 'goedkoper'],
+  English: ['i', 'am', "i'm", 'looking', 'for', 'a', 'an', 'the', 'with', 'and', 'to', 'house', 'home', 'homes', 'bedrooms', 'bedroom', 'near', 'beach', 'want', 'need', 'something', 'under', 'what', 'how', 'cheap', 'cheaper', 'build', 'any', 'show', 'me', 'please', 'have', 'you', 'do', 'where', 'which', 'rather', 'also', 'but'],
+  Spanish: ['busco', 'una', 'un', 'casa', 'con', 'y', 'para', 'piscina', 'dormitorios', 'habitaciones', 'cerca', 'playa', 'quiero', 'algo', 'hasta', 'qué', 'que', 'cómo', 'vivienda', 'piso', 'el', 'la', 'los', 'las', 'tenéis', 'tienes', 'hay', 'dónde', 'mejor', 'también', 'por'],
+  Swedish: ['jag', 'söker', 'letar', 'efter', 'ett', 'med', 'och', 'hus', 'bostad', 'bostäder', 'sovrum', 'nära', 'stranden', 'vill', 'något', 'till', 'för', 'har', 'ni', 'finns', 'billigare', 'också', 'var', 'hur'],
+  German: ['ich', 'suche', 'ein', 'eine', 'mit', 'und', 'haus', 'wohnung', 'schlafzimmer', 'strand', 'nähe', 'bis', 'etwas', 'möchte', 'haben', 'sie', 'gibt', 'auch', 'oder', 'nicht'],
+  French: ['je', 'cherche', 'une', 'avec', 'maison', 'chambres', 'plage', 'près', 'jusqu', 'quelque', 'chose', 'vous', 'avez', 'pour', 'et', 'où'],
+};
+function detectLang(text: string): string | null {
+  const toks = String(text || '').toLowerCase().match(/[\p{L}']+/gu) || [];
+  const score: Record<string, number> = {};
+  for (const [l, ws] of Object.entries(LANG_WORDS)) score[l] = toks.filter((t) => ws.includes(t)).length;
+  const r = Object.entries(score).sort((a, b) => b[1] - a[1]);
+  return r[0][1] >= 1 && r[0][1] > r[1][1] ? r[0][0] : null;
+}
+const REGISTER: Record<string, string> = { Dutch: 'Dutch (informal je/jij, never u)', Swedish: 'Swedish (informal du)', Spanish: 'Spanish from Spain (informal tú)', German: 'German', French: 'French', English: 'English' };
 const RELAX_SCHEMA = {
   type: 'object',
   properties: {
+    reply_language: { type: 'string', description: 'The language the visitor writes in; reply, labels and tip are all in this language.' },
     reply: { type: 'string' },
     labels: { type: 'array', items: { type: 'string' } },
     try_label: { type: ['string', 'null'] },
     tip: { type: ['string', 'null'] },
   },
-  required: ['reply', 'labels', 'try_label', 'tip'],
+  required: ['reply_language', 'reply', 'labels', 'try_label', 'tip'],
 };
 const GUIDE_SCHEMA = {
   type: 'object',
@@ -330,8 +352,12 @@ Deno.serve(async (req) => {
   const tx = (o: Record<string, string>) => o[lang] ?? o.en;
   const query = String(body.query || '').slice(0, 500);
   // Taal: altijd de taal waarin de bezoeker schrijft; de paginataal is alleen de terugval.
-  const LANG = `Always reply in the language the visitor writes in (Dutch, English, Spanish, German, French, Swedish, Norwegian, Polish or any other), also when the website is set to another language. Only when the message gives no clear language, reply in ${tx({ en: 'English', nl: 'Dutch', sv: 'Swedish', es: 'Spanish (Spain, informal tú)' })}. Suggestions use the same language as your reply.`;
   if (!query) return json({ error: 'empty' }, 400);
+  // Taal hard vastleggen: eerst de vraag zelf, bij twijfel de eerdere berichten van de bezoeker.
+  const prevUser = (Array.isArray(body.history) ? body.history : []).filter((h: any) => h && h.role !== 'assistant').map((h: any) => String(h.content || '')).slice(-4).join(' ');
+  const vlang = detectLang(query) || (prevUser ? detectLang(prevUser) : null);
+  const LANGX = vlang ? `\nTHE VISITOR WRITES IN ${vlang.toUpperCase()}. Write the WHOLE reply, every sentence, and all suggestions, labels and tips in ${REGISTER[vlang]} only. Never mix languages and never start in another language, whatever the language of the website or of this prompt.` : '\nNever mix languages within one answer: every sentence in the same language.';
+  const LANG = `Always reply in the language the visitor writes in (Dutch, English, Spanish, German, French, Swedish, Norwegian, Polish or any other), also when the website is set to another language. Only when the message gives no clear language, reply in ${tx({ en: 'English', nl: 'Dutch', sv: 'Swedish', es: 'Spanish (Spain, informal tú)' })}. Suggestions use the same language as your reply.` + LANGX;
 
   // eenvoudige rate limit: 40 vragen per uur per (gehasht) IP
   const since = new Date(Date.now() - 3600_000).toISOString();
@@ -409,7 +435,7 @@ ${LANG}`;
         out.filters = nf;
         out.context = { had_state: !!state, new_search: out.new_search === true, cleared: [...cleared], kept };
       }
-      delete out.new_search; delete out.cleared;
+      delete out.new_search; delete out.cleared; delete out.reply_language;
       if (!out.town || !f.towns.includes(out.town) || intent !== 'local') { out.town = null; out.cta = null; }
       if (out.town && !out.cta) out.cta = tx({ en: 'See our homes in ', nl: 'Bekijk onze woningen in ', sv: 'Se våra bostäder i ', es: 'Ver nuestras viviendas en ' }) + out.town;
     } else if (mode === 'relax') {
@@ -442,6 +468,7 @@ Answer with the respond tool.`;
       out = await claudeTool(sys, [{ role: 'user', content: msg }], RELAX_SCHEMA, 700);
       if (typeof out.reply === 'string') out.reply = out.reply.replace(/\*\*?/g, '').trim();
       if (!Array.isArray(out.labels) || out.labels.length !== alts.length) out.labels = null;
+      delete out.reply_language;
     } else if (mode === 'guide') {
       // Gidspagina: de bezoeker heeft (meestal) net de woon/koopgids aangevraagd en praat door met Sola.
       const [f, ti, tg, gk] = await Promise.all([facets(), townInfo(), townGeo(), guideKnowledge()]);
