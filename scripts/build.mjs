@@ -373,7 +373,7 @@ async function main() {
     ['buy', l => ({ title: `${strip(PAGES[l].buy.h)} · Grupo Soltura`, desc: cut(strip(PAGES[l].buy.lead + ' ' + PAGES[l].buy.intro)), body: bodyBuy(l, props) })],
     ['sell', l => ({ title: `${strip(PAGES[l].sell.h)} · Grupo Soltura`, desc: cut(strip(PAGES[l].sell.lead)), body: bodySell(l) })],
     ['move', l => ({ title: `${strip(PAGES[l].move.h)} · Grupo Soltura`, desc: cut(strip(PAGES[l].move.lead)), body: bodyMove(l, props) })],
-    ['costs', l => ({ title: `${COSTS.text(l).title} · Grupo Soltura`, desc: cut(COSTS.text(l).desc), body: COSTS.html(l, { move: R.href(l, 'move'), home: R.href(l, 'home'), buy: R.href(l, 'buy') }), crumb: [[strip(PAGES[l].move.h), R.href(l, 'move')], [COSTS.text(l).crumb, R.href(l, 'costs')]] })],
+    ['costs', l => ({ title: `${COSTS.text(l).title} · Grupo Soltura`, desc: cut(COSTS.text(l).desc), body: COSTS.html(l, { move: R.href(l, 'move'), home: R.href(l, 'home'), buy: R.href(l, 'buy'), privacy: R.href(l, 'privacy') }), crumb: [[strip(PAGES[l].move.h), R.href(l, 'move')], [COSTS.text(l).crumb, R.href(l, 'costs')]] })],
     ['gids', l => ({ title: `${GIDS.text(l).title} · Grupo Soltura`, desc: cut(GIDS.text(l).desc), body: GIDS.html(l, { privacy: R.href(l, 'privacy'), buy: R.href(l, 'buy'), sell: R.href(l, 'sell'), move: R.href(l, 'move'), costs: R.href(l, 'costs'), area: R.href(l, 'area'), contact: R.href(l, 'contact') }), crumb: [[strip(PAGES[l].buy.h), R.href(l, 'buy')], [GIDS.text(l).crumb, R.href(l, 'gids')]] })],
     ['area', l => ({ title: `${T(l, 'areas_h')} · Grupo Soltura`, desc: cut(T(l, 'areas_p')), body: bodyAreas(l, G[l], props), lastmod: G[l].map(g => g.updated_at).sort().pop()?.slice(0, 10) })],
     ['contact', l => ({ title: `${T(l, 'contact_h')} · Grupo Soltura`, desc: cut(T(l, 'contact_p') + ' Avda. de la Constitución s/n, 03179 Formentera del Segura. +34 966 792 113.'), body: bodyContact(l), jsonld: [ld(ORG)] })],
@@ -392,6 +392,9 @@ async function main() {
   }
   // makelaarsportaal: alleen voor samenwerkende makelaars, niet indexeren en niet in de sitemap
   for (const l of LANGS) write(R.href(l, 'agents'), page({ lang: l, key: 'agents', path: R.href(l, 'agents'), title: `${PARTNERS.text(l).title} · Grupo Soltura`, desc: PARTNERS.text(l).lead, noindex: true, body: PARTNERS.html(l) }));
+  // tijdelijke gidspagina met formulier (28-10-2026, test Meta-advertentie): niet indexeren en niet in de sitemap
+  for (const l of LANGS) write(R.href(l, 'gidsform'), page({ lang: l, key: 'gidsform', path: R.href(l, 'gidsform'), title: `${GIDS.formText(l).h} · Grupo Soltura`, desc: cut(GIDS.formText(l).lead), noindex: true,
+    body: GIDS.formHtml(l, { privacy: R.href(l, 'privacy'), buy: R.href(l, 'buy'), sell: R.href(l, 'sell'), move: R.href(l, 'move'), costs: R.href(l, 'costs'), area: R.href(l, 'area'), contact: R.href(l, 'contact') }) }));
   // favorieten: persoonlijk, niet indexeren
   for (const l of LANGS) write(R.href(l, 'favorites'), page({ lang: l, key: 'favorites', path: R.href(l, 'favorites'), title: `${T(l, 'fav_h')} · Grupo Soltura`, desc: T(l, 'fav_h'), noindex: true, body: `<div class="page-head"><h1>${esc(T(l, 'fav_h'))}</h1></div>` }));
 

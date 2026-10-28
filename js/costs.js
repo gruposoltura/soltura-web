@@ -2,7 +2,8 @@
    /nl/emigreren/maandlasten/ · /en/move-to-spain/monthly-costs/ · /sv/flytta-till-spanien/manadskostnader/ · /es/vivir-en-espana/gastos-mensuales/ (26-10-2026)
    Gedeeld door de app (js/app.js: COSTS.html + COSTS.bind) en de statische build (scripts/build.mjs: COSTS.html).
    Bedragen = voorbeeldbedragen, gelijk aan de calculator op SpanjeKompas (spanjekompas/js/maandlasten.js); de bezoeker past ze aan.
-   Wat de bezoeker invult blijft in de eigen browser (localStorage 'gs_ml'); er gaat niets naar een server. */
+   Wat de bezoeker invult blijft in de eigen browser (localStorage 'gs_ml'); er gaat alleen iets naar een server als de bezoeker
+   zelf vraagt om de uitkomst te mailen (28-10-2026: mailblok in de uitkomst, form_id web-move-costs-calculator). */
 (function (root) {
   'use strict';
   // woningtype -> kostenprofiel (0 = appartement, 1 = geschakeld/bungalow, 2 = vrijstaand met zwembad)
@@ -147,6 +148,35 @@
       teaserH: '¿Cuánto cuesta vivir aquí al mes?', teaserP: 'Elige tu vivienda, tu hogar, colegio, sanidad y coches y ve al instante tus gastos mensuales, desglosados por grupo y comparados con ahora.', teaserBtn: 'Abre la calculadora de gastos mensuales',
     },
   };
+  // Mailblok in de uitkomst (28-10-2026, Rick): uitkomst + woon- en koopgids per mail.
+  // Aanvraag = web-contact kind 'guide', form_id 'web-move-costs-calculator' (zie app.js pageCosts) -> DocumentSender kind buying_guide met calc.
+  var MAIL = {
+    nl: { btn: 'Mail mij dit overzicht + de gratis woongids', p: 'Je ontvangt je maandlasten per groep en onze woon- en koopgids “Thuis aan de Costa Blanca” (PDF) in je mailbox.',
+      first: 'Voornaam', last: 'Achternaam', email: 'E-mailadres', send: 'Stuur het naar mij', sending: 'Bezig met versturen…',
+      ok: 'Verstuurd! Kijk zo in je mailbox, en anders even in je spam.', err: 'Dat lukte niet. Controleer je naam en e-mailadres en probeer het opnieuw.',
+      privacy: 'We gebruiken je gegevens om je dit te sturen en je persoonlijk verder te helpen. <a href="{p}">Privacy</a>',
+      head: 'Jouw maandlasten in Spanje (schatting)', via: 'Maandlastencalculator: uitkomst en woongids gemaild.', sit: 'Situatie', tot: 'Per maand', nu: 'Nu per maand', eigen: 'eigen bedragen ingevuld',
+      note: 'Schatting op basis van voorbeeldbedragen en wat je zelf invulde, exclusief hypotheek of huur en inkomstenbelasting. Bedragen verschillen per woning, gemeente en jaar.' },
+    en: { btn: 'Email me this overview + the free buying guide', p: 'You will receive your monthly costs per group and our living and buying guide “At home on the Costa Blanca” (PDF) in your inbox.',
+      first: 'First name', last: 'Last name', email: 'Email address', send: 'Send it to me', sending: 'Sending…',
+      ok: 'Sent! Check your inbox in a moment, or your spam folder.', err: 'That did not work. Please check your name and email address and try again.',
+      privacy: 'We use your details to send you this and to help you personally. <a href="{p}">Privacy</a>',
+      head: 'Your monthly costs in Spain (estimate)', via: 'Monthly cost calculator: result and buying guide emailed.', sit: 'Situation', tot: 'Per month', nu: 'Now per month', eigen: 'own amounts entered',
+      note: 'Estimate based on example amounts and what you entered yourself, excluding mortgage or rent and income tax. Amounts vary per home, municipality and year.' },
+    sv: { btn: 'Mejla mig den här översikten + den gratis köpguiden', p: 'Du får dina månadskostnader per grupp och vår guide “Hemma på Costa Blanca” (PDF) i din inkorg.',
+      first: 'Förnamn', last: 'Efternamn', email: 'E-postadress', send: 'Skicka till mig', sending: 'Skickar…',
+      ok: 'Skickat! Titta i din inkorg om en stund, annars i skräpposten.', err: 'Det gick inte. Kontrollera namn och e-postadress och försök igen.',
+      privacy: 'Vi använder dina uppgifter för att skicka detta och hjälpa dig personligen. <a href="{p}">Integritet</a>',
+      head: 'Dina månadskostnader i Spanien (uppskattning)', via: 'Månadskostnadskalkylator: resultat och köpguide mejlade.', sit: 'Situation', tot: 'Per månad', nu: 'Nu per månad', eigen: 'egna belopp ifyllda',
+      note: 'Uppskattning baserad på exempelbelopp och det du själv fyllde i, exklusive bolån eller hyra och inkomstskatt. Beloppen varierar per bostad, kommun och år.' },
+    es: { btn: 'Envíame este resumen + la guía gratuita', p: 'Recibirás tus gastos mensuales por grupo y nuestra guía “En casa en la Costa Blanca” (PDF) en tu correo.',
+      first: 'Nombre', last: 'Apellidos', email: 'Correo electrónico', send: 'Envíamelo', sending: 'Enviando…',
+      ok: '¡Enviado! Mira tu correo en un momento, o la carpeta de spam.', err: 'No ha funcionado. Revisa tu nombre y correo e inténtalo de nuevo.',
+      privacy: 'Usamos tus datos para enviarte esto y ayudarte personalmente. <a href="{p}">Privacidad</a>',
+      head: 'Tus gastos mensuales en España (estimación)', via: 'Calculadora de gastos mensuales: resultado y guía enviados.', sit: 'Situación', tot: 'Al mes', nu: 'Ahora al mes', eigen: 'importes propios introducidos',
+      note: 'Estimación basada en importes de ejemplo y lo que has introducido, sin hipoteca o alquiler ni impuesto sobre la renta. Los importes varían según la vivienda, el municipio y el año.' }
+  };
+  function ML(lang) { return MAIL[lang] || MAIL.en; }
   function L(lang) { return TX[lang] || TX.en; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function fmt(lang) { var f = new Intl.NumberFormat(LOCALE[lang] || 'en-IE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }); return function (v) { return f.format(Math.round(v)); }; }
@@ -179,6 +209,28 @@
       groups[p.g] += m; total += m;
     });
     return { s: s, total: total, groups: groups, rows: rows };
+  }
+
+  function plain(h) { return String(h == null ? '' : h).replace(/<[^>]+>/g, ''); }
+  // samenvatting voor de mail (calc, opgemaakte bedragen in de taal van de pagina) en de leadcard (text)
+  function summary(lang, st) {
+    var t = L(lang), M = ML(lang), r = calc(st), s = r.s, f = fmt(lang);
+    var pl = function (k, n) { return n + ' ' + t.maal[k][n === 1 ? 0 : 1]; };
+    var sit = [t.types[s.woning], pl('volw', s.volw), pl('kind', s.kind)];
+    if (s.kind) sit.push(t.schools[s.school]);
+    sit.push(t.zorgs[s.zorg], pl('auto', s.auto));
+    var groups = [];
+    r.groups.forEach(function (v, i) { if (v > 0) groups.push({ label: t.groups[i], amount: f(v) }); });
+    var nu = parseFloat(s.nu), d = nu > 0 ? Math.round(nu - r.total) : null;
+    var cmp = d == null ? null : (d === 0 ? t.same : plain(t.diff(f(Math.abs(d)), d > 0)));
+    var own = Object.keys(s.custom || {}).length;
+    var c = { title: M.head, situation_label: M.sit, situation: sit, per_month: M.tot, groups: groups, total: f(r.total), total_eur: Math.round(r.total),
+      year: t.year(f(r.total * 12)), now: nu > 0 ? f(nu) : null, compare: cmp, own_amounts: own, note: M.note };
+    var lines = [M.via, M.sit + ': ' + sit.join(', '),
+      M.tot + ': ' + c.total + ' (' + groups.map(function (g) { return g.label + ' ' + g.amount; }).join(' | ') + ')'];
+    if (c.now) lines.push(M.nu + ': ' + c.now + (cmp ? ' - ' + cmp : ''));
+    if (own) lines.push(own + ' ' + M.eigen);
+    return { calc: c, text: lines.join('\n') };
   }
 
   function opt(v, label, sel) { return '<option value="' + v + '"' + (v === sel ? ' selected' : '') + '>' + esc(label) + '</option>'; }
@@ -229,12 +281,30 @@
       '<ul class="ml-bars" id="mlBars">' + barsHtml(t, r, f) + '</ul>' +
       '<p class="ml-verg" id="mlVerg"' + (d == null ? ' hidden' : '') + '>' + (d == null ? '' : d === 0 ? esc(t.same) : t.diff(f(Math.abs(d)), d > 0)) + '</p>' +
       '<p class="ml-excl">' + esc(t.excl) + '</p>' +
-      '<a class="btn lemon" href="' + h.move + '#moveForm">' + esc(t.ctaPlan) + '</a>' +
-      '<a class="btn ghost" href="' + h.home + '">' + esc(t.ctaHomes) + '</a>' +
+      mailHtml(lang, h) +
+      '<a class="btn ghost" href="' + h.move + '#moveForm">' + esc(t.ctaPlan) + '</a>' +
+      '<a class="ml-link" href="' + h.home + '">' + esc(t.ctaHomes) + ' →</a>' +
       '<a class="ml-link" href="' + h.buy + '">' + esc(t.ctaMort) + ' →</a>' +
       '</aside></div>' +
       '<section class="ml-exp"><h2 class="pg-h">' + esc(t.expH) + '</h2>' + t.exp.map(function (x) { return '<p>' + x + '</p>'; }).join('') +
       '<p class="disclaimer">' + esc(t.disc) + '</p></section></div>';
+  }
+
+  // mailformulier in de uitkomst: eerst een knop, uitgeklapt het formulier (de uitkomst blijft dan niet meer 'sticky')
+  function mailHtml(lang, h) {
+    var M = ML(lang);
+    return '<div class="ml-mail" id="mlMail">' +
+      '<button type="button" class="btn lemon ml-mail-open" id="mlMailOpen" aria-expanded="false" aria-controls="mlMailForm">' + esc(M.btn) + '</button>' +
+      '<form class="ml-mail-f" id="mlMailForm" hidden novalidate>' +
+      '<p class="ml-mail-h">' + esc(M.btn) + '</p>' +
+      '<p class="ml-mail-p">' + esc(M.p) + '</p>' +
+      '<input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">' +
+      '<div class="ml-mail-2"><label><span>' + esc(M.first) + '</span><input name="first" autocomplete="given-name" required></label>' +
+      '<label><span>' + esc(M.last) + '</span><input name="last" autocomplete="family-name" required></label></div>' +
+      '<label><span>' + esc(M.email) + '</span><input name="email" type="email" autocomplete="email" required></label>' +
+      '<button class="btn lemon" type="submit">' + esc(M.send) + '</button>' +
+      '<p class="ml-mail-ok" aria-live="polite"></p>' +
+      '<p class="ml-mail-note">' + M.privacy.replace('{p}', h.privacy || '#') + '</p></form></div>';
   }
 
   // blokje op de Emigreren-pagina dat naar de calculator verwijst
@@ -288,5 +358,36 @@
     render();
   }
 
-  root.COSTS = { html: html, teaser: teaser, bind: bind, calc: calc, text: L };
+  // d = { send(body) -> Promise<{ok}>, track(event, meta), open (true = direct uitgeklapt, bv. bij binnenkomst via de advertentie) }
+  // body aan send: { first, last, email, website (honeypot), message (leadcard), calc (mail) }
+  function bindMail(root, lang, store, d) {
+    var box = root.querySelector('#mlMail'); if (!box) return;
+    var btn = box.querySelector('#mlMailOpen'), form = box.querySelector('#mlMailForm'), out = form.querySelector('.ml-mail-ok'), aside = root.querySelector('.ml-uit'), M = ML(lang);
+    d = d || {};
+    function open(focus) {
+      form.hidden = false; btn.hidden = true; btn.setAttribute('aria-expanded', 'true'); if (aside) aside.classList.add('mail-open');
+      if (focus) { var i = form.querySelector('input[name=first]'); if (i) i.focus(); }
+    }
+    btn.addEventListener('click', function () { open(true); if (d.track) d.track('calc_mail_open'); });
+    if (d.open) open(false);
+    var busy = false;
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (busy) return;
+      var v = function (n) { var el = form.elements[n]; return el ? String(el.value || '').trim() : ''; };
+      var first = v('first'), last = v('last'), email = v('email');
+      if (!first || !last || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { out.className = 'ml-mail-ok err'; out.textContent = M.err; return; }
+      var sm = summary(lang, store && store.get ? store.get() : null);
+      busy = true; var sub = form.querySelector('button[type=submit]'); sub.disabled = true; out.className = 'ml-mail-ok'; out.textContent = M.sending;
+      Promise.resolve(d.send ? d.send({ first: first, last: last, email: email, website: v('website'), message: sm.text, calc: sm.calc }) : { ok: false })
+        .catch(function () { return { ok: false }; })
+        .then(function (r) {
+          busy = false; sub.disabled = false;
+          if (r && r.ok) { out.className = 'ml-mail-ok done'; out.textContent = M.ok; ['first', 'last', 'email'].forEach(function (n) { form.elements[n].value = ''; }); }
+          else { out.className = 'ml-mail-ok err'; out.textContent = M.err; }
+        });
+    });
+  }
+
+  root.COSTS = { html: html, teaser: teaser, bind: bind, bindMail: bindMail, summary: summary, calc: calc, text: L };
 })(typeof self !== 'undefined' ? self : this);

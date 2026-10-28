@@ -21,6 +21,9 @@
     property: { en: 'property', nl: 'woning', sv: 'bostad', es: 'vivienda' },
     // woon/koopgids met live assistent Sola (23-10-2026)
     gids: { en: 'buying-guide', nl: 'woongids', sv: 'kopguide', es: 'guia-de-compra' },
+    // tijdelijke kopie van de gidspagina met een gewoon formulier in plaats van Sola (28-10-2026, test Meta-advertentie Emigreren):
+    // niet in menu of sitemap, noindex; form_id web-guide-form-meta
+    gidsform: { en: 'free-buying-guide', nl: 'gratis-woongids', sv: 'gratis-kopguide', es: 'guia-de-compra-gratis' },
     // makelaarsportaal (24-10-2026): niet in menu of sitemap, noindex; agents.gruposoltura.com verwijst hierheen
     agents: { en: 'agents', nl: 'makelaars', sv: 'maklare', es: 'agentes' },
   };

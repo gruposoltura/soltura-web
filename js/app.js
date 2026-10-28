@@ -1765,6 +1765,23 @@ function pageGids() {
   main.innerHTML = GIDS.html(S.lang, { privacy: L('privacy'), buy: L('buy'), sell: L('sell'), move: L('move'), costs: L('costs'), area: L('area'), contact: L('contact') });
   GIDS.bind($('#solPanel'), S.lang, solDeps());
 }
+// Tijdelijke gidspagina met formulier (28-10-2026, test Meta-advertentie Emigreren): /nl/gratis-woongids/ e.a., noindex.
+// Zelfde gids en mail als via Sola; form_id web-guide-form-meta zodat NEXUS Aanvragen de herkomst toont.
+function pageGidsForm() {
+  const main = $('#main');
+  main.innerHTML = GIDS.formHtml(S.lang, { privacy: L('privacy'), buy: L('buy'), sell: L('sell'), move: L('move'), costs: L('costs'), area: L('area'), contact: L('contact') });
+  GIDS.bindForm(main, S.lang, {
+    track: (ev, meta) => track(ev, null, null, meta || null),
+    send: b => fn('web-contact', Object.assign({ kind: 'guide' }, formMeta('gfForm', null, 'web-guide-form-meta'), {
+      site_lang: S.lang, first: b.first, last: b.last, first_name: b.first, last_name: b.last, name: b.first + ' ' + b.last, email: b.email,
+      website: b.website, browser_lang: navigator.language || '',
+      message: [tx({ en: 'Guide requested via the form (temporary guide page, Meta ad).', nl: 'Gids aangevraagd via het formulier (tijdelijke gidspagina, Meta-advertentie).', sv: 'Guide beställd via formuläret (tillfällig guidesida, Meta-annons).', es: 'Guía pedida con el formulario (página temporal, anuncio de Meta).' }), b.plan ? tx({ en: 'Plans', nl: 'Plannen', sv: 'Planer', es: 'Planes' }) + ': ' + b.plan : ''].filter(Boolean).join('\n'),
+      fields: { plan: b.plan || null, guide_lang: S.lang, channel: 'form' } })).then(r => {
+      if (r && r.ok) track('guide_request', null, null, { via: 'form', plan: b.plan || null, glang: S.lang });
+      return r;
+    }),
+  });
+}
 // Makelaarsportaal (24-10-2026): /en/agents/ · /nl/makelaars/ · /sv/maklare/ (js/agents.js, edge function agent-viewing)
 const ss = { get: (k, d) => { try { const v = sessionStorage.getItem('gs_' + k); return v ? JSON.parse(v) : d; } catch { return d; } }, set: (k, v) => { try { v == null ? sessionStorage.removeItem('gs_' + k) : sessionStorage.setItem('gs_' + k, JSON.stringify(v)); } catch {} } };
 // eigen favicon op het makelaarsportaal (Sola); elke andere pagina krijgt de gewone Soltura-iconen terug
@@ -1782,10 +1799,27 @@ function pageAgents() {
   PARTNERS.bind(main, S.lang, { fn, track, ss, go, home: L('home'), test: new URLSearchParams(location.search).get('test') === '1', meta: () => ({ page_url: location.origin + location.pathname }) });
 }
 // Maandlastencalculator (22-10-2026) onder Emigreren; invoer alleen in localStorage 'gs_ml' (js/costs.js)
+// 28-10-2026 (Rick): uitkomst + woon- en koopgids mailen. web-contact kind 'guide', form_id web-move-costs-calculator,
+// fields.calc (opgemaakte uitkomst) -> WebFormIntake-v2 -> LeadProcessor-v2 -> DocumentSender (buying_guide met overzicht).
+// Binnenkomst via de Meta-advertentie (utm_content met 'calc'): het mailformulier staat direct open.
 function pageCosts() {
   const main = $('#main');
-  main.innerHTML = COSTS.html(S.lang, { move: L('move'), home: L('home'), buy: L('buy') }, ls.get('ml', null));
-  COSTS.bind(main, S.lang, { get: () => ls.get('ml', null), set: v => ls.set('ml', v) });
+  const store = { get: () => ls.get('ml', null), set: v => ls.set('ml', v) };
+  main.innerHTML = COSTS.html(S.lang, { move: L('move'), home: L('home'), buy: L('buy'), privacy: L('privacy') }, store.get());
+  let used = false;
+  COSTS.bind(main, S.lang, store, () => { if (!used) { used = true; track('calc_use'); } });
+  const viaAd = /calc/i.test(String((attrMeta() || {}).utm_content || ''));
+  COSTS.bindMail(main, S.lang, store, {
+    open: viaAd,
+    track: (ev, meta) => track(ev, null, null, meta || null),
+    send: b => fn('web-contact', Object.assign({ kind: 'guide' }, formMeta('mlMailForm', null, 'web-move-costs-calculator'), {
+      site_lang: S.lang, first: b.first, last: b.last, first_name: b.first, last_name: b.last, name: b.first + ' ' + b.last, email: b.email,
+      website: b.website, message: b.message, browser_lang: navigator.language || '',
+      fields: { guide_lang: S.lang, channel: 'calculator', calc: b.calc } })).then(r => {
+      if (r && r.ok) track('guide_request', null, null, { via: 'calc', glang: S.lang, total: b.calc.total_eur });
+      return r;
+    }),
+  });
 }
 const LANG_NAME = { es: { en: 'Spanish', nl: 'Spaans', sv: 'spanska', es: 'español' }, nl: { en: 'Dutch', nl: 'Nederlands', sv: 'nederländska', es: 'neerlandés' }, en: { en: 'English', nl: 'Engels', sv: 'engelska', es: 'inglés' }, de: { en: 'German', nl: 'Duits', sv: 'tyska', es: 'alemán' }, fr: { en: 'French', nl: 'Frans', sv: 'franska', es: 'francés' }, ca: { en: 'Valencian', nl: 'Valenciaans', sv: 'valencianska', es: 'valenciano' }, sv: { en: 'Swedish', nl: 'Zweeds', sv: 'svenska', es: 'sueco' } };
 // taal van het artikel zelf (de koppen in news_posts zijn al naar het Nederlands herschreven)
@@ -2250,6 +2284,7 @@ function renderPage(r) {
     case 'move': main.innerHTML = pageMove(); bindForm($('#moveForm')); break;
     case 'costs': pageCosts(); break;
     case 'gids': pageGids(); break;
+    case 'gidsform': pageGidsForm(); break;
     case 'agents': pageAgents(); break;
     case 'news': pageNews(r.arg || ''); break;
     case 'area': pageArea(r.key === 'guide' ? r.arg : ''); break;
@@ -2267,6 +2302,7 @@ function renderPage(r) {
   const names = { buy: 'nav_buy', sell: 'nav_sell', move: 'nav_move', area: 'nav_areas', news: 'nav_news', contact: 'nav_contact', favorites: 'fav_h', privacy: 'privacy' };
   if (key === 'costs') { S.pageTitle = `${COSTS.text(S.lang).h} · Grupo Soltura`; document.title = S.pageTitle; }
   else if (key === 'gids') { S.pageTitle = `${GIDS.text(S.lang).title} · Grupo Soltura`; document.title = S.pageTitle; }
+  else if (key === 'gidsform') { S.pageTitle = `${GIDS.formText(S.lang).h} · Grupo Soltura`; document.title = S.pageTitle; }
   else if (key === 'agents') { S.pageTitle = `${PARTNERS.text(S.lang).title} · Grupo Soltura`; document.title = S.pageTitle; }
   else if (!((key === 'area' || key === 'news') && r.arg)) { S.pageTitle = key === 'home' || !names[key] ? 'Grupo Soltura · ' + t('hero_title') : `${t(names[key])} · Grupo Soltura`; document.title = S.pageTitle; }
   track('page', null, null, { p: key });

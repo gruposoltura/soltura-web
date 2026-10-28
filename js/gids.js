@@ -426,6 +426,78 @@
       '<h2 class="pg-h">' + esc(t.more_h) + '</h2><div class="gd-links">' + t.links.map(function (l) { return '<a href="' + links[l[0]] + '">' + esc(l[1]) + ICO.arrow + '</a>'; }).join('') + '</div>' +
       '</div>';
   }
+  // ---------- tijdelijke gidspagina met formulier (28-10-2026, Rick): kopie van de gidspagina voor de Meta-advertentie Emigreren.
+  // Zelfde gids en mail (web-contact kind 'guide' -> LeadProcessor-v2 -> DocumentSender buying_guide), maar een gewoon formulier
+  // in plaats van het gesprek met Sola, om te zien welke van de twee meer aanvragen oplevert. form_id web-guide-form-meta.
+  var GF = {
+    nl: { kicker: 'Gratis woon- en koopgids', h: 'Download gratis onze woon- en koopgids', lead: 'Alles over wonen en kopen aan de zuidelijke Costa Blanca in één gids: van de eerste vragen aan jezelf en wat het echt kost, tot de aankoop stap voor stap en het leven na de sleutel. Vul je naam en e-mailadres in en hij staat binnen een paar minuten in je mailbox.',
+      form_h: 'Stuur mij de gids', form_p: 'Gratis, als PDF in je mailbox.', first: 'Voornaam', last: 'Achternaam', email: 'E-mailadres', plan: 'Mijn plannen (mag leeg blijven)',
+      send: 'Stuur mij de gids', sending: 'Bezig met versturen…', ok: 'Gelukt! De gids is onderweg naar je mailbox. Zie je hem niet binnen een paar minuten, kijk dan even in je spam.',
+      err: 'Dat lukte niet. Controleer je naam en e-mailadres en probeer het opnieuw.', cta: 'Vraag de gids aan', next_h: 'Intussen alvast rekenen?', next_p: 'Met de maandlastencalculator zie je wat wonen hier per maand kost.' },
+    en: { kicker: 'Free living and buying guide', h: 'Download our free living and buying guide', lead: 'Everything about living and buying on the southern Costa Blanca in one guide: from the first questions to ask yourself and what it really costs, to the purchase step by step and life after the keys. Enter your name and email address and it will be in your inbox within minutes.',
+      form_h: 'Send me the guide', form_p: 'Free, as a PDF in your inbox.', first: 'First name', last: 'Last name', email: 'Email address', plan: 'My plans (optional)',
+      send: 'Send me the guide', sending: 'Sending…', ok: 'Done! The guide is on its way to your inbox. If it is not there within a few minutes, please check your spam folder.',
+      err: 'That did not work. Please check your name and email address and try again.', cta: 'Get the guide', next_h: 'Want to do the maths meanwhile?', next_p: 'The monthly cost calculator shows what living here costs per month.' },
+    sv: { kicker: 'Gratis köpguide', h: 'Ladda ner vår gratis köpguide', lead: 'Allt om att bo och köpa på södra Costa Blanca i en guide: från de första frågorna och vad det verkligen kostar, till köpet steg för steg och livet efter tillträdet. Fyll i namn och e-postadress så ligger den i din inkorg inom några minuter.',
+      form_h: 'Skicka guiden till mig', form_p: 'Gratis, som PDF i din inkorg.', first: 'Förnamn', last: 'Efternamn', email: 'E-postadress', plan: 'Mina planer (valfritt)',
+      send: 'Skicka guiden till mig', sending: 'Skickar…', ok: 'Klart! Guiden är på väg till din inkorg. Titta i skräpposten om den inte syns inom några minuter.',
+      err: 'Det gick inte. Kontrollera namn och e-postadress och försök igen.', cta: 'Beställ guiden', next_h: 'Vill du räkna under tiden?', next_p: 'Med månadskostnadskalkylatorn ser du vad det kostar att bo här per månad.' },
+    es: { kicker: 'Guía gratuita', h: 'Descarga gratis nuestra guía para vivir y comprar', lead: 'Todo sobre vivir y comprar en el sur de la Costa Blanca en una guía: desde las primeras preguntas y lo que cuesta de verdad, hasta la compra paso a paso y la vida después de las llaves. Escribe tu nombre y correo y la tendrás en tu bandeja en unos minutos.',
+      form_h: 'Envíame la guía', form_p: 'Gratis, en PDF en tu correo.', first: 'Nombre', last: 'Apellidos', email: 'Correo electrónico', plan: 'Mis planes (opcional)',
+      send: 'Envíame la guía', sending: 'Enviando…', ok: '¡Listo! La guía va de camino a tu correo. Si no la ves en unos minutos, mira en la carpeta de spam.',
+      err: 'No ha funcionado. Revisa tu nombre y correo e inténtalo de nuevo.', cta: 'Pide la guía', next_h: '¿Quieres hacer números mientras tanto?', next_p: 'Con la calculadora de gastos mensuales ves lo que cuesta vivir aquí cada mes.' }
+  };
+  function GFT(lang) { return GF[lang] || GF.en; }
+  function formCard(lang, links) {
+    var t = L(lang), g = GFT(lang);
+    return '<div class="sol-panel gf-card" id="gfCard"><div class="gf-head"><h2>' + esc(g.form_h) + '</h2><p>' + esc(g.form_p) + '</p></div>' +
+      '<form class="gf-form" id="gfForm" novalidate>' +
+      '<input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">' +
+      '<div class="gf-2"><label><span>' + esc(g.first) + '</span><input name="first" autocomplete="given-name" required></label>' +
+      '<label><span>' + esc(g.last) + '</span><input name="last" autocomplete="family-name" required></label></div>' +
+      '<label><span>' + esc(g.email) + '</span><input name="email" type="email" autocomplete="email" required></label>' +
+      '<label><span>' + esc(g.plan) + '</span><select name="plan"><option value="">–</option>' + t.plans.map(function (p) { return '<option>' + esc(p) + '</option>'; }).join('') + '</select></label>' +
+      '<button class="btn primary" type="submit">' + ICO.mail + esc(g.send) + '</button>' +
+      '<p class="gf-ok" aria-live="polite"></p>' +
+      '<p class="sol-note">' + t.privacy.replace('{p}', links.privacy) + '</p></form></div>';
+  }
+  function formHtml(lang, links) {
+    var t = L(lang), g = GFT(lang);
+    return '<section class="gd-hero gf-hero"><div class="gd-hero-in">' +
+      '<div class="gd-hero-txt"><p class="kicker">' + esc(g.kicker) + '</p><h1>' + esc(g.h) + '</h1><p class="gd-lead">' + esc(g.lead) + '</p>' + fan(lang) + '</div>' +
+      formCard(lang, links) + '</div></section>' +
+      '<div class="pg gd-pg">' +
+      '<h2 class="pg-h">' + esc(t.inside_h) + '</h2><p class="pg-intro">' + esc(t.inside_p) + '</p>' +
+      '<ol class="gd-parts">' + t.parts.map(function (p, i) { return '<li><span class="gd-n">' + (i + 1) + '</span><div><h3>' + esc(p[0]) + '</h3><p>' + esc(p[1]) + '</p></div></li>'; }).join('') + '</ol>' +
+      '<h2 class="pg-h">' + esc(t.why_h) + '</h2><div class="feats">' + t.why.map(function (w) { return '<div class="feat"><h3>' + esc(w[0]) + '</h3><p>' + esc(w[1]) + '</p></div>'; }).join('') + '</div>' +
+      '<div class="gd-sol gf-again"><div><h2>' + esc(g.form_h) + '</h2><p>' + esc(g.form_p) + '</p>' +
+      '<a class="btn primary" href="#gfCard" data-scroll>' + esc(g.cta) + '</a></div></div>' +
+      '<div class="gd-sol gf-next"><div><h2>' + esc(g.next_h) + '</h2><p>' + esc(g.next_p) + '</p><a class="btn ghost" href="' + links.costs + '">' + esc(t.links.filter(function (l) { return l[0] === 'costs'; })[0][1]) + '</a></div></div>' +
+      '<h2 class="pg-h">' + esc(t.more_h) + '</h2><div class="gd-links">' + t.links.map(function (l) { return '<a href="' + links[l[0]] + '">' + esc(l[1]) + ICO.arrow + '</a>'; }).join('') + '</div>' +
+      '</div>';
+  }
+  // d = { send(body) -> Promise<{ok}>, track(event, meta) }; body = { first, last, email, plan, website }
+  function bindForm(rootEl, lang, d) {
+    var form = rootEl.querySelector('#gfForm'); if (!form) return;
+    var g = GFT(lang), out = form.querySelector('.gf-ok'), busy = false;
+    d = d || {};
+    rootEl.querySelectorAll('a[href="#gfCard"]').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); var c = rootEl.querySelector('#gfCard'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); setTimeout(function () { var i = form.querySelector('input[name=first]'); if (i) i.focus({ preventScroll: true }); }, 450); }); });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (busy) return;
+      var v = function (n) { var el = form.elements[n]; return el ? String(el.value || '').trim() : ''; };
+      var b = { first: v('first'), last: v('last'), email: v('email'), plan: v('plan'), website: v('website') };
+      if (!b.first || !b.last || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(b.email)) { out.className = 'gf-ok err'; out.textContent = g.err; return; }
+      busy = true; var sub = form.querySelector('button[type=submit]'); sub.disabled = true; out.className = 'gf-ok'; out.textContent = g.sending;
+      Promise.resolve(d.send ? d.send(b) : { ok: false }).catch(function () { return { ok: false }; }).then(function (r) {
+        busy = false; sub.disabled = false;
+        if (r && r.ok) { out.className = 'gf-ok done'; out.textContent = g.ok; ['first', 'last', 'email'].forEach(function (n) { form.elements[n].value = ''; }); form.elements.plan.value = ''; }
+        else { out.className = 'gf-ok err'; out.textContent = g.err; }
+      });
+    });
+  }
+  function formText(lang) { return GFT(lang); }
+
   // promo-paneel voor andere pagina's (Kopen, Emigreren, woonplaatsgids, home)
   function promo(lang, href) {
     var t = L(lang);
@@ -807,5 +879,5 @@
       '<form class="sol-form" id="solForm" hidden><input id="solIn" autocomplete="name"><button type="submit" aria-label="OK">' + ICO.send + '</button></form></div>';
   }
 
-  root.GIDS = { NAME: NAME, avatar: avatar, html: html, bind: bind, promo: promo, compact: compact, text: L };
+  root.GIDS = { NAME: NAME, avatar: avatar, html: html, bind: bind, promo: promo, compact: compact, text: L, formHtml: formHtml, bindForm: bindForm, formText: formText };
 })(typeof window !== 'undefined' ? window : globalThis);
