@@ -53,6 +53,9 @@
       keys_no: function (r) { return 'We do not hold the keys to this home; ' + r + ' will arrange the appointment with you.'; },
       is_it: 'Is this the right home?', yes_home: 'Yes, that one', other_home: 'Another home',
       ask_first: 'Lovely home! What is your client\'s first name?', ph_first: 'First name client', ask_last: function (f) { return 'And ' + f + '\'s last name?'; }, ph_last: 'Last name client',
+      ask_mail: function (f) { return 'And what does ' + f + '\'s e-mail address look like? The part up to and including the @ is enough - for example anna.jansen@'; },
+      ph_local: 'name@', bad_local: 'That does not look right. Type the part before the @ plus the @ itself, for example anna.jansen@',
+      known_client: 'Thank you - but I cannot accept this request. This client is already registered with us, so the viewing goes through our own team. Call us on +34 966 792 113 and we will sort it out with you.',
       ask_day: function (f) { return 'Which day would ' + f + ' like to come?'; }, other_day: 'Another day', ph_day: 'e.g. Friday 7 November',
       ask_time: 'And at what time? Our office is open Monday to Friday from 10:00 to 14:00; other times by arrangement.', other_time: 'Another time', ph_time: 'e.g. 15:30',
       sum_h: 'Your viewing request', sum: 'All set? Then I will send it straight to our team.', r_home: 'Home', r_client: 'Client', r_day: 'Day', r_time: 'Time', r_keys: 'Keys',
@@ -149,6 +152,9 @@
       keys_no: function (r) { return 'Wij hebben de sleutels van deze woning niet; ' + r + ' regelt de afspraak met je.'; },
       is_it: 'Is dit de juiste woning?', yes_home: 'Ja, deze', other_home: 'Andere woning',
       ask_first: 'Mooie woning! Wat is de voornaam van je klant?', ph_first: 'Voornaam klant', ask_last: function (f) { return 'En de achternaam van ' + f + '?'; }, ph_last: 'Achternaam klant',
+      ask_mail: function (f) { return 'En hoe ziet het e-mailadres van ' + f + ' eruit? Het deel tot en met de @ is genoeg, bijvoorbeeld anna.jansen@'; },
+      ph_local: 'naam@', bad_local: 'Dat lijkt er niet op. Geef het deel voor de @ plus de @ zelf, bijvoorbeeld anna.jansen@',
+      known_client: 'Dank je - deze aanvraag kan ik niet aannemen. Deze klant is al bij ons bekend, dus de bezichtiging loopt via ons eigen team. Bel ons op +34 966 792 113, dan zoeken we het samen met je uit.',
       ask_day: function (f) { return 'Op welke dag wil ' + f + ' komen kijken?'; }, other_day: 'Andere dag', ph_day: 'bijv. vrijdag 7 november',
       ask_time: 'En hoe laat? Ons kantoor is open van maandag tot en met vrijdag van 10:00 tot 14:00; andere tijden in overleg.', other_time: 'Andere tijd', ph_time: 'bijv. 15:30',
       sum_h: 'Je bezichtigingsaanvraag', sum: 'Klopt alles? Dan stuur ik hem direct door naar ons team.', r_home: 'Woning', r_client: 'Klant', r_day: 'Dag', r_time: 'Tijd', r_keys: 'Sleutels',
@@ -245,6 +251,9 @@
       keys_no: function (r) { return 'No tenemos las llaves de esta vivienda; ' + r + ' organizará la cita contigo.'; },
       is_it: '¿Es esta la vivienda correcta?', yes_home: 'Sí, esta', other_home: 'Otra vivienda',
       ask_first: '¡Bonita vivienda! ¿Cuál es el nombre de tu cliente?', ph_first: 'Nombre del cliente', ask_last: function (f) { return '¿Y los apellidos de ' + f + '?'; }, ph_last: 'Apellidos del cliente',
+      ask_mail: function (f) { return '\u00bfY c\u00f3mo es el correo de ' + f + '? Basta con la parte hasta la @ incluida, por ejemplo anna.jansen@'; },
+      ph_local: 'nombre@', bad_local: 'Eso no parece correcto. Escribe la parte antes de la @ y la propia @, por ejemplo anna.jansen@',
+      known_client: 'Gracias, pero no puedo aceptar esta solicitud: este cliente ya est\u00e1 registrado con nosotros, as\u00ed que la visita va a trav\u00e9s de nuestro propio equipo. Ll\u00e1manos al +34 966 792 113 y lo vemos contigo.',
       ask_day: function (f) { return '¿Qué día quiere venir ' + f + '?'; }, other_day: 'Otro día', ph_day: 'p. ej. viernes 7 de noviembre',
       ask_time: '¿Y a qué hora? Nuestra oficina abre de lunes a viernes de 10:00 a 14:00; otros horarios con cita.', other_time: 'Otra hora', ph_time: 'p. ej. 15:30',
       sum_h: 'Tu solicitud de visita', sum: '¿Todo correcto? Entonces la envío directamente a nuestro equipo.', r_home: 'Vivienda', r_client: 'Cliente', r_day: 'Día', r_time: 'Hora', r_keys: 'Llaves',
@@ -341,6 +350,9 @@
       keys_no: function (r) { return 'Vi har inte nycklarna till den här bostaden; ' + r + ' ordnar visningen med dig.'; },
       is_it: 'Är det rätt bostad?', yes_home: 'Ja, den', other_home: 'En annan bostad',
       ask_first: 'Fin bostad! Vad heter din kund i förnamn?', ph_first: 'Kundens förnamn', ask_last: function (f) { return 'Och ' + f + 's efternamn?'; }, ph_last: 'Kundens efternamn',
+      ask_mail: function (f) { return 'Och hur ser ' + f + 's e-postadress ut? Delen fram till och med @ r\u00e4cker, till exempel anna.jansen@'; },
+      ph_local: 'namn@', bad_local: 'Det ser inte r\u00e4tt ut. Skriv delen f\u00f6re @ och sj\u00e4lva @, till exempel anna.jansen@',
+      known_client: 'Tack - den h\u00e4r f\u00f6rfr\u00e5gan kan jag inte ta emot. Kunden \u00e4r redan k\u00e4nd hos oss, s\u00e5 visningen g\u00e5r via v\u00e5rt eget team. Ring oss p\u00e5 +34 966 792 113 s\u00e5 l\u00f6ser vi det tillsammans.',
       ask_day: function (f) { return 'Vilken dag vill ' + f + ' komma?'; }, other_day: 'En annan dag', ph_day: 't.ex. fredag 7 november',
       ask_time: 'Och vilken tid? Vårt kontor är öppet måndag till fredag 10:00–14:00; andra tider efter överenskommelse.', other_time: 'En annan tid', ph_time: 't.ex. 15:30',
       sum_h: 'Din visningsförfrågan', sum: 'Stämmer allt? Då skickar jag den direkt till vårt team.', r_home: 'Bostad', r_client: 'Kund', r_day: 'Dag', r_time: 'Tid', r_keys: 'Nycklar',
@@ -474,7 +486,7 @@
     var ses = d.ss.get('agent', null);
     if (ses && !(ses.token && ses.exp > Date.now())) ses = null;
     var st = {};
-    function reset() { st = { step: '', prop: null, first: '', last: '', day: '', time: '', editing: false, busy: false, nonce: '' }; }
+    function reset() { st = { step: '', prop: null, first: '', last: '', local: '', day: '', time: '', editing: false, busy: false, nonce: '' }; }
     var rg = null; // registratie: { company, first_name, last_name, email, mobile, choice, note, cid, masked, fixing }
     reset();
 
@@ -788,16 +800,33 @@
         });
       });
     }
+    // Client Claim System (BD-171): naam + e-mail tot en met '@'. Daarmee checkt Sola of de klant al bij ons bekend is;
+    // zo ja, dan weigert Sola de aanvraag (Rick krijgt een Telegram-alarm met de gegevens van makelaar en klant).
+    function askLocal() {
+      return say(t.ask_mail(st.first)).then(function () { ask('local', t.ph_local, 'text'); });
+    }
+    function checkClient() {
+      hideInput();
+      var wait = node('<span>\u2026</span>', 'sol-msg a');
+      return call({ action: 'client_check', ref: st.prop ? st.prop.ref : '', client_first: st.first, client_last: st.last, client_local: st.local })
+        .then(function (r) {
+          wait.remove();
+          if (!r || !r.ok) return say(t.neterr).then(function () { setChips([['retry', t.retry]], function () { checkClient(); }); });
+          if (r.status === 'known') { st.local = ''; return say(t.known_client, 'ag-keys').then(afterwards); }
+          return next('local');
+        }).catch(function () { wait.remove(); });
+    }
     function next(after) {
       if (st.editing) return summary();
-      if (after === 'last') return askDay();
+      if (after === 'last') return askLocal();
+      if (after === 'local') return askDay();
       if (after === 'day') return askTime();
       if (after === 'time') return summary();
     }
     function summary() {
       st.editing = false; hideInput();
       var p = st.prop;
-      var rows = [[t.r_home, p.ref + ' · ' + (p.title || '') + (p.town ? ' (' + p.town + ')' : '')], [t.r_client, st.first + ' ' + st.last], [t.r_day, st.day], [t.r_time, st.time], [t.r_keys, p.has_keys ? t.keys_y : t.keys_n]];
+      var rows = [[t.r_home, p.ref + ' · ' + (p.title || '') + (p.town ? ' (' + p.town + ')' : '')], [t.r_client, st.first + ' ' + st.last + (st.local ? ' \u00b7 ' + st.local + '@' : '')], [t.r_day, st.day], [t.r_time, st.time], [t.r_keys, p.has_keys ? t.keys_y : t.keys_n]];
       node('<b class="ag-sum-h">' + ICO.cal + esc(t.sum_h) + '</b><dl>' + rows.map(function (r) { return '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd>'; }).join('') + '</dl>', 'ag-sum');
       say(t.sum).then(function () {
         setChips([['send', t.send, 'go'], ['change', t.change, 'ghost']], function (c, lbl) {
@@ -821,12 +850,13 @@
       if (st.busy) return; st.busy = true; hideInput();
       if (!st.nonce) st.nonce = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2));
       var wait = node('<span class="sol-env">' + ICO.mail + '</span>' + esc(t.sending), 'sol-msg a sol-sending');
-      call(Object.assign({ action: 'submit', ref: st.prop.ref, client_first: st.first, client_last: st.last, day: st.day, time: st.time, lang: cl, nonce: st.nonce, test: !!d.test }, d.meta ? d.meta() : {}))
+      call(Object.assign({ action: 'submit', ref: st.prop.ref, client_first: st.first, client_last: st.last, client_local: st.local, day: st.day, time: st.time, lang: cl, nonce: st.nonce, test: !!d.test }, d.meta ? d.meta() : {}))
         .then(function (r) {
           st.busy = false; wait.remove();
           if (!r.ok) return say(t.neterr).then(function () { setChips([['retry', t.retry]], function () { submit(); }); });
           if (r.duplicate) return say(t.dup).then(afterwards);
           if (r.outcome === 'processed') return celebrate(r);
+          if (r.outcome === 'client_known') { st.local = ''; return say(t.known_client, 'ag-keys').then(afterwards); }
           if (r.outcome === 'not_available') return say(t.na(st.prop.ref)).then(function () { st.prop = null; st.nonce = ''; askRef(); });
           if (r.outcome === 'ref_not_found') return say(t.nf(st.prop.ref)).then(function () { st.prop = null; st.nonce = ''; askRef(); });
           return say(t.fail).then(afterwards);
@@ -887,6 +917,11 @@
         st.last = ''; return say(t.ask_last(st.first)).then(function () { ask('last', t.ph_last, 'text'); });
       }
       if (st.step === 'last') { st.last = cleanName(v); if (!st.last) return; me(st.last); return next('last'); }
+      if (st.step === 'local') {
+        var lp = v.toLowerCase().replace(/\s+/g, '').split('@')[0].replace(/[^a-z0-9._%+-]/g, '');
+        if (lp.length < 2) return say(t.bad_local).then(function () { ask('local', t.ph_local, 'text'); });
+        st.local = lp; me(lp + '@'); return checkClient();
+      }
       if (st.step === 'day') { st.day = v.slice(0, 60); me(st.day); return next('day'); }
       if (st.step === 'time') { st.time = v.slice(0, 40); me(st.time); return next('time'); }
     });

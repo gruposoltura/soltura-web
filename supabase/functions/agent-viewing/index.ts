@@ -3,9 +3,12 @@
 // Een samenwerkende makelaar vraagt in gesprek met Sola een bezichtiging aan: klant + bezichtigingsaanvraag in NEXUS via
 // nexus2_submit_form (makelaar = aanbrenger), bevestiging aan de makelaar en interne melding aan de behandelaar
 // (via n8n JARVIS-Sales-AgentPortalMail -> Brevo, afzender viewing@), regel in core.viewing_intake (menu Bezichtiging) en jarvis_runs.
-// De klant van de makelaar krijgt label agent_client (nooit in een mailing) en als eigenaar de behandelaar:
+// De klant van de makelaar krijgt label claimed (Client Claim System, nooit in een mailing) en als eigenaar de behandelaar:
 // Lisette voor portaalleads, terugval de salesrep van de woning (rpc nexus2_agent_viewing_rep).
 // Sinds 28-10-2026 is het portaal de enige route (de mailflow viewing@ is uit): een onbekende makelaar registreert zich via Sola.
+// Client Claim System (BD-171): de makelaar geeft naam + e-mail tot en met '@'. Bestaat die klant al bij ons (of bij een andere
+// makelaar), dan weigert Sola de aanvraag en krijgt Rick een Telegram-alarm met de gegevens van makelaar en klant. Is het de eigen
+// klant van dezelfde makelaar, dan hangt de nieuwe aanvraag aan het bestaande contact (geen dubbel). Claim duurt 90 dagen.
 // Opmaak van alle uitgaande mail: mail-shell.ts (huisstijlconventie, footer met API/GIPE/CEI/AIPP).
 //
 // Inloggen:  { action:'check', email, device? }  -> bekend + vertrouwd apparaat: { known, token, agent }
@@ -18,7 +21,9 @@
 //              choice: new | login (niets gewijzigd) | moved (ander kantoor) | name (andere naam) | mobile (nieuw nummer) | email (nieuw adres, nummer is van mij) | other
 // Apparaat vergeten: { action:'forget', device }
 // POST { action: 'property', token, ref }                 -> { found, available, ref, title, town, image, price, beds, url, has_keys, rep_first }
-// POST { action: 'submit', token, ref, client_first, client_last, day, time, lang, nonce, page_url, test }
+// POST { action: 'client_check', token, ref, client_first, client_last, client_local }
+//                                                         -> { status:'free'|'own'|'known' }  (Client Claim System, BD-171)
+// POST { action: 'submit', token, ref, client_first, client_last, client_local, day, time, lang, nonce, page_url, test }
 //                                                         -> { ok, outcome, rep:{name,full_name,email,mobile}, has_keys, mails_sent }
 // test=true (pagina met ?test=1): niets in NEXUS, alle mails alleen naar rick@ met [TEST], intake als dry-run.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
@@ -99,6 +104,20 @@ async function sendMails(list: any[], test: boolean, ref: string, notify: unknow
     if (!r.ok || !j.ok || !Array.isArray(j.results)) return fail(`relay ${r.status}`);
     return list.map((m, i) => ({ kind: m.kind, to: m.to, subject: m.subject, sent: !!(j.results[i] && j.results[i].sent), error: j.results[i] ? j.results[i].error : 'geen resultaat' }));
   } catch (e) { return fail(String((e as Error)?.message || e).slice(0, 160)); }
+}
+
+// ---------- Client Claim System (BD-171) ----------
+// De makelaar geeft alleen het deel tot en met '@'; daarmee checken we of de klant al bestaat zonder zijn adres te vragen.
+function localOf(v: unknown) {
+  return String(v ?? '').toLowerCase().replace(/\s+/g, '').split('@')[0].replace(/[^a-z0-9._%+-]/g, '').slice(0, 64);
+}
+function claimAlarm(ag: any, email: string, first: string, last: string, local: string, ref: string) {
+  const body = '\u{1F6A8} <b>Deze klant is al bij ons bekend.</b> De bezichtigingsaanvraag is geweigerd.'
+    + '\n\nKlant: <b>' + escH(((first || '') + ' ' + (last || '')).trim() || '-') + '</b>\nE-mail: ' + escH(local + '@')
+    + '\nWoning: ' + escH(ref || '-')
+    + '\n\nMakelaar: <b>' + escH(ag.name || '-') + '</b>' + (ag.company ? ' \u00b7 ' + escH(ag.company) : '')
+    + '\nE-mail: ' + escH(email) + (ag.mobile ? '\nMobiel: ' + escH(ag.mobile) : '');
+  return { source: 'AgentPortal', status: 'warn', title: '\u{1F6A8} Aanvraag geweigerd - klant al bekend', body };
 }
 
 // UTM op links naar de site (zelfde conventie als node "Pick Mails": utm_source=brevo, utm_medium=email, utm_campaign=viewing)
@@ -314,6 +333,29 @@ Deno.serve(async (req) => {
         has_keys: !!p.has_keys, rep_first: p.rep_name || null });
     }
 
+    // ---------- 4b. klantcheck (Client Claim System, BD-171) ----------
+    // Sola vraagt naam + e-mail tot en met '@' en checkt hier of de klant al bij ons bekend is.
+    if (b.action === 'client_check') {
+      const ag0 = await agentOf(ses.e);
+      if (!ag0 || ag0.id !== ses.c) return json({ ok: false, error: 'session' }, 401);
+      const local0 = localOf(b.client_local);
+      const first0 = str(b.client_first, 60), last0 = str(b.client_last, 80), ref0 = parseRef(b.ref);
+      if (local0.length < 2) return json({ ok: true, status: 'free', local: local0 });
+      const ck = (await rpc('nexus2_claim_check', { p_local: local0, p_agent_email: ses.e })) || {};
+      if (ck.status === 'known') {
+        await sendMails([], false, ref0 || 'claim', claimAlarm(ag0, ses.e, first0, last0, local0, ref0));
+        await logRun('warn', 'makelaarsportaal geweigerd - klant al bekend - ' + ses.e + (ref0 ? ' - ' + ref0 : '') + ' - ' + local0 + '@',
+          { channel: 'website', outcome: 'client_known', ref: ref0 || null, makelaar_email: ses.e, client_local: local0 });
+        try {
+          await rpc('nexus2_viewing_intake_log', { p: { source_msg_id: 'claim:' + crypto.randomUUID(), channel: 'website', sender_email: ses.e, sender_name: ag0.name || null,
+            agent_contact_id: ag0.id, agent_known: true, kind: 'viewing', outcome: 'client_known', missing: [], ref: ref0 || null,
+            client_name: ((first0 + ' ' + last0).trim() || null), language: lang4(b.lang), mails: [], dry_run: false } });
+        } catch (e) { console.error('INTAKE_ERR ' + String((e as Error)?.message || e)); }
+        return json({ ok: true, status: 'known' });
+      }
+      return json({ ok: true, status: ck.status === 'own' ? 'own' : 'free' });
+    }
+
     // ---------- 5. aanvraag verwerken ----------
     if (b.action === 'submit') {
       const test = b.test === true;
@@ -322,6 +364,21 @@ Deno.serve(async (req) => {
       const nonce = str(b.nonce, 64).replace(/[^a-z0-9-]/gi, '') || crypto.randomUUID();
       const srcId = 'web:' + nonce;
       const parsed = { client_first: str(b.client_first, 60), client_last: str(b.client_last, 80), ref: parseRef(b.ref), day: str(b.day, 60), time: str(b.time, 40), language: str(b.lang, 5) };
+      const local = localOf(b.client_local);
+      // Client Claim System (BD-171): bekend bij ons -> weigeren, alarm naar Rick. Eigen klant van dezelfde makelaar -> hergebruiken.
+      const claim: any = local.length >= 2 ? ((await rpc('nexus2_claim_check', { p_local: local, p_agent_email: ses.e })) || {}) : { status: 'free' };
+      if (claim.status === 'known') {
+        if (!test) await sendMails([], false, parsed.ref || 'claim', claimAlarm(ag, ses.e, parsed.client_first, parsed.client_last, local, parsed.ref));
+        await logRun('warn', (test ? '[TEST] ' : '') + 'makelaarsportaal geweigerd - klant al bekend - ' + ses.e + (parsed.ref ? ' - ' + parsed.ref : '') + ' - ' + local + '@',
+          { channel: 'website', outcome: 'client_known', ref: parsed.ref || null, makelaar_email: ses.e, client_local: local, dry_run: test });
+        try {
+          await rpc('nexus2_viewing_intake_log', { p: { source_msg_id: srcId, channel: 'website', sender_email: ses.e, sender_name: ag.name || null,
+            agent_contact_id: ag.id, agent_known: true, kind: 'viewing', outcome: 'client_known', missing: [], ref: parsed.ref || null,
+            client_name: ((parsed.client_first + ' ' + parsed.client_last).trim() || null), day: parsed.day, time: parsed.time,
+            language: lang4(b.lang), mails: [], dry_run: test } });
+        } catch (e) { console.error('INTAKE_ERR ' + String((e as Error)?.message || e)); }
+        return json({ ok: true, outcome: 'client_known' });
+      }
       const cx = await context(ses.e, parsed.ref, test);
       // Wie behandelt deze aanvraag: portaalleads naar Lisette (BD-165), terugval de salesrep van de woning (BD-170).
       const handler = (await rpc('nexus2_agent_viewing_rep', { p_ref: parsed.ref || null })) || { email: 'info@gruposoltura.com', name: 'Soltura Real Estate' };
@@ -340,14 +397,24 @@ Deno.serve(async (req) => {
         else {
           try {
             sub = await rpc('nexus2_submit_form', { p: {
-              // de klant blijft van de makelaar: label agent_client, nooit in een mailing (BD-170)
-              first_name: d.view.client_first || null, last_name: d.view.client_last || null, language: d.lang, role: 'agent_client', type: 'viewing', kind: 'viewing',
+              // de klant blijft 90 dagen van de makelaar: label claimed, nooit in een mailing (BD-170, BD-171)
+              first_name: d.view.client_first || null, last_name: d.view.client_last || null, language: d.lang, role: 'claimed', type: 'viewing', kind: 'viewing',
               message: 'Bezichtigingsverzoek ' + d.view.ref + ' voor klant ' + client + ', aangebracht door makelaar ' + (ag.name || ses.e) + (ag.company ? ' (' + ag.company + ')' : '') + ', ' + ses.e
                 + '. Gewenste dag: ' + d.view.day + ', tijd: ' + d.view.time + '. Via het makelaarsportaal op de website (Sola).' + (b.note ? ' Opmerking: ' + str(b.note, 500) : ''),
               subject: 'Bezichtigingsverzoek ' + d.view.ref + ' - ' + client, property_ref: d.view.ref, source: 'agent-portal', form_id: 'web-agent-viewing',
               introduced_by_email: ses.e, owner_email: handler.email || null, source_request_id: srcId,
               page_url: str(b.page_url, 300) || null, payload: { channel: 'agent-portal', agent_email: ses.e, day: d.view.day, time: d.view.time, chat_lang: str(b.lang, 5) }, utm: {} } }) || {};
           } catch (e) { sub = { error: String((e as Error)?.message || e).slice(0, 300) }; }
+          // zelfde klant van dezelfde makelaar: aanvraag aan het bestaande claim-contact hangen; daarna de claim vastleggen
+          const isId = (x: unknown) => /^[0-9a-f-]{36}$/i.test(String(x || ''));
+          if (claim.status === 'own' && isId(claim.contact_id) && isId(sub.request_id) && sub.contact_id !== claim.contact_id) {
+            try { await rpc('nexus2_claim_attach', { p_request_id: sub.request_id, p_keep_contact: claim.contact_id }); sub.contact_id = claim.contact_id; }
+            catch (e) { console.error('CLAIM_ATTACH_ERR ' + String((e as Error)?.message || e)); }
+          }
+          if (local.length >= 2 && isId(sub.contact_id)) {
+            try { await rpc('nexus2_claim_register', { p_contact_id: sub.contact_id, p_local: local }); }
+            catch (e) { console.error('CLAIM_REG_ERR ' + String((e as Error)?.message || e)); }
+          }
         }
       }
       const res = VM.compose(ctx, d, { submit: sub });
@@ -369,7 +436,7 @@ Deno.serve(async (req) => {
       await logRun(res.outcome === 'nexus_failed' || failed ? 'warn' : 'ok',
         (test ? '[TEST] ' : '') + 'makelaarsportaal ' + res.outcome + ' - ' + ses.e + (d.view.ref ? ' - ' + d.view.ref : '') + (client ? ' - ' + client : '')
           + (d.missing && d.missing.length ? ' (ontbrak: ' + d.missing.join(', ') + ')' : '') + (failed ? ' - MAIL NIET VERSTUURD' : '') + (sub.error ? ' - ' + sub.error : ''),
-        { channel: 'website', outcome: res.outcome, ref: d.view.ref, makelaar_email: ses.e, handler: handler.email || null, handler_via: handler.via || null, mails_sent: mails.filter((m) => m.sent).length, mails_failed: mails.filter((m) => !m.sent).length, request_id: intake.request_id, dry_run: test });
+        { channel: 'website', outcome: res.outcome, ref: d.view.ref, makelaar_email: ses.e, handler: handler.email || null, handler_via: handler.via || null, claim: claim.status || null, client_local: local || null, mails_sent: mails.filter((m) => m.sent).length, mails_failed: mails.filter((m) => !m.sent).length, request_id: intake.request_id, dry_run: test });
       return json({ ok: true, outcome: res.outcome, missing: d.missing || [], has_keys: !!p.has_keys,
         rep: res.outcome === 'processed' ? { name: p.rep_name || null, full_name: p.rep_full_name || null, email: p.rep_email || null, mobile: p.rep_mobile || null } : null,
         mails_sent: mails.filter((m) => m.sent && m.kind === 'confirmation').length > 0, test });
