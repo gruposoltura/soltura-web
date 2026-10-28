@@ -1,8 +1,10 @@
-// agent-viewing (24-10-2026, registratie en e-mailcode 28-10-2026, BD-169): makelaarsportaal op de website
-// (agents.gruposoltura.com -> /en/agents/ · /nl/makelaars/ · /sv/maklare/ · /es/agentes/).
-// Een samenwerkende makelaar vraagt in gesprek met Sola een bezichtiging aan: suspect + bezichtigingsaanvraag in NEXUS via
-// nexus2_submit_form (makelaar = aanbrenger, verkoper = eigenaar), bevestiging aan de makelaar en interne melding aan de verkoper
+// agent-viewing (24-10-2026, registratie en e-mailcode 28-10-2026 BD-169, makelaarsklant + behandelaar BD-170):
+// makelaarsportaal op de website (agents.gruposoltura.com -> /en/agents/ · /nl/makelaars/ · /sv/maklare/ · /es/agentes/).
+// Een samenwerkende makelaar vraagt in gesprek met Sola een bezichtiging aan: klant + bezichtigingsaanvraag in NEXUS via
+// nexus2_submit_form (makelaar = aanbrenger), bevestiging aan de makelaar en interne melding aan de behandelaar
 // (via n8n JARVIS-Sales-AgentPortalMail -> Brevo, afzender viewing@), regel in core.viewing_intake (menu Bezichtiging) en jarvis_runs.
+// De klant van de makelaar krijgt label agent_client (nooit in een mailing) en als eigenaar de behandelaar:
+// Lisette voor portaalleads, terugval de salesrep van de woning (rpc nexus2_agent_viewing_rep).
 // Sinds 28-10-2026 is het portaal de enige route (de mailflow viewing@ is uit): een onbekende makelaar registreert zich via Sola.
 // Opmaak van alle uitgaande mail: mail-shell.ts (huisstijlconventie, footer met API/GIPE/CEI/AIPP).
 //
@@ -321,12 +323,14 @@ Deno.serve(async (req) => {
       const srcId = 'web:' + nonce;
       const parsed = { client_first: str(b.client_first, 60), client_last: str(b.client_last, 80), ref: parseRef(b.ref), day: str(b.day, 60), time: str(b.time, 40), language: str(b.lang, 5) };
       const cx = await context(ses.e, parsed.ref, test);
+      // Wie behandelt deze aanvraag: portaalleads naar Lisette (BD-165), terugval de salesrep van de woning (BD-170).
+      const handler = (await rpc('nexus2_agent_viewing_rep', { p_ref: parsed.ref || null })) || { email: 'info@gruposoltura.com', name: 'Soltura Real Estate' };
       const summary = `Aanvraag via het makelaarsportaal (gesprek met Sola) door ${ag.name || ses.e}${ag.company ? ' (' + ag.company + ')' : ''}.\n`
         + `Woning: ${parsed.ref}\nKlant: ${parsed.client_first} ${parsed.client_last}\nGewenste dag: ${parsed.day}\nGewenste tijd: ${parsed.time}`
         + (b.note ? `\nOpmerking van de makelaar: ${str(b.note, 500)}` : '');
       const ctx: any = { lang: parsed.language, dry: false /* testmails regelen we hieronder */, channel: 'website',
         sender: { email: ses.e, name: ag.name || '' }, headers: {}, agent: { id: ag.id, name: ag.name, first_name: ag.first_name, company: ag.company, mobile: ag.mobile },
-        openChain: null, repliesLast24h: 0, property: cx.property || null, parsed,
+        openChain: null, repliesLast24h: 0, property: cx.property || null, parsed, handler,
         original: { subject: 'Makelaarsportaal · ' + parsed.ref + ' · ' + (parsed.client_first + ' ' + parsed.client_last).trim(), body: summary } };
       const d = VM.decide(ctx);
       const client = (d.view.client_first + ' ' + d.view.client_last).trim();
@@ -336,11 +340,12 @@ Deno.serve(async (req) => {
         else {
           try {
             sub = await rpc('nexus2_submit_form', { p: {
-              first_name: d.view.client_first || null, last_name: d.view.client_last || null, language: d.lang, role: 'suspect', type: 'viewing', kind: 'viewing',
+              // de klant blijft van de makelaar: label agent_client, nooit in een mailing (BD-170)
+              first_name: d.view.client_first || null, last_name: d.view.client_last || null, language: d.lang, role: 'agent_client', type: 'viewing', kind: 'viewing',
               message: 'Bezichtigingsverzoek ' + d.view.ref + ' voor klant ' + client + ', aangebracht door makelaar ' + (ag.name || ses.e) + (ag.company ? ' (' + ag.company + ')' : '') + ', ' + ses.e
                 + '. Gewenste dag: ' + d.view.day + ', tijd: ' + d.view.time + '. Via het makelaarsportaal op de website (Sola).' + (b.note ? ' Opmerking: ' + str(b.note, 500) : ''),
               subject: 'Bezichtigingsverzoek ' + d.view.ref + ' - ' + client, property_ref: d.view.ref, source: 'agent-portal', form_id: 'web-agent-viewing',
-              introduced_by_email: ses.e, owner_email: (cx.property && cx.property.rep_email) || null, source_request_id: srcId,
+              introduced_by_email: ses.e, owner_email: handler.email || null, source_request_id: srcId,
               page_url: str(b.page_url, 300) || null, payload: { channel: 'agent-portal', agent_email: ses.e, day: d.view.day, time: d.view.time, chat_lang: str(b.lang, 5) }, utm: {} } }) || {};
           } catch (e) { sub = { error: String((e as Error)?.message || e).slice(0, 300) }; }
         }
@@ -357,14 +362,14 @@ Deno.serve(async (req) => {
       const intake = { source_msg_id: srcId, channel: 'website', sender_email: ses.e, sender_name: ag.name || null, agent_contact_id: ag.id, agent_known: true,
         kind: 'viewing', outcome: res.outcome, missing: d.missing || [], ref: d.view.ref || null, property_id: p.id || null, client_name: client || null,
         day: d.view.day, time: d.view.time, language: d.lang, request_id: isUuid(sub.request_id) ? sub.request_id : null,
-        client_contact_id: isUuid(sub.contact_id) ? sub.contact_id : null, rep_email: res.outcome === 'processed' || res.outcome === 'nexus_failed' ? (p.rep_email || null) : null,
+        client_contact_id: isUuid(sub.contact_id) ? sub.contact_id : null, rep_email: res.outcome === 'processed' || res.outcome === 'nexus_failed' ? (handler.email || p.rep_email || null) : null,
         mails, note: sub.error || null, dry_run: test };
       try { await rpc('nexus2_viewing_intake_log', { p: intake }); } catch (e) { console.error('INTAKE_ERR ' + String((e as Error)?.message || e)); }
       const failed = mails.some((m) => !m.sent);
       await logRun(res.outcome === 'nexus_failed' || failed ? 'warn' : 'ok',
         (test ? '[TEST] ' : '') + 'makelaarsportaal ' + res.outcome + ' - ' + ses.e + (d.view.ref ? ' - ' + d.view.ref : '') + (client ? ' - ' + client : '')
           + (d.missing && d.missing.length ? ' (ontbrak: ' + d.missing.join(', ') + ')' : '') + (failed ? ' - MAIL NIET VERSTUURD' : '') + (sub.error ? ' - ' + sub.error : ''),
-        { channel: 'website', outcome: res.outcome, ref: d.view.ref, makelaar_email: ses.e, mails_sent: mails.filter((m) => m.sent).length, mails_failed: mails.filter((m) => !m.sent).length, request_id: intake.request_id, dry_run: test });
+        { channel: 'website', outcome: res.outcome, ref: d.view.ref, makelaar_email: ses.e, handler: handler.email || null, handler_via: handler.via || null, mails_sent: mails.filter((m) => m.sent).length, mails_failed: mails.filter((m) => !m.sent).length, request_id: intake.request_id, dry_run: test });
       return json({ ok: true, outcome: res.outcome, missing: d.missing || [], has_keys: !!p.has_keys,
         rep: res.outcome === 'processed' ? { name: p.rep_name || null, full_name: p.rep_full_name || null, email: p.rep_email || null, mobile: p.rep_mobile || null } : null,
         mails_sent: mails.filter((m) => m.sent && m.kind === 'confirmation').length > 0, test });

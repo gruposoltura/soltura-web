@@ -2,6 +2,8 @@
 // Die mailflow (viewing@) is sinds 28-10-2026 gestopt (BD-169), dus dit bestand is nu de enige bron voor deze mails.
 // Registratiemails staan in index.ts; de wrapper (header, rode balk, footer met API/GIPE/CEI/AIPP) staat in mail-shell.ts
 // en is dezelfde voor alle uitgaande mail - huisstijlconventie, zie vault [[MAIL - mailers en verzendstructuur]].
+// 28-10-2026 (BD-170): de interne melding gaat naar de behandelaar (ctx.handler: Lisette, terugval de salesrep van de
+// woning) en de term 'verkoper' is overal 'salesrep' geworden - een verkoper is de eigenaar die zijn huis verkoopt.
 // deno-lint-ignore-file
 import { mailShell } from './mail-shell.ts';
 
@@ -156,7 +158,7 @@ var sub = res.submit || {};
 var ok = !!sub.request_id && !sub.error;
 if (!ok) outcome = 'nexus_failed';
 var p = ctx.property || {};
-var repName = p.rep_name || (lang === 'nl' ? 'onze verkoopadviseur' : (lang === 'es' ? 'nuestro asesor' : 'our sales advisor'));
+var repName = p.rep_name || (lang === 'nl' ? 'onze salesrep' : (lang === 'es' ? 'nuestro asesor' : 'our salesrep'));
 if (ok) {
 var S7 = { nl: 'Bezichtigingsaanvraag ' + v.ref + ' ontvangen en doorgestuurd', en: 'Viewing request ' + v.ref + ' received and forwarded', es: 'Solicitud de visita ' + v.ref + ' recibida y transmitida' }[lang];
 var keys = {
@@ -165,29 +167,31 @@ en: p.has_keys ? 'We hold the keys to this property; ' + esc(repName) + ' will c
 es: p.has_keys ? 'Tenemos las llaves de este inmueble; ' + esc(repName) + ' se pondra en contacto con usted para la recogida de llaves y para confirmar la cita.' : esc(repName) + ' se pondra en contacto con usted para confirmar la cita.'
 }[lang];
 var B7 = {
-nl: '<p>Uw bezichtigingsaanvraag is <b>met succes verwerkt</b> en doorgestuurd naar de verantwoordelijke verkoper uit ons team, <b>' + esc(repName) + '</b>.</p>',
-en: '<p>Your viewing request has been <b>processed successfully</b> and forwarded to the responsible sales advisor in our team, <b>' + esc(repName) + '</b>.</p>',
+nl: '<p>Uw bezichtigingsaanvraag is <b>met succes verwerkt</b> en doorgestuurd naar de verantwoordelijke salesrep uit ons team, <b>' + esc(repName) + '</b>.</p>',
+en: '<p>Your viewing request has been <b>processed successfully</b> and forwarded to the responsible salesrep in our team, <b>' + esc(repName) + '</b>.</p>',
 es: '<p>Su solicitud de visita se ha <b>procesado correctamente</b> y se ha transmitido al asesor responsable de nuestro equipo, <b>' + esc(repName) + '</b>.</p>'
 }[lang];
 var repLine = '<b>' + esc(p.rep_full_name || repName) + '</b>' + (p.rep_email ? '<br><a href="mailto:' + esc(p.rep_email) + '" style="color:#e8231a;text-decoration:none">' + esc(p.rep_email) + '</a>' : '')
 + (p.rep_mobile ? '<br><a href="tel:' + esc(String(p.rep_mobile).replace(/[^0-9+]/g, '')) + '" style="color:#333;text-decoration:none">' + esc(p.rep_mobile) + '</a>' : '');
-var F7 = { nl: ['Woning', 'Klant', 'Gewenst', 'Verkoper'], en: ['Property', 'Client', 'Requested', 'Sales advisor'], es: ['Inmueble', 'Cliente', 'Solicitado', 'Asesor'] }[lang];
+var F7 = { nl: ['Woning', 'Klant', 'Gewenst', 'Salesrep'], en: ['Property', 'Client', 'Requested', 'Salesrep'], es: ['Inmueble', 'Cliente', 'Solicitado', 'Asesor'] }[lang];
 var NOTE7 = { nl: 'De afspraak zelf is definitief zodra ' + esc(repName) + ' deze met u heeft bevestigd.', en: 'The appointment itself is final once ' + esc(repName) + ' has confirmed it with you.', es: 'La cita sera definitiva cuando ' + esc(repName) + ' la confirme con usted.' }[lang];
 M('confirmation', S7, '<p>' + t.hi(agentName) + '</p>' + B7 + box(kv([[F7[0], v.ref + (p.title ? ' · ' + p.title : '') + (p.town ? ' (' + p.town + ')' : '')], [F7[1], client], [F7[2], when], [F7[3], repLine, true]]), 'ok')
 + '<p>' + keys + '</p><p style="font-size:13px;color:#666">' + NOTE7 + '</p><p>' + t.sign + '</p>');
 }
 var ag = ctx.agent || {};
 var confirm = mails[0];
-var banner = ok ? '' : box('<b>LET OP: aanmaken in NEXUS is mislukt</b> – de makelaar heeft GEEN bevestiging gekregen. Maak de suspect en aanvraag handmatig aan en neem zelf contact op met de makelaar.<br><span style="font-size:12px;color:#777">' + esc(sub.error || 'geen request_id terug') + '</span>', 'bad');
+var banner = ok ? '' : box('<b>LET OP: aanmaken in NEXUS is mislukt</b> – de makelaar heeft GEEN bevestiging gekregen. Maak de klant en aanvraag handmatig aan en neem zelf contact op met de makelaar.<br><span style="font-size:12px;color:#777">' + esc(sub.error || 'geen request_id terug') + '</span>', 'bad');
 var inner = banner + '<p style="font-size:16px;font-weight:bold;color:#e8231a;margin-top:0">' + (p.has_keys ? 'WIJ HEBBEN DE SLEUTELS – neem zelf contact op met de makelaar voor sleuteloverdracht en afspraak.' : 'Geen sleutels bij ons – bevestig de afspraak met de makelaar.') + '</p>'
-+ kv([['Woning', v.ref + (p.title ? ' · ' + p.title : '') + (p.town ? ' (' + p.town + ')' : '')], ['Klant (suspect)', client], ['Gewenste dag', v.day], ['Gewenste tijd', v.time],
++ kv([['Woning', v.ref + (p.title ? ' · ' + p.title : '') + (p.town ? ' (' + p.town + ')' : '')], ['Klant (makelaarsklant)', client], ['Gewenste dag', v.day], ['Gewenste tijd', v.time],
 ['Makelaar', ag.name || ctx.sender.name], ['Makelaardij', ag.company], ['E-mail makelaar', to],
+['Salesrep van de woning', (p.rep_full_name || p.rep_name || '-') + (p.rep_email ? ' (' + p.rep_email + ')' : '')],
 ctx.channel === 'website' ? ['Bron', 'Makelaarsportaal op de website (gesprek met Sola)'] : null, ctx.channel === 'website' && ag.mobile ? ['Mobiel makelaar', ag.mobile] : null,
-['In NEXUS', ok ? (sub.duplicate ? 'bestond al (zelfde aanvraag)' : 'suspect + bezichtigingsaanvraag aangemaakt, aangedragen door de makelaar') : 'MISLUKT']])
+['In NEXUS', ok ? (sub.duplicate ? 'bestond al (zelfde aanvraag)' : 'klant (label makelaarsklant) + bezichtigingsaanvraag aangemaakt, aangedragen door de makelaar') : 'MISLUKT']])
 + (ctx.original ? '<div style="margin-top:16px;font-family:Arial,sans-serif;font-weight:bold">' + (ctx.channel === 'website' ? 'Samenvatting van het gesprek' : 'Oorspronkelijk bericht') + (ctx.original.subject ? ' – ' + esc(ctx.original.subject) : '') + '</div><div style="background:#f4f4f4;border:1px solid #e3e3e3;border-radius:4px;padding:10px;font-family:Arial,sans-serif;font-size:13px;white-space:pre-wrap">' + esc(ctx.original.body || '') + '</div>' : '')
 + (confirm ? '<div style="margin-top:16px;font-family:Arial,sans-serif;font-weight:bold">Bevestiging die naar de makelaar ging</div><div style="font-family:Arial,sans-serif;font-size:12px;color:#777">Onderwerp: ' + esc(confirm.subject) + '</div>' : '')
 + '<p style="font-size:13px;margin-top:16px">Antwoorden op deze mail gaan rechtstreeks naar de makelaar.</p>';
-mails.push({ kind: 'rep_notification', to: p.rep_email || 'info@gruposoltura.com', toName: p.rep_name || '', replyTo: to, internal: true,
+var hd = ctx.handler || {};
+mails.push({ kind: 'rep_notification', to: hd.email || p.rep_email || 'info@gruposoltura.com', toName: hd.name || p.rep_name || '', replyTo: to, internal: true,
 subject: (ok ? '' : '[ACTIE] ') + 'Bezichtigingsaanvraag ' + v.ref + ' – ' + client + ' – via ' + (ag.company || ag.name || to),
 html: wrap(inner, 'nl', true, ctx.channel === 'website') });
 }
