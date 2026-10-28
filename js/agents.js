@@ -1,13 +1,17 @@
-/* Grupo Soltura website — Makelaarsportaal met live assistent Sola (24-10-2026).
+/* Grupo Soltura website — Makelaarsportaal met live assistent Sola (24-10-2026; registratie en e-mailcode 28-10-2026, BD-169).
    /en/agents/ · /nl/makelaars/ · /sv/maklare/ · /es/agentes/  (agents.gruposoltura.com verwijst hierheen via een Cloudflare-regel; geen link op de site, noindex)
-   1. Venster: e-mailadres. Alleen een bekende samenwerkende makelaar (contact met label agent in NEXUS) komt verder;
-      een onbekend adres gaat terug naar de homepage.
-   2. Gesprek met Sola, dezelfde stappen en verplichte velden als een mail aan viewing@gruposoltura.com
-      (n8n JARVIS-AppointmentAgent-v2): woningreferentie -> voor- en achternaam klant -> dag -> tijd -> versturen.
+   Het portaal is sinds 28-10-2026 de enige route voor bezichtigingen door makelaars (de mailflow viewing@ is uit).
+   1. Venster: e-mailadres. Bekende samenwerkende makelaar (label agent in NEXUS): op een vertrouwd apparaat (localStorage gs_agent_dev, 180 dagen)
+      direct verder, anders eerst een code van 6 cijfers per mail. Onder het venster staat altijd "Registreer je hier als makelaar".
+   2. Registratie in gesprek met Sola: makelaardij, voor- en achternaam, e-mail (= login), mobiel. Edge function controleert of e-mail of mobiel
+      al bekend is; zo ja vraagt Sola wat er veranderd is (ander kantoor, andere naam, nieuw nummer, oud e-mailadres) en wordt het bestaande
+      contact bijgewerkt in plaats van een dubbel contact. Altijd bevestigen met een code naar het opgegeven e-mailadres; daarna meteen door naar 3.
+   3. Gesprek met Sola: woningreferentie -> voor- en achternaam klant -> dag -> tijd -> versturen.
       Tussendoor controleert Sola of de woning bestaat en beschikbaar is (onder bod = geen bezichtigingen) en of wij de sleutels hebben.
-   3. Edge function agent-viewing verwerkt de aanvraag precies zoals de mailflow (suspect + aanvraag in NEXUS met de makelaar als aanbrenger,
-      bevestigingsmail aan de makelaar, melding aan de verkoper, regel in menu Bezichtiging), alleen met bron 'agent-portal'.
-   Testen: ?test=1 -> niets in NEXUS, mails alleen naar rick@.
+   4. Edge function agent-viewing verwerkt de aanvraag (suspect + aanvraag in NEXUS met de makelaar als aanbrenger, bevestigingsmail aan de
+      makelaar, melding aan de verkoper, regel in menu Bezichtiging), bron 'agent-portal'.
+   Taal: bij binnenkomst de taal van de browser (eenmaal per sessie), daarna de taalknoppen in het paneel.
+   Testen: ?test=1 -> niets in NEXUS, mails alleen naar rick@ (geldt voor aanvragen, niet voor registratie en inlogcode).
    Gedeeld door de app (PARTNERS.html + PARTNERS.bind) en de statische build (PARTNERS.html). */
 (function (root) {
   'use strict';
@@ -34,10 +38,10 @@
       f: [['bolt', 'Real time', 'No waiting for an email: ' + NAME + ' checks the property and processes your request on the spot.'],
         ['key', 'Keys', 'You immediately know whether we hold the keys to the home.'],
         ['user', 'Your contact', 'You get the name, email and mobile of the responsible sales advisor.']],
-      email_alt: 'Prefer email? viewing@gruposoltura.com still works as before.',
+      email_alt: "Not registered yet? Register as a partner agent in one minute.",
       g_h: 'Partner agents only', g_p: 'Enter the email address you are registered with as a partner agent of Soltura Real Estate.', g_ph: 'your@agency.com', g_btn: 'Continue', g_bad: 'Please enter a valid email address.',
       g_busy: 'Checking…', g_rate: 'Too many attempts. Please try again in a few minutes.', g_err: 'Something went wrong. Please try again.',
-      g_no: 'This address is not registered with us as a partner agent. We are taking you to our homepage.', g_no2: 'Want to work with us? Email viewing@gruposoltura.com.',
+      g_no: "We do not know this address as a partner agent yet.", g_no2: "New here or did your details change? Register here as an agent.",
       sub: 'Live viewing assistant', logout: 'Not you? Log out', test: 'TEST MODE · nothing is saved, emails go to Rick only',
       hi: function (f, c) { return 'Hi ' + f + '! Great to have you here' + (c ? ' on behalf of ' + c : '') + '. I will book the viewing for your client right away.'; },
       ask_ref: 'Which home would your client like to see? Type our reference (for example RH550) or paste the link to the home.', ph_ref: 'Reference or link',
@@ -62,6 +66,67 @@
       fail: 'Our system could not process the request just now. Our team has been alerted and will contact you personally.',
       neterr: 'I could not reach our system. Please try again.', retry: 'Try again', expired: 'Your session has expired. Please enter your email address again.',
       next_another: function (f) { return 'Shall I book another viewing for you, ' + f + '?'; },
+      g_reg: "Register here as an agent",
+      g_or: "Not registered yet?",
+      c_h: "Check your email",
+      c_p: "We sent a 6-digit code to {m}. Enter it to sign in on this device; you only need to do this once per device.",
+      c_ph: "6-digit code",
+      c_btn: "Sign in",
+      c_wrong: "That code is not correct. Please try again.",
+      c_expired: "This code has expired. Request a new one.",
+      c_attempts: "Too many attempts. Request a new code.",
+      c_resend: "Send a new code",
+      c_back: "Use another email address",
+      c_sent: "A new code is on its way.",
+      c_mail: "We could not send the code just now. Please try again in a moment.",
+      r_hi: "Welcome! I will register you as a partner agent of Soltura Real Estate. It takes about a minute.",
+      r_company: "Which agency do you work for?",
+      ph_company: "Agency name",
+      r_first: "And your first name?",
+      ph_rfirst: "Your first name",
+      r_last: "Thanks, {f}. And your last name?",
+      ph_rlast: "Your last name",
+      r_email: "Which email address do you work with? It will also be your login for this portal.",
+      ph_email: "you@agency.com",
+      r_mobile: "And your mobile number, with country code?",
+      ph_mobile: "+34 600 123 456",
+      r_bad_name: "Please type just the name.",
+      r_bad_email: "That email address does not look right. Could you check it?",
+      r_bad_mobile: "That does not look like a mobile number. Please include the country code, for example +34 600 123 456.",
+      r_sum_h: "Your registration",
+      r_sum: "Is everything correct?",
+      r_ok: "Yes, register me",
+      r_fix: "Change something",
+      r_which: "What would you like to change?",
+      f_company: "Agency",
+      f_name: "Name",
+      f_email: "Email",
+      f_mobile: "Mobile",
+      r_checking: "One moment, I am checking our records…",
+      k_same: "You are already registered with us with this email address and mobile number.",
+      k_same_ok: "I will send you a code so you can sign in.",
+      k_diff: "Your agency or name is different from what we have. What has changed?",
+      k_email: "We already know this email address.",
+      k_email_q: "What has changed?",
+      k_mobile: "This mobile number is already known to us, together with the email address {m}.",
+      k_mobile_q: "What is the situation?",
+      o_moved: "I moved to another agency",
+      o_name: "My name is different",
+      o_mobile: "I have a new mobile number",
+      o_email: "That was my old email address",
+      o_notmine: "That is not my number",
+      o_other: "Something else",
+      o_login: "Nothing changed, sign me in",
+      r_note: "Briefly, what has changed?",
+      ph_note: "e.g. I now work for Casa Sol",
+      r_notmine: "Then please give me your own mobile number.",
+      r_code: "To confirm, I have sent a 6-digit code to {m}. Please enter it here.",
+      ph_code: "6-digit code",
+      r_done_new: "Welcome aboard, {f}! You are now registered as a partner agent.",
+      r_done_upd: "Thank you, {f}. Your details are up to date.",
+      r_done_in: "Welcome back, {f}!",
+      r_err: "Something went wrong on our side. Please try again.",
+      r_rate: "Too many attempts. Please try again in a few minutes.",
     },
     nl: {
       title: 'Makelaarsportaal', uo: 'Onder bod / niet beschikbaar', kicker: 'Voor onze samenwerkende makelaars', h1: 'Vraag realtime een bezichtiging aan', h1_hi: function (f) { return 'Welkom, ' + f; },
@@ -69,10 +134,10 @@
       f: [['bolt', 'Realtime', 'Geen wachten op een mail: ' + NAME + ' controleert de woning en verwerkt je aanvraag meteen.'],
         ['key', 'Sleutels', 'Je weet direct of wij de sleutels van de woning hebben.'],
         ['user', 'Je contactpersoon', 'Je krijgt de naam, het e-mailadres en mobiele nummer van de verantwoordelijke verkoper.']],
-      email_alt: 'Liever per e-mail? viewing@gruposoltura.com werkt gewoon zoals altijd.',
+      email_alt: "Nog niet geregistreerd? Registreer je in een minuut als samenwerkende makelaar.",
       g_h: 'Alleen voor samenwerkende makelaars', g_p: 'Vul het e-mailadres in waarmee je bij Soltura Real Estate bent geregistreerd als samenwerkende makelaar.', g_ph: 'jij@makelaardij.nl', g_btn: 'Verder', g_bad: 'Vul een geldig e-mailadres in.',
       g_busy: 'Even controleren…', g_rate: 'Te veel pogingen. Probeer het over een paar minuten opnieuw.', g_err: 'Er ging iets mis. Probeer het opnieuw.',
-      g_no: 'Dit adres is bij ons niet bekend als samenwerkende makelaar. We brengen je naar onze homepage.', g_no2: 'Wil je met ons samenwerken? Mail naar viewing@gruposoltura.com.',
+      g_no: "Dit adres kennen we nog niet als samenwerkende makelaar.", g_no2: "Nieuw hier of zijn je gegevens veranderd? Registreer je hier als makelaar.",
       sub: 'Live bezichtigingsassistent', logout: 'Niet u? Uitloggen', test: 'TESTMODUS · er wordt niets opgeslagen, mails gaan alleen naar Rick',
       hi: function (f, c) { return 'Hoi ' + f + '! Fijn dat je er bent' + (c ? ' namens ' + c : '') + '. Ik regel de bezichtiging voor je klant meteen.'; },
       ask_ref: 'Welke woning wil je klant zien? Typ onze referentie (bijvoorbeeld RH550) of plak de link naar de woning.', ph_ref: 'Referentie of link',
@@ -97,6 +162,67 @@
       fail: 'Ons systeem kon de aanvraag zojuist niet verwerken. Ons team is gewaarschuwd en neemt persoonlijk contact met je op.',
       neterr: 'Ik kon ons systeem niet bereiken. Probeer het nog eens.', retry: 'Opnieuw proberen', expired: 'Je sessie is verlopen. Vul je e-mailadres opnieuw in.',
       next_another: function (f) { return 'Zal ik nog een bezichtiging voor je regelen, ' + f + '?'; },
+      g_reg: "Registreer je hier als makelaar",
+      g_or: "Nog niet geregistreerd?",
+      c_h: "Kijk in je mail",
+      c_p: "We hebben een code van 6 cijfers gestuurd naar {m}. Vul hem in om op dit apparaat in te loggen; dat hoeft maar één keer per apparaat.",
+      c_ph: "Code van 6 cijfers",
+      c_btn: "Inloggen",
+      c_wrong: "Die code klopt niet. Probeer het nog eens.",
+      c_expired: "Deze code is verlopen. Vraag een nieuwe aan.",
+      c_attempts: "Te veel pogingen. Vraag een nieuwe code aan.",
+      c_resend: "Stuur een nieuwe code",
+      c_back: "Ander e-mailadres gebruiken",
+      c_sent: "Er is een nieuwe code onderweg.",
+      c_mail: "De code kon zojuist niet worden verstuurd. Probeer het zo nog eens.",
+      r_hi: "Welkom! Ik registreer je als samenwerkende makelaar van Soltura Real Estate. Het kost ongeveer een minuut.",
+      r_company: "Voor welke makelaardij werk je?",
+      ph_company: "Naam makelaardij",
+      r_first: "En je voornaam?",
+      ph_rfirst: "Je voornaam",
+      r_last: "Dank je, {f}. En je achternaam?",
+      ph_rlast: "Je achternaam",
+      r_email: "Met welk e-mailadres werk je? Dat is meteen je login voor dit portaal.",
+      ph_email: "jij@makelaardij.nl",
+      r_mobile: "En je mobiele nummer, met landcode?",
+      ph_mobile: "+34 600 123 456",
+      r_bad_name: "Typ alleen de naam.",
+      r_bad_email: "Dat e-mailadres lijkt niet te kloppen. Wil je het even controleren?",
+      r_bad_mobile: "Dat lijkt geen mobiel nummer. Zet de landcode erbij, bijvoorbeeld +34 600 123 456.",
+      r_sum_h: "Je registratie",
+      r_sum: "Klopt alles?",
+      r_ok: "Ja, registreer me",
+      r_fix: "Iets wijzigen",
+      r_which: "Wat wil je wijzigen?",
+      f_company: "Makelaardij",
+      f_name: "Naam",
+      f_email: "E-mail",
+      f_mobile: "Mobiel",
+      r_checking: "Moment, ik kijk even in ons systeem…",
+      k_same: "Je staat al bij ons geregistreerd met dit e-mailadres en mobiele nummer.",
+      k_same_ok: "Ik stuur je een code waarmee je inlogt.",
+      k_diff: "Je makelaardij of naam wijkt af van wat wij hebben. Wat is er veranderd?",
+      k_email: "Dit e-mailadres kennen we al.",
+      k_email_q: "Wat is er veranderd?",
+      k_mobile: "Dit mobiele nummer kennen we al, samen met het e-mailadres {m}.",
+      k_mobile_q: "Hoe zit het?",
+      o_moved: "Ik werk bij een ander kantoor",
+      o_name: "Mijn naam is anders",
+      o_mobile: "Ik heb een nieuw mobiel nummer",
+      o_email: "Dat was mijn oude e-mailadres",
+      o_notmine: "Dat is niet mijn nummer",
+      o_other: "Iets anders",
+      o_login: "Niets veranderd, log me in",
+      r_note: "Wat is er in het kort veranderd?",
+      ph_note: "bijv. ik werk nu bij Casa Sol",
+      r_notmine: "Geef me dan je eigen mobiele nummer.",
+      r_code: "Ter bevestiging heb ik een code van 6 cijfers gestuurd naar {m}. Vul hem hier in.",
+      ph_code: "Code van 6 cijfers",
+      r_done_new: "Welkom, {f}! Je bent nu geregistreerd als samenwerkende makelaar.",
+      r_done_upd: "Dank je, {f}. Je gegevens zijn bijgewerkt.",
+      r_done_in: "Welkom terug, {f}!",
+      r_err: "Er ging bij ons iets mis. Probeer het nog eens.",
+      r_rate: "Te veel pogingen. Probeer het over een paar minuten opnieuw.",
     },
     es: {
       title: 'Portal de agentes', uo: 'Reservada / no disponible', kicker: 'Para nuestros agentes colaboradores', h1: 'Solicite una visita en tiempo real', h1_hi: function (f) { return 'Bienvenido/a, ' + f; },
@@ -104,10 +230,10 @@
       f: [['bolt', 'En tiempo real', 'Sin esperar un correo: ' + NAME + ' comprueba la vivienda y tramita su solicitud al momento.'],
         ['key', 'Llaves', 'Sabrá enseguida si tenemos las llaves de la vivienda.'],
         ['user', 'Su contacto', 'Recibe el nombre, correo y móvil del asesor responsable.']],
-      email_alt: '¿Prefiere el correo? viewing@gruposoltura.com sigue funcionando como siempre.',
+      email_alt: "¿Aún no estás registrado/a? Regístrate como agente colaborador en un minuto.",
       g_h: 'Solo para agentes colaboradores', g_p: 'Introduzca el correo con el que está registrado como agente colaborador de Soltura Real Estate.', g_ph: 'su@agencia.es', g_btn: 'Continuar', g_bad: 'Introduzca un correo válido.',
       g_busy: 'Comprobando…', g_rate: 'Demasiados intentos. Inténtelo de nuevo en unos minutos.', g_err: 'Algo ha fallado. Inténtelo de nuevo.',
-      g_no: 'Este correo no figura como agente colaborador. Le llevamos a nuestra página principal.', g_no2: '¿Quiere colaborar con nosotros? Escriba a viewing@gruposoltura.com.',
+      g_no: "Todavía no conocemos este correo como agente colaborador.", g_no2: "¿Eres nuevo/a o han cambiado tus datos? Regístrate aquí como agente.",
       sub: 'Asistente de visitas en directo', logout: '¿No es usted? Cerrar sesión', test: 'MODO PRUEBA · no se guarda nada, los correos van solo a Rick',
       hi: function (f, c) { return '¡Hola ' + f + '! Qué bien tenerte aquí' + (c ? ' en nombre de ' + c : '') + '. Organizo la visita para tu cliente ahora mismo.'; },
       ask_ref: '¿Qué vivienda quiere ver tu cliente? Escribe nuestra referencia (por ejemplo RH550) o pega el enlace de la vivienda.', ph_ref: 'Referencia o enlace',
@@ -132,6 +258,67 @@
       fail: 'Nuestro sistema no ha podido tramitar la solicitud ahora mismo. Hemos avisado al equipo y te contactarán personalmente.',
       neterr: 'No he podido conectar con nuestro sistema. Inténtalo de nuevo.', retry: 'Reintentar', expired: 'Tu sesión ha caducado. Vuelve a introducir tu correo.',
       next_another: function (f) { return '¿Organizo otra visita para ti, ' + f + '?'; },
+      g_reg: "Regístrate aquí como agente",
+      g_or: "¿Aún no estás registrado/a?",
+      c_h: "Revisa tu correo",
+      c_p: "Hemos enviado un código de 6 cifras a {m}. Introdúcelo para entrar en este dispositivo; solo hace falta una vez por dispositivo.",
+      c_ph: "Código de 6 cifras",
+      c_btn: "Entrar",
+      c_wrong: "El código no es correcto. Inténtalo de nuevo.",
+      c_expired: "El código ha caducado. Pide uno nuevo.",
+      c_attempts: "Demasiados intentos. Pide un código nuevo.",
+      c_resend: "Enviar un código nuevo",
+      c_back: "Usar otro correo",
+      c_sent: "Te hemos enviado un código nuevo.",
+      c_mail: "No hemos podido enviar el código. Inténtalo de nuevo en un momento.",
+      r_hi: "¡Bienvenido/a! Te registro como agente colaborador de Soltura Real Estate. Es cuestión de un minuto.",
+      r_company: "¿Para qué agencia trabajas?",
+      ph_company: "Nombre de la agencia",
+      r_first: "¿Y tu nombre?",
+      ph_rfirst: "Tu nombre",
+      r_last: "Gracias, {f}. ¿Y tus apellidos?",
+      ph_rlast: "Tus apellidos",
+      r_email: "¿Con qué correo trabajas? Será también tu acceso a este portal.",
+      ph_email: "tu@agencia.es",
+      r_mobile: "¿Y tu móvil, con prefijo internacional?",
+      ph_mobile: "+34 600 123 456",
+      r_bad_name: "Escribe solo el nombre.",
+      r_bad_email: "Ese correo no parece correcto. ¿Puedes revisarlo?",
+      r_bad_mobile: "Eso no parece un móvil. Incluye el prefijo, por ejemplo +34 600 123 456.",
+      r_sum_h: "Tu registro",
+      r_sum: "¿Está todo correcto?",
+      r_ok: "Sí, regístrame",
+      r_fix: "Cambiar algo",
+      r_which: "¿Qué quieres cambiar?",
+      f_company: "Agencia",
+      f_name: "Nombre",
+      f_email: "Correo",
+      f_mobile: "Móvil",
+      r_checking: "Un momento, compruebo nuestros datos…",
+      k_same: "Ya estás registrado/a con este correo y este móvil.",
+      k_same_ok: "Te envío un código para entrar.",
+      k_diff: "Tu agencia o tu nombre no coinciden con lo que tenemos. ¿Qué ha cambiado?",
+      k_email: "Ya conocemos este correo.",
+      k_email_q: "¿Qué ha cambiado?",
+      k_mobile: "Ya conocemos este móvil, junto con el correo {m}.",
+      k_mobile_q: "¿Cuál es la situación?",
+      o_moved: "Trabajo en otra agencia",
+      o_name: "Mi nombre es distinto",
+      o_mobile: "Tengo un móvil nuevo",
+      o_email: "Era mi correo anterior",
+      o_notmine: "Ese no es mi número",
+      o_other: "Otra cosa",
+      o_login: "Nada ha cambiado, déjame entrar",
+      r_note: "En pocas palabras, ¿qué ha cambiado?",
+      ph_note: "p. ej. ahora trabajo en Casa Sol",
+      r_notmine: "Entonces dame tu propio móvil, por favor.",
+      r_code: "Para confirmar, he enviado un código de 6 cifras a {m}. Introdúcelo aquí.",
+      ph_code: "Código de 6 cifras",
+      r_done_new: "¡Bienvenido/a, {f}! Ya estás registrado/a como agente colaborador.",
+      r_done_upd: "Gracias, {f}. Tus datos están actualizados.",
+      r_done_in: "¡Hola de nuevo, {f}!",
+      r_err: "Algo ha fallado por nuestra parte. Inténtalo de nuevo.",
+      r_rate: "Demasiados intentos. Inténtalo dentro de unos minutos.",
     },
     sv: {
       title: 'Mäklarportal', uo: 'Reserverad / ej tillgänglig', kicker: 'För våra samarbetande mäklare', h1: 'Boka en visning i realtid', h1_hi: function (f) { return 'Välkommen, ' + f; },
@@ -139,10 +326,10 @@
       f: [['bolt', 'Realtid', 'Ingen väntan på mejl: ' + NAME + ' kontrollerar bostaden och behandlar förfrågan direkt.'],
         ['key', 'Nycklar', 'Du ser direkt om vi har nycklarna till bostaden.'],
         ['user', 'Din kontakt', 'Du får namn, e-post och mobilnummer till den ansvariga säljaren.']],
-      email_alt: 'Hellre e-post? viewing@gruposoltura.com fungerar som vanligt.',
+      email_alt: "Inte registrerad än? Registrera dig som samarbetande mäklare på en minut.",
       g_h: 'Endast för samarbetande mäklare', g_p: 'Ange e-postadressen du är registrerad med som samarbetande mäklare hos Soltura Real Estate.', g_ph: 'du@maklarbyra.se', g_btn: 'Fortsätt', g_bad: 'Ange en giltig e-postadress.',
       g_busy: 'Kontrollerar…', g_rate: 'För många försök. Försök igen om några minuter.', g_err: 'Något gick fel. Försök igen.',
-      g_no: 'Den här adressen är inte registrerad hos oss som samarbetande mäklare. Vi tar dig till vår startsida.', g_no2: 'Vill du samarbeta med oss? Mejla viewing@gruposoltura.com.',
+      g_no: "Vi känner inte den här adressen som samarbetande mäklare än.", g_no2: "Ny här eller har dina uppgifter ändrats? Registrera dig här som mäklare.",
       sub: 'Live-visningsassistent', logout: 'Inte du? Logga ut', test: 'TESTLÄGE · inget sparas, mejlen går bara till Rick',
       hi: function (f, c) { return 'Hej ' + f + '! Kul att du är här' + (c ? ' för ' + c : '') + '. Jag bokar visningen för din kund direkt.'; },
       ask_ref: 'Vilken bostad vill din kund se? Skriv vår referens (till exempel RH550) eller klistra in länken till bostaden.', ph_ref: 'Referens eller länk',
@@ -167,6 +354,67 @@
       fail: 'Vårt system kunde inte behandla förfrågan just nu. Teamet har larmats och kontaktar dig personligen.',
       neterr: 'Jag nådde inte vårt system. Försök igen.', retry: 'Försök igen', expired: 'Din session har gått ut. Ange din e-postadress igen.',
       next_another: function (f) { return 'Ska jag boka en visning till åt dig, ' + f + '?'; },
+      g_reg: "Registrera dig här som mäklare",
+      g_or: "Inte registrerad än?",
+      c_h: "Kolla din e-post",
+      c_p: "Vi har skickat en sexsiffrig kod till {m}. Ange den för att logga in på den här enheten; det behövs bara en gång per enhet.",
+      c_ph: "Sexsiffrig kod",
+      c_btn: "Logga in",
+      c_wrong: "Koden stämmer inte. Försök igen.",
+      c_expired: "Koden har gått ut. Begär en ny.",
+      c_attempts: "För många försök. Begär en ny kod.",
+      c_resend: "Skicka en ny kod",
+      c_back: "Använd en annan e-postadress",
+      c_sent: "En ny kod är på väg.",
+      c_mail: "Koden kunde inte skickas just nu. Försök igen om en stund.",
+      r_hi: "Välkommen! Jag registrerar dig som samarbetande mäklare hos Soltura Real Estate. Det tar ungefär en minut.",
+      r_company: "Vilken byrå arbetar du för?",
+      ph_company: "Byråns namn",
+      r_first: "Och ditt förnamn?",
+      ph_rfirst: "Ditt förnamn",
+      r_last: "Tack, {f}. Och ditt efternamn?",
+      ph_rlast: "Ditt efternamn",
+      r_email: "Vilken e-postadress arbetar du med? Den blir också din inloggning här.",
+      ph_email: "du@maklarbyra.se",
+      r_mobile: "Och ditt mobilnummer, med landsnummer?",
+      ph_mobile: "+34 600 123 456",
+      r_bad_name: "Skriv bara namnet.",
+      r_bad_email: "E-postadressen ser inte rätt ut. Kan du kontrollera den?",
+      r_bad_mobile: "Det ser inte ut som ett mobilnummer. Ta med landsnumret, till exempel +34 600 123 456.",
+      r_sum_h: "Din registrering",
+      r_sum: "Stämmer allt?",
+      r_ok: "Ja, registrera mig",
+      r_fix: "Ändra något",
+      r_which: "Vad vill du ändra?",
+      f_company: "Byrå",
+      f_name: "Namn",
+      f_email: "E-post",
+      f_mobile: "Mobil",
+      r_checking: "Ett ögonblick, jag kontrollerar våra uppgifter…",
+      k_same: "Du är redan registrerad hos oss med den här e-postadressen och det här mobilnumret.",
+      k_same_ok: "Jag skickar en kod så att du kan logga in.",
+      k_diff: "Din byrå eller ditt namn skiljer sig från det vi har. Vad har ändrats?",
+      k_email: "Vi känner redan till den här e-postadressen.",
+      k_email_q: "Vad har ändrats?",
+      k_mobile: "Vi känner redan till det här mobilnumret, tillsammans med e-postadressen {m}.",
+      k_mobile_q: "Hur ligger det till?",
+      o_moved: "Jag har bytt byrå",
+      o_name: "Mitt namn är annorlunda",
+      o_mobile: "Jag har ett nytt mobilnummer",
+      o_email: "Det var min gamla e-postadress",
+      o_notmine: "Det är inte mitt nummer",
+      o_other: "Något annat",
+      o_login: "Inget har ändrats, logga in mig",
+      r_note: "Vad har ändrats, kortfattat?",
+      ph_note: "t.ex. jag arbetar nu på Casa Sol",
+      r_notmine: "Ge mig då ditt eget mobilnummer.",
+      r_code: "För att bekräfta har jag skickat en sexsiffrig kod till {m}. Ange den här.",
+      ph_code: "Sexsiffrig kod",
+      r_done_new: "Välkommen, {f}! Du är nu registrerad som samarbetande mäklare.",
+      r_done_upd: "Tack, {f}. Dina uppgifter är uppdaterade.",
+      r_done_in: "Välkommen tillbaka, {f}!",
+      r_err: "Något gick fel hos oss. Försök igen.",
+      r_rate: "För många försök. Försök igen om några minuter.",
     },
   };
   function L(l) { return TX[l] || TX.en; }
@@ -178,7 +426,7 @@
       '<div class="gd-hero-txt"><div class="gd-ava">' + avatar(176, 'gd-ava-img') + '<span class="gd-ava-tag"><i></i>online</span></div>' +
       '<p class="kicker">' + esc(t.kicker) + '</p><h1 id="agH1">' + esc(t.h1) + '</h1><p class="gd-lead">' + esc(t.lead) + '</p>' +
       '<ul class="ag-feats">' + t.f.map(function (f) { return '<li><span class="ag-fi">' + ICO[f[0]] + '</span><div><b>' + esc(f[1]) + '</b><span>' + esc(f[2]) + '</span></div></li>'; }).join('') + '</ul>' +
-      '<p class="ag-alt">' + ICO.mail + esc(t.email_alt) + '</p></div>' +
+      '<p class="ag-alt"><button type="button" class="ag-reg-alt" data-reg>' + ICO.user + '<span>' + esc(t.email_alt) + '</span></button></p></div>' +
       '<div class="sol-panel ag-panel" id="agPanel"><div class="sol-head"><div class="chat-av">' + avatar(46) + '<i class="online"></i></div>' +
       '<div><h2>' + esc(NAME) + '</h2><p>' + esc(t.sub) + '</p></div>' +
       '<div class="ag-langs" role="group" aria-label="Language">' + CHAT_LANGS.map(function (c) { return '<button type="button" data-cl="' + c[0] + '"' + (c[0] === lang ? ' aria-pressed="true"' : '') + '>' + c[1] + '</button>'; }).join('') + '</div></div>' +
@@ -190,9 +438,15 @@
       // e-mailvenster (wordt door de app geopend zolang er geen sessie is)
       '<div class="ag-gate" id="agGate" role="dialog" aria-modal="true" aria-labelledby="agGateH" hidden><form class="ag-gate-box" id="agGateForm" novalidate>' +
       '<div class="ag-gate-av">' + avatar(96) + '<span class="ag-gate-lock">' + ICO.lock + '</span></div>' +
-      '<h2 id="agGateH">' + esc(t.g_h) + '</h2><p>' + esc(t.g_p) + '</p>' +
+      '<div id="agStepMail"><h2 id="agGateH">' + esc(t.g_h) + '</h2><p id="agGateP">' + esc(t.g_p) + '</p>' +
       '<input type="email" id="agGateIn" name="email" autocomplete="email" inputmode="email" placeholder="' + esc(t.g_ph) + '" aria-label="' + esc(t.g_ph) + '" required>' +
-      '<button class="btn primary" type="submit" id="agGateBtn">' + esc(t.g_btn) + '</button><p class="ag-gate-msg" id="agGateMsg" aria-live="polite"></p></form></div>';
+      '<button class="btn primary" type="submit" id="agGateBtn">' + esc(t.g_btn) + '</button></div>' +
+      '<div id="agStepCode" hidden><h2 id="agCodeH">' + esc(t.c_h) + '</h2><p id="agCodeP"></p>' +
+      '<input type="text" id="agCodeIn" name="code" autocomplete="one-time-code" inputmode="numeric" maxlength="7" placeholder="' + esc(t.c_ph) + '" aria-label="' + esc(t.c_ph) + '">' +
+      '<button class="btn primary" type="submit" id="agCodeBtn">' + esc(t.c_btn) + '</button>' +
+      '<p class="ag-gate-links"><button type="button" id="agResend">' + esc(t.c_resend) + '</button><button type="button" id="agBack">' + esc(t.c_back) + '</button></p></div>' +
+      '<p class="ag-gate-msg" id="agGateMsg" aria-live="polite"></p>' +
+      '<p class="ag-gate-reg"><span id="agGateOr">' + esc(t.g_or) + '</span> <button type="button" data-reg id="agRegLink">' + esc(t.g_reg) + '</button></p></form></div>';
   }
 
   // ---------- gedrag ----------
@@ -202,11 +456,26 @@
     var log = $('#solLog'), chips = $('#solChips'), form = $('#solForm'), input = $('#solIn');
     var gate = $('#agGate'), gForm = $('#agGateForm'), gIn = $('#agGateIn'), gMsg = $('#agGateMsg'), gBtn = $('#agGateBtn');
     if (!log || !gate) return;
+    // taal van de browser bij binnenkomst (eenmaal per sessie; agents.gruposoltura.com landt op /en/agents/)
+    var SLUG = { en: 'agents', nl: 'makelaars', sv: 'maklare', es: 'agentes' };
+    try {
+      if (!d.ss.get('agent_lang_auto', null)) {
+        d.ss.set('agent_lang_auto', 1);
+        var bl = (navigator.languages || [navigator.language || '']).map(function (x) { return String(x || '').slice(0, 2).toLowerCase(); }).filter(function (x) { return SLUG[x]; })[0];
+        if (bl && bl !== lang) { d.go('/' + bl + '/' + SLUG[bl] + '/' + location.search, { replace: true }); return; }
+      }
+    } catch (e) { /* geen sessionStorage: paginataal houden */ }
     var cl = lang, t = L(lang), tg = L(lang);
+    // vertrouwd apparaat (180 dagen): na een geslaagde code hoeft deze browser geen code meer
+    var DEV_KEY = 'gs_agent_dev';
+    function devGet() { try { return JSON.parse(localStorage.getItem(DEV_KEY) || 'null'); } catch (e) { return null; } }
+    function devSet(v) { try { if (v) localStorage.setItem(DEV_KEY, JSON.stringify(v)); else localStorage.removeItem(DEV_KEY); } catch (e) { /* privévenster */ } }
+    function fmt(s, o) { return String(s).replace(/\{(\w)\}/g, function (m, k) { return o[k] == null ? '' : o[k]; }); }
     var ses = d.ss.get('agent', null);
     if (ses && !(ses.token && ses.exp > Date.now())) ses = null;
     var st = {};
     function reset() { st = { step: '', prop: null, first: '', last: '', day: '', time: '', editing: false, busy: false, nonce: '' }; }
+    var rg = null; // registratie: { company, first_name, last_name, email, mobile, choice, note, cid, masked, fixing }
     reset();
 
     if (d.test) { var tb = $('#agTest'); tb.hidden = false; tb.textContent = t.test; }
@@ -260,45 +529,196 @@
       };
     });
 
-    // ----- 1. e-mailvenster -----
+    // ----- 1. e-mailvenster: e-mail -> (vertrouwd apparaat of code) -> gesprek; altijd een registratielink -----
+    var stepMail = $('#agStepMail'), stepCode = $('#agStepCode'), cIn = $('#agCodeIn'), cBtn = $('#agCodeBtn'), cP = $('#agCodeP');
+    var login = null; // { email, cid, masked }
+    function gateMsg(txt, cls) { gMsg.textContent = txt || ''; gMsg.className = 'ag-gate-msg' + (cls ? ' ' + cls : ''); }
+    function showMail() { login = null; stepCode.hidden = true; stepMail.hidden = false; gBtn.disabled = false; gBtn.textContent = tg.g_btn; gIn.disabled = false; setTimeout(function () { gIn.focus(); }, 60); }
+    function showCode(r) {
+      login.cid = r.cid; login.masked = r.masked;
+      stepMail.hidden = true; stepCode.hidden = false; cP.textContent = fmt(tg.c_p, { m: r.masked }); cIn.value = ''; cBtn.disabled = false; cBtn.textContent = tg.c_btn;
+      setTimeout(function () { cIn.focus(); }, 60);
+    }
     function openGate(msg) {
       gate.hidden = false; document.body.classList.add('ag-locked');
-      gMsg.textContent = msg || ''; gMsg.className = 'ag-gate-msg'; gBtn.disabled = false; gBtn.textContent = tg.g_btn;
-      setTimeout(function () { gIn.focus(); }, 60);
+      showMail(); gateMsg(msg || '');
+      var dv = devGet(); if (dv && dv.e && !gIn.value) gIn.value = dv.e;
     }
     function closeGate() { gate.hidden = true; document.body.classList.remove('ag-locked'); }
+    function signedIn(r, em) {
+      ses = { token: r.token, email: em, first: r.agent.first_name || '', last: r.agent.last_name || '', company: r.agent.company || '', lang: r.agent.language || null, exp: Date.now() + 5.5 * 3600000 };
+      d.ss.set('agent', ses);
+      if (r.device) devSet({ e: em, t: r.device });
+    }
+    function sendLogin(em) {
+      var dv = devGet();
+      return d.fn('agent-viewing', { action: 'check', email: em, lang: cl, device: dv && dv.e === em ? dv.t : undefined }).catch(function () { return { ok: false }; });
+    }
     gForm.addEventListener('submit', function (e) {
       e.preventDefault();
+      if (login && login.cid) return verifyLogin();
       var em = gIn.value.trim().toLowerCase().replace(/\s+/g, '');
-      if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(em)) { gMsg.textContent = tg.g_bad; gMsg.className = 'ag-gate-msg err'; return; }
-      gBtn.disabled = true; gBtn.textContent = tg.g_busy; gMsg.textContent = '';
-      d.fn('agent-viewing', { action: 'check', email: em }).catch(function () { return { ok: false }; }).then(function (r) {
-        if (r && r.known && r.token) {
-          ses = { token: r.token, email: em, first: r.agent.first_name || '', last: r.agent.last_name || '', company: r.agent.company || '', lang: r.agent.language || null, exp: Date.now() + 5.5 * 3600000 };
-          d.ss.set('agent', ses);
-          if (d.track) d.track('agent_portal_login');
-          closeGate(); start();
-          return;
-        }
+      if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(em)) { gateMsg(tg.g_bad, 'err'); return; }
+      gBtn.disabled = true; gBtn.textContent = tg.g_busy; gateMsg('');
+      sendLogin(em).then(function (r) {
         gBtn.disabled = false; gBtn.textContent = tg.g_btn;
-        if (r && r.error === 'rate') { gMsg.textContent = tg.g_rate; gMsg.className = 'ag-gate-msg err'; return; }
-        if (!r || r.ok === false) { gMsg.textContent = tg.g_err; gMsg.className = 'ag-gate-msg err'; return; }
-        // onbekend: terug naar de homepage
+        if (r && r.known && r.token) { signedIn(r, em); if (d.track) d.track('agent_portal_login'); closeGate(); start(); return; }
+        if (r && r.known && r.code) { login = { email: em }; showCode(r); return; }
+        if (r && r.error === 'rate') { gateMsg(tg.g_rate, 'err'); return; }
+        if (r && r.known && r.error === 'mail') { gateMsg(tg.c_mail, 'err'); return; }
+        if (!r || r.ok === false) { gateMsg(tg.g_err, 'err'); return; }
+        // onbekend adres: registratie aanbieden (geen doorverwijzing meer naar de homepage)
         if (d.track) d.track('agent_portal_unknown');
-        gBtn.disabled = true; gIn.disabled = true;
-        gMsg.innerHTML = esc(tg.g_no) + '<small>' + esc(tg.g_no2) + '</small>'; gMsg.className = 'ag-gate-msg out';
-        setTimeout(function () { closeGate(); d.go(d.home); }, 3200);
+        gMsg.innerHTML = esc(tg.g_no) + '<button type="button" class="btn primary ag-gate-regbtn" id="agRegNow">' + esc(tg.g_reg) + '</button>'; gMsg.className = 'ag-gate-msg out';
+        $('#agRegNow').onclick = function () { startReg(em); };
       });
     });
+    function verifyLogin() {
+      var code = cIn.value.replace(/\D/g, '');
+      if (code.length !== 6) { gateMsg(tg.c_wrong, 'err'); return; }
+      cBtn.disabled = true; cBtn.textContent = tg.g_busy; gateMsg('');
+      d.fn('agent-viewing', { action: 'verify', cid: login.cid, code: code, ua: navigator.userAgent }).catch(function () { return { ok: false }; }).then(function (r) {
+        cBtn.disabled = false; cBtn.textContent = tg.c_btn;
+        if (r && r.valid && r.token) { signedIn(r, login.email); if (d.track) d.track('agent_portal_login'); closeGate(); start(); return; }
+        if (r && r.reason === 'expired') return gateMsg(tg.c_expired, 'err');
+        if (r && (r.reason === 'attempts' || r.reason === 'used')) return gateMsg(tg.c_attempts, 'err');
+        if (r && r.ok === false) return gateMsg(r.error === 'rate' ? tg.g_rate : tg.g_err, 'err');
+        gateMsg(tg.c_wrong, 'err'); cIn.select();
+      });
+    }
+    $('#agResend').onclick = function () {
+      if (!login) return showMail();
+      gateMsg('');
+      sendLogin(login.email).then(function (r) {
+        if (r && r.code) { showCode(r); gateMsg(tg.c_sent); return; }
+        if (r && r.token) { signedIn(r, login.email); closeGate(); start(); return; }
+        gateMsg(r && r.error === 'rate' ? tg.g_rate : tg.c_mail, 'err');
+      });
+    };
+    $('#agBack').onclick = function () { gateMsg(''); showMail(); };
+    rootEl.querySelectorAll('[data-reg]').forEach(function (b) { b.onclick = function () { startReg(gIn.value.trim().toLowerCase().replace(/\s+/g, '')); }; });
+
+    // ----- 1b. registratie als makelaar, in gesprek met Sola -----
+    var REG_FIELDS = [['company', 'f_company'], ['first_name', 'f_name'], ['email', 'f_email'], ['mobile', 'f_mobile']];
+    function startReg(em) {
+      closeGate(); reset(); hideInput(); chips.innerHTML = ''; log.innerHTML = '';
+      rg = { company: '', first_name: '', last_name: '', email: /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(em || '') ? em : '', mobile: '', choice: 'new', note: '', fixing: false };
+      if (d.track) d.track('agent_portal_register_start');
+      say(t.r_hi).then(askCompany);
+    }
+    function askCompany() { return say(t.r_company).then(function () { ask('r_company', t.ph_company, 'text', 'organization'); }); }
+    function askRFirst() { return say(t.r_first).then(function () { ask('r_first', t.ph_rfirst, 'text', 'given-name'); }); }
+    function askREmail() { return say(t.r_email).then(function () { ask('r_email', t.ph_email, 'email', 'email'); if (rg.email) input.value = rg.email; }); }
+    function askRMobile() { return say(t.r_mobile).then(function () { ask('r_mobile', t.ph_mobile, 'tel', 'tel'); }); }
+    function regNext(after) {
+      if (rg.fixing) return regSummary();
+      if (after === 'company') return askRFirst();
+      if (after === 'last') return askREmail();
+      if (after === 'email') return askRMobile();
+      if (after === 'mobile') return regSummary();
+    }
+    function regSummary() {
+      rg.fixing = false; hideInput();
+      var rows = [[t.f_company, rg.company], [t.f_name, rg.first_name + ' ' + rg.last_name], [t.f_email, rg.email], [t.f_mobile, rg.mobile]];
+      node('<b class="ag-sum-h">' + ICO.user + esc(t.r_sum_h) + '</b><dl>' + rows.map(function (r) { return '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd>'; }).join('') + '</dl>', 'ag-sum');
+      say(t.r_sum).then(function () {
+        setChips([['ok', t.r_ok, 'go'], ['fix', t.r_fix, 'ghost']], function (c, lbl) {
+          me(lbl);
+          if (c === 'ok') return regCheck();
+          say(t.r_which).then(function () {
+            setChips(REG_FIELDS.map(function (f) { return [f[0], t[f[1]]]; }), function (k, l2) {
+              me(l2); rg.fixing = true;
+              if (k === 'company') return askCompany();
+              if (k === 'first_name') return askRFirst();
+              if (k === 'email') return askREmail();
+              return askRMobile();
+            });
+          });
+        });
+      });
+    }
+    function regBody(extra) {
+      return Object.assign({ company: rg.company, first_name: rg.first_name, last_name: rg.last_name, email: rg.email, mobile: rg.mobile, lang: cl }, extra || {});
+    }
+    function regFail(r) {
+      if (r && r.field === 'email') return say(t.r_bad_email).then(askREmail);
+      if (r && r.field === 'mobile') return say(t.r_bad_mobile).then(askRMobile);
+      return say(r && r.error === 'rate' ? t.r_rate : t.r_err).then(function () { setChips([['retry', t.retry]], function () { regCheck(); }); });
+    }
+    function regCheck() {
+      hideInput();
+      var wait = node('<span>' + esc(t.r_checking) + '</span>', 'sol-msg a');
+      d.fn('agent-viewing', regBody({ action: 'reg_check' })).catch(function () { return { ok: false }; }).then(function (r) {
+        wait.remove();
+        if (!r || r.ok === false || r.valid === false) return regFail(r);
+        if (r.status === 'new') { rg.choice = 'new'; return regSend(); }
+        var opts;
+        if (r.email_known) {
+          if (r.same_contact && r.email_is_agent && !(r.diff && (r.diff.company || r.diff.name))) {
+            rg.choice = 'login';
+            return say(t.k_same).then(function () { return say(t.k_same_ok); }).then(regSend);
+          }
+          opts = [['moved', t.o_moved], ['name', t.o_name]];
+          if (r.diff && r.diff.mobile) opts.push(['mobile', t.o_mobile]);
+          opts.push(['other', t.o_other, 'ghost']);
+          if (r.email_is_agent) opts.push(['login', t.o_login, 'ghost']);
+          return say(r.same_contact && r.email_is_agent ? t.k_diff : t.k_email).then(function () { return r.same_contact && r.email_is_agent ? null : say(t.k_email_q); })
+            .then(function () { setChips(opts, regChoice); });
+        }
+        // alleen het mobiele nummer is bekend, bij een ander e-mailadres
+        opts = [['email', t.o_email], ['moved', t.o_moved], ['notmine', t.o_notmine], ['other', t.o_other, 'ghost']];
+        return say(fmt(t.k_mobile, { m: r.masked_other || '' })).then(function () { return say(t.k_mobile_q); }).then(function () { setChips(opts, regChoice); });
+      });
+    }
+    function regChoice(c, lbl) {
+      me(lbl);
+      if (c === 'notmine') { rg.mobile = ''; return say(t.r_notmine).then(function () { rg.fixing = true; ask('r_mobile', t.ph_mobile, 'tel', 'tel'); }); }
+      rg.choice = c;
+      if (c === 'other') return say(t.r_note).then(function () { ask('r_note', t.ph_note, 'text'); });
+      regSend();
+    }
+    function regSend() {
+      hideInput();
+      var wait = node('<span class="sol-env">' + ICO.mail + '</span>' + esc(t.r_checking), 'sol-msg a sol-sending');
+      d.fn('agent-viewing', regBody({ action: 'reg_send', choice: rg.choice, note: rg.note })).catch(function () { return { ok: false }; }).then(function (r) {
+        wait.remove();
+        if (!r || !r.cid) return regFail(r && r.error === 'mail' ? { error: 'x' } : r);
+        rg.cid = r.cid; rg.masked = r.masked;
+        say(fmt(t.r_code, { m: r.masked })).then(function () {
+          ask('r_code', t.ph_code, 'text', 'one-time-code'); input.setAttribute('inputmode', 'numeric');
+          setChips([['resend', t.c_resend, 'ghost']], function (c2, l3) { me(l3); regSend(); });
+        });
+      });
+    }
+    function regVerify(code) {
+      hideInput(); chips.innerHTML = '';
+      d.fn('agent-viewing', { action: 'verify', cid: rg.cid, code: code, ua: navigator.userAgent }).catch(function () { return { ok: false }; }).then(function (r) {
+        if (r && r.valid && r.token) {
+          signedIn(r, r.email || rg.email);
+          if (d.track) d.track(r.created ? 'agent_portal_registered' : 'agent_portal_login');
+          var f = (r.agent && r.agent.first_name) || rg.first_name;
+          var msg = r.created ? t.r_done_new : (r.changed ? t.r_done_upd : t.r_done_in);
+          input.removeAttribute('inputmode'); rg = null;
+          return say(fmt(msg, { f: f }), 'big').then(function () { start(true); });
+        }
+        var why = r && r.reason === 'expired' ? t.c_expired : (r && (r.reason === 'attempts' || r.reason === 'used')) ? t.c_attempts : (r && r.ok === false) ? t.r_err : t.c_wrong;
+        say(why).then(function () {
+          if (r && (r.reason === 'expired' || r.reason === 'attempts' || r.reason === 'used')) return setChips([['resend', t.c_resend, 'go']], function (c2, l3) { me(l3); regSend(); });
+          ask('r_code', t.ph_code, 'text', 'one-time-code'); input.setAttribute('inputmode', 'numeric');
+          setChips([['resend', t.c_resend, 'ghost']], function (c2, l3) { me(l3); regSend(); });
+        });
+      });
+    }
 
     // ----- 2. gesprek -----
-    function start() {
+    function start(keepLog) {
       reset();
       var pref = ses.lang && TX[ses.lang] ? ses.lang : null;
       if (pref && pref !== cl) { var b = rootEl.querySelector('[data-cl="' + pref + '"]'); if (b) b.click(); }
       var h1 = $('#agH1'); if (h1 && ses.first) h1.textContent = L(lang).h1_hi(ses.first);
-      var lo = $('#agLogout'); lo.hidden = false; lo.textContent = t.logout; lo.onclick = function () { d.ss.set('agent', null); location.reload(); };
-      log.innerHTML = '';
+      var lo = $('#agLogout'); lo.hidden = false; lo.textContent = t.logout;
+      lo.onclick = function () { var dv = devGet(); if (dv) d.fn('agent-viewing', { action: 'forget', device: dv.t }).catch(function () {}); devSet(null); d.ss.set('agent', null); location.reload(); };
+      if (!keepLog) log.innerHTML = '';
       say(t.hi(ses.first || '', ses.company)).then(askRef);
     }
     function askRef() { return say(t.ask_ref).then(function () { ask('ref', t.ph_ref, 'text'); }); }
@@ -439,6 +859,26 @@
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var v = input.value.trim(); if (!v || st.busy) return;
+      if (st.step === 'r_company') { rg.company = v.replace(/\s+/g, ' ').slice(0, 120); me(rg.company); return regNext('company'); }
+      if (st.step === 'r_first') {
+        var np = cleanName(v).split(' ').filter(Boolean); if (!np.length || /\d|@/.test(v)) return say(t.r_bad_name).then(function () { ask('r_first', t.ph_rfirst, 'text', 'given-name'); });
+        me(np.join(' ')); rg.first_name = np[0];
+        if (np.length > 1) { rg.last_name = np.slice(1).join(' '); return regNext('last'); }
+        return say(fmt(t.r_last, { f: rg.first_name })).then(function () { ask('r_last', t.ph_rlast, 'text', 'family-name'); });
+      }
+      if (st.step === 'r_last') { var ln = cleanName(v); if (!ln || /\d|@/.test(v)) return say(t.r_bad_name).then(function () { ask('r_last', t.ph_rlast, 'text', 'family-name'); }); rg.last_name = ln; me(ln); return regNext('last'); }
+      if (st.step === 'r_email') {
+        var em2 = v.toLowerCase().replace(/\s+/g, ''); me(em2);
+        if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(em2)) return say(t.r_bad_email).then(function () { ask('r_email', t.ph_email, 'email', 'email'); });
+        rg.email = em2; return regNext('email');
+      }
+      if (st.step === 'r_mobile') {
+        me(v); var dg = v.replace(/[^0-9]/g, '');
+        if (/[a-z@]/i.test(v) || dg.length < 9 || dg.length > 15 || /^(\d)\1+$/.test(dg)) return say(t.r_bad_mobile).then(function () { ask('r_mobile', t.ph_mobile, 'tel', 'tel'); });
+        rg.mobile = v.replace(/\s+/g, ' ').slice(0, 30); return regNext('mobile');
+      }
+      if (st.step === 'r_note') { rg.note = v.slice(0, 300); me(rg.note); return regSend(); }
+      if (st.step === 'r_code') { var cd = v.replace(/\D/g, ''); me(cd || v); if (cd.length !== 6) return say(t.c_wrong).then(function () { ask('r_code', t.ph_code, 'text', 'one-time-code'); }); return regVerify(cd); }
       if (st.step === 'ref') { me(v); return lookRef(v); }
       if (st.step === 'first') {
         var parts = cleanName(v).split(' ').filter(Boolean); if (!parts.length) return;
