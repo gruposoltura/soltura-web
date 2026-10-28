@@ -1,5 +1,6 @@
 -- Client Claim System (28-10-2026, BD-171). Volgt op BD-170.
--- 1. Label heet voortaan 'claimed' (NEXUS: Claimed) i.p.v. agent_client: labels blijven Engels.
+-- 1. Label heet voortaan 'agent_lead' (NEXUS: AgentLead) i.p.v. agent_client: labels blijven Engels.
+--    (Tijdens het bouwen kort 'agent_lead' geheten; alles is in dezelfde sessie omgezet naar agent_lead.)
 -- 2. Basisregel: een door een makelaar aangemelde klant blijft 90 dagen op naam van die makelaar geregistreerd.
 -- 3. Purge: na 90 dagen verdwijnt een niet-geconverteerde claim (contact weg, cascade ruimt aanvraag/bezichtiging op).
 --    Wie wel converteerde - een ander label (suspect, buyer, ...), een bezichtiging of een koppeling aan een woning -
@@ -8,13 +9,13 @@
 -- ---------- 1. rol hernoemen ----------
 -- eerst de data, dan de constraint: anders botst de oude waarde met de nieuwe lijst.
 alter table core.contact_roles drop constraint if exists contact_roles_role_check;
-update core.contact_roles set role = 'claimed' where role = 'agent_client';
-update core.contacts set primary_category = 'claimed', updated_at = now() where primary_category = 'agent_client';
+update core.contact_roles set role = 'agent_lead' where role = 'agent_client';
+update core.contacts set primary_category = 'agent_lead', updated_at = now() where primary_category = 'agent_client';
 alter table core.contact_roles add constraint contact_roles_role_check
-  check (role = any (array['suspect','seller','buyer','suspect_seller','agent','prospect','partner','keyholder','claimed']));
+  check (role = any (array['suspect','seller','buyer','suspect_seller','agent','prospect','partner','keyholder','agent_lead']));
 
 -- ---------- 2. v2_contacts: kolom hernoemen en rolprioriteit bijwerken ----------
-alter view public.v2_contacts rename column is_agent_client to is_claimed;
+alter view public.v2_contacts rename column is_agent_client to is_agent_lead;  -- BD-170 heette de kolom is_agent_client
 
 create or replace view public.v2_contacts as
  SELECT lm.wp_id,
@@ -28,7 +29,7 @@ create or replace view public.v2_contacts as
     COALESCE(replace(c.primary_category, '_'::text, '-'::text), ( SELECT replace(r.role, '_'::text, '-'::text) AS replace
            FROM core.contact_roles r
           WHERE r.contact_id = c.id
-          ORDER BY (array_position(ARRAY['seller'::text, 'buyer'::text, 'agent'::text, 'suspect_seller'::text, 'suspect'::text, 'prospect'::text, 'partner'::text, 'keyholder'::text, 'claimed'::text], r.role))
+          ORDER BY (array_position(ARRAY['seller'::text, 'buyer'::text, 'agent'::text, 'suspect_seller'::text, 'suspect'::text, 'prospect'::text, 'partner'::text, 'keyholder'::text, 'agent_lead'::text], r.role))
          LIMIT 1)) AS category,
     ( SELECT lt.wp_id FROM core.legacy_map lt WHERE lt.entity = 'team_member'::text AND lt.id = c.owner_id) AS agent_wp_id,
     ( SELECT lt.wp_id FROM core.legacy_map lt WHERE lt.entity = 'team_member'::text AND lt.id = c.owner_id) AS wp_author_id,
@@ -42,8 +43,8 @@ create or replace view public.v2_contacts as
     ((c.mailing_prefs -> 'review_invite'::text) ->> 'last'::text)::timestamp with time zone AS review_invite_lastdate,
     ( SELECT t.email FROM core.team_members t WHERE t.id = c.owner_id) AS owner_email,
     c.created_at,
-    -- geclaimde klant van een samenwerkende makelaar: nooit in een mailing (28-10-2026)
-    (EXISTS ( SELECT 1 FROM core.contact_roles r WHERE r.contact_id = c.id AND r.role = 'claimed'::text)) AS is_claimed
+    -- AgentLead: klant van een samenwerkende makelaar: nooit in een mailing (28-10-2026)
+    (EXISTS ( SELECT 1 FROM core.contact_roles r WHERE r.contact_id = c.id AND r.role = 'agent_lead'::text)) AS is_agent_lead
    FROM core.contacts c
      LEFT JOIN core.legacy_map lm ON lm.entity = 'contact'::text AND lm.id = c.id;
 
@@ -56,7 +57,7 @@ as $function$
          c.id, c.wp_id, c.email, c.first_name, c.full_name, c.language, c.category, public.nexus2_unsub_sig(c.id, p_type)
     from public.v2_contacts c
    where c.email is not null and position('@' in c.email) > 1 and c.opt_in
-     and not c.is_claimed   -- geclaimde klant van een makelaar (28-10-2026): nooit mailen
+     and not c.is_agent_lead   -- AgentLead (klant van een makelaar) (28-10-2026): nooit mailen
      and coalesce((c.mailing_prefs->p_type->>'on')::boolean,
                   (select m.default_opt_in from public.mailing_types m where m.slug = p_type), true)
      and (p_categories is null
@@ -67,8 +68,8 @@ as $function$
 $function$;
 
 -- ---------- 4. verlopen claims ophalen ----------
--- Kandidaat = uitsluitend het label claimed, ouder dan p_days, en geen enkel teken van conversie.
-create or replace function public.nexus2_claimed_purge_candidates(p_days int default 90, p_max int default 200)
+-- Kandidaat = uitsluitend het label agent_lead, ouder dan p_days, en geen enkel teken van conversie.
+create or replace function public.nexus2_claim_purge_candidates(p_days int default 90, p_max int default 200)
  returns table(contact_id uuid, created_at timestamptz, days_old int, agency text, prop_refs text)
  language sql stable security definer set search_path to ''
 as $function$
@@ -83,8 +84,8 @@ as $function$
             from core.requests r join core.properties p on p.id = r.property_id where r.contact_id = c.id)
     from core.contacts c
    where c.created_at < now() - make_interval(days => greatest(p_days, 1))
-     and exists (select 1 from core.contact_roles r where r.contact_id = c.id and r.role = 'claimed')
-     and not exists (select 1 from core.contact_roles r where r.contact_id = c.id and r.role <> 'claimed')
+     and exists (select 1 from core.contact_roles r where r.contact_id = c.id and r.role = 'agent_lead')
+     and not exists (select 1 from core.contact_roles r where r.contact_id = c.id and r.role <> 'agent_lead')
      and not exists (select 1 from core.viewings v where v.contact_id = c.id)
      and not exists (select 1 from core.properties p
                       where p.buyer_contact_id = c.id or p.owner_contact_id = c.id
@@ -98,7 +99,7 @@ $function$;
 -- ---------- 5. purge uitvoeren ----------
 -- Verwijdert de contacten uit 4; FK's op core (aanvragen, bezichtigingen, mails, notities) staan op cascade.
 -- Retourneert wat er weg is zonder klantnamen: alleen makelaardij, woningreferentie en leeftijd.
-create or replace function public.nexus2_claimed_purge(p_days int default 90, p_max int default 50, p_dry_run boolean default false)
+create or replace function public.nexus2_claim_purge(p_days int default 90, p_max int default 50, p_dry_run boolean default false)
  returns jsonb language plpgsql security definer set search_path to ''
 as $function$
 declare v_rows jsonb; v_ids uuid[]; v_n int;
@@ -106,7 +107,7 @@ begin
   select coalesce(jsonb_agg(jsonb_build_object('days_old', k.days_old, 'agency', k.agency, 'props', k.prop_refs)), '[]'::jsonb),
          coalesce(array_agg(k.contact_id), '{}'::uuid[])
     into v_rows, v_ids
-    from public.nexus2_claimed_purge_candidates(p_days, p_max) k;
+    from public.nexus2_claim_purge_candidates(p_days, p_max) k;
   v_n := coalesce(array_length(v_ids, 1), 0);
   if v_n > 0 and not coalesce(p_dry_run, false) then
     delete from core.contacts c where c.id = any(v_ids);
@@ -116,6 +117,25 @@ begin
                             'days', greatest(p_days, 1), 'rows', v_rows);
 end $function$;
 
-revoke execute on function public.nexus2_claimed_purge_candidates(int, int) from public, anon, authenticated;
-revoke execute on function public.nexus2_claimed_purge(int, int, boolean) from public, anon, authenticated;
-grant execute on function public.nexus2_claimed_purge_candidates(int, int), public.nexus2_claimed_purge(int, int, boolean) to service_role;
+revoke execute on function public.nexus2_claim_purge_candidates(int, int) from public, anon, authenticated;
+revoke execute on function public.nexus2_claim_purge(int, int, boolean) from public, anon, authenticated;
+grant execute on function public.nexus2_claim_purge_candidates(int, int), public.nexus2_claim_purge(int, int, boolean) to service_role;
+
+-- ---------- 6. klantcheck op e-mail tot en met '@' (Client Claim System) ----------
+-- De makelaar geeft voornaam, achternaam en het deel tot en met '@'. Daarmee checkt Sola of de klant al bestaat:
+-- bestaat hij bij ons of bij een andere makelaar -> aanvraag geweigerd + Telegram-alarm; eigen AgentLead van dezelfde
+-- makelaar -> de nieuwe aanvraag hangt aan het bestaande contact. Nooit matchen op naam.
+alter table core.contacts add column if not exists claim_email_local text;
+create index if not exists contacts_claim_email_local_idx on core.contacts (lower(claim_email_local)) where claim_email_local is not null;
+
+-- nexus2_claim_check(p_local, p_agent_email) -> {status: free|own|known, local, contact_id}
+--   known: er bestaat al een contact met dezelfde local part (eigen contact of claim van een andere makelaar)
+--   own:   bestaand agent_lead-contact dat door DEZELFDE makelaar is aangebracht (contact_relations introduced_by)
+-- nexus2_claim_register(p_contact_id, p_local) -> legt de local part vast op het contact (eenmalig, niet overschrijven)
+-- nexus2_claim_attach(p_request_id, p_keep_contact) -> hangt de aanvraag aan het bestaande contact en ruimt het lege nieuwe op
+-- De volledige definities staan in de migraties client_claim_check_by_email_local en claim_functions_agent_lead.
+
+-- Uitkomst client_known mag in de intake-log (menu Bezichtiging in NEXUS):
+alter table core.viewing_intake drop constraint if exists viewing_intake_outcome_check;
+alter table core.viewing_intake add constraint viewing_intake_outcome_check
+  check (outcome = any (array['registration_requested','registration_incomplete','agent_registered','incomplete','ref_not_found','not_available','processed','nexus_failed','skipped','client_known']));

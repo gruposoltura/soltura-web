@@ -3,12 +3,12 @@
 // Een samenwerkende makelaar vraagt in gesprek met Sola een bezichtiging aan: klant + bezichtigingsaanvraag in NEXUS via
 // nexus2_submit_form (makelaar = aanbrenger), bevestiging aan de makelaar en interne melding aan de behandelaar
 // (via n8n JARVIS-Sales-AgentPortalMail -> Brevo, afzender viewing@), regel in core.viewing_intake (menu Bezichtiging) en jarvis_runs.
-// De klant van de makelaar krijgt label claimed (Client Claim System, nooit in een mailing) en als eigenaar de behandelaar:
+// De klant van de makelaar krijgt label AgentLead (rol agent_lead, Client Claim System: nooit in een mailing) en als eigenaar de behandelaar:
 // Lisette voor portaalleads, terugval de salesrep van de woning (rpc nexus2_agent_viewing_rep).
 // Sinds 28-10-2026 is het portaal de enige route (de mailflow viewing@ is uit): een onbekende makelaar registreert zich via Sola.
 // Client Claim System (BD-171): de makelaar geeft naam + e-mail tot en met '@'. Bestaat die klant al bij ons (of bij een andere
 // makelaar), dan weigert Sola de aanvraag en krijgt Rick een Telegram-alarm met de gegevens van makelaar en klant. Is het de eigen
-// klant van dezelfde makelaar, dan hangt de nieuwe aanvraag aan het bestaande contact (geen dubbel). Claim duurt 90 dagen.
+// klant van dezelfde makelaar, dan hangt de nieuwe aanvraag aan het bestaande contact (geen dubbel). Een claim duurt 90 dagen.
 // Opmaak van alle uitgaande mail: mail-shell.ts (huisstijlconventie, footer met API/GIPE/CEI/AIPP).
 //
 // Inloggen:  { action:'check', email, device? }  -> bekend + vertrouwd apparaat: { known, token, agent }
@@ -397,8 +397,8 @@ Deno.serve(async (req) => {
         else {
           try {
             sub = await rpc('nexus2_submit_form', { p: {
-              // de klant blijft 90 dagen van de makelaar: label claimed, nooit in een mailing (BD-170, BD-171)
-              first_name: d.view.client_first || null, last_name: d.view.client_last || null, language: d.lang, role: 'claimed', type: 'viewing', kind: 'viewing',
+              // de klant blijft 90 dagen van de makelaar: label AgentLead, nooit in een mailing (BD-170, BD-171)
+              first_name: d.view.client_first || null, last_name: d.view.client_last || null, language: d.lang, role: 'agent_lead', type: 'viewing', kind: 'viewing',
               message: 'Bezichtigingsverzoek ' + d.view.ref + ' voor klant ' + client + ', aangebracht door makelaar ' + (ag.name || ses.e) + (ag.company ? ' (' + ag.company + ')' : '') + ', ' + ses.e
                 + '. Gewenste dag: ' + d.view.day + ', tijd: ' + d.view.time + '. Via het makelaarsportaal op de website (Sola).' + (b.note ? ' Opmerking: ' + str(b.note, 500) : ''),
               subject: 'Bezichtigingsverzoek ' + d.view.ref + ' - ' + client, property_ref: d.view.ref, source: 'agent-portal', form_id: 'web-agent-viewing',
