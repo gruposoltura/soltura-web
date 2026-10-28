@@ -4,6 +4,7 @@
 // nexus2_submit_form (makelaar = aanbrenger, verkoper = eigenaar), bevestiging aan de makelaar en interne melding aan de verkoper
 // (via n8n JARVIS-Sales-AgentPortalMail -> Brevo, afzender viewing@), regel in core.viewing_intake (menu Bezichtiging) en jarvis_runs.
 // Sinds 28-10-2026 is het portaal de enige route (de mailflow viewing@ is uit): een onbekende makelaar registreert zich via Sola.
+// Opmaak van alle uitgaande mail: mail-shell.ts (huisstijlconventie, footer met API/GIPE/CEI/AIPP).
 //
 // Inloggen:  { action:'check', email, device? }  -> bekend + vertrouwd apparaat: { known, token, agent }
 //                                                  -> bekend, nieuw apparaat: code per mail { known, code:true, cid, masked }
@@ -20,6 +21,7 @@
 // test=true (pagina met ?test=1): niets in NEXUS, alle mails alleen naar rick@ met [TEST], intake als dry-run.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { VM } from './viewing-mails.ts';
+import { mailShell } from './mail-shell.ts';
 
 const SB = Deno.env.get('SUPABASE_URL')!;
 const SR = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -100,7 +102,7 @@ async function sendMails(list: any[], test: boolean, ref: string, notify: unknow
 // UTM op links naar de site (zelfde conventie als node "Pick Mails": utm_source=brevo, utm_medium=email, utm_campaign=viewing)
 function utm(html: string) {
   return html.replace(/(href\s*=\s*)(["'])(https?:\/\/(?:www\.)?gruposoltura\.com(?:[\/?#][^"']*)?)\2/gi, (all, pre, q, url) => {
-    if (/\/unsubscribe|privacy|[?&]utm_/i.test(url)) return all;
+    if (/\/unsubscribe|privacy|privacidad|integritet|[?&]utm_/i.test(url)) return all;
     url = url.replace(/^https?:\/\/(?:www\.)?gruposoltura\.com/i, 'https://gruposoltura.com');
     const i = url.indexOf('#'); let base = i >= 0 ? url.slice(0, i) : url; const hash = i >= 0 ? url.slice(i) : '';
     if (/^https:\/\/gruposoltura\.com$/i.test(base)) base += '/';
@@ -125,21 +127,14 @@ const normName = (v: unknown) => String(v ?? '').toLowerCase().replace(/[^a-z0-9
 function newCode() { const a = new Uint32Array(1); crypto.getRandomValues(a); return String(100000 + (a[0] % 900000)); }
 function randToken() { const a = new Uint8Array(32); crypto.getRandomValues(a); return b64(a); }
 
-const HDR = 'https://res.cloudinary.com/dxmx3a2ea/image/upload/v1792266662/soltura/assets/email/soltura-email-header.jpg';
-function shell(inner: string, lang: string) {
-  const why = ({ nl: 'Je ontvangt deze e-mail omdat je inlogt of je registreert op het makelaarsportaal agents.gruposoltura.com.',
-    es: 'Recibes este correo porque inicias sesión o te registras en el portal de agentes agents.gruposoltura.com.',
-    sv: 'Du får det här mejlet eftersom du loggar in eller registrerar dig på mäklarportalen agents.gruposoltura.com.' } as Record<string, string>)[lang]
-    || 'You receive this email because you are signing in or registering on the agent portal agents.gruposoltura.com.';
-  return '<!DOCTYPE html><html lang="' + lang + '"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Soltura Real Estate</title></head>'
-    + '<body style="margin:0;padding:0;background:#fdf0f0;font-family:Arial,sans-serif;"><div style="background:#fdf0f0;padding:24px 16px;">'
-    + '<table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;margin:0 auto;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,0.12);">'
-    + '<tr><td style="line-height:0;"><img src="' + HDR + '" alt="Soltura Real Estate" width="600" style="width:100%;max-width:600px;display:block;height:auto;"></td></tr>'
-    + '<tr><td style="background:#E31E24;padding:10px 28px;color:#fff;font-size:12px;">Rojales &middot; Alicante &middot; Spain</td></tr>'
-    + '<tr><td style="padding:28px 32px;color:#333;font-size:15px;line-height:1.6;">' + inner + '</td></tr>'
-    + '<tr><td style="padding:18px 32px;border-top:1px solid #ddd;background:#f0f0f0;color:#888;font-size:11px;line-height:1.6;text-align:center">Grupo Soltura S.L. &middot; Avd de Constituci&oacute;n s/n &middot; 03179 Formentera del Segura (ALC)<br>' + why + '</td></tr>'
-    + '</table></div></body></html>';
-}
+const RECEIVED: Record<string, string> = {
+  nl: 'Je ontvangt deze e-mail omdat je inlogt of je registreert op het makelaarsportaal agents.gruposoltura.com.',
+  en: 'You received this email because you are signing in or registering on the agent portal agents.gruposoltura.com.',
+  es: 'Has recibido este correo porque inicias sesión o te registras en el portal de agentes agents.gruposoltura.com.',
+  sv: 'Du får det här mejlet eftersom du loggar in eller registrerar dig på mäklarportalen agents.gruposoltura.com.',
+};
+const shell = (inner: string, lang: string) => mailShell(inner, lang, RECEIVED[lang] || RECEIVED.en);
+
 const CM: Record<string, any> = {
   en: { s_login: 'Your sign-in code for the agent portal', s_reg: 'Confirm your registration as a partner agent', hi: (f: string) => f ? 'Hi ' + f + ',' : 'Hello,',
     p_login: 'Use this code to sign in to the Soltura Real Estate agent portal on this device:', p_reg: 'Use this code to confirm your registration as a partner agent of Soltura Real Estate:',
@@ -181,10 +176,10 @@ function codeMail(to: string, lang: string, code: string, purpose: string, first
 function welcomeMail(to: string, lang: string, data: any, created: boolean) {
   const t = CM[lang] || CM.en;
   const rows = [[t.details[0], ((data.first_name || '') + ' ' + (data.last_name || '')).trim()], [t.details[1], data.company], [t.details[2], data.email], [t.details[3], data.mobile]]
-    .map((r) => '<tr><td style="padding:3px 16px 3px 0;color:#777">' + escH(r[0]) + '</td><td style="padding:3px 0;color:#222">' + escH(r[1] || '—') + '</td></tr>').join('');
+    .map((r) => '<tr><td style="padding:3px 16px 3px 0;color:#777;font-family:Arial,sans-serif">' + escH(r[0]) + '</td><td style="padding:3px 0;color:#222;font-family:Arial,sans-serif">' + escH(r[1] || '—') + '</td></tr>').join('');
   const inner = '<p>' + escH(t.hi(data.first_name)) + '</p><p>' + (created ? t.welcome : t.update) + '</p>'
     + '<div style="background:#ecf8f0;border-left:3px solid #1e9e57;border-radius:4px;padding:10px 14px;margin:14px 0;font-size:14px"><table cellpadding="0" cellspacing="0">' + rows + '</table></div>'
-    + '<p style="text-align:center;margin:20px 0"><a href="https://agents.gruposoltura.com" style="display:inline-block;background:#E31E24;color:#fff;font-weight:bold;text-decoration:none;padding:12px 22px;border-radius:4px">' + escH(t.btn) + '</a></p>'
+    + '<table align="center" cellpadding="0" cellspacing="0" style="margin:20px auto"><tr><td align="center" style="border-radius:4px;background:#E31E24"><a href="https://agents.gruposoltura.com" style="display:inline-block;color:#ffffff;font-family:Arial,sans-serif;font-weight:bold;font-size:15px;text-decoration:none;padding:12px 22px">' + escH(t.btn) + '</a></td></tr></table>'
     + '<p>' + t.sign + '</p>';
   return { kind: 'portal_welcome', to, toName: data.first_name || '', replyTo: SENDER.email, subject: created ? t.s_welcome : t.s_update, html: shell(inner, lang) };
 }

@@ -1,8 +1,10 @@
-// GEDEELDE MAILCODE · kopie van de n8n-node "Decide" (JARVIS-AppointmentAgent-v2, viewing-mails v1, 20-10-2026)
-// met kanaal-uitbreiding (24-10-2026): ctx.channel === 'website' -> footer- en meldingsregels noemen het makelaarsportaal.
-// Registratiemails zijn weggelaten: in het portaal is de makelaar altijd al bekend. Voor viewing@ (ctx.channel leeg) is de
-// uitkomst van de overige mails byte-gelijk aan de node. Wijzig beide plekken samen.
+// MAILCODE BEZICHTIGINGEN (makelaarsportaal) - voortgekomen uit de n8n-node "Decide" van JARVIS-AppointmentAgent-v2.
+// Die mailflow (viewing@) is sinds 28-10-2026 gestopt (BD-169), dus dit bestand is nu de enige bron voor deze mails.
+// Registratiemails staan in index.ts; de wrapper (header, rode balk, footer met API/GIPE/CEI/AIPP) staat in mail-shell.ts
+// en is dezelfde voor alle uitgaande mail - huisstijlconventie, zie vault [[MAIL - mailers en verzendstructuur]].
 // deno-lint-ignore-file
+import { mailShell } from './mail-shell.ts';
+
 export const VM: any = (function () {
 'use strict';
 var SENDER = { name: 'Grupo Soltura · Viewings', email: 'viewing@gruposoltura.com' };
@@ -25,54 +27,39 @@ day: 'dia preferido para la visita', time: 'hora preferida para la visita',
 first_name: 'su nombre', last_name: 'sus apellidos', company: 'el nombre de su agencia', email: 'su correo electronico', mobile: 'su numero de movil' }
 };
 var T = {
-nl: { hi: function (n) { return n ? 'Beste ' + esc(n) + ',' : 'Beste collega,'; }, sign: 'Met vriendelijke groet,<br>Het team van Grupo Soltura Real Estate',
-notConf: 'Let op: uw bezichtigingsaanvraag is hiermee <b>niet bevestigd</b>.', onlyComplete: 'Wij kunnen alleen complete e-mails met alle benodigde gegevens verwerken.',
-missingHead: 'Wat er ontbrak:', allHead: 'Stuur ons daarom één nieuwe e-mail met <b>alle</b> onderstaande gegevens:',
-received: 'Wat wij van u ontvingen:', tip: 'Tip: zet de gegevens gewoon in het onderwerp of de tekst, bijvoorbeeld:',
+nl: { hi: function (n) { return n ? 'Beste ' + esc(n) + ',' : 'Beste collega,'; }, sign: 'Met vriendelijke groet,<br>Het team van Soltura Real Estate',
+notConf: 'Let op: uw bezichtigingsaanvraag is hiermee <b>niet bevestigd</b>.', onlyComplete: 'Wij kunnen alleen complete aanvragen met alle benodigde gegevens verwerken.',
+missingHead: 'Wat er ontbrak:', allHead: 'Vraag uw bezichtiging opnieuw aan met <b>alle</b> onderstaande gegevens:',
+received: 'Wat wij van u ontvingen:', tip: 'Tip: u vraagt een bezichtiging het snelst aan op het makelaarsportaal.',
 example: 'Bezichtiging RH864 – Jan Jansen – dinsdag 28/10 om 11:00' },
-en: { hi: function (n) { return n ? 'Dear ' + esc(n) + ',' : 'Dear colleague,'; }, sign: 'Kind regards,<br>The team at Grupo Soltura Real Estate',
-notConf: 'Please note: your viewing request is <b>not confirmed</b> at this stage.', onlyComplete: 'We can only process complete emails containing all required details.',
-missingHead: 'What was missing:', allHead: 'Please send us one new email containing <b>all</b> of the following:',
-received: 'What we received from you:', tip: 'Tip: simply put the details in the subject line or the body, for example:',
+en: { hi: function (n) { return n ? 'Dear ' + esc(n) + ',' : 'Dear colleague,'; }, sign: 'Kind regards,<br>The team at Soltura Real Estate',
+notConf: 'Please note: your viewing request is <b>not confirmed</b> at this stage.', onlyComplete: 'We can only process complete requests containing all required details.',
+missingHead: 'What was missing:', allHead: 'Please request your viewing again with <b>all</b> of the following:',
+received: 'What we received from you:', tip: 'Tip: the quickest way to request a viewing is on the agent portal.',
 example: 'Viewing RH864 – John Smith – Tuesday 28/10 at 11:00' },
-es: { hi: function (n) { return n ? 'Estimado/a ' + esc(n) + ',' : 'Estimado/a colega,'; }, sign: 'Un cordial saludo,<br>El equipo de Grupo Soltura Real Estate',
-notConf: 'Atencion: su solicitud de visita <b>no esta confirmada</b> todavia.', onlyComplete: 'Solo podemos procesar correos completos con todos los datos necesarios.',
-missingHead: 'Lo que faltaba:', allHead: 'Por favor, envienos un nuevo correo con <b>todos</b> los datos siguientes:',
-received: 'Lo que recibimos de usted:', tip: 'Consejo: incluya los datos en el asunto o en el texto, por ejemplo:',
+es: { hi: function (n) { return n ? 'Estimado/a ' + esc(n) + ',' : 'Estimado/a colega,'; }, sign: 'Un cordial saludo,<br>El equipo de Soltura Real Estate',
+notConf: 'Atencion: su solicitud de visita <b>no esta confirmada</b> todavia.', onlyComplete: 'Solo podemos procesar solicitudes completas con todos los datos necesarios.',
+missingHead: 'Lo que faltaba:', allHead: 'Vuelva a solicitar la visita con <b>todos</b> los datos siguientes:',
+received: 'Lo que recibimos de usted:', tip: 'Consejo: la forma mas rapida de solicitar una visita es el portal de agentes.',
 example: 'Visita RH864 – Juan Garcia – martes 28/10 a las 11:00' }
 };
 
-var ul = function (arr) { return '<ul style="margin:6px 0 14px;padding-left:20px">' + arr.map(function (x) { return '<li style="margin:2px 0">' + x + '</li>'; }).join('') + '</ul>'; };
+var ul = function (arr) { return '<ul style="margin:6px 0 14px;padding-left:20px;font-family:Arial,sans-serif">' + arr.map(function (x) { return '<li style="margin:2px 0">' + x + '</li>'; }).join('') + '</ul>'; };
 var box = function (html, tone) {
 var c = { warn: ['#fff8e1', '#e8a000'], ok: ['#ecf8f0', '#1e9e57'], info: ['#f4f4f4', '#bdbdbd'], bad: ['#fdecec', '#c62828'] }[tone || 'info'];
-return '<div style="background:' + c[0] + ';border-left:3px solid ' + c[1] + ';border-radius:4px;padding:10px 14px;margin:14px 0;font-size:14px">' + html + '</div>';
+return '<div style="background:' + c[0] + ';border-left:3px solid ' + c[1] + ';border-radius:4px;padding:10px 14px;margin:14px 0;font-family:Arial,sans-serif;font-size:14px">' + html + '</div>';
 };
 var kv = function (rows) {
-return '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:8px 0 14px;font-size:14px">' + rows.filter(function (r) { return r; }).map(function (r) {
+return '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:8px 0 14px;font-family:Arial,sans-serif;font-size:14px">' + rows.filter(function (r) { return r; }).map(function (r) {
 return '<tr><td style="padding:3px 16px 3px 0;color:#777;white-space:nowrap;vertical-align:top">' + esc(r[0]) + '</td><td style="padding:3px 0;color:#222">' + (r[2] ? r[1] : esc(r[1] || '—')) + '</td></tr>';
 }).join('') + '</table>';
 };
-var HEADER = 'https://res.cloudinary.com/dxmx3a2ea/image/upload/v1792266662/soltura/assets/email/soltura-email-header.jpg';
+// Wrapper = mail-shell.ts (gelijk aan alle andere uitgaande mail); alleen de regel 'waarom krijg je deze mail' verschilt.
 var wrap = function (inner, lang, internal, web) {
-var year = new Date().getFullYear();
-var rights = { nl: 'Alle rechten voorbehouden.', en: 'All rights reserved.', es: 'Todos los derechos reservados.' }[lang] || 'All rights reserved.';
 var why = internal ? 'Interne melding van JARVIS &middot; bezichtigingsaanvraag via ' + (web ? 'het makelaarsportaal (Sola, agents.gruposoltura.com)' : 'viewing@gruposoltura.com')
 : web ? { nl: 'U ontvangt deze e-mail naar aanleiding van uw aanvraag via het makelaarsportaal agents.gruposoltura.com.', en: 'You receive this email in response to your request via the agent portal agents.gruposoltura.com.', es: 'Recibe este correo en respuesta a su solicitud a traves del portal de agentes agents.gruposoltura.com.' }[lang]
 : { nl: 'U ontvangt deze e-mail naar aanleiding van uw bericht aan viewing@gruposoltura.com.', en: 'You receive this email in response to your message to viewing@gruposoltura.com.', es: 'Recibe este correo en respuesta a su mensaje a viewing@gruposoltura.com.' }[lang];
-return '<!DOCTYPE html><html lang="' + lang + '"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Grupo Soltura Real Estate</title></head>'
-+ '<body style="margin:0;padding:0;background:#fdf0f0;font-family:Arial,sans-serif;"><div style="background:#fdf0f0;padding:24px 16px;">'
-+ '<table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;margin:0 auto;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,0.12);">'
-+ '<tr><td style="line-height:0;"><img src="' + HEADER + '" alt="Grupo Soltura Real Estate" width="600" style="width:100%;max-width:600px;display:block;height:auto;"></td></tr>'
-+ '<tr><td style="background:#E31E24;padding:10px 28px;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="color:#fff;font-size:12px;">Rojales &middot; Alicante &middot; Spain</td><td align="right" style="color:#fff;font-size:12px;font-weight:bold;">+34 966 792 113</td></tr></table></td></tr>'
-+ '<tr><td style="padding:28px 32px;color:#333;font-size:15px;line-height:1.6;">' + inner + '</td></tr>'
-+ '<tr><td style="padding:24px 32px;border-top:1px solid #ddd;background:#f0f0f0;"><table width="100%" cellpadding="0" cellspacing="0">'
-+ '<tr><td align="center" style="padding-bottom:12px"><a href="https://www.gruposoltura.com" style="color:#e8231a;font-size:13px;font-weight:bold;text-decoration:none">www.gruposoltura.com</a></td></tr>'
-+ '<tr><td align="center" style="color:#666;font-size:11px;line-height:1.8">Copyright &copy; ' + year + ' Grupo Soltura S.L. - ' + rights + '<br><br>Grupo Soltura S.L.<br>Avd de Constituci&oacute;n s/n<br>03179 Formentera del Segura (ALC)<br><br>'
-+ 'Member No. 992 of the Colegio Oficial de Agentes de la Propiedad Inmobiliaria de Alicante (API)<br>'
-+ 'Member No. 3.473 of the Asociacion Profesional de Gestores Intermediarios en promociones de Edificaciones (GIPE) y Confederation Europeenne de L&#39;Immobilier (CEI)<br>'
-+ 'Member of the Association of International Property Professionals (AIPP)</td></tr>'
-+ '<tr><td align="center" style="padding-top:14px;color:#999;font-size:11px;line-height:1.6">' + why + '</td></tr></table></td></tr>'
-+ '</table></div></body></html>';
+return mailShell(inner, lang, why);
 };
 
 function isAuto(ctx) {
@@ -124,7 +111,7 @@ var client = (v.client_first + ' ' + v.client_last).trim();
 var when = [v.day, v.time].filter(Boolean).join(lang === 'en' ? ' at ' : (lang === 'es' ? ' a las ' : ' om '));
 var reqList = function (keys) { return ul(keys.map(function (k) { return esc(lb[k]); })); };
 var missList = function () { return box('<b>' + t.missingHead + '</b>' + ul(d.missing.map(function (k) { return esc(lb[k]); })), 'warn'); };
-var tipBox = box(t.tip + '<br><i>' + esc(t.example) + '</i>', 'info');
+var tipBox = box(t.tip, 'info');
 var mails = [], outcome = d.outcome;
 var M = function (kind, subject, inner, extra) {
 mails.push(Object.assign({ kind: kind, to: to, toName: agentName || ctx.sender.name || '', replyTo: SENDER.email, subject: subject, html: wrap(inner, lang, false, ctx.channel === 'website'), internal: false }, extra || {}));
@@ -147,9 +134,9 @@ M('incomplete', S4, '<p>' + t.hi(agentName) + '</p>' + B4 + missList() + '<p>' +
 if (outcome === 'ref_not_found') {
 var S5 = { nl: 'Referentie ' + v.ref + ' niet gevonden – aanvraag niet bevestigd', en: 'Reference ' + v.ref + ' not found – request not confirmed', es: 'Referencia ' + v.ref + ' no encontrada – solicitud no confirmada' }[lang];
 var B5 = {
-nl: '<p>Bedankt voor uw bezichtigingsaanvraag. De woningreferentie <b>' + esc(v.ref) + '</b> komt in ons systeem niet voor. Controleer de referentie (bijv. RH864) en stuur uw aanvraag opnieuw met alle gegevens:</p>',
-en: '<p>Thank you for your viewing request. The property reference <b>' + esc(v.ref) + '</b> does not exist in our system. Please check the reference (e.g. RH864) and resend your request with all details:</p>',
-es: '<p>Gracias por su solicitud de visita. La referencia <b>' + esc(v.ref) + '</b> no existe en nuestro sistema. Compruebe la referencia (p. ej. RH864) y reenvie su solicitud con todos los datos:</p>'
+nl: '<p>Bedankt voor uw bezichtigingsaanvraag. De woningreferentie <b>' + esc(v.ref) + '</b> komt in ons systeem niet voor. Controleer de referentie (bijv. RH864) en vraag de bezichtiging opnieuw aan met alle gegevens:</p>',
+en: '<p>Thank you for your viewing request. The property reference <b>' + esc(v.ref) + '</b> does not exist in our system. Please check the reference (e.g. RH864) and request the viewing again with all details:</p>',
+es: '<p>Gracias por su solicitud de visita. La referencia <b>' + esc(v.ref) + '</b> no existe en nuestro sistema. Compruebe la referencia (p. ej. RH864) y vuelva a solicitar la visita con todos los datos:</p>'
 }[lang];
 M('ref_not_found', S5, '<p>' + t.hi(agentName) + '</p>' + B5 + reqList(reqViewKeys) + box(t.notConf, 'warn') + '<p>' + t.sign + '</p>');
 }
@@ -196,9 +183,9 @@ var inner = banner + '<p style="font-size:16px;font-weight:bold;color:#e8231a;ma
 + kv([['Woning', v.ref + (p.title ? ' · ' + p.title : '') + (p.town ? ' (' + p.town + ')' : '')], ['Klant (suspect)', client], ['Gewenste dag', v.day], ['Gewenste tijd', v.time],
 ['Makelaar', ag.name || ctx.sender.name], ['Makelaardij', ag.company], ['E-mail makelaar', to],
 ctx.channel === 'website' ? ['Bron', 'Makelaarsportaal op de website (gesprek met Sola)'] : null, ctx.channel === 'website' && ag.mobile ? ['Mobiel makelaar', ag.mobile] : null,
-['In NEXUS', ok ? (sub.duplicate ? 'bestond al (zelfde mail)' : 'suspect + bezichtigingsaanvraag aangemaakt, aangedragen door de makelaar') : 'MISLUKT']])
-+ (ctx.original ? '<div style="margin-top:16px;font-weight:bold">' + (ctx.channel === 'website' ? 'Samenvatting van het gesprek' : 'Oorspronkelijk bericht') + (ctx.original.subject ? ' – ' + esc(ctx.original.subject) : '') + '</div><div style="background:#f4f4f4;border:1px solid #e3e3e3;border-radius:4px;padding:10px;font-size:13px;white-space:pre-wrap">' + esc(ctx.original.body || '') + '</div>' : '')
-+ (confirm ? '<div style="margin-top:16px;font-weight:bold">Bevestiging die naar de makelaar ging</div><div style="font-size:12px;color:#777">Onderwerp: ' + esc(confirm.subject) + '</div>' : '')
+['In NEXUS', ok ? (sub.duplicate ? 'bestond al (zelfde aanvraag)' : 'suspect + bezichtigingsaanvraag aangemaakt, aangedragen door de makelaar') : 'MISLUKT']])
++ (ctx.original ? '<div style="margin-top:16px;font-family:Arial,sans-serif;font-weight:bold">' + (ctx.channel === 'website' ? 'Samenvatting van het gesprek' : 'Oorspronkelijk bericht') + (ctx.original.subject ? ' – ' + esc(ctx.original.subject) : '') + '</div><div style="background:#f4f4f4;border:1px solid #e3e3e3;border-radius:4px;padding:10px;font-family:Arial,sans-serif;font-size:13px;white-space:pre-wrap">' + esc(ctx.original.body || '') + '</div>' : '')
++ (confirm ? '<div style="margin-top:16px;font-family:Arial,sans-serif;font-weight:bold">Bevestiging die naar de makelaar ging</div><div style="font-family:Arial,sans-serif;font-size:12px;color:#777">Onderwerp: ' + esc(confirm.subject) + '</div>' : '')
 + '<p style="font-size:13px;margin-top:16px">Antwoorden op deze mail gaan rechtstreeks naar de makelaar.</p>';
 mails.push({ kind: 'rep_notification', to: p.rep_email || 'info@gruposoltura.com', toName: p.rep_name || '', replyTo: to, internal: true,
 subject: (ok ? '' : '[ACTIE] ') + 'Bezichtigingsaanvraag ' + v.ref + ' – ' + client + ' – via ' + (ag.company || ag.name || to),
