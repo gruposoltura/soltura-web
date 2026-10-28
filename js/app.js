@@ -1705,12 +1705,12 @@ function pageBuy() {
         <aside class="box costs-card"><h2>${c.costs_h}</h2><ul class="ticks">${c.costs.map(x => `<li>${x}</li>`).join('')}</ul>
           <div class="allin-note">${c.costs_note}</div><a class="btn primary" href="#buyForm" data-scroll>${c.cta}</a></aside>
       </div>
-      <div class="pg-2 fin-row">${mortgageHtml(null)}<div class="box fin-card"><h3>${c.fin_h}</h3><p>${c.fin_p}</p><a class="btn ghost" href="#buyForm" data-scroll>${c.cta}</a></div></div>
+      <div class="pg-2 fin-row">${mortgageHtml(null)}<div class="box fin-card"><h3>${c.fin_h}</h3><p>${c.fin_p}</p></div></div>
       <h2 class="pg-h">${c.services_h}</h2><ul class="svc">${c.services.map(x => `<li>${ICON.check}<span>${x}</span></li>`).join('')}</ul>
       ${GIDS.promo(S.lang, L('gids'))}
     </div>
     ${homesRail()}
-    <section class="pg form-band"><div><h2>${c.cta}</h2><p>${c.costs_note}</p></div>
+    <section class="pg form-band"><div><h2>${c.cta}</h2><p>${c.form_p}</p></div>
       ${richForm('buyForm', 'costs', [{ k: 'budget', label: t('f_budget'), ph: '€' }, { k: 'timing', label: t('f_when'), opts: t('f_when_opts') }], t('f_buy_msg'))}</section>`;
 }
 function pageSell() {

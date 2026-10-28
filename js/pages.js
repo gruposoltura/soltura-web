@@ -22,6 +22,7 @@ window.PAGES = {
       services_h: 'What we do for you',
       services: ['A search matched to your wishes, often before homes go online', 'Viewings planned in one efficient trip', 'Legal checks and coordination with notary, lawyer and bank', 'A colleague with you on completion day', 'After-sales help in your own language'],
       cta: 'Ask for your personal cost overview',
+      form_p: 'Tell us your budget and when you want to buy. We contact you within one working day.',
     },
     sell: {
       h: 'Selling your home', lead: 'Everything your sale needs, under one roof. One team from the first photo to the notary, in your language.',
@@ -92,6 +93,7 @@ window.PAGES = {
       services_h: 'Wat wij voor je doen',
       services: ['Een zoektocht op maat, vaak nog voordat woningen online staan', 'Bezichtigingen gebundeld in één efficiënte reis', 'Juridische controles en afstemming met notaris, advocaat en bank', 'Een collega naast je op de dag van overdracht', 'Nazorg in je eigen taal'],
       cta: 'Vraag je persoonlijke kostenoverzicht aan',
+      form_p: 'Vertel ons je budget en wanneer je wilt kopen. We nemen binnen één werkdag contact met je op.',
     },
     sell: {
       h: 'Je woning verkopen', lead: 'Alles wat je verkoop nodig heeft, onder één dak. Eén team van de eerste foto tot de notaris, in jouw taal.',
@@ -162,6 +164,7 @@ window.PAGES = {
       services_h: 'Det här gör vi för dig',
       services: ['Ett sökande anpassat efter dina önskemål, ofta innan bostäderna läggs ut online', 'Visningar samlade under en effektiv resa', 'Juridiska kontroller och samordning med notarie, advokat och bank', 'En kollega vid din sida på tillträdesdagen', 'Hjälp efter köpet på ditt eget språk'],
       cta: 'Be om din personliga kostnadsöversikt',
+      form_p: 'Berätta om din budget och när du vill köpa. Vi kontaktar dig inom en arbetsdag.',
     },
     sell: {
       h: 'Sälj din bostad', lead: 'Allt din försäljning behöver, under ett och samma tak. Ett team från första bilden till notarien, på ditt språk.',
@@ -232,6 +235,7 @@ window.PAGES = {
       services_h: 'Lo que hacemos por ti',
       services: ['Una búsqueda ajustada a lo que quieres, a menudo antes de que las viviendas salgan en internet', 'Visitas organizadas en un solo viaje eficiente', 'Comprobaciones legales y coordinación con notaría, abogado y banco', 'Un compañero contigo el día de la firma', 'Atención posventa en tu propio idioma'],
       cta: 'Pide tu resumen de costes personalizado',
+      form_p: 'Cuéntanos tu presupuesto y cuándo quieres comprar. Te contactamos en un día laborable.',
     },
     sell: {
       h: 'Vende tu vivienda', lead: 'Todo lo que necesita tu venta, bajo un mismo techo. Un solo equipo desde la primera foto hasta la notaría, en tu idioma.',
