@@ -281,9 +281,13 @@ Deno.serve(async (req) => {
       }
       // reg_send: plan vastleggen, code naar het OPGEGEVEN adres (bewijst dat het adres van deze makelaar is)
       const choice = ['new', 'login', 'moved', 'name', 'mobile', 'email', 'other'].includes(String(b.choice)) ? String(b.choice) : (known ? 'other' : 'new');
-      // doelcontact: het e-mailadres wint; anders het contact met dit mobiel, alleen als de makelaar zegt dat het zijn/haar nummer is
-      const target = e ? e.id : (m && ['moved', 'name', 'email', 'other'].includes(choice) ? m.id : null);
-      const conflict = e && m ? { id: m.id, email: m.email } : null;
+      // doelcontact: het e-mailadres wint (de code bewijst dat het adres van deze makelaar is). Alleen het mobiel bekend:
+      // samenvoegen met dat contact uitsluitend als het 'mijn oude e-mailadres' was EN de makelaardij gelijk is; anders een
+      // nieuw contact (zo kan niemand via een bekend nummer het account van een ander overnemen). Het andere contact blijft
+      // ongemoeid en Rick krijgt de dubbele telefoonregistratie in de Telegram-melding.
+      const sameCo = !!(m && (!m.company || normName(m.company) === normName(r.company)));
+      const target = e ? e.id : (m && choice === 'email' && sameCo ? m.id : null);
+      const conflict = m && target !== m.id ? { id: m.id, email: m.email } : null;
       const plan = { data: r, target, choice, note: str(b.note, 300), lang: lang4(b.lang), conflict };
       const sc = await sendCode(r.email, 'register', plan, lang4(b.lang), r.first_name);
       if (!sc.ok) return json({ ok: false, error: sc.error }, sc.error === 'rate' ? 429 : 502);
