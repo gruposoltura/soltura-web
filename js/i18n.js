@@ -25,7 +25,7 @@ window.I18N = {
     story_sell_h: 'Selling your home?', story_sell_p: 'Most of our sellers are listed within a day, and get a weekly update on every viewing and enquiry.', story_sell_btn: 'Ask for a valuation',
     // detail
     close: 'Close', share: 'Share', prev_home: 'Previous home', next_home: 'Next home',
-    sh_ref: 'Ref.', sh_bed: 'Bedrooms', sh_bath: 'Bathrooms', sh_built: 'Built', sh_plot: 'Plot', sh_sea: 'To the sea', sh_shops: 'To the shops', sh_airport: 'To the airport', sh_year: 'Built in', sh_energy: 'Energy label', sh_orient: 'Facing', sh_comm: 'Community fees per year', sh_ibi: 'IBI (property tax) per year',
+    sh_ref: 'Ref.', sh_bed: 'Bedrooms', sh_bath: 'Bathrooms', sh_built: 'Built', sh_plot: 'Plot', sh_sea: 'To the sea', sh_shops: 'To the shops', sh_airport: 'To the airport', sh_year: 'Built in', sh_energy: 'Energy label', sh_orient: 'Facing', sh_comm: 'Community fees per year', sh_ibi: 'IBI (property tax) per year', sh_garb: 'Waste tax per year', sh_ins: 'Building insurance per year',
     pool_unspecified: 'Pool', pool_short_unspecified: 'Pool', pool_private: 'Private pool', pool_communal: 'Communal pool', pool_short_private: 'Private pool', pool_short_communal: 'Communal pool', aircon: 'Air conditioning', solarium: 'Solarium',
     market_h: 'Asking price compared with the market',
     market_txt: (dev, med, n, town) => `This home asks ${Math.abs(dev)}% ${dev < 0 ? 'less' : 'more'} per m² than the median of ${n} comparable listings in ${town} (${med} per m²).`,
@@ -109,7 +109,7 @@ window.I18N = {
     story_move_h: 'Hier gaan wonen, niet alleen kopen', story_move_p: 'Steeds meer gezinnen bouwen een leven op aan de Costa Blanca. Wij helpen met de hele verhuizing, niet alleen met de sleutels.', story_move_btn: 'Emigreren naar Spanje',
     story_sell_h: 'Je woning verkopen?', story_sell_p: 'De meeste verkopers staan binnen een dag online en krijgen elke week een update over bezichtigingen en vragen.', story_sell_btn: 'Vraag een waardebepaling aan',
     close: 'Sluiten', share: 'Delen', prev_home: 'Vorige woning', next_home: 'Volgende woning',
-    sh_ref: 'Ref.', sh_bed: 'Slaapkamers', sh_bath: 'Badkamers', sh_built: 'Woonruimte', sh_plot: 'Perceel', sh_sea: 'Naar zee', sh_shops: 'Naar winkels', sh_airport: 'Naar vliegveld', sh_year: 'Bouwjaar', sh_energy: 'Energielabel', sh_orient: 'Ligging', sh_comm: 'Gemeenschapskosten per jaar', sh_ibi: 'IBI (onroerendezaakbelasting) per jaar',
+    sh_ref: 'Ref.', sh_bed: 'Slaapkamers', sh_bath: 'Badkamers', sh_built: 'Woonruimte', sh_plot: 'Perceel', sh_sea: 'Naar zee', sh_shops: 'Naar winkels', sh_airport: 'Naar vliegveld', sh_year: 'Bouwjaar', sh_energy: 'Energielabel', sh_orient: 'Ligging', sh_comm: 'Gemeenschapskosten per jaar', sh_ibi: 'IBI (onroerendezaakbelasting) per jaar', sh_garb: 'Afvalstoffenheffing per jaar', sh_ins: 'Opstalverzekering per jaar',
     pool_unspecified: 'Zwembad', pool_short_unspecified: 'Zwembad', pool_private: 'Eigen zwembad', pool_communal: 'Gemeenschappelijk zwembad', pool_short_private: 'Eigen zwembad', pool_short_communal: 'Gem. zwembad', aircon: 'Airconditioning', solarium: 'Solarium',
     market_h: 'Vraagprijs vergeleken met de markt',
     market_txt: (dev, med, n, town) => `Deze woning vraagt ${Math.abs(dev)}% ${dev < 0 ? 'minder' : 'meer'} per m² dan de mediaan van ${n} vergelijkbare woningen in ${town} (${med} per m²).`,
@@ -193,7 +193,7 @@ window.I18N = {
     story_sell_h: 'Vill du sälja din bostad?', story_sell_p: 'De flesta av våra säljare ligger ute inom ett dygn och får varje vecka en uppdatering om alla visningar och förfrågningar.', story_sell_btn: 'Be om en värdering',
     // detail
     close: 'Stäng', share: 'Dela', prev_home: 'Föregående bostad', next_home: 'Nästa bostad',
-    sh_ref: 'Ref.', sh_bed: 'Sovrum', sh_bath: 'Badrum', sh_built: 'Boyta', sh_plot: 'Tomt', sh_sea: 'Till havet', sh_shops: 'Till butiker', sh_airport: 'Till flygplatsen', sh_year: 'Byggår', sh_energy: 'Energiklass', sh_orient: 'Läge', sh_comm: 'Samfällighetsavgift per år', sh_ibi: 'IBI (fastighetsskatt) per år',
+    sh_ref: 'Ref.', sh_bed: 'Sovrum', sh_bath: 'Badrum', sh_built: 'Boyta', sh_plot: 'Tomt', sh_sea: 'Till havet', sh_shops: 'Till butiker', sh_airport: 'Till flygplatsen', sh_year: 'Byggår', sh_energy: 'Energiklass', sh_orient: 'Läge', sh_comm: 'Samfällighetsavgift per år', sh_ibi: 'IBI (fastighetsskatt) per år', sh_garb: 'Sophämtningsavgift per år', sh_ins: 'Byggnadsförsäkring per år',
     pool_unspecified: 'Pool', pool_short_unspecified: 'Pool', pool_private: 'Egen pool', pool_communal: 'Gemensam pool', pool_short_private: 'Egen pool', pool_short_communal: 'Gem. pool', aircon: 'Luftkonditionering', solarium: 'Solarium',
     market_h: 'Utgångspriset jämfört med marknaden',
     market_txt: (dev, med, n, town) => `Den här bostaden begär ${Math.abs(dev)} % ${dev < 0 ? 'mindre' : 'mer'} per m² än medianen för ${n} jämförbara bostäder i ${town} (${med} per m²).`,
@@ -278,7 +278,7 @@ window.I18N = {
     story_sell_h: '¿Vendes tu vivienda?', story_sell_p: 'La mayoría de nuestros vendedores tienen su vivienda publicada en un día y reciben cada semana un resumen de todas las visitas y consultas.', story_sell_btn: 'Pide una valoración',
     // detail
     close: 'Cerrar', share: 'Compartir', prev_home: 'Vivienda anterior', next_home: 'Vivienda siguiente',
-    sh_ref: 'Ref.', sh_bed: 'Dormitorios', sh_bath: 'Baños', sh_built: 'Construidos', sh_plot: 'Parcela', sh_sea: 'Al mar', sh_shops: 'A las tiendas', sh_airport: 'Al aeropuerto', sh_year: 'Año de construcción', sh_energy: 'Certificado energético', sh_orient: 'Orientación', sh_comm: 'Gastos de comunidad al año', sh_ibi: 'IBI al año',
+    sh_ref: 'Ref.', sh_bed: 'Dormitorios', sh_bath: 'Baños', sh_built: 'Construidos', sh_plot: 'Parcela', sh_sea: 'Al mar', sh_shops: 'A las tiendas', sh_airport: 'Al aeropuerto', sh_year: 'Año de construcción', sh_energy: 'Certificado energético', sh_orient: 'Orientación', sh_comm: 'Gastos de comunidad al año', sh_ibi: 'IBI al año', sh_garb: 'Tasa de basura al año', sh_ins: 'Seguro de continente al año',
     pool_unspecified: 'Piscina', pool_short_unspecified: 'Piscina', pool_private: 'Piscina privada', pool_communal: 'Piscina comunitaria', pool_short_private: 'Piscina privada', pool_short_communal: 'Piscina comunitaria', aircon: 'Aire acondicionado', solarium: 'Solárium',
     market_h: 'Precio de venta comparado con el mercado',
     market_txt: (dev, med, n, town) => `Esta vivienda pide un ${Math.abs(dev)}% ${dev < 0 ? 'menos' : 'más'} por m² que la mediana de ${n} viviendas comparables en ${town} (${med} por m²).`,

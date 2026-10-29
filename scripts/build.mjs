@@ -64,7 +64,7 @@ async function get(pathq) {
     if (rows.length < 1000) return out;
   }
 }
-const PROP_COLS = 'id,reference,category,is_newbuild,town,suburb,province,price,price_from,previous_price,price_changedate,bedrooms,bathrooms,build_area,plot_area,pool_private,pool_communal,dist_sea_m,year_built,energy_label,orientation,features,terraces,solarium,aircon,image,photos,body_en,body_nl,body_sv,body_es,summary_en,summary_nl,summary_sv,summary_es,list_date,status,under_offer,featured,is_own,popularity,cost_community_year,cost_ibi_year';
+const PROP_COLS = 'id,reference,category,is_newbuild,town,suburb,province,price,price_from,previous_price,price_changedate,bedrooms,bathrooms,build_area,plot_area,pool_private,pool_communal,dist_sea_m,year_built,energy_label,orientation,features,terraces,solarium,aircon,image,photos,body_en,body_nl,body_sv,body_es,summary_en,summary_nl,summary_sv,summary_es,list_date,status,under_offer,featured,is_own,popularity,cost_community_year,cost_ibi_year,cost_garbage_year,cost_insurance_year';
 async function loadData() {
   const off = arg('--offline');
   if (off) return JSON.parse(fs.readFileSync(off, 'utf8'));
@@ -286,7 +286,7 @@ function bodyProperty(lang, p, guide) {
   const t = title(p, lang), st = stOf(p);
   const sum = summaryOf(p, lang) || p.summary_en;
   const body = bodyHtml(bodyOf(p, lang), lang, LINK_GUIDES[lang]) || (sum ? `<p>${esc(sum)}</p>` : '');
-  const facts = [[p.bedrooms, T(lang, 'sh_bed')], [p.bathrooms, T(lang, 'sh_bath')], [p.build_area && num(p.build_area, lang) + ' m²', T(lang, 'sh_built')], [p.plot_area && num(p.plot_area, lang) + ' m²', T(lang, 'sh_plot')], [p.year_built, T(lang, 'sh_year')], [p.energy_label && p.energy_label !== 'R' ? p.energy_label : null, T(lang, 'sh_energy')], [p.cost_community_year > 0 ? '€ ' + num(p.cost_community_year, lang) : null, T(lang, 'sh_comm')], [p.cost_ibi_year > 0 ? '€ ' + num(p.cost_ibi_year, lang) : null, T(lang, 'sh_ibi')]].filter(x => x[0] != null && x[0] !== '');
+  const facts = [[p.bedrooms, T(lang, 'sh_bed')], [p.bathrooms, T(lang, 'sh_bath')], [p.build_area && num(p.build_area, lang) + ' m²', T(lang, 'sh_built')], [p.plot_area && num(p.plot_area, lang) + ' m²', T(lang, 'sh_plot')], [p.year_built, T(lang, 'sh_year')], [p.energy_label && p.energy_label !== 'R' ? p.energy_label : null, T(lang, 'sh_energy')], [p.cost_community_year > 0 ? '€ ' + num(p.cost_community_year, lang) : null, T(lang, 'sh_comm')], [p.cost_ibi_year > 0 ? '€ ' + num(p.cost_ibi_year, lang) : null, T(lang, 'sh_ibi')], [p.cost_garbage_year > 0 ? '€ ' + num(p.cost_garbage_year, lang) : null, T(lang, 'sh_garb')], [p.cost_insurance_year > 0 ? '€ ' + num(p.cost_insurance_year, lang) : null, T(lang, 'sh_ins')]].filter(x => x[0] != null && x[0] !== '');
   const feats = [];
   if (p.pool_private) feats.push(T(lang, 'pool_private')); if (p.pool_communal) feats.push(T(lang, 'pool_communal'));
   if (p.aircon) feats.push(T(lang, 'aircon')); if (p.solarium) feats.push(T(lang, 'solarium'));

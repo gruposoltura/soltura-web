@@ -1423,6 +1423,8 @@ function fillDetail(d) {
   // vaste lasten per jaar uit NEXUS (BD-178, Rick 29-10-2026)
   add(d.cost_community_year > 0 ? eur(d.cost_community_year) : null, t('sh_comm'));
   add(d.cost_ibi_year > 0 ? eur(d.cost_ibi_year) : null, t('sh_ibi'));
+  add(d.cost_garbage_year > 0 ? eur(d.cost_garbage_year) : null, t('sh_garb'));
+  add(d.cost_insurance_year > 0 ? eur(d.cost_insurance_year) : null, t('sh_ins'));
   kf.insertAdjacentHTML('beforeend', extra.join(''));
   // market position: alleen tonen als de vraagprijs onder of rond de mediaan ligt (max. +5%); daarboven werkt het blok
   // tegen de aanvraag en tegen de verkoper (Rick, 24-10-2026). De lijstkaart 'x% below market' blijft zoals hij was.
