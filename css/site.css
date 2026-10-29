@@ -553,7 +553,6 @@ button,input,select,textarea{font:inherit;color:inherit}
 .ticks li::before{content:"";position:absolute;left:0;top:.35em;width:16px;height:16px;border-radius:50%;background:var(--sun)}
 .costs-card{border-top:5px solid var(--sea)!important}
 .allin-note{background:var(--lemon-soft);border:1px solid #EAD37A;border-radius:12px;padding:14px 16px;margin:0 0 16px;line-height:1.5}
-.fin-card p{margin:0;color:var(--ink-2);line-height:1.55}
 .svc{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
 .svc li{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--mist);border-radius:14px;padding:14px 16px;font-weight:600}
 .svc svg{flex:0 0 22px;width:22px;height:22px;fill:none;stroke:var(--sea);stroke-width:2.4}
@@ -729,12 +728,18 @@ button,input,select,textarea{font:inherit;color:inherit}
 .buy-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,1fr);gap:36px;align-items:start}
 .buy-grid .costs-card{position:sticky;top:calc(var(--top-h,90px) + 20px);margin-top:42px}
 @media (max-width:900px){.buy-grid{grid-template-columns:1fr}.buy-grid .costs-card{position:static;margin-top:0}}
-.fin-row{grid-template-columns:1.1fr 1fr;margin-top:36px}
+/* Financieringsrij (29-10-2026): zelfde kolommen als .buy-grid erboven, kaart in de stijl van .costs-card */
+.fin-row{grid-template-columns:minmax(0,1.25fr) minmax(320px,1fr);gap:36px;margin-top:36px;align-items:stretch}
 .fin-row .mort{margin:0}
-.fin-card{background:var(--sea-deep)!important;border:0!important;color:#fff;display:flex;flex-direction:column;gap:14px;align-self:stretch;justify-content:center}
-.fin-card h3{color:var(--lemon);font:500 24px/1.2 var(--serif)!important}
-.fin-card p{color:#DCE3E6!important}
-.fin-card .btn{align-self:flex-start}
+.fin-card{border-top:5px solid var(--sea)!important;display:flex;flex-direction:column;gap:12px}
+.fin-card h3{margin:0;color:var(--ink);font:500 24px/1.2 var(--serif)!important}
+.fin-card p{margin:0;color:var(--ink-2);line-height:1.55}
+.fin-facts{list-style:none;padding:0;margin:auto 0 0;display:grid}
+.fin-facts li{display:grid;grid-template-columns:118px 1fr;gap:14px;align-items:baseline;padding:14px 0;border-top:1px solid var(--mist)}
+.fin-facts li:last-child{padding-bottom:0}
+.fin-facts b{font:600 22px/1.1 var(--serif);color:var(--sea);white-space:nowrap}
+.fin-facts span{color:var(--ink-2);font-size:15px;line-height:1.45}
+@media (max-width:520px){.fin-facts li{grid-template-columns:96px 1fr}.fin-facts b{font-size:19px}}
 
 /* ===== formulieren: duidelijk contrast met de pagina ===== */
 .form-band{background:var(--sea-deep)!important;color:#fff;border-top:4px solid transparent;border-image:var(--sun) 1}

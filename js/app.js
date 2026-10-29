@@ -1705,7 +1705,7 @@ function pageBuy() {
         <aside class="box costs-card"><h2>${c.costs_h}</h2><ul class="ticks">${c.costs.map(x => `<li>${x}</li>`).join('')}</ul>
           <div class="allin-note">${c.costs_note}</div><a class="btn primary" href="#buyForm" data-scroll>${c.cta}</a></aside>
       </div>
-      <div class="pg-2 fin-row">${mortgageHtml(null)}<div class="box fin-card"><h3>${c.fin_h}</h3><p>${c.fin_p}</p></div></div>
+      <div class="pg-2 fin-row">${mortgageHtml(null)}<div class="box fin-card"><h3>${c.fin_h}</h3><p>${c.fin_p}</p><ul class="fin-facts">${c.fin_facts.map(([v, l]) => `<li><b>${v.replace('{r}', String(S.cfg.mortgage_rate_pct || 3.13).replace('.', dec()))}</b><span>${l}</span></li>`).join('')}</ul></div></div>
       <h2 class="pg-h">${c.services_h}</h2><ul class="svc">${c.services.map(x => `<li>${ICON.check}<span>${x}</span></li>`).join('')}</ul>
       ${GIDS.promo(S.lang, L('gids'))}
     </div>
