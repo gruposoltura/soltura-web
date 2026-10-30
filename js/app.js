@@ -1859,7 +1859,7 @@ function sanitizeRich(html) {
 }
 async function pageNews(slug) {
   if (slug) return pagePost(slug);
-  $('#main').innerHTML = `<div class="page-head"><img class="news-mast" src="/icons/news-roll.svg" alt="Soltura Vega Baja News" width="280" height="140"><p class="kicker">${t('nav_news')}</p><h1>${t('news_h')}</h1><p>${t('news_p')}</p></div>
+  $('#main').innerHTML = `<div class="page-head has-mast"><img class="news-mast" src="/icons/vega-baja-chronicle.webp" alt="Vega Baja Chronicle" width="640" height="496"><div class="ph-txt"><p class="kicker">${t('nav_news')}</p><h1>${t('news_h')}</h1><p>${t('news_p')}</p></div></div>
     <div class="news-filter" id="newsFilter" role="group" hidden></div>
     <div class="news-grid" id="newsList">${'<div class="skeleton" style="height:150px;border-radius:14px"></div>'.repeat(6)}</div>
     <div class="loadmore"><button class="btn ghost" id="newsMore" type="button" hidden>${t('news_more')}</button></div>${homesRail()}`;
