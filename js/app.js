@@ -100,7 +100,7 @@ function fbStop() {
   fbOn = false;
   ['_fbp', '_fbc'].forEach(c => { document.cookie = c + '=; Max-Age=0; path=/'; document.cookie = c + '=; Max-Age=0; path=/; domain=.' + location.hostname.replace(/^www\./, ''); });
 }
-function fb(ev, prm, custom) { if (!fbOn || !window.fbq) return; try { fbq(custom ? 'trackCustom' : 'track', ev, prm || {}); } catch {} }
+function fb(ev, prm, custom) { if (!fbOn || !window.fbq) return; try { if (ev === 'Lead' && leadEid) fbq('track', ev, prm || {}, { eventID: leadEid }); else fbq(custom ? 'trackCustom' : 'track', ev, prm || {}); } catch {} }
 if (adsGranted()) fbLoad();
 // eigen events -> Meta standaard-events (content_type home_listing = vastgoedcatalogus)
 const FB_MAP = { view_property: 'ViewContent', contact_sent: 'Lead', guide_request: 'Lead', newsletter_signup: 'CompleteRegistration', search: 'Search', fav: 'AddToWishlist', whatsapp: 'Contact', call: 'Contact' };
@@ -192,6 +192,8 @@ const ATTR = (() => {
     const q = new URLSearchParams(location.search), u = {};
     q.forEach((v, k) => { if (/^utm_[a-z]+$/i.test(k) && v) u[k.toLowerCase()] = v.slice(0, 120); });
     ['gclid', 'gbraid', 'wbraid', 'fbclid', 'msclkid'].forEach(k => { if (!u.click && q.get(k)) u.click = k; });
+    // Meta click-id bewaren als fbc (fb.1.<ms>.<fbclid>) voor de Conversions API (30-10-2026); alleen deze sessie
+    if (q.get('fbclid')) sessionStorage.setItem('gs_fbc', 'fb.1.' + Date.now() + '.' + q.get('fbclid').slice(0, 200));
     let host = '';
     try { host = document.referrer ? new URL(document.referrer).hostname.replace(/^www\./, '').toLowerCase() : ''; } catch {}
     if (host && !/(^|\.)(gruposoltura\.com|solturarealestate\.com|n8n\.cloud)$/.test(host)) u.referrer = host.slice(0, 80);
@@ -229,8 +231,23 @@ const FORM_NAMES = { viewForm: 'web-property-viewing', guideForm: 'web-property-
 function formMeta(formId, p, name) {
   const m = { form_id: name || FORM_NAMES[formId] || formId, form_el: formId, page_url: location.href.slice(0, 300), lang: S.lang, vid: S.vid };
   const am = attrMeta(); if (am) m.utm = am;
+  m.capi = capiMeta();
   if (p) Object.assign(m, { property_id: p.id, reference: p.reference, wp_id: p.wp_id || null });
   return m;
+}
+// Conversions API (30-10-2026): elk formulier krijgt een event_id (eid), gelijk aan het browser-Lead-event, zodat Meta ontdubbelt.
+// fbp/fbc alleen als ze er zijn; ads = 1 marketing toegestaan, 0 marketing expliciet geweigerd (dan meldt JARVIS niets aan Meta), null = geen keuze.
+var leadEid = null; // var: fb() kan al vóór deze regel draaien
+function readCookie(n) { try { const m = document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)')); return m ? decodeURIComponent(m[1]) : null; } catch { return null; } }
+function capiMeta() {
+  leadEid = 'web-' + rid();
+  const refused = consentCurrent() && ls.get('consent', null) && !adsGranted();
+  const c = { eid: leadEid, ads: adsGranted() ? 1 : (refused ? 0 : null) };
+  if (!refused) {
+    const fbp = readCookie('_fbp'); if (fbp) c.fbp = fbp.slice(0, 120);
+    let fbc = readCookie('_fbc'); if (!fbc) { try { fbc = sessionStorage.getItem('gs_fbc'); } catch {} } if (fbc) c.fbc = fbc.slice(0, 260);
+  }
+  return c;
 }
 // pid = core-uuid van de woning; wp_id gaat mee zolang de woning er een heeft (oude rapportages)
 let sessSent = false;
@@ -1733,7 +1750,8 @@ function pageSell() {
 }
 function pageMove() {
   const c = P('move');
-  return `<section class="page-hero">${video(VIDEO.village)}<div><p class="kicker">${t('nav_move')}</p><h1>${c.h}</h1><p>${c.lead}</p></div></section>
+  return `<section class="page-hero sol-first">${video(VIDEO.village)}<div><p class="kicker">${t('nav_move')}</p><h1>${c.h}</h1><p>${c.lead}</p></div></section>
+    ${solTop()}
     <div class="pg">
       <div class="stages">${c.stages.map(([h, p], i) => `<div class="stage"><span>${i + 1}</span><h3>${h}</h3><p>${p}</p></div>`).join('')}</div>
       ${COSTS.teaser(S.lang, L('costs'))}
@@ -1752,6 +1770,10 @@ function pageMove() {
     <section class="pg form-band"><div><h2>${c.form_h}</h2><p>${c.form_p}</p></div>
       ${richForm('moveForm', 'move', [{ k: 'timing', label: t('f_when'), opts: t('f_when_opts') }, { k: 'budget', label: t('f_budget'), ph: '€' }, { k: 'household', label: t('f_household'), ph: t('f_household_ph') }, { k: 'area', label: t('f_area'), ph: t('f_area_ph') }], '')}</section>`;
 }
+// Sola boven de vouw op Emigreren en de maandlastencalculator (30-10-2026, Meta-campagne Emigreren: sturen op leads).
+// Compacte gidsintake (GIDS.compact) direct onder een lagere hero; zelfde gesprek en form_id als op de gidspagina.
+function solTop() { return `<div class="pg sol-top">${GIDS.compact(S.lang)}</div>`; }
+function bindSolTop() { const b = $('#guideBox'); if (b) GIDS.bind(b, S.lang, solDeps({ compact: true })); }
 // Woon/koopgids met live assistent Sola (23-10-2026): /nl/woongids/ · /en/buying-guide/ · /sv/kopguide/ (js/gids.js)
 function solDeps(o) {
   return Object.assign({
@@ -1811,6 +1833,7 @@ function pageCosts() {
   const main = $('#main');
   const store = { get: () => ls.get('ml', null), set: v => ls.set('ml', v) };
   main.innerHTML = COSTS.html(S.lang, { move: L('move'), home: L('home'), buy: L('buy'), privacy: L('privacy') }, store.get());
+  const hero = $('.ml-hero', main); if (hero) { hero.classList.add('sol-first'); hero.insertAdjacentHTML('afterend', solTop()); bindSolTop(); }
   let used = false;
   COSTS.bind(main, S.lang, store, () => { if (!used) { used = true; track('calc_use'); } });
   const viaAd = /calc/i.test(String((attrMeta() || {}).utm_content || ''));
@@ -2286,7 +2309,7 @@ function renderPage(r) {
   switch (key) {
     case 'buy': main.innerHTML = pageBuy(); bindMortgage(null); bindForm($('#buyForm')); break;
     case 'sell': main.innerHTML = pageSell(); bindForm($('#sellForm')); break;
-    case 'move': main.innerHTML = pageMove(); bindForm($('#moveForm')); break;
+    case 'move': main.innerHTML = pageMove(); bindForm($('#moveForm')); bindSolTop(); break;
     case 'costs': pageCosts(); break;
     case 'gids': pageGids(); break;
     case 'gidsform': pageGidsForm(); break;

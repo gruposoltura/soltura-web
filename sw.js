@@ -1,7 +1,7 @@
 // Grupo Soltura website - service worker.
 // Netwerk eerst (altijd de nieuwste versie en het actuele aanbod); de cache is alleen een vangnet bij geen verbinding.
 // v5 (19-10-2026): echte paden per taal (/en/..., /nl/...); elke pagina heeft een eigen index.html.
-const V = 'soltura-v16';
+const V = 'soltura-v17';
 const SHELL = ['/', '/index.html', '/en/', '/nl/', '/css/site.css', '/css/fonts.css', '/js/routes.js', '/js/i18n.js', '/js/pages.js', '/js/costs.js', '/js/gids.js', '/js/app.js', '/fonts/manrope-latin-wght-normal.woff2', '/fonts/fraunces-latin-wght-normal.woff2', '/icons/icon-192.png', '/icons/favicon.svg'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });

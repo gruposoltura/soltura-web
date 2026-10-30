@@ -1425,3 +1425,10 @@ body.ag-locked{overflow:hidden}
 .sendbox .btn.primary{margin-top:4px}
 .sb-qh{margin:0;font-size:12.5px;font-weight:700;color:var(--ink-2)}
 .allin-cta .btn.primary{flex:1 1 auto;justify-content:center}
+
+/* Sola boven de vouw op Emigreren en de calculator (30-10-2026) */
+.page-hero.sol-first{min-height:30vh}
+.pg.sol-top{padding-top:18px;padding-bottom:0}
+.sol-top .guide-box.sol-compact{max-width:760px;margin:0 auto;background:linear-gradient(160deg,#FFF8E8,#FFF1C9);border:1.5px solid #F0DDA8;border-top:5px solid var(--lemon)}
+.sol-top .guide-box.sol-compact .sol-log{max-height:300px}
+@media (max-width:700px){.page-hero.sol-first{min-height:22vh}.pg.sol-top{padding-top:12px}.sol-top .guide-box.sol-compact .sol-log{max-height:240px}}
