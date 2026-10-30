@@ -306,7 +306,7 @@ function bodyProperty(lang, p, guide) {
   </article>`;
 }
 function bodyNews(lang, list) {
-  return `<div class="page-head"><p class="kicker">${esc(T(lang, 'nav_news'))}</p><h1>${esc(T(lang, 'news_h'))}</h1><p>${esc(T(lang, 'news_p'))}</p></div>
+  return `<div class="page-head"><img class="news-mast" src="/icons/news-roll.svg" alt="Soltura Vega Baja News" width="280" height="140"><p class="kicker">${esc(T(lang, 'nav_news'))}</p><h1>${esc(T(lang, 'news_h'))}</h1><p>${esc(T(lang, 'news_p'))}</p></div>
   <div class="news-grid" id="newsList">${list.map(r => `<a class="news-card${r.image_url ? ' has-img' : ''}" href="${R.href(r.lang, 'news', r.slug)}">${r.image_url ? `<span class="nc-img"><img src="${esc(r.image_url)}" alt="" loading="lazy" referrerpolicy="no-referrer"></span>` : ''}<span class="nc-txt"><h3>${esc(r.title)}</h3>${r.excerpt ? `<p class="nc-ex">${esc(r.excerpt)}</p>` : ''}<small>${r.source_name ? esc(r.source_name) + ' · ' : ''}${fmtDate(r.published_at, lang)}</small></span></a>`).join('')}</div>`;
 }
 function bodyPost(lang, r) {
