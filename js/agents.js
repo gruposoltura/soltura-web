@@ -54,7 +54,7 @@
       is_it: 'Is this the right home?', yes_home: 'Yes, that one', other_home: 'Another home',
       ask_first: 'Lovely home! What is your client\'s first name?', ph_first: 'First name client', ask_last: function (f) { return 'And ' + f + '\'s last name?'; }, ph_last: 'Last name client',
       ask_phone4: function (f) { return 'Last thing: the last 4 digits of ' + f + '\'s mobile number. Just those four, so we can check them against the number we may already have.'; },
-      ph_phone4: '1234', bad_phone4: 'I just need the last 4 digits of the phone number - four numbers, for example 1234.',
+      ph_phone4: '1234', bad_phone4: 'I just need the last 4 digits of the phone number - four numbers, for example 1234.', bad_day: 'I need a specific date for the viewing, for example Friday 7 November or 7/11. Is the day not fixed yet? Then pick the most likely day; our salesrep will confirm it with you.', bad_time: 'I need a specific time for the viewing, for example 11:30. Is the time not fixed yet? Then pick the most likely time; our salesrep will confirm it with you.',
       known_client: 'Thank you - but I cannot accept this request. This client is already registered with us, so the viewing goes through our own team. Call us on +34 966 792 113 and we will sort it out with you.',
       ask_day: function (f) { return 'Which day would ' + f + ' like to come?'; }, other_day: 'Another day', ph_day: 'e.g. Friday 7 November',
       ask_time: 'And at what time? Our office is open Monday to Friday from 10:00 to 14:00; other times by arrangement.', other_time: 'Another time', ph_time: 'e.g. 15:30',
@@ -153,7 +153,7 @@
       is_it: 'Is dit de juiste woning?', yes_home: 'Ja, deze', other_home: 'Andere woning',
       ask_first: 'Mooie woning! Wat is de voornaam van je klant?', ph_first: 'Voornaam klant', ask_last: function (f) { return 'En de achternaam van ' + f + '?'; }, ph_last: 'Achternaam klant',
       ask_phone4: function (f) { return 'Nog een ding: de laatste 4 cijfers van het mobiele nummer van ' + f + '. Alleen die laatste vier, dan leggen we ze naast het nummer dat wij misschien al van de klant hebben.'; },
-      ph_phone4: '1234', bad_phone4: 'Ik heb alleen de laatste 4 cijfers van het telefoonnummer nodig - vier cijfers, bijvoorbeeld 1234.',
+      ph_phone4: '1234', bad_phone4: 'Ik heb alleen de laatste 4 cijfers van het telefoonnummer nodig - vier cijfers, bijvoorbeeld 1234.', bad_day: 'Ik heb een concrete datum nodig, bijvoorbeeld vrijdag 7 november of 7/11. Staat de dag nog niet vast? Kies dan de meest waarschijnlijke dag; onze salesrep bevestigt hem met je.', bad_time: 'Ik heb een concrete tijd nodig, bijvoorbeeld 11:30. Staat de tijd nog niet vast? Kies dan de meest waarschijnlijke tijd; onze salesrep bevestigt hem met je.',
       known_client: 'Dank je - deze aanvraag kan ik niet aannemen. Deze klant is al bij ons bekend, dus de bezichtiging loopt via ons eigen team. Bel ons op +34 966 792 113, dan zoeken we het samen met je uit.',
       ask_day: function (f) { return 'Op welke dag wil ' + f + ' komen kijken?'; }, other_day: 'Andere dag', ph_day: 'bijv. vrijdag 7 november',
       ask_time: 'En hoe laat? Ons kantoor is open van maandag tot en met vrijdag van 10:00 tot 14:00; andere tijden in overleg.', other_time: 'Andere tijd', ph_time: 'bijv. 15:30',
@@ -252,7 +252,7 @@
       is_it: '¿Es esta la vivienda correcta?', yes_home: 'Sí, esta', other_home: 'Otra vivienda',
       ask_first: '¡Bonita vivienda! ¿Cuál es el nombre de tu cliente?', ph_first: 'Nombre del cliente', ask_last: function (f) { return '¿Y los apellidos de ' + f + '?'; }, ph_last: 'Apellidos del cliente',
       ask_phone4: function (f) { return 'Una \u00faltima cosa: los 4 \u00faltimos d\u00edgitos del m\u00f3vil de ' + f + '. Solo esos cuatro, para cotejarlos con el n\u00famero que quiz\u00e1 ya tengamos.'; },
-      ph_phone4: '1234', bad_phone4: 'Solo necesito los 4 \u00faltimos d\u00edgitos del tel\u00e9fono: cuatro cifras, por ejemplo 1234.',
+      ph_phone4: '1234', bad_phone4: 'Solo necesito los 4 \u00faltimos d\u00edgitos del tel\u00e9fono: cuatro cifras, por ejemplo 1234.', bad_day: 'Necesito una fecha concreta, por ejemplo viernes 7 de noviembre o 7/11. \u00bfA\u00fan no est\u00e1 fijado el d\u00eda? Elige el m\u00e1s probable; nuestro asesor lo confirmar\u00e1 contigo.', bad_time: 'Necesito una hora concreta, por ejemplo 11:30. \u00bfA\u00fan no est\u00e1 fijada? Elige la m\u00e1s probable; nuestro asesor la confirmar\u00e1 contigo.',
       known_client: 'Gracias, pero no puedo aceptar esta solicitud: este cliente ya est\u00e1 registrado con nosotros, as\u00ed que la visita va a trav\u00e9s de nuestro propio equipo. Ll\u00e1manos al +34 966 792 113 y lo vemos contigo.',
       ask_day: function (f) { return '¿Qué día quiere venir ' + f + '?'; }, other_day: 'Otro día', ph_day: 'p. ej. viernes 7 de noviembre',
       ask_time: '¿Y a qué hora? Nuestra oficina abre de lunes a viernes de 10:00 a 14:00; otros horarios con cita.', other_time: 'Otra hora', ph_time: 'p. ej. 15:30',
@@ -351,7 +351,7 @@
       is_it: 'Är det rätt bostad?', yes_home: 'Ja, den', other_home: 'En annan bostad',
       ask_first: 'Fin bostad! Vad heter din kund i förnamn?', ph_first: 'Kundens förnamn', ask_last: function (f) { return 'Och ' + f + 's efternamn?'; }, ph_last: 'Kundens efternamn',
       ask_phone4: function (f) { return 'En sista sak: de 4 sista siffrorna i ' + f + 's mobilnummer. Bara de fyra sista, s\u00e5 kan vi st\u00e4mma av dem mot numret vi kanske redan har.'; },
-      ph_phone4: '1234', bad_phone4: 'Jag beh\u00f6ver bara de 4 sista siffrorna i telefonnumret - fyra siffror, till exempel 1234.',
+      ph_phone4: '1234', bad_phone4: 'Jag beh\u00f6ver bara de 4 sista siffrorna i telefonnumret - fyra siffror, till exempel 1234.', bad_day: 'Jag beh\u00f6ver ett best\u00e4mt datum, till exempel fredag 7 november eller 7/11. \u00c4r dagen inte best\u00e4md \u00e4n? V\u00e4lj den mest troliga dagen; v\u00e5r s\u00e4ljare bekr\u00e4ftar den med dig.', bad_time: 'Jag beh\u00f6ver en best\u00e4md tid, till exempel 11:30. \u00c4r tiden inte best\u00e4md \u00e4n? V\u00e4lj den mest troliga tiden; v\u00e5r s\u00e4ljare bekr\u00e4ftar den med dig.',
       known_client: 'Tack - den h\u00e4r f\u00f6rfr\u00e5gan kan jag inte ta emot. Kunden \u00e4r redan k\u00e4nd hos oss, s\u00e5 visningen g\u00e5r via v\u00e5rt eget team. Ring oss p\u00e5 +34 966 792 113 s\u00e5 l\u00f6ser vi det tillsammans.',
       ask_day: function (f) { return 'Vilken dag vill ' + f + ' komma?'; }, other_day: 'En annan dag', ph_day: 't.ex. fredag 7 november',
       ask_time: 'Och vilken tid? Vårt kontor är öppet måndag till fredag 10:00–14:00; andra tider efter överenskommelse.', other_time: 'En annan tid', ph_time: 't.ex. 15:30',
@@ -790,6 +790,48 @@
         });
       });
     }
+    // 30-10-2026: 'Andere dag' / 'Andere tijd' alleen met een echte datum en tijd. Aanvraag RO500 kwam door met tijd
+    // 'Time to be confirmed' omdat het vrije veld alles accepteerde. Vrije dag wordt een datum in dezelfde vorm als de knoppen.
+    var MON = { jan: 1, january: 1, januari: 1, enero: 1, ene: 1, feb: 2, february: 2, februari: 2, febrero: 2, mar: 3, march: 3, maart: 3, marzo: 3, mars: 3,
+      apr: 4, april: 4, abril: 4, abr: 4, may: 5, mei: 5, mayo: 5, maj: 5, jun: 6, june: 6, juni: 6, junio: 6, jul: 7, july: 7, juli: 7, julio: 7,
+      aug: 8, august: 8, augustus: 8, agosto: 8, ago: 8, augusti: 8, sep: 9, sept: 9, september: 9, septiembre: 9, setiembre: 9,
+      oct: 10, october: 10, oktober: 10, okt: 10, octubre: 10, nov: 11, november: 11, noviembre: 11, dec: 12, december: 12, diciembre: 12, dic: 12 };
+    var WDN = { sunday: 0, zondag: 0, domingo: 0, 's\u00f6ndag': 0, monday: 1, maandag: 1, lunes: 1, 'm\u00e5ndag': 1, tuesday: 2, dinsdag: 2, martes: 2, tisdag: 2,
+      wednesday: 3, woensdag: 3, 'mi\u00e9rcoles': 3, miercoles: 3, onsdag: 3, thursday: 4, donderdag: 4, jueves: 4, torsdag: 4,
+      friday: 5, vrijdag: 5, viernes: 5, fredag: 5, saturday: 6, zaterdag: 6, 's\u00e1bado': 6, sabado: 6, 'l\u00f6rdag': 6 };
+    function parseDayIn(v) {
+      var s = String(v || '').toLowerCase(), words = s.split(/[^a-z\u00e0-\u00ff]+/).filter(Boolean);
+      var today = new Date(); today.setHours(0, 0, 0, 0);
+      var dt = null, m, d = 0, mo = 0, y = 0, wd = -1;
+      words.forEach(function (w) { if (!mo && MON[w]) mo = MON[w]; if (wd < 0 && WDN[w] != null) wd = WDN[w]; });
+      if (words.some(function (w) { return w === 'today' || w === 'vandaag' || w === 'hoy' || w === 'idag'; })) dt = new Date(today);
+      else if (words.some(function (w) { return w === 'tomorrow' || w === 'morgen' || w === 'manana' || w === 'ma\u00f1ana' || w === 'imorgon'; })) { dt = new Date(today); dt.setDate(dt.getDate() + 1); }
+      else if ((m = s.match(/(\d{1,2})\s*[\/.-]\s*(\d{1,2})(?:\s*[\/.-]\s*(\d{2,4}))?/))) { d = +m[1]; mo = +m[2]; y = m[3] ? +m[3] : 0; }
+      else if (mo && (m = s.match(/(?:^|\D)(\d{1,2})(?!\d)/))) { d = +m[1]; m = s.match(/\b(20\d{2})\b/); y = m ? +m[1] : 0; }
+      else if (wd >= 0) { dt = new Date(today); while (dt.getDay() !== wd) dt.setDate(dt.getDate() + 1); }
+      if (!dt) {
+        if (!d || !mo || mo > 12 || d > 31) return null;
+        if (y && y < 100) y += 2000;
+        dt = new Date(y || today.getFullYear(), mo - 1, d);
+        if (dt.getMonth() !== mo - 1) return null;
+        if (!y && dt < today && (today - dt) > 60 * 864e5) dt.setFullYear(dt.getFullYear() + 1);
+        if (wd >= 0 && dt.getDay() !== wd) return null; // weekdag en datum spreken elkaar tegen
+      }
+      var max = new Date(today); max.setDate(max.getDate() + 365);
+      if (dt < today || dt > max) return null;
+      return new Intl.DateTimeFormat(LOC[cl] || 'en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(dt);
+    }
+    function parseTimeIn(v) {
+      var s = String(v || '').toLowerCase(), m, h, mi = 0;
+      if ((m = s.match(/(?:^|\D)(\d{1,2})\s*[:.h]\s*(\d{2})(?!\d)/))) { h = +m[1]; mi = +m[2]; }
+      else if ((m = s.match(/(?:^|\D)(\d{1,2})\s*(am|pm|h|u|uur)\b/))) h = +m[1];
+      else if ((m = s.match(/^\s*(\d{1,2})\s*$/))) h = +m[1];
+      else return null;
+      if (/pm/.test(s) && h < 12) h += 12;
+      if (/am/.test(s) && h === 12) h = 0;
+      if (h > 23 || mi > 59) return null;
+      return (h < 10 ? '0' : '') + h + ':' + (mi < 10 ? '0' : '') + mi;
+    }
     function askTime() {
       hideInput();
       return say(t.ask_time).then(function () {
@@ -922,8 +964,8 @@
         if (d4.length !== 4) return say(t.bad_phone4).then(function () { ask('phone4', t.ph_phone4, 'tel'); });
         st.phone4 = d4; me(d4); return checkClient();
       }
-      if (st.step === 'day') { st.day = v.slice(0, 60); me(st.day); return next('day'); }
-      if (st.step === 'time') { st.time = v.slice(0, 40); me(st.time); return next('time'); }
+      if (st.step === 'day') { me(v.slice(0, 60)); var pd = parseDayIn(v); if (!pd) return say(t.bad_day).then(askDay); st.day = pd; return next('day'); }
+      if (st.step === 'time') { me(v.slice(0, 40)); var pt = parseTimeIn(v); if (!pt) return say(t.bad_time).then(askTime); st.time = pt; return next('time'); }
     });
 
     // ----- start -----
