@@ -901,6 +901,8 @@
           if (r.outcome === 'client_known') { st.phone4 = ''; return say(t.known_client, 'ag-keys').then(afterwards); }
           if (r.outcome === 'not_available') return say(t.na(st.prop.ref)).then(function () { st.prop = null; st.nonce = ''; askRef(); });
           if (r.outcome === 'ref_not_found') return say(t.nf(st.prop.ref)).then(function () { st.prop = null; st.nonce = ''; askRef(); });
+          // 30-10-2026: de server weigert een dag of tijd die geen echte datum/kloktijd is; dan opnieuw vragen en terug naar de samenvatting
+          if (r.outcome === 'incomplete' && r.missing && (r.missing.indexOf('day') >= 0 || r.missing.indexOf('time') >= 0)) { st.editing = true; st.nonce = ''; return r.missing.indexOf('day') >= 0 ? say(t.bad_day).then(askDay) : say(t.bad_time).then(askTime); }
           return say(t.fail).then(afterwards);
         }).catch(function () { st.busy = false; wait.remove(); });
     }
