@@ -10,6 +10,58 @@
   'use strict';
   var NAME = 'Sola'; // naam van de live assistent (vrouwelijk; 23-10-2026 eerst 'Sol', toen 'Ava', nu 'Sola'): alleen hier, in i18n.js en in de edge function aanpassen
   // gezicht van Sola (icons/ava-*.webp|png); avatar(size) geeft een <img> voor ronde avatars en illustraties
+  // grote Sola in de gidshero: blauwe tegel + uitgeknipte Sola als losse laag, zodat ze uit de tegel kan springen (popJump)
+  function heroAva(t) {
+    return '<div class="gd-ava sola-pop" title="' + NAME + '"><span class="sp-tile"><img src="/icons/sola-tile-256.webp" width="176" height="176" alt="" decoding="async"></span>' +
+      '<span class="sp-shadow"></span><img class="sp-bot" src="/icons/sola-cut-256.webp" width="176" height="176" alt="' + NAME + '" decoding="async">' +
+      '<span class="gd-ava-tag"><i></i>' + esc(t.online) + '</span></div>';
+  }
+  var REDUCED = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // laat Sola uit haar tegel springen en terugstuiteren; nogmaals bij hover/tik
+  function popJump(el) {
+    if (!el || REDUCED) return;
+    var go = function () { el.classList.remove('jump'); void el.offsetWidth; el.classList.add('jump'); };
+    if (!el.dataset.pop) {
+      el.dataset.pop = '1';
+      el.addEventListener('animationend', function (e) { if (e.animationName === 'solaJump') el.classList.remove('jump'); });
+      var again = function () { if (!el.classList.contains('jump')) go(); };
+      el.addEventListener('mouseenter', again); el.addEventListener('click', again);
+    }
+    go();
+  }
+  // typemachine: de volledige tekst staat er onzichtbaar al, zodat het wolkje niet meegroeit
+  function typeIn(el, text, ms) {
+    return new Promise(function (res) {
+      if (!el || REDUCED) { if (el) el.textContent = text; return res(); }
+      el.textContent = '';
+      var a = document.createElement('span'), c = document.createElement('span'), b = document.createElement('span');
+      c.className = 'tw-caret'; b.className = 'tw-rest'; b.setAttribute('aria-hidden', 'true');
+      el.appendChild(a); el.appendChild(c); el.appendChild(b);
+      var i = 0;
+      (function step() {
+        i++; a.textContent = text.slice(0, i); b.textContent = text.slice(i);
+        if (i >= text.length) { el.textContent = text; return res(); }
+        setTimeout(step, ms + (/[.!?]/.test(text[i - 1]) ? ms * 8 : /,/.test(text[i - 1]) ? ms * 4 : 0));
+      })();
+    });
+  }
+  // intro: Sola springt en tikt tegelijk haar eerste berichten; wacht kort op de uitgeknipte afbeelding
+  function introAnim(log, msgs) {
+    var pop = document.querySelector('.sola-pop'), bot = pop && pop.querySelector('.sp-bot');
+    var els = Array.prototype.slice.call(log.querySelectorAll('.sol-msg.a'), 0, msgs.length);
+    if (REDUCED || els.length < msgs.length) { popJump(pop); return; }
+    els.forEach(function (e, i) { e.textContent = ''; if (i) e.hidden = true; });
+    log.setAttribute('aria-busy', 'true');
+    var started = false;
+    var go = function () {
+      if (started) return; started = true;
+      popJump(pop);
+      els.reduce(function (p, e, i) { return p.then(function () { e.hidden = false; return typeIn(e, msgs[i], 24); }); }, Promise.resolve())
+        .then(function () { log.removeAttribute('aria-busy'); });
+    };
+    if (bot && bot.decode) bot.decode().then(go, go); else go();
+    setTimeout(go, 700);
+  }
   function avatar(size, cls) { var s = size > 96 ? 256 : size > 48 ? 128 : 64; return '<img class="ava-img' + (cls ? ' ' + cls : '') + '" src="/icons/ava-' + s + '.webp" width="' + size + '" height="' + size + '" alt="' + NAME + '" loading="lazy" decoding="async">'; }
 
   var TX = {
@@ -415,7 +467,7 @@
   function html(lang, links) {
     var t = L(lang);
     return '<section class="gd-hero"><div class="gd-hero-in">' +
-      '<div class="gd-hero-txt"><div class="gd-ava">' + avatar(176, 'gd-ava-img') + '<span class="gd-ava-tag"><i></i>' + esc(t.online) + '</span></div><p class="kicker">' + esc(t.kicker) + '</p><h1>' + esc(t.hi) + '</h1><p class="gd-lead">' + esc(t.lead) + '</p>' + fan(lang) + '</div>' +
+      '<div class="gd-hero-txt">' + heroAva(t) + '<p class="kicker">' + esc(t.kicker) + '</p><h1>' + esc(t.hi) + '</h1><p class="gd-lead">' + esc(t.lead) + '</p>' + fan(lang) + '</div>' +
       panel(lang, links) + '</div></section>' +
       '<div class="pg gd-pg">' +
       '<h2 class="pg-h">' + esc(t.inside_h) + '</h2><p class="pg-intro">' + esc(t.inside_p) + '</p>' +
@@ -853,6 +905,7 @@
       Object.assign(st, { first: saved.first, last: saved.last || '', email: saved.email, phone: saved.phone || '', glang: gLang(saved.glang || st.glang) });
       setChatLang(saved.clang || (saved.glang && TX[saved.glang] ? saved.glang : lang));
       form.hidden = true;
+      popJump(document.querySelector('.sola-pop'));
       say(t.welcome(saved.first, saved.email)).then(function () {
         say(t.after2).then(function () {
           st.sent = true; chatMode();
@@ -865,6 +918,7 @@
         });
       });
     } else {
+      introAnim(log, [t.g1, t.g2]);
       ask('name', t.ph_name, 'text', 'name');
     }
     var f = document.querySelector('[data-sol-focus]');
